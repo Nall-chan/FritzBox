@@ -1,0 +1,16 @@
+{
+    "id": "{5B5C7F75-E7FE-AE5C-6A51-8252688CBF4D}",
+    "name": "FritzBox Callmonitor",
+    "type": 3,
+    "vendor": "AVM",
+    "aliases": [],
+    "parentRequirements": [
+        "{D62D4515-7689-D1DB-EE97-F555AD9433F0}"
+    ],
+    "childRequirements": [],
+    "implemented": [
+        "{CBD869A0-869B-3D4C-7EA8-D917D935E647}"
+    ],
+    "prefix": "FB",
+    "url": "https://github.com/Nall-chan/FritzBox/FritzBox Callmonitor/README.md"
+}

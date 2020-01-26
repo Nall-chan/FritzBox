@@ -1,0 +1,19 @@
+{
+    "id": "{6FF9A05D-4E49-4371-23F1-7F58283FB1D9}",
+    "name": "FritzBox IO",
+    "type": 2,
+    "vendor": "AVM",
+    "aliases": [],
+    "parentRequirements": [
+        "{79827379-F36E-4ADA-8A95-5F8D1DC92FA9}"
+    ],
+    "childRequirements": [
+        "{CBD869A0-869B-3D4C-7EA8-D917D935E647}"
+    ],
+    "implemented": [
+        "{018EF6B5-AB94-40C6-AA53-46943E824ACF}",
+        "{D62D4515-7689-D1DB-EE97-F555AD9433F0}"
+    ],
+    "prefix": "FB",
+    "url": "https://github.com/Nall-chan/FritzBox/FritzBox IO/README.md"
+}

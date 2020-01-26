@@ -1,0 +1,29 @@
+{
+    "elements": [
+        {
+            "name": "Index",
+            "type": "Select",
+            "caption": "Index of WLAN interface",
+            "options": [
+                {
+                    "caption": "<none>",
+                    "value": 0
+                },
+                {
+                    "caption": "2,4Ghz",
+                    "value": 1
+                },
+                {
+                    "caption": "5 Ghz or Guest",
+                    "value": 2
+                },
+                {
+                    "caption": "Guest",
+                    "value": 3
+                }
+            ]
+        }
+    ],
+    "actions": [],
+    "status": []
+}

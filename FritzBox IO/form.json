@@ -1,0 +1,110 @@
+{
+    "elements": [
+        {
+            "name": "Open",
+            "type": "CheckBox",
+            "caption": "Open"
+        },
+        {
+            "type": "ValidationTextBox",
+            "name": "Host",
+            "caption": "URL"
+        },
+        {
+            "type": "RowLayout",
+            "items": [
+                {
+                    "type": "ValidationTextBox",
+                    "name": "Username",
+                    "caption": "Username"
+                },
+                {
+                    "type": "PasswordTextBox",
+                    "name": "Password",
+                    "caption": "Password"
+                }
+            ]
+        },
+        {
+            "name": "UseConnect",
+            "type": "CheckBox",
+            "caption": "Use Symcon-Connect as callback. Needed for WAN connections to FritzBox."
+        },
+        {
+            "name": "NATAddress",
+            "type": "ValidationTextBox",
+            "caption": "NAT Address",
+            "visible": false
+        }
+    ],
+    "actions": [
+        {
+            "name": "EventRow",
+            "type": "RowLayout",
+            "items": [
+                {
+                    "type": "Label",
+                    "width": "200px",
+                    "caption": "Event hook:"
+                },
+                {
+                    "name": "Eventhook",
+                    "type": "Label",
+                    "link": false,
+                    "caption": ""
+                }
+            ]
+        },
+        {
+            "name": "ErrorPopup",
+            "type": "PopupAlert",
+            "visible": false,
+            "popup": {
+                "items": [
+                    {
+                        "name": "ErrorTitle",
+                        "type": "Label",
+                        "caption": ""
+                    },
+                    {
+                        "name": "ErrorText",
+                        "type": "Label",
+                        "caption": ""
+                    }
+                ]
+            }
+        }
+    ],
+    "status": [
+        {
+            "code": 102,
+            "icon": "active",
+            "caption": "Interface connected"
+        },
+        {
+            "code": 104,
+            "icon": "inactive",
+            "caption": "Interface closed"
+        },
+        {
+            "code": 201,
+            "icon": "error",
+            "caption": "Connection lost"
+        },
+        {
+            "code": 202,
+            "icon": "error",
+            "caption": "Unauthorized"
+        },
+        {
+            "code": 203,
+            "icon": "error",
+            "caption": "Device not reachable"
+        },
+        {
+            "code": 204,
+            "icon": "error",
+            "caption": "URL not valid"
+        }
+    ]
+}

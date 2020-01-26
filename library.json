@@ -1,0 +1,12 @@
+{
+    "id": "{A2000EF6-9962-063A-A1DE-2866431F0465}",
+    "author": "Michael Tröger",
+    "name": "FritzBox",
+    "url": "https://github.com/Nall-chan/FritzBox/README.md",
+    "compatibility": {
+        "version": "5.2"
+    },
+    "version": "0.1",
+    "build": 1,
+    "date": 1579201957
+}

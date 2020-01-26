@@ -1,0 +1,16 @@
+{
+    "id": "{61C9DC95-5A0F-7B9A-4427-82EDB57AA1B9}",
+    "name": "FritzBox WAN Interface",
+    "type": 3,
+    "vendor": "AVM",
+    "aliases": [],
+    "parentRequirements": [
+        "{D62D4515-7689-D1DB-EE97-F555AD9433F0}"
+    ],
+    "childRequirements": [],
+    "implemented": [
+        "{CBD869A0-869B-3D4C-7EA8-D917D935E647}"
+    ],
+    "prefix": "FB",
+    "url": "https://github.com/Nall-chan/FritzBox/FritzBox WAN Interface/README.md"
+}

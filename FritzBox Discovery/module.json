@@ -1,0 +1,12 @@
+{
+    "id": "{569B01DC-C23F-CE15-D47C-136BD8120470}",
+    "name": "FritzBox Discovery",
+    "type": 5,
+    "vendor": "AVM",
+    "aliases": [],
+    "parentRequirements": [],
+    "childRequirements": [],
+    "implemented": [],
+    "prefix": "FB",
+    "url": "https://github.com/Nall-chan/FritzBox/FritzBox Discovery/README.md"
+}

@@ -1,0 +1,12 @@
+{
+    "translations": {
+        "de": {
+            "Couldn't determine webhook": "Konnte Webhook nicht ermitteln",
+            "SerialNumber": "Seriennummer",
+            "last reboot": "Letzter Neustart",
+            "Manufacturer": "Hersteller",
+            "UpTime seconds": "Laufzeit in Sekunden",
+            "Uptime": "Laufzeit"
+        }
+    }
+}
