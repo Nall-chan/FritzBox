@@ -1,7 +1,7 @@
 <?php
 
 declare(strict_types=1);
-class FritzBoxGenericService extends IPSModule
+class FritzBoxCabelModem extends IPSModule
 {
     public function Create()
     {

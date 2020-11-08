@@ -1,5 +1,37 @@
 {
-    "elements": [],
-    "actions": [],
-    "status": []
+    "actions": [
+        {
+            "type": "Configurator",
+            "name": "Discovery",
+            "add": false,
+            "delete": true,
+            "sort": {
+                "column": "url",
+                "direction": "ascending"
+            },
+            "columns": [
+                {
+                    "caption": "URL",
+                    "name": "url",
+                    "width": "300px"
+                },
+                {
+                    "caption": "Name",
+                    "name": "name",
+                    "width": "auto"
+                },
+                {
+                    "caption": "Event",
+                    "name": "event",
+                    "width": "50px"
+                },
+                {
+                    "caption": "Type",
+                    "name": "type",
+                    "width": "400px"
+                }
+            ],
+            "values": []
+        }
+    ]
 }

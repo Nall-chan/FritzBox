@@ -1,6 +1,6 @@
 {
     "id": "{61C9DC95-5A0F-7B9A-4427-82EDB57AA1B9}",
-    "name": "FritzBox WAN Interface",
+    "name": "FritzBox WAN IP Interface",
     "type": 3,
     "vendor": "AVM",
     "aliases": [],

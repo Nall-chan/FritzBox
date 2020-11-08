@@ -3,23 +3,19 @@
         {
             "name": "Index",
             "type": "Select",
-            "caption": "Index of WLAN interface",
+            "caption": "Index of Service",
             "options": [
                 {
                     "caption": "<none>",
                     "value": -1
                 },
                 {
-                    "caption": "1 (2,4Ghz)",
+                    "caption": "IGD",
                     "value": 0
                 },
                 {
-                    "caption": "2 (5 Ghz or Guest)",
+                    "caption": "IGD2",
                     "value": 1
-                },
-                {
-                    "caption": "3 (Guest)",
-                    "value": 2
                 }
             ]
         }

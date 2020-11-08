@@ -1,9 +1,9 @@
 {
-    "id": "{0F09E36F-BE54-D01D-5AF1-48FF618426AC}",
-    "name": "FritzBox Cabel Modem",
+    "id": "{9396D756-40EA-46C7-AA06-623B8DCB789B}",
+    "name": "FritzBox WAN Port Mapping",
     "type": 3,
     "vendor": "AVM",
-    "aliases": ["FritzBox Cabel Modem"],
+    "aliases": [],
     "parentRequirements": [
         "{D62D4515-7689-D1DB-EE97-F555AD9433F0}"
     ],
@@ -12,5 +12,5 @@
         "{CBD869A0-869B-3D4C-7EA8-D917D935E647}"
     ],
     "prefix": "FB",
-    "url": "https://github.com/Nall-chan/FritzBox/FritzBox Cabel Modem/README.md"
+    "url": "https://github.com/Nall-chan/FritzBox/FritzBox WAN Interface/README.md"
 }

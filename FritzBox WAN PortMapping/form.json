@@ -3,33 +3,24 @@
         {
             "name": "Index",
             "type": "Select",
-            "caption": "Index of WLAN interface",
+            "caption": "Type",
             "options": [
                 {
                     "caption": "<none>",
                     "value": -1
                 },
                 {
-                    "caption": "1 (2,4Ghz)",
+                    "caption": "PPP (DSL)",
                     "value": 0
                 },
                 {
-                    "caption": "2 (5 Ghz or Guest)",
+                    "caption": "IP (Cable)",
                     "value": 1
-                },
-                {
-                    "caption": "3 (Guest)",
-                    "value": 2
                 }
             ]
         }
     ],
     "actions": [],
     "status": [
-        {
-            "code": 201,
-            "icon": "error",
-            "caption": "Event subscribe error"
-        }
     ]
 }
