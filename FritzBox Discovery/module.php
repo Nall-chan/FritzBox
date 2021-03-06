@@ -18,7 +18,7 @@ class FritzBoxDiscovery extends IPSModule
     const WS_DISCOVERY_MULTICAST_ADDRESS = '239.255.255.250';
 
     /**
-     * The port that will be used in the socket for the discovdery request.
+     * The port that will be used in the socket for the discovery request.
      */
     const WS_DISCOVERY_MULTICAST_PORT = 1900;
 
@@ -121,6 +121,7 @@ class FritzBoxDiscovery extends IPSModule
             'Content-Length: 0'
         ];
         $SendData = implode("\r\n", $message) . "\r\n\r\n";
+        $this->SendDebug('Search',$SendData,0);
         if (@socket_sendto($socket, $SendData, strlen($SendData), 0, self::WS_DISCOVERY_MULTICAST_ADDRESS, self::WS_DISCOVERY_MULTICAST_PORT) === false) {
             return [];
         }
@@ -133,6 +134,7 @@ class FritzBoxDiscovery extends IPSModule
             'Content-Length: 0'
         ];
         $SendData = implode("\r\n", $message) . "\r\n\r\n";
+        $this->SendDebug('Search',$SendData,0);
         if (@socket_sendto($socket, $SendData, strlen($SendData), 0, self::WS_DISCOVERY_MULTICAST_ADDRESS, self::WS_DISCOVERY_MULTICAST_PORT) === false) {
             return [];
         }

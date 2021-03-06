@@ -105,6 +105,7 @@ eval('declare(strict_types=1);namespace FritzBoxIO {?>' . file_get_contents(__DI
             $this->SetStatus(IS_INACTIVE);
             if ($this->CheckHost()) {
                 $this->SetSummary($this->Url);
+                $this->GetConsumerAddress(); // todo prüfen
                 if (($this->Url != $OldUrl) && !$this->doNotLoadXML) {
                     $this->doNotLoadXML = false;
                     if (!$this->LoadXMLs()) {
@@ -124,7 +125,7 @@ eval('declare(strict_types=1);namespace FritzBoxIO {?>' . file_get_contents(__DI
                     $this->ShowLastError(self::$http_error[$HttpCode][0]);
                     return;
                 }
-                $this->GetConsumerAddress(); // todo prüfen
+                
                 // Eigene Events holen?
                 // Prüfen ob Antwort kommt ?
                 $this->SetStatus(IS_ACTIVE);
@@ -173,7 +174,7 @@ eval('declare(strict_types=1);namespace FritzBoxIO {?>' . file_get_contents(__DI
                 $Form['elements'][4]['visible'] = true;
             }
             $ConsumerAddress = $this->ReadAttributeString('ConsumerAddress');
-            if ($ConsumerAddress == 'Invalid') {
+            if (($ConsumerAddress == 'Invalid') && ($this->ReadPropertyBoolean('Open'))) {
                 $Form['actions'][1]['visible'] = true;
                 $Form['actions'][1]['popup']['items'][0]['caption'] = 'Error';
                 $Form['actions'][1]['popup']['items'][1]['caption'] = $this->Translate('Couldn\'t determine webhook');

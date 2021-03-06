@@ -6,7 +6,8 @@
             "last reboot": "Letzter Neustart",
             "Manufacturer": "Hersteller",
             "UpTime seconds": "Laufzeit in Sekunden",
-            "Uptime": "Laufzeit"
+            "Uptime": "Laufzeit",
+            "Invalid":"Ungültig"
         }
     }
 }

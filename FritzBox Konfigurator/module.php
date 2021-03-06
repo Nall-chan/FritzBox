@@ -1,13 +1,13 @@
 <?php
 
 declare(strict_types=1);
-
-require_once __DIR__ . '/../libs/FritzBoxBase.php';
+eval('declare(strict_types=1);namespace FritzBoxModulBase {?>' . file_get_contents(__DIR__ . '/../libs/helper/DebugHelper.php') . '}');
 require_once __DIR__ . '/../libs/FritzBoxModule.php';
 
     class FritzBoxKonfigurator extends IPSModule
     {
         use \FritzBoxModulBase\DebugHelper;
+    
         /*public static $TypeToGUID = [
             'urn:dslforum-org:service:WLANConfiguration:1' => '{B3D72623-556E-B6C6-25E0-B3DEFE41F031}',
             'urn:dslforum-org:service:WLANConfiguration:2' => '{B3D72623-556E-B6C6-25E0-B3DEFE41F031}',
@@ -77,6 +77,7 @@ require_once __DIR__ . '/../libs/FritzBoxModule.php';
             parent::ApplyChanges();
             $this->SetReceiveDataFilter('.*NOTHINGTORECEIVE.*');
         }
+
         // Bei GetConfigurationForm
         public function GetConfigurationForm()
         {
@@ -97,13 +98,16 @@ require_once __DIR__ . '/../libs/FritzBoxModule.php';
             $ServiceValues = [];
             $DeviceValues = [];
             $DevicesTypes = [];
-            $Splitter = 24279;
             $Pfad = IPS_GetKernelDir() . 'FritzBoxTemp/' . $Splitter . '/';
             $Xmls = ['tr64desc.xml', 'igd2desc.xml', 'igddesc.xml'];
 
             foreach ($Xmls as $Xml) {
                 $xml = new DOMDocument();
-                $xml->load($Pfad . $Xml);
+                if (!@$xml->load($Pfad . $Xml))
+                {
+                    continue;
+                }
+                $this->SendDebug('Loadok','',0);
                 // todo error handling
                 $xpath = new DOMXPath($xml);
 
