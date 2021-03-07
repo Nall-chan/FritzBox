@@ -78,12 +78,12 @@ require_once __DIR__ . '/../libs/FritzBoxModule.php';
             $this->SetReceiveDataFilter('.*NOTHINGTORECEIVE.*');
         }
 
-        // Bei GetConfigurationForm
         public function GetConfigurationForm()
         {
             $Form = json_decode(file_get_contents(__DIR__ . '/form.json'), true);
             $Splitter = IPS_GetInstance($this->InstanceID)['ConnectionID'];
             if (($Splitter == 0) || !$this->HasActiveParent()) {
+                // TODO
                 //Parent inactive ausgeben.
                 //$Form[];
             }
@@ -98,16 +98,19 @@ require_once __DIR__ . '/../libs/FritzBoxModule.php';
             $ServiceValues = [];
             $DeviceValues = [];
             $DevicesTypes = [];
+
+            $this->ParentID = $Splitter;
+            $KnownInstances = $this->GetInstanceList();
+
             $Pfad = IPS_GetKernelDir() . 'FritzBoxTemp/' . $Splitter . '/';
             $Xmls = ['tr64desc.xml', 'igd2desc.xml', 'igddesc.xml'];
 
             foreach ($Xmls as $Xml) {
                 $xml = new DOMDocument();
-                if (!@$xml->load($Pfad . $Xml))
-                {
+                if (!@$xml->load($Pfad . $Xml)) {
                     continue;
                 }
-                $this->SendDebug('Loadok','',0);
+                $this->SendDebug('Loadok', '', 0);
                 // todo error handling
                 $xpath = new DOMXPath($xml);
 
@@ -145,35 +148,64 @@ require_once __DIR__ . '/../libs/FritzBoxModule.php';
                     $AddService = [
                         'instanceID'      => 0,
                         'url'             => $xmlDevice->getElementsByTagName('controlURL')[0]->nodeValue,
-                        'name'            => $serviceType,
+                        'name'            => 'currently not available',
                         'event'           => $Event,
                         'type'            => $serviceType,
-                        //'location'=>,
                         'parent'=> $deviceType
                     ];
                     if (array_key_exists($serviceType, \FritzBox\Services::$Data)) {
                         $guid = key(\FritzBox\Services::$Data[$serviceType]);
                         if ($guid !== null) {
                             $index = \FritzBox\Services::$Data[$serviceType][$guid];
+                            $AddService['type']= $AddService['type']. ' (' . IPS_GetModule($guid)['ModuleName']. ')';
                             $AddService['create'] = [
                                 'moduleID'      => $guid,
-                                'configuration' => ['Index' => $index]
+                                'configuration' => ['Index' => $index],
+                                'location' => [IPS_GetName($this->InstanceID)]
                             ];
+                            $Key = array_search(\FritzBox\Services::$Data[$serviceType], $KnownInstances);
+                            if ($Key === false) {
+                                $AddService['name']= IPS_GetModule($guid)['ModuleName'];
+                            } else {
+                                $AddService['name']= IPS_GetName($Key);
+                                $AddService['instanceID']= $Key;
+                                unset($KnownInstances[$Key]);
+                            }
                         }
-                    } else {
-                        $guid = ''; // ignore
                     }
 
                     $ServiceValues[] = $AddService;
                 }
-                if ($Xml == 'igd2desc.xml') {
-                    break 1;
-                }
+                //if ($Xml == 'igd2desc.xml') {
+                   // break 1;
+                //}
+            }
+            foreach ($KnownInstances as $InstanceId => $KnownInstance) {
+                $ServiceValues[] =[
+                'instanceID'      => $InstanceId,
+                'url'             => 'invalid',
+                'name'            => IPS_GetName($InstanceId),
+                'event'           => false,
+                'type'            => 'unknown'];
             }
             $Form['actions'][0]['values'] = array_merge($DeviceValues, $ServiceValues);
             $this->SendDebug('FORM', json_encode($Form), 0);
             $this->SendDebug('FORM', json_last_error_msg(), 0);
             return json_encode($Form);
+        }
+        
+        private function FilterInstances(int $InstanceID)
+        {
+            return IPS_GetInstance($InstanceID)['ConnectionID'] == $this->ParentID;
+        }
+
+        private function GetInstanceList()
+        {
+            $AllInstancesOfParent = array_flip(array_filter(IPS_GetInstanceListByModuleType(MODULETYPE_DEVICE), [$this, 'FilterInstances']));
+            foreach ($AllInstancesOfParent as $key => &$value) {
+                $value=[IPS_GetInstance($key)['ModuleInfo']['ModuleID'] => IPS_GetProperty($key, 'Index')];
+            }
+            return $AllInstancesOfParent;
         }
         // Die drei XMLs holen aus dem IO
         // Als Tree darstellen, mit Device und Co&

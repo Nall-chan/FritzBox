@@ -20,6 +20,8 @@ class FritzBoxHosts extends FritzBoxModulBase
         //Never delete this line!
         parent::Create();
         $this->RegisterPropertyInteger('Index', 0);
+        $id = $this->RegisterVariableInteger('HostNumberOfEntries', $this->Translate('Number Of Hosts'), '', 1);
+        $this->RegisterMessage($id, VM_UPDATE);
     }
 
     public function Destroy()
@@ -33,16 +35,20 @@ class FritzBoxHosts extends FritzBoxModulBase
         //Never delete this line!
         parent::ApplyChanges();
     }
+
+    public function MessageSink($TimeStamp, $SenderID, $Message, $Data)
+    {
+        
+        parent::MessageSink($TimeStamp, $SenderID, $Message, $Data);
+    }
+
     public function GetHostNumberOfEntries()
     {
         $result = $this->Send(__FUNCTION__);
         if ($result === false) {
             return false;
         }
-        /*$this->setIPSVariable('ConnectionStatus', 'Verbindungsstatus', ($result['NewConnectionStatus'] == 'Connected'), VARIABLETYPE_BOOLEAN, 'FB.ConnectionStatus', true, 1);
-        $this->setIPSVariable('UptimeRAW', 'Verbindungsdauer', (int) $result['NewUptime'], VARIABLETYPE_INTEGER, '', false, 2);
-        $this->setIPSVariable('Uptime', 'Verbindungsdauer', $this->ConvertRunTime((int) $result['NewUptime']), VARIABLETYPE_STRING, '', false, 3);
-         */
+        $this->setIPSVariable('HostNumberOfEntries', $this->Translate('Number Of Hosts'), (int)$result, VARIABLETYPE_INTEGER, '', false, 1);
         return $result;
     }
     public function GetSpecificHostEntry(string $MACAddress)

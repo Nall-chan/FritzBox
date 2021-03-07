@@ -6,14 +6,14 @@
             "add": false,
             "delete": true,
             "sort": {
-                "column": "url",
+                "column": "type",
                 "direction": "ascending"
             },
             "columns": [
                 {
                     "caption": "URL",
                     "name": "url",
-                    "width": "300px"
+                    "width": "250px"
                 },
                 {
                     "caption": "Name",
@@ -28,7 +28,7 @@
                 {
                     "caption": "Type",
                     "name": "type",
-                    "width": "400px"
+                    "width": "700px"
                 }
             ],
             "values": []

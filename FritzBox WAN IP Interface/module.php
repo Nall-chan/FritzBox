@@ -97,7 +97,7 @@ require_once __DIR__ . '/../libs/FritzBoxBase.php';
             if ($result === false) {
                 return false;
             }
-            $this->setIPSVariable('IPv6Address', 'Externe IPv6 Adresse', $result['NewExternalIPv6Address'], VARIABLETYPE_STRING, '', false, 10);
+            $this->setIPSVariable('ExternalIPv6Address', 'Externe IPv6 Adresse', $result['NewExternalIPv6Address'], VARIABLETYPE_STRING, '', false, 10);
             return true;
         }
 

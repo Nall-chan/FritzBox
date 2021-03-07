@@ -199,31 +199,33 @@ eval('declare(strict_types=1);namespace FritzBoxIO {?>' . file_get_contents(__DI
                 echo 'Method Not Allowed!';
                 return;
             }
-            if (!isset($_GET['eventSubURL'])) {
+            /*if (!isset($_GET['eventSubURL'])) {
                 http_response_code(400);
                 $this->SendHeaders();
                 echo 'Bad Request!';
                 return;
-            }
+            }*/
             if (!isset($_SERVER['HTTP_SID'])) {
                 http_response_code(400);
                 $this->SendHeaders();
                 echo 'Bad Request!';
                 return;
             }
-            $eventSubUrl = $_GET['eventSubURL'];
+            
+            $eventSubUrl = substr($_SERVER['REQUEST_URI'],strlen($_SERVER['HOOK']));
             $SID = $_SERVER['HTTP_SID'];
 
             http_response_code(200);
             $this->SendHeaders();
             $Data = file_get_contents('php://input');
+            $this->SendDebug('HOOK', $eventSubUrl, 0);
             $this->SendDebug('EVENT', $Data, 0);
             $xml = new simpleXMLElement($Data);
             $xml->registerXPathNamespace('event', $xml->getNameSpaces(false)['e']);
 			$xmlPropertys = $xml->xpath('//event:property');
 			$Propertys=[];
             foreach ($xmlPropertys as $property) {
-				$Propertys[$property->Children()->GetName()] =(string)$property->Children();
+				$Propertys[str_replace('-','_',$property->Children()->GetName())] =(string)$property->Children();
             }
             $this->SendDebug('EVENT XML', $Propertys, 0);
             //todo Send to Childs
@@ -620,7 +622,7 @@ eval('declare(strict_types=1);namespace FritzBoxIO {?>' . file_get_contents(__DI
                     );
 
             if ($SID == '') {
-                $SID = 'CALLBACK: <' . $this->ReadAttributeString('ConsumerAddress') . '?' . http_build_query(['eventSubURL'=>$Uri]) . ">\r\n" .
+                $SID = 'CALLBACK: <' . $this->ReadAttributeString('ConsumerAddress')  .$Uri . ">\r\n" .
                         "NT: upnp:event\r\n";
             } else {
                 $SID = 'SID: ' . $SID . "\r\n";
