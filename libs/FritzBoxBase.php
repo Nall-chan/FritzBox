@@ -59,6 +59,9 @@ class FritzBoxModulBase extends IPSModule
         }
         if ($Index > -1) {
             $Filter = preg_quote(substr(json_encode(static::$EventSubURLArray[$Index]), 1, -1));
+            if (property_exists($this, 'SecondEventGUID')) {
+                $Filter.= '.*|.*"DataID":"'.preg_quote(static::$SecondEventGUID).'"';
+            }
             $this->SetReceiveDataFilter('.*"EventSubURL":"' . $Filter . '".*');
             $this->SendDebug('Filter', '.*"EventSubURL":"' . $Filter . '".*', 0);
         } else {
@@ -73,7 +76,8 @@ class FritzBoxModulBase extends IPSModule
             return true;
         }
         if ($Ident == 'Subscribe') {
-            return $this->Subscribe();
+            $this->Subscribe();
+            return true;
         }
         return false;
     }
@@ -90,19 +94,26 @@ class FritzBoxModulBase extends IPSModule
     public function ReceiveData($JSONString)
     {
         $data = json_decode($JSONString, true);
-        unset($data['DataID']);
-        if (!array_key_exists('EventData', $data)) {
-            return false;
+        if ($data['DataID'] == '{CBD869A0-869B-3D4C-7EA8-D917D935E647}') {
+            unset($data['DataID']);
+            if (!array_key_exists('EventData', $data)) {
+                return false;
+            }
+            $this->GotEvent = true;
+            $this->SendDebug('Event', $data['EventData'], 0);
+            $this->DecodeEvent($data['EventData']);
+            return true;
         }
-        $this->GotEvent = true;
-        $this->SendDebug('Event', $data['EventData'], 0);
-        $this->DecodeEvent($data['EventData']);
+        return NULL;
     }
     protected function DecodeEvent($Event)
     {
         foreach ($Event as $Ident => $EventData) {
             $vid = @$this->GetIDForIdent($Ident);
             if ($vid > 0) {
+                if (IPS_GetVariable($vid)['VariableType']==VARIABLETYPE_BOOLEAN){
+                    $EventData = $EventData !== 0;
+                }
                 $this->SetValue($Ident, $EventData);
             }
             return true;
@@ -177,7 +188,7 @@ class FritzBoxModulBase extends IPSModule
 
         if (!$this->WaitForEvent()) {
             $this->SID = '';
-            $this->SetTimerInterval('RenewSubscription', 0);
+            $this->SetTimerInterval('RenewSubscription', 60000);
             return false;
         }
         $this->SID = $Result['SID'];
@@ -221,6 +232,37 @@ class FritzBoxModulBase extends IPSModule
             $this->SendDebug('Result', $Result, 0);
             return $Result;
         } */
+
+    protected function LoadAndSaveFile(string $Uri, string $Filename)
+    {
+        if (!$this->HasActiveParent()) {
+            return false;
+        }
+        $this->SendDebug('Uri', $Uri, 0);
+        $this->SendDebug('Filename', $Filename, 0);
+        $Ret = $this->SendDataToParent(json_encode(
+            [
+                'DataID'     => '{D62D4515-7689-D1DB-EE97-F555AD9433F0}',
+                'Function'   => 'LOADFILE',
+                'Uri'=> $Uri,
+                'Filename'=> $Filename
+            ]
+        ));
+        if ($Ret === false) {
+            return false;
+        }
+        $Result = unserialize($Ret);
+        $this->SendDebug('Result', $Result, 0);
+        return $Result;
+    }
+    protected function GetFile(string $Filename)
+    {
+        if ($this->ParentID == 0) {
+            return false;
+        }
+        return @file_get_contents(IPS_GetKernelDir() . 'FritzBoxTemp/' . $this->ParentID . '/'.$Filename);
+    }
+
     protected function Send($Function, array $Parameter = [])
     {
         if (!$this->HasActiveParent()) {
@@ -233,14 +275,14 @@ class FritzBoxModulBase extends IPSModule
         $this->SendDebug('Function', $Function, 0);
         $this->SendDebug('Params', $Parameter, 0);
         $Ret = $this->SendDataToParent(json_encode(
-                [
+            [
                     'DataID'    => '{D62D4515-7689-D1DB-EE97-F555AD9433F0}',
                     'ServiceTyp'=> static::$ServiceTypeArray[$Index],
                     'ControlUrl'=> static::$ControlUrlArray[$Index],
                     'Function'  => $Function,
                     'Parameter' => $Parameter
                 ]
-            ));
+        ));
         if ($Ret === false) {
             return false;
         }

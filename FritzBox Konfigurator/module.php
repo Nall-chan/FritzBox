@@ -110,7 +110,7 @@ require_once __DIR__ . '/../libs/FritzBoxModule.php';
                 if (!@$xml->load($Pfad . $Xml)) {
                     continue;
                 }
-                $this->SendDebug('Loadok', '', 0);
+                $this->SendDebug('LoadOk', '', 0);
                 // todo error handling
                 $xpath = new DOMXPath($xml);
 
@@ -151,7 +151,7 @@ require_once __DIR__ . '/../libs/FritzBoxModule.php';
                         'name'            => 'currently not available',
                         'event'           => $Event,
                         'type'            => $serviceType,
-                        'parent'=> $deviceType
+                        'parent'          => $deviceType
                     ];
                     if (array_key_exists($serviceType, \FritzBox\Services::$Data)) {
                         $guid = key(\FritzBox\Services::$Data[$serviceType]);

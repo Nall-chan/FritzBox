@@ -22,6 +22,23 @@
                     "value": 2
                 }
             ]
+        },
+        {
+            "name": "HostAsVariable",
+            "type": "CheckBox",
+            "caption": "Create variable per host"
+        },
+        {
+            "name": "HostAsTable",
+            "type": "CheckBox",
+            "caption": "Create HTMLBox-Variable"
+        },
+        {
+            "name": "RefreshInterval",
+            "type": "NumberSpinner",
+            "caption": "Refresh Interval",
+            "suffix": "seconds",
+            "minimum": 0
         }
     ],
     "actions": [],

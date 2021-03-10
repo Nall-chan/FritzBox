@@ -7,9 +7,6 @@ eval('declare(strict_types=1);namespace FritzBoxIO {?>' . file_get_contents(__DI
 eval('declare(strict_types=1);namespace FritzBoxIO {?>' . file_get_contents(__DIR__ . '/../libs/helper/DebugHelper.php') . '}');
 /**
  * @property string $Url
- * @property bool $usePPP
- * @property bool $HasIGD2
- * @property int $NoOfWlan
  */
     class FritzBoxIO extends IPSModule
     {
@@ -43,10 +40,12 @@ eval('declare(strict_types=1);namespace FritzBoxIO {?>' . file_get_contents(__DI
             $this->RegisterPropertyBoolean('UseConnect', false);
             $this->RegisterAttributeString('ConsumerAddress', 'Invalid');
             $this->RegisterAttributeArray('Events', []);
+            $this->RegisterAttributeBoolean('usePPP', false);
+            $this->RegisterAttributeBoolean('HasIGD2', false);
+            $this->RegisterAttributeInteger('NoOfWlan', 0);
+           
             $this->Url = '';
-            $this->usePPP = false;
-            $this->HasIGD2 = false;
-            $this->NoOfWlan = 0;
+            
             //$this->RequireParent("{6179ED6A-FC31-413C-BB8E-1204150CF376}");
             if (IPS_GetKernelRunlevel() == KR_READY) {
                 $this->doNotLoadXML = false;
@@ -63,7 +62,7 @@ eval('declare(strict_types=1);namespace FritzBoxIO {?>' . file_get_contents(__DI
         {
             if (!IPS_InstanceExists($this->InstanceID)) {
                 $this->UnregisterHook('/hook/FritzBoxIO' . $this->InstanceID);
-                @array_map('unlink', glob(IPS_GetKernelDir() . 'FritzBoxTemp/' . $this->InstanceID . '/*.xml'));
+                @array_map('unlink', glob(IPS_GetKernelDir() . 'FritzBoxTemp/' . $this->InstanceID . '/*.*'));
                 @rmdir(IPS_GetKernelDir() . 'FritzBoxTemp/' . $this->InstanceID);
             }
             //Never delete this line!
@@ -147,13 +146,16 @@ eval('declare(strict_types=1);namespace FritzBoxIO {?>' . file_get_contents(__DI
                     $ret = $this->Subscribe($data['EventSubURL'], $data['SID']);
                     break;
                 case 'ISPPP':
-                    $ret = $this->usePPP;
+                    $ret = $this->ReadAttributeBoolean('usePPP');
                     break;
                 case 'HasIGD2':
-                    $ret = $this->HasIGD2;
+                    $ret = $this->ReadAttributeBoolean('HasIGD2');
                     break;
                 case 'COUNTWLAN':
-                    $ret = $this->NoOfWlan;
+                    $ret = $this->ReadAttributeInteger('NoOfWlan');
+                    break;
+                case 'LOADFILE':
+                    $ret = $this->LoadFile($data['Uri'], $data['Filename']);
                     break;
                 default:
                     $ret = $this->CallSoapAction($HttpCode, $data['ServiceTyp'], $data['ControlUrl'], $data['Function'], $data['Parameter']);
@@ -212,7 +214,7 @@ eval('declare(strict_types=1);namespace FritzBoxIO {?>' . file_get_contents(__DI
                 return;
             }
             
-            $eventSubUrl = substr($_SERVER['REQUEST_URI'],strlen($_SERVER['HOOK']));
+            $eventSubUrl = substr($_SERVER['REQUEST_URI'], strlen($_SERVER['HOOK']));
             $SID = $_SERVER['HTTP_SID'];
 
             http_response_code(200);
@@ -222,21 +224,22 @@ eval('declare(strict_types=1);namespace FritzBoxIO {?>' . file_get_contents(__DI
             $this->SendDebug('EVENT', $Data, 0);
             $xml = new simpleXMLElement($Data);
             $xml->registerXPathNamespace('event', $xml->getNameSpaces(false)['e']);
-			$xmlPropertys = $xml->xpath('//event:property');
-			$Propertys=[];
+            $xmlPropertys = $xml->xpath('//event:property');
+            $Propertys=[];
             foreach ($xmlPropertys as $property) {
-				$Propertys[str_replace('-','_',$property->Children()->GetName())] =(string)$property->Children();
+                $Propertys[str_replace('-', '_', $property->Children()->GetName())] =(string)$property->Children();
             }
             $this->SendDebug('EVENT XML', $Propertys, 0);
             //todo Send to Childs
-            $this->SendDataToChildren(json_encode(
+            $this->SendDataToChildren(
+                json_encode(
                     [
                         'DataID'     => '{CBD869A0-869B-3D4C-7EA8-D917D935E647}',
                         'EventSubURL'=> $eventSubUrl,
                         'EventData'  => $Propertys
-                    ])
-                    );
-
+                    ]
+                )
+            );
         }
         private function SendHeaders()
         {
@@ -247,6 +250,23 @@ eval('declare(strict_types=1);namespace FritzBoxIO {?>' . file_get_contents(__DI
             header('Cache-Control: no-cache');
             header('Content-Type: text/plain');
         }
+        private function LoadFile(string $Uri, string $Filename)
+        {
+            @array_map('unlink', glob(IPS_GetKernelDir() . 'FritzBoxTemp/' . $this->InstanceID . '/'.$Filename));
+            $Url = $this->Url;
+            $Result = false;
+            $Result = true;
+            $Data = @Sys_GetURLContentEx($Url . $Uri, ['Timeout'=>3000]);
+            if ($Data === false) {
+                $this->SendDebug('File not found', $Uri, 0);
+                return false;
+            }
+
+            $this->SendDebug('Load File: ' . $Uri, $Data, 0);
+            file_put_contents(IPS_GetKernelDir() . 'FritzBoxTemp/' . $this->InstanceID . '/' . $Filename, $Data);
+            return true;
+        }
+
         private function LoadXmls()
         {
             @array_map('unlink', glob(IPS_GetKernelDir() . 'FritzBoxTemp/' . $this->InstanceID . '/*.xml'));
@@ -292,7 +312,7 @@ eval('declare(strict_types=1);namespace FritzBoxIO {?>' . file_get_contents(__DI
                         }
                     }
                     $this->SendDebug('No of WLANs', $i, 0);
-                    $this->NoOfWlan = $i;
+                    $this->WriteAttributeInteger('NoOfWlan', $i);
                 }
                 //Nur bei Bedarf laden?
 
@@ -302,12 +322,11 @@ eval('declare(strict_types=1);namespace FritzBoxIO {?>' . file_get_contents(__DI
                 // service mit xpath suchen !
                 $SCPD_Data->registerXPathNamespace('fritzbox', $SCPD_Data->getNameSpaces(false)['']);
                 $SCPDURLs = $SCPD_Data->xpath('//fritzbox:SCPDURL');
-                $this->HasIGD2 = false;
+                $this->WriteAttributeBoolean('HasIGD2', false);
                 foreach ($SCPDURLs as $SCPDURL) {
                     $XMLSCPDData = @Sys_GetURLContentEx($Url . (string) $SCPDURL, ['Timeout'=>3000]);
                     $SCPD = substr((string) $SCPDURL, 1);
                     if ($XMLSCPDData === false) {
-                        //$this->DeleteXmlMedia($SCPDIdent);
                         $this->SendDebug('SCPD not found', $SCPD, 0);
                         continue;
                     }
@@ -317,7 +336,7 @@ eval('declare(strict_types=1);namespace FritzBoxIO {?>' . file_get_contents(__DI
                 }
                 if ($Xml == 'igd2desc.xml') {
                     $this->SendDebug('Use IGD2', 'true', 0);
-                    $this->HasIGD2 = true;
+                    $this->WriteAttributeBoolean('HasIGD2', true);
                     break 1;
                 }
             }
@@ -325,13 +344,6 @@ eval('declare(strict_types=1);namespace FritzBoxIO {?>' . file_get_contents(__DI
             return $Result;
         }
 
-        private function DeleteXmlMedia(string $Ident)
-        {
-            $oID = @$this->GetIDForIdent($Ident);
-            if ($oID > 0) {
-                IPS_DeleteMedia($oID, true);
-            }
-        }
         private function GetConsumerAddress()
         {
             if ($this->ReadPropertyBoolean('UseConnect')) {
@@ -355,8 +367,8 @@ eval('declare(strict_types=1);namespace FritzBoxIO {?>' . file_get_contents(__DI
                     $host = isset($parsed_url['host']) ? $parsed_url['host'] : '';
                     $port = isset($parsed_url['port']) ? ':' . $parsed_url['port'] : ':3777';
                     $Url = $scheme . $host . $port . '/hook/FritzBoxIO' . $this->InstanceID;*/
-					$ip = IPS_GetOption('NATPublicIP');
-					$Url = 'http://' . $ip . ':3777/hook/FritzBoxIO' . $this->InstanceID;
+                    $ip = IPS_GetOption('NATPublicIP');
+                    $Url = 'http://' . $ip . ':3777/hook/FritzBoxIO' . $this->InstanceID;
                     $this->SendDebug('NAT enabled ConsumerAddress', $Url, 0);
                 } else {
                     $sock = socket_create(AF_INET, SOCK_STREAM, SOL_TCP);
@@ -430,11 +442,12 @@ eval('declare(strict_types=1);namespace FritzBoxIO {?>' . file_get_contents(__DI
                 $HttpCode,
                 'urn:dslforum-org:service:Layer3Forwarding:1',
                 '/upnp/control/layer3forwarding',
-                'GetDefaultConnectionService');
+                'GetDefaultConnectionService'
+            );
             if (is_a($result, 'SoapFault')) {
                 return false;
             }
-            $this->usePPP = strpos($result, 'WANIPConnection') === false;
+            $this->WriteAttributeBoolean('usePPP', strpos($result, 'WANIPConnection') === false);
             $this->setIPSVariable('ConnectionType', 'Connection Type', (string) $result, VARIABLETYPE_STRING);
             return true;
         }
@@ -444,7 +457,8 @@ eval('declare(strict_types=1);namespace FritzBoxIO {?>' . file_get_contents(__DI
                 $HttpCode,
                 'urn:dslforum-org:service:DeviceInfo:1',
                 '/upnp/control/deviceinfo',
-                'GetInfo');
+                'GetInfo'
+            );
             if (is_a($result, 'SoapFault')) {
                 return false;
             }
@@ -569,7 +583,7 @@ eval('declare(strict_types=1);namespace FritzBoxIO {?>' . file_get_contents(__DI
                     /*if (count($SoapParams) == 1) {
                         $SoapParams = $SoapParams[0];
                     }*/
-                    $Result = $client->__soapCall($function,$SoapParams);
+                    $Result = $client->__soapCall($function, $SoapParams);
                     //$Result = $client->{$function}($SoapParams);
                 }
                 $Response = $client->__getLastResponse();
@@ -612,14 +626,14 @@ eval('declare(strict_types=1);namespace FritzBoxIO {?>' . file_get_contents(__DI
                 return false;
             }
             $stream = stream_context_create(
-                    [
+                [
                         'ssl'  => [
                             'verify_peer'       => false,
                             'verify_peer_name'  => false,
                             'allow_self_signed' => true
                         ]
                     ]
-                    );
+            );
 
             if ($SID == '') {
                 $SID = 'CALLBACK: <' . $this->ReadAttributeString('ConsumerAddress')  .$Uri . ">\r\n" .

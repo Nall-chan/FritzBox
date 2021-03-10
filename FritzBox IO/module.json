@@ -8,7 +8,8 @@
         "{79827379-F36E-4ADA-8A95-5F8D1DC92FA9}"
     ],
     "childRequirements": [
-        "{CBD869A0-869B-3D4C-7EA8-D917D935E647}"
+        "{CBD869A0-869B-3D4C-7EA8-D917D935E647}",
+        "{FE6C73CB-028B-F569-46AC-3C02FF1F8F2F}"
     ],
     "implemented": [
         "{018EF6B5-AB94-40C6-AA53-46943E824ACF}",

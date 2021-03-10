@@ -4,6 +4,11 @@ declare(strict_types=1);
 
 require_once __DIR__ . '/../libs/FritzBoxBase.php';
 
+/**
+ * @property int $APEnabledId
+ * @property int $HostNumberOfEntriesId
+ */
+
     class FritzBoxWLAN extends FritzBoxModulBase
     {
         protected static $ControlUrlArray = [
@@ -21,12 +26,21 @@ require_once __DIR__ . '/../libs/FritzBoxBase.php';
             'urn:dslforum-org:service:WLANConfiguration:2',
             'urn:dslforum-org:service:WLANConfiguration:3'
         ];
+        protected static $SecondEventGUID ='{FE6C73CB-028B-F569-46AC-3C02FF1F8F2F}';
 
         public function Create()
         {
             //Never delete this line!
             parent::Create();
+            $this->APEnabledId=0;
+            $this->HostNumberOfEntriesId=0;
             $this->RegisterPropertyInteger('Index', -1);
+            $this->RegisterPropertyBoolean('HostAsVariable', true);
+            $this->RegisterPropertyBoolean('ShowOnlineCounter', true);
+            $this->RegisterPropertyBoolean('HostAsTable', true);
+            $this->RegisterPropertyInteger('RefreshInterval', 60);
+            $this->RegisterTimer('RefreshState', 0, 'IPS_RequestAction(' . $this->InstanceID . ',"RefreshState",true);');
+            $this->RegisterTimer('RefreshHosts', 0, 'IPS_RequestAction(' . $this->InstanceID . ',"RefreshHosts",true);');
         }
 
         public function Destroy()
@@ -37,7 +51,10 @@ require_once __DIR__ . '/../libs/FritzBoxBase.php';
 
         public function ApplyChanges()
         {
-            //Never delete this line!
+            $this->APEnabledId = $this->RegisterVariableBoolean('X_AVM_DE_APEnabled', $this->Translate('Wlan active ?'), '', -10);
+            $this->RegisterMessage($this->APEnabledId, VM_UPDATE);
+            $this->HostNumberOfEntriesId = $this->RegisterVariableInteger('HostNumberOfEntries', $this->Translate('Number Of Hosts'), '', -2);
+            $this->RegisterMessage($this->HostNumberOfEntriesId, VM_UPDATE);
             parent::ApplyChanges();
             if (IPS_GetKernelRunlevel() != KR_READY) {
                 return;
@@ -46,6 +63,43 @@ require_once __DIR__ . '/../libs/FritzBoxBase.php';
             if ($Index > -1) {
                 // RequestInfo
             }
+        }
+        public function MessageSink($TimeStamp, $SenderID, $Message, $Data)
+        {
+            switch ($Message) {
+                case VM_UPDATE:
+                    if ($SenderID == $this->APEnabledId) {
+                        $this->GetTotalAssociations();
+                        return;
+                    }
+                    if ($SenderID == $this->HostNumberOfEntriesId) {
+                        $this->RefreshHostList();
+                        return;
+                    }
+                    break;
+            }
+            parent::MessageSink($TimeStamp, $SenderID, $Message, $Data);
+        }
+        public function RequestAction($Ident, $Value)
+        {
+            if (parent::RequestAction($Ident, $Value)) {
+                return true;
+            }
+            if ($Ident == 'RefreshState') {
+                return $this->GetInfo();
+            }
+            if ($Ident == 'RefreshHosts') {
+                return $this->GetTotalAssociations();
+            }
+            $this->SendDebug(__FUNCTION__, $Ident, 0);
+            if (strpos($Ident, 'MAC')===0) {
+                if ($Value===true) {
+                    $MACAddress = implode(':', str_split(substr($Ident, 3), 2));
+                    $this->WakeOnLANByMACAddress($MACAddress);
+                }
+            }
+            //invalid Ident
+            return false;
         }
         public function GetConfigurationForm()
         {
@@ -74,16 +128,29 @@ require_once __DIR__ . '/../libs/FritzBoxBase.php';
             $this->SendDebug('FORM', json_last_error_msg(), 0);
             return json_encode($Form);
         }
+        public function RefreshHostList()
+        {
+            $Table = $this->ReadPropertyBoolean('HostAsTable');
+            $Variable = $this->ReadPropertyBoolean('HostAsVariable');
+            if (!($Variable || ($Table))) {
+                return true;
+            }
+            if ($this->ParentID == 0) {
+                return false;
+            }
+            $Hosts = $this->GetValue('HostNumberOfEntries');
+            for ($i=0;$i< $Hosts; $i++) {
+                $this->GetGenericAssociatedDeviceInfo($i);
+            }
+        }
         public function GetInfo()
         {
             $result = $this->Send(__FUNCTION__);
             if ($result === false) {
                 return false;
             }
-            /*$this->setIPSVariable('ConnectionStatus', 'Verbindungsstatus', ($result['NewConnectionStatus'] == 'Connected'), VARIABLETYPE_BOOLEAN, 'FB.ConnectionStatus', true, 1);
-            $this->setIPSVariable('UptimeRAW', 'Verbindungsdauer', (int) $result['NewUptime'], VARIABLETYPE_INTEGER, '', false, 2);
-            $this->setIPSVariable('Uptime', 'Verbindungsdauer', $this->ConvertRunTime((int) $result['NewUptime']), VARIABLETYPE_STRING, '', false, 3);
-             */
+            $this->setIPSVariable('X_AVM_DE_APEnabled', $this->Translate('Wlan active ?'), $result['NewEnable']!==0, VARIABLETYPE_BOOLEAN, true, -10);
+            $this->setIPSVariable('SSID', $this->Translate('SSID Name'), $result['NewSSID'], VARIABLETYPE_INTEGER, false, -9);
             return true;
         }
         public function SetEnable(bool $Enable)
@@ -99,12 +166,12 @@ require_once __DIR__ . '/../libs/FritzBoxBase.php';
         public function SetConfig(
             string $MaxBitRate,
             int $Channel,
-             string $SSID,
-             string $BeaconType,
-             bool $MACAddressControlEnabled,
-             string $BasicEncryptionModes,
-             string $BasicAuthenticationMode)
-        {
+            string $SSID,
+            string $BeaconType,
+            bool $MACAddressControlEnabled,
+            string $BasicEncryptionModes,
+            string $BasicAuthenticationMode
+        ) {
             $result = $this->Send(__FUNCTION__, [
                 'NewMaxBitRate'              => $MaxBitRate,
                 'NewChannel'                 => $Channel,
@@ -122,11 +189,11 @@ require_once __DIR__ . '/../libs/FritzBoxBase.php';
         public function SetSecurityKeys(
             string $WEPKey0,
             string $WEPKey1,
-             string $WEPKey2,
-             string $WEPKey3,
-             bool $PreSharedKey,
-             string $KeyPassphrase)
-        {
+            string $WEPKey2,
+            string $WEPKey3,
+            bool $PreSharedKey,
+            string $KeyPassphrase
+        ) {
             $result = $this->Send(__FUNCTION__, [
                 'NewWEPKey0'                    => $WEPKey0,
                 'NewWEPKey1'                    => $WEPKey1,
@@ -153,9 +220,9 @@ require_once __DIR__ . '/../libs/FritzBoxBase.php';
             return true;
         }
         public function SetBasBeaconSecurityProperties(
-             string $BasicEncryptionModes,
-             string $BasicAuthenticationMode)
-        {
+            string $BasicEncryptionModes,
+            string $BasicAuthenticationMode
+        ) {
             $result = $this->Send(__FUNCTION__, [
                 'NewBasicEncryptionModes'    => $BasicEncryptionModes,
                 'NewBasicAuthenticationMode' => $BasicAuthenticationMode
@@ -307,6 +374,7 @@ require_once __DIR__ . '/../libs/FritzBoxBase.php';
             if ($result === false) {
                 return false;
             }
+            $this->setIPSVariable('HostNumberOfEntries', $this->Translate('Number of hosts'), (int)$result, VARIABLETYPE_INTEGER, '', false, -2);
             return true;
         }
         public function GetGenericAssociatedDeviceInfo(int $Index)
@@ -364,8 +432,8 @@ require_once __DIR__ . '/../libs/FritzBoxBase.php';
             string $TrafficMode,
             bool $ManualSpeed,
             int $MaxSpeedDS,
-            int $MaxSpeedUS)
-        {
+            int $MaxSpeedUS
+        ) {
             $result = $this->Send('X_AVM-DE_SetWLANHybridMode', [
                 'NewEnable'                  => (int) $Enable,
                 'NewBeaconType'              => $BeaconType,
