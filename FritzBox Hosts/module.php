@@ -27,6 +27,7 @@ class FritzBoxHosts extends FritzBoxModulBase
         $this->HostNumberOfEntriesId=0;
         $this->RegisterPropertyInteger('Index', 0);
         $this->RegisterPropertyBoolean('HostAsVariable', true);
+        $this->RegisterPropertyBoolean('RenameHostVariables', true);
         $this->RegisterPropertyBoolean('ShowOnlineCounter', true);
         $this->RegisterPropertyBoolean('HostAsTable', true);
         $this->RegisterPropertyInteger('RefreshInterval', 60);
@@ -127,10 +128,10 @@ class FritzBoxHosts extends FritzBoxModulBase
         foreach ($xml as $xmlItem) {
             $this->SendDebug('XML xmlItem', (array)$xmlItem, 0);
             if ((string)$xmlItem->MACAddress == '') {
-                $Ident = 'IP'.strtoupper(str_replace([':','.','[',']'], ['','','',''], (string)$xmlItem->IPAddress));
+                $Ident = 'IP'.strtoupper($this->ConvertIdent((string)$xmlItem->IPAddress));
                 $Action = false;
             } else {
-                $Ident = 'MAC'.strtoupper(str_replace(':', '', (string)$xmlItem->MACAddress));
+                $Ident = 'MAC'.strtoupper($this->ConvertIdent((string)$xmlItem->MACAddress));
                 $Action = true;
             }
             if ($Variable) {

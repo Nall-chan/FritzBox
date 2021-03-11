@@ -112,7 +112,7 @@ class FritzBoxModulBase extends IPSModule
             $vid = @$this->GetIDForIdent($Ident);
             if ($vid > 0) {
                 if (IPS_GetVariable($vid)['VariableType']==VARIABLETYPE_BOOLEAN){
-                    $EventData = $EventData !== 0;
+                    $EventData = (string)$EventData !== '0';
                 }
                 $this->SetValue($Ident, $EventData);
             }
@@ -294,6 +294,7 @@ class FritzBoxModulBase extends IPSModule
         $this->SendDebug('Result', $Result, 0);
         return $Result;
     }
+
     protected function setIPSVariable(string $ident, string $name, $value, $type, string $profile = '', bool $action = false, int $pos = 0)
     {
         $this->MaintainVariable($ident, $this->Translate($name), $type, $profile, $pos, true);
@@ -302,6 +303,7 @@ class FritzBoxModulBase extends IPSModule
         }
         $this->SetValue($ident, $value);
     }
+
     protected function ConvertRuntime($Time)
     {
         date_default_timezone_set('UTC');
@@ -320,5 +322,65 @@ class FritzBoxModulBase extends IPSModule
             $strtime = date('z', $Time) . ' Tg ' . $strtime;
         }
         return $strtime;
+    }
+    protected function ConvertIdent(string $Ident){
+        return str_replace([':','.','[',']'], ['','','',''], $Ident);
+    }
+        /**
+     * Erstellt eine Untervariable in IPS.
+     *
+     * @param int    $ParentID IPS-ID der übergeordneten Variable.
+     * @param string $Ident    IDENT der neuen Statusvariable.
+     * @param string $Name     Name der neuen Statusvariable.
+     * @param int    $Type     Der zu erstellende Typ von Variable.
+     * @param string $Profile  Das dazugehörige Variabelprofil.
+     * @param int    $Position Position der Variable.
+     *
+     * @throws Exception Wenn Variable nicht erstellt werden konnte.
+     *
+     * @return int IPS-ID der neuen Variable.
+     */
+    protected function RegisterSubVariable($ParentID, $Ident, $Name, $Type, $Profile = '', $Position = 0)
+    {
+        if ($Profile != '') {
+            if (IPS_VariableProfileExists('~' . $Profile)) {
+                $Profile = '~' . $Profile;
+            }
+            if (!IPS_VariableProfileExists($Profile)) {
+                throw new Exception('Profile with name ' . $Profile . ' does not exist', E_USER_NOTICE);
+            }
+        }
+
+        $vid = @IPS_GetObjectIDByIdent($Ident, $ParentID);
+
+        if ($vid === false) {
+            $vid = 0;
+        }
+
+        if ($vid > 0) {
+            if (!IPS_VariableExists($vid)) {
+                throw new Exception('Ident with name ' . $Ident . ' is used for wrong object type', E_USER_NOTICE); //bail out
+            }
+            if (IPS_GetVariable($vid)['VariableType'] != $Type) {
+                IPS_DeleteVariable($vid);
+                $vid = 0;
+            }
+        }
+
+        if ($vid == 0) {
+            $vid = IPS_CreateVariable($Type);
+
+            IPS_SetParent($vid, $ParentID);
+            IPS_SetIdent($vid, $Ident);
+            IPS_SetName($vid, $Name);
+            IPS_SetPosition($vid, $Position);
+            //IPS_SetReadOnly($vid, true);
+        }
+
+        IPS_SetVariableCustomProfile($vid, $Profile);
+        if (!in_array($vid, $this->GetReferenceList())) {
+            $this->RegisterReference($vid);
+        }
+        return $vid;
     }
 }

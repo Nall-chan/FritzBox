@@ -6,6 +6,11 @@
             "caption": "Create variable per host"
         },
         {
+            "name": "RenameHostVariables",
+            "type": "CheckBox",
+            "caption": "Rename Host-variables automatically"
+        },
+        {
             "name": "HostAsTable",
             "type": "CheckBox",
             "caption": "Create HTMLBox-Variable"
