@@ -165,16 +165,22 @@ require_once __DIR__ . '/../libs/FritzBoxModule.php';
                             ];
                             $Key = array_search(\FritzBox\Services::$Data[$serviceType], $KnownInstances);
                             if ($Key === false) {
-                                $AddService['name']= IPS_GetModule($guid)['ModuleName'];
+                                if (is_numeric($AddService['url'][-1])) {
+                                    $AddService['name']= IPS_GetModule($guid)['ModuleName'].' '.$AddService['url'][-1];
+                                } else {
+                                    $AddService['name']= IPS_GetModule($guid)['ModuleName'];
+                                }
                             } else {
                                 $AddService['name']= IPS_GetName($Key);
                                 $AddService['instanceID']= $Key;
                                 unset($KnownInstances[$Key]);
                             }
+                            //test mit filter nur auf bekannte
+                            $ServiceValues[] = $AddService;
                         }
                     }
-
-                    $ServiceValues[] = $AddService;
+                    // test ohne Filter.
+                    //$ServiceValues[] = $AddService;
                 }
                 //if ($Xml == 'igd2desc.xml') {
                    // break 1;

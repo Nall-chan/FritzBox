@@ -37,7 +37,12 @@ require_once __DIR__ . '/../libs/FritzBoxBase.php';
         public function ApplyChanges()
         {
             //Never delete this line!
-            $this->RegisterProfileIntegerEx('FB.LinkState', '', '', '', [
+            $this->RegisterProfileIntegerEx(
+                'FB.LinkState',
+                '',
+                '',
+                '',
+                [
                 [0, $this->Translate('Up'), '', 0x00ff00],
                 [1, $this->Translate('Down'), '', 0xff0000],
                 [2, $this->Translate('Initializing'), '', 0xff00ff],
@@ -49,7 +54,6 @@ require_once __DIR__ . '/../libs/FritzBoxBase.php';
             $this->RegisterProfileFloat('FB.Speed', '', '', '%', 0, 100, 0, 2);
             $this->RegisterProfileFloat('FB.MByte', '', '', ' MB', 0, 0, 0, 2);
             $this->RegisterProfileFloat('FB.kbs', '', '', ' kb/s', 0, 0, 0, 2);
-
             parent::ApplyChanges();
             $Index = $this->ReadPropertyInteger('Index');
             if ($Index > -1) {
@@ -61,7 +65,6 @@ require_once __DIR__ . '/../libs/FritzBoxBase.php';
                 }
             }
         }
-
         // todo
         public function GetCommonLinkProperties(): bool
         {

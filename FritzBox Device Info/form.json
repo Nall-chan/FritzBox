@@ -8,10 +8,6 @@
             "minimum": 0
         }
     ],
-    "actions": [
-        {
-            "type": "TestCenter"
-        }
-    ],
+    "actions": [],
     "status": []
 }

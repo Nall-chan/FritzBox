@@ -1,8 +1,13 @@
 {
     "translations": {
         "de": {
-            "Translation 1": "Übersetzung 1",
-            "Translation 2": "Übersetzung 2"
+            "DHCP active": "DHCP aktiv",
+            "IP-Adresse Start": "IP-Adresse Start",
+            "IP-Adresse End": "IP-Adresse Ende",
+            "Subnet Mask": "Subnet Mask",
+            "Gateway": "Gateway",
+            "DNS-Server": "DNS-Server",
+            "Domain": "Domain"
         }
     }
 }

@@ -1,6 +1,6 @@
 {
-    "id": "{061AEAF5-ADCD-AD9E-9BF9-AD40DF364EB6}",
-    "name": "FritzBox DSL Modem",
+    "id": "{0E5BA3F0-4622-4C96-8D5F-F28DAB051C2F}",
+    "name": "FritzBox Device Info",
     "type": 3,
     "vendor": "AVM",
     "aliases": [],
@@ -12,5 +12,5 @@
         "{CBD869A0-869B-3D4C-7EA8-D917D935E647}"
     ],
     "prefix": "FB",
-    "url": "https://github.com/Nall-chan/FritzBox/FritzBox DSL Modem/README.md"
+    "url": "https://github.com/Nall-chan/FritzBox/FritzBox%20Device%20Config/README.md"
 }

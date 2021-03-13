@@ -28,7 +28,6 @@ class FritzBoxHosts extends FritzBoxModulBase
         $this->RegisterPropertyInteger('Index', 0);
         $this->RegisterPropertyBoolean('HostAsVariable', true);
         $this->RegisterPropertyBoolean('RenameHostVariables', true);
-        $this->RegisterPropertyBoolean('ShowOnlineCounter', true);
         $this->RegisterPropertyBoolean('HostAsTable', true);
         $this->RegisterPropertyInteger('RefreshInterval', 60);
         $this->RegisterTimer('RefreshHosts', 0, 'IPS_RequestAction(' . $this->InstanceID . ',"RefreshHosts",true);');
@@ -42,7 +41,15 @@ class FritzBoxHosts extends FritzBoxModulBase
 
     public function ApplyChanges()
     {
-        $this->HostNumberOfEntriesId = $this->RegisterVariableInteger('HostNumberOfEntries', $this->Translate('Number Of Hosts'), '', -2);
+        $this->HostNumberOfEntriesId = $this->RegisterVariableInteger('HostNumberOfEntries', $this->Translate('Number of hosts'), '', -2);
+        $this->SetTimerInterval('RefreshHosts', 0);
+        $Table = $this->ReadPropertyBoolean('HostAsTable');
+        $Variable = $this->ReadPropertyBoolean('HostAsVariable');
+        if (!($Variable || ($Table))) {
+            $this->SetStatus(IS_INACTIVE);
+            $this->UnregisterMessage($this->HostNumberOfEntriesId, VM_UPDATE);
+            return;
+        }
         $this->RegisterMessage($this->HostNumberOfEntriesId, VM_UPDATE);
         parent::ApplyChanges();
         $this->SetTimerInterval('RefreshHosts', $this->ReadPropertyInteger('RefreshInterval')*1000);
@@ -66,16 +73,15 @@ class FritzBoxHosts extends FritzBoxModulBase
             return true;
         }
         if ($Ident == 'RefreshHosts') {
-            return $this->GetHostNumberOfEntries();
+            return $this->UpdateHostNumberOfEntries();
         }
-        $this->SendDebug(__FUNCTION__, $Ident, 0);
         if (strpos($Ident, 'MAC')===0) {
             if ($Value===true) {
                 $MACAddress = implode(':', str_split(substr($Ident, 3), 2));
                 $this->WakeOnLANByMACAddress($MACAddress);
             }
         }
-        //invalid Ident
+        trigger_error($this->Translate('Invalid Ident.'), E_USER_NOTICE);
         return false;
     }
     public function ReceiveData($JSONString)
@@ -142,9 +148,7 @@ class FritzBoxHosts extends FritzBoxModulBase
             }
             $TableData[] = (array)$xmlItem;
         }
-        if ($this->ReadPropertyBoolean('ShowOnlineCounter')) {
-            $this->setIPSVariable('HostNumberActive', $this->Translate('Number of active hosts'), $OnlineCounter, VARIABLETYPE_INTEGER, '', false, -1);
-        }
+        $this->setIPSVariable('HostNumberActive', $this->Translate('Number of active hosts'), $OnlineCounter, VARIABLETYPE_INTEGER, '', false, -1);
         // TableData
         //$this->CreateHostHTMLTable($TableData);
         return true;
@@ -152,13 +156,22 @@ class FritzBoxHosts extends FritzBoxModulBase
     private function CreateHostHTMLTable(array $TableData)
     {
     }
+    
+    private function UpdateHostNumberOfEntries()
+    {
+        $result = $this->GetHostNumberOfEntries();
+        if ($result === false) {
+            return false;
+        }
+        $this->setIPSVariable('HostNumberOfEntries', $this->Translate('Number of hosts'), (int)$result, VARIABLETYPE_INTEGER, '', false, -2);
+        return true;
+    }
     public function GetHostNumberOfEntries()
     {
         $result = $this->Send(__FUNCTION__);
         if ($result === false) {
             return false;
         }
-        $this->setIPSVariable('HostNumberOfEntries', $this->Translate('Number of hosts'), (int)$result, VARIABLETYPE_INTEGER, '', false, -2);
         return $result;
     }
     public function GetSpecificHostEntry(string $MACAddress)

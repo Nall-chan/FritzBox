@@ -24,6 +24,11 @@
             ]
         },
         {
+            "name": "InfoVariables",
+            "type": "CheckBox",
+            "caption": "Create variables for extended information"
+        },
+        {
             "name": "HostAsVariable",
             "type": "CheckBox",
             "caption": "Create variable per host"

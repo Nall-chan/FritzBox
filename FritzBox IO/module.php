@@ -124,7 +124,7 @@ eval('declare(strict_types=1);namespace FritzBoxIO {?>' . file_get_contents(__DI
                     $this->ShowLastError(self::$http_error[$HttpCode][0]);
                     return;
                 }
-                
+                //Todo
                 // Eigene Events holen?
                 // Prüfen ob Antwort kommt ?
                 $this->SetStatus(IS_ACTIVE);
@@ -451,59 +451,28 @@ eval('declare(strict_types=1);namespace FritzBoxIO {?>' . file_get_contents(__DI
             $this->setIPSVariable('ConnectionType', 'Connection Type', (string) $result, VARIABLETYPE_STRING);
             return true;
         }
-        private function getDeviceInfo(&$HttpCode): bool
+
+        private function setIPSVariable(string $ident, string $name, $value, $type)
+        {
+            $this->MaintainVariable($ident, $this->Translate($name), $type, '', 0, true);
+            $this->SetValue($ident, $value);
+        }
+
+        public function Reboot()
         {
             $result = $this->CallSoapAction(
                 $HttpCode,
-                'urn:dslforum-org:service:DeviceInfo:1',
-                '/upnp/control/deviceinfo',
-                'GetInfo'
+                'urn:dslforum-org:service:DeviceConfig:1',
+                '/upnp/control/deviceconfig',
+                'Reboot'
             );
             if (is_a($result, 'SoapFault')) {
                 return false;
             }
-
-            $this->setIPSVariable('Hersteller', 'Manufacturer', (string) $result['NewManufacturerName'], VARIABLETYPE_STRING);
-            $this->setIPSVariable('Model', 'Model', (string) $result['NewModelName'], VARIABLETYPE_STRING);
-            $this->setIPSVariable('Seriennummer', 'SerialNumber', (string) $result['NewSerialNumber'], VARIABLETYPE_STRING);
-            $this->setIPSVariable('SoftwareVersion', 'Software-Version', (string) $result['NewSoftwareVersion'], VARIABLETYPE_STRING);
-            $this->setIPSVariable('LetzterNeustart', 'last reboot', time() - (int) $result['NewUpTime'], VARIABLETYPE_INTEGER, '~UnixTimestamp');
-            $this->setIPSVariable('RunTimeRAW', 'UpTime seconds', (int) $result['NewUpTime'], VARIABLETYPE_INTEGER);
-            $this->setIPSVariable('Laufzeit', 'Uptime', $this->ConvertRunTime((int) $result['NewUpTime']), VARIABLETYPE_STRING);
-            $this->setIPSVariable('DeviceLog', 'Logfile', (string) $result['NewDeviceLog'], VARIABLETYPE_STRING, '~TextBox');
             return true;
         }
 
-        private function setIPSVariable(string $ident, string $name, $value, $type, string $profile = '', bool $action = false, int $pos = 0)
-        {
-            $this->MaintainVariable($ident, $this->Translate($name), $type, $profile, $pos, true);
-            if ($action) {
-                $this->EnableAction($ident);
-            }
-            $this->SetValue($ident, $value);
-        }
-        # Dynamische Anzeige von Laufzeiten
-        private function ConvertRuntime($Time)
-        {
-            date_default_timezone_set('UTC');
-            $strtime = '';
-            $sec = intval(date('s', $Time));
-            if ($sec != 0) {
-                $strtime = $sec . ' Sek';
-            }
-            if ($Time > 60) {
-                $strtime = intval(date('i', $Time)) . ' Min ' . $strtime;
-            }
-            if ($Time > 3600) {
-                $strtime = date('G', $Time) . ' Std ' . $strtime;
-            }
-            if ($Time > 3600 * 24) {
-                $strtime = date('z', $Time) . ' Tg ' . $strtime;
-            }
-            return $strtime;
-        }
-
-        # Parameter und Resulr  eines Dienste aus der FritzBox lesen
+        # Parameter und Result  eines Dienste aus der FritzBox lesen
         /*
                private function getFunctionVars($SCPDURL)
                 {

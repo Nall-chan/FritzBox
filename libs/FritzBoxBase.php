@@ -104,19 +104,18 @@ class FritzBoxModulBase extends IPSModule
             $this->DecodeEvent($data['EventData']);
             return true;
         }
-        return NULL;
+        return null;
     }
     protected function DecodeEvent($Event)
     {
         foreach ($Event as $Ident => $EventData) {
             $vid = @$this->GetIDForIdent($Ident);
             if ($vid > 0) {
-                if (IPS_GetVariable($vid)['VariableType']==VARIABLETYPE_BOOLEAN){
+                if (IPS_GetVariable($vid)['VariableType']==VARIABLETYPE_BOOLEAN) {
                     $EventData = (string)$EventData !== '0';
                 }
                 $this->SetValue($Ident, $EventData);
             }
-            return true;
         }
     }
     protected function KernelReady()
@@ -268,6 +267,9 @@ class FritzBoxModulBase extends IPSModule
         if (!$this->HasActiveParent()) {
             return false;
         }
+        if ($this->GetStatus() == IS_INACTIVE) {
+            return false;
+        }
         $Index = $this->ReadPropertyInteger('Index');
         if ($Index < 0) {
             return false;
@@ -304,29 +306,29 @@ class FritzBoxModulBase extends IPSModule
         $this->SetValue($ident, $value);
     }
 
-    protected function ConvertRuntime($Time)
+    protected function ConvertRuntime(int $Time)
     {
-        date_default_timezone_set('UTC');
         $strtime = '';
-        $sec = intval(date('s', $Time));
+        $sec = intval(gmdate('s', $Time));
         if ($sec != 0) {
             $strtime = $sec . ' Sek';
         }
-        if ($Time > 60) {
-            $strtime = intval(date('i', $Time)) . ' Min ' . $strtime;
+        if ($Time >= 60) {
+            $strtime = intval(gmdate('i', $Time)) . ' Min ' . $strtime;
         }
-        if ($Time > 3600) {
-            $strtime = date('G', $Time) . ' Std ' . $strtime;
+        if ($Time >= 3600) {
+            $strtime = gmdate('G', $Time) . ' Std ' . $strtime;
         }
-        if ($Time > 3600 * 24) {
-            $strtime = date('z', $Time) . ' Tg ' . $strtime;
+        if ($Time >= 3600 * 24) {
+            $strtime = gmdate('z', $Time) . ' Tg ' . $strtime;
         }
         return $strtime;
     }
-    protected function ConvertIdent(string $Ident){
+    protected function ConvertIdent(string $Ident)
+    {
         return str_replace([':','.','[',']'], ['','','',''], $Ident);
     }
-        /**
+    /**
      * Erstellt eine Untervariable in IPS.
      *
      * @param int    $ParentID IPS-ID der übergeordneten Variable.

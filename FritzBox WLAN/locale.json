@@ -1,8 +1,11 @@
 {
     "translations": {
         "de": {
-            "Translation 1": "Übersetzung 1",
-            "Translation 2": "Übersetzung 2"
+            "Timeout Active": "Automatisch deaktivieren",
+            "Remain time in minutes": "Restlaufzeit in Minuten",
+            "Remain time": "Restlaufzeit",
+            "Scheduled shutdown": "Geplante Abschaltung",
+            "No shutdown when guest is active": "Keine Abschaltung wenn Gast aktiv"
         }
     }
 }

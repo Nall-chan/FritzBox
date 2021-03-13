@@ -1,7 +1,7 @@
 <?php
 
 declare(strict_types=1);
-class FritzBoxDSLModem extends IPSModule
+class FritzBoxWANDSLInterface extends IPSModule
 {
     public function Create()
     {

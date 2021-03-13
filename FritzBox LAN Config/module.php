@@ -5,19 +5,16 @@ require_once __DIR__ . '/../libs/FritzBoxBase.php';
 
 class FritzBoxLANConfig extends FritzBoxModulBase
 {
-    protected static $ControlUrlArray = [
-        '/upnp/control/lanhostconfigmgm'
-    ];
-    protected static $EventSubURLArray = [
-    ];
-    protected static $ServiceTypeArray = [
-        'urn:dslforum-org:service:LANHostConfigManagement:1'
-    ];
+    protected static $ControlUrlArray = ['/upnp/control/lanhostconfigmgm'];
+    protected static $EventSubURLArray = [];
+    protected static $ServiceTypeArray = ['urn:dslforum-org:service:LANHostConfigManagement:1'];
     public function Create()
     {
         //Never delete this line!
         parent::Create();
         $this->RegisterPropertyInteger('Index', 0);
+        $this->RegisterPropertyInteger('RefreshInterval', 3600);
+        $this->RegisterTimer('RefreshState', 0, 'IPS_RequestAction(' . $this->InstanceID . ',"RefreshState",true);');
     }
 
     public function Destroy()
@@ -30,6 +27,51 @@ class FritzBoxLANConfig extends FritzBoxModulBase
     {
         //Never delete this line!
         parent::ApplyChanges();
+        $this->SetTimerInterval('RefreshState', $this->ReadPropertyInteger('RefreshInterval')*1000);
+        if (IPS_GetKernelRunlevel() != KR_READY) {
+            return;
+        }
+
+        $this->UpdateInfo();
+    }
+    public function RequestAction($Ident, $Value)
+    {
+        if (parent::RequestAction($Ident, $Value)) {
+            return true;
+        }
+        switch ($Ident) {
+            case 'RefreshState':
+                return $this->UpdateInfo();
+            case 'DHCPServerEnable':
+                return $this->SetDHCPServerEnable($Value);
+            case 'MinAddress':
+                return $this->SetAddressRange($Value, $this->GetValue('MaxAddress'));
+            case 'MaxAddress':
+                return $this->SetAddressRange($this->GetValue('MinAddress'), $Value);
+            case 'SubnetMask':
+                return $this->SetSubnetMask($Value);
+            case 'IPRouters':
+                return $this->SetIPRouter($Value);
+        }
+        trigger_error($this->Translate('Invalid Ident.'), E_USER_NOTICE);
+
+        return false;
+    }
+
+    private function UpdateInfo()
+    {
+        $result = $this->GetInfo();
+        if ($result === false) {
+            return false;
+        }
+        $this->setIPSVariable('DHCPServerEnable', $this->Translate('DHCP active'), (bool)$result['NewDHCPServerEnable'], VARIABLETYPE_BOOLEAN, '~Switch', true, 1);
+        $this->setIPSVariable('MinAddress', $this->Translate('IP-Adresse Start'), $result['NewMinAddress'], VARIABLETYPE_STRING, '', true, 2);
+        $this->setIPSVariable('MaxAddress', $this->Translate('IP-Adresse End'), $result['NewMaxAddress'], VARIABLETYPE_STRING, '', true, 3);
+        $this->setIPSVariable('SubnetMask', $this->Translate('Subnet Mask'), $result['NewSubnetMask'], VARIABLETYPE_STRING, '', true, 4);
+        $this->setIPSVariable('IPRouters', $this->Translate('Gateway'), $result['NewIPRouters'], VARIABLETYPE_STRING, '', true, 5);
+        $this->setIPSVariable('DNSServers', $this->Translate('DNS-Server'), $result['NewDNSServers'], VARIABLETYPE_STRING, '', false, 6);
+        $this->setIPSVariable('DomainName', $this->Translate('Domain'), $result['NewDomainName'], VARIABLETYPE_STRING, '', false, 7);
+        return true;
     }
     public function GetInfo()
     {
@@ -37,11 +79,7 @@ class FritzBoxLANConfig extends FritzBoxModulBase
         if ($result === false) {
             return false;
         }
-        /*$this->setIPSVariable('ConnectionStatus', 'Verbindungsstatus', ($result['NewConnectionStatus'] == 'Connected'), VARIABLETYPE_BOOLEAN, 'FB.ConnectionStatus', true, 1);
-        $this->setIPSVariable('UptimeRAW', 'Verbindungsdauer', (int) $result['NewUptime'], VARIABLETYPE_INTEGER, '', false, 2);
-        $this->setIPSVariable('Uptime', 'Verbindungsdauer', $this->ConvertRunTime((int) $result['NewUptime']), VARIABLETYPE_STRING, '', false, 3);
-         */
-        return true;
+        return $result;
     }
     public function GetAddressRange()
     {
@@ -50,7 +88,7 @@ class FritzBoxLANConfig extends FritzBoxModulBase
             return false;
         }
 
-        return true;
+        return $result;
     }
     public function GetIPRoutersList()
     {
@@ -59,7 +97,7 @@ class FritzBoxLANConfig extends FritzBoxModulBase
             return false;
         }
 
-        return true;
+        return $result;
     }
     public function GetSubnetMask()
     {
@@ -68,7 +106,7 @@ class FritzBoxLANConfig extends FritzBoxModulBase
             return false;
         }
 
-        return true;
+        return $result;
     }
     public function GetDNSServers()
     {
@@ -77,7 +115,7 @@ class FritzBoxLANConfig extends FritzBoxModulBase
             return false;
         }
 
-        return true;
+        return $result;
     }
     public function GetIPInterfaceNumberOfEntries()
     {
@@ -86,7 +124,7 @@ class FritzBoxLANConfig extends FritzBoxModulBase
             return false;
         }
 
-        return true;
+        return $result;
     }
     public function SetDHCPServerEnable(bool $Value)
     {

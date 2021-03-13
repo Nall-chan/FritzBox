@@ -36,8 +36,8 @@ require_once __DIR__ . '/../libs/FritzBoxBase.php';
             $this->HostNumberOfEntriesId=0;
             $this->RegisterPropertyInteger('Index', -1);
             $this->RegisterPropertyBoolean('HostAsVariable', true);
+            $this->RegisterPropertyBoolean('InfoVariables', true);
             $this->RegisterPropertyBoolean('RenameHostVariables', true);
-            $this->RegisterPropertyBoolean('ShowOnlineCounter', true);
             $this->RegisterPropertyBoolean('HostAsTable', true);
             $this->RegisterPropertyInteger('RefreshInterval', 60);
             $this->RegisterTimer('RefreshState', 0, 'IPS_RequestAction(' . $this->InstanceID . ',"RefreshState",true);');
@@ -53,17 +53,18 @@ require_once __DIR__ . '/../libs/FritzBoxBase.php';
         {
             $this->RegisterProfileInteger('FB.MBits', '', '', ' MBit/s', 0, 0, 0);
             $this->APEnabledId = $this->RegisterVariableBoolean('X_AVM_DE_APEnabled', $this->Translate('Wlan active ?'), '~Switch', -10);
+            $this->EnableAction('X_AVM_DE_APEnabled');
             $this->UnregisterMessage($this->APEnabledId, VM_UPDATE);
             usleep(5);
             $Index = $this->ReadPropertyInteger('Index');
             if ($Index > -1) {
                 if (IPS_GetKernelRunlevel() == KR_READY) {
-                    @$this->GetInfo();
+                    @$this->UpdateInfo();
                 }
             }
             usleep(5);
             $this->RegisterMessage($this->APEnabledId, VM_UPDATE);
-            $this->HostNumberOfEntriesId = $this->RegisterVariableInteger('HostNumberOfEntries', $this->Translate('Number Of Hosts'), '', -2);
+            $this->HostNumberOfEntriesId = $this->RegisterVariableInteger('HostNumberOfEntries', $this->Translate('Number of active hosts'), '', -2);
             $this->RegisterMessage($this->HostNumberOfEntriesId, VM_UPDATE);
             parent::ApplyChanges();
             $this->SetTimerInterval('RefreshState', $this->ReadPropertyInteger('RefreshInterval')*1000);
@@ -92,10 +93,14 @@ require_once __DIR__ . '/../libs/FritzBoxBase.php';
             if (parent::RequestAction($Ident, $Value)) {
                 return true;
             }
-            if ($Ident == 'RefreshState') {
-                return $this->GetInfo();
+            switch ($Ident) {
+                case 'RefreshState':
+                    return $this->UpdateInfo();
+
+                case 'X_AVM_DE_APEnabled':
+                    return $this->SetEnable((bool)$Value);
             }
-            //invalid Ident
+            trigger_error($this->Translate('Invalid Ident.'), E_USER_NOTICE);
             return false;
         }
         public function GetConfigurationForm()
@@ -163,29 +168,41 @@ require_once __DIR__ . '/../libs/FritzBoxBase.php';
                 } else {
                     $Hostname = (string)$Xpath[0];
                 }
-                $this->setIPSVariable($Ident, $Hostname, (int)$result["NewX_AVM-DE_Speed"] > 0, VARIABLETYPE_BOOLEAN, '~Switch', false, $pos);
-                $VarId = $this->GetIDForIdent($Ident);
-                $ChildsNew[]=$VarId;
-                if ($Rename && (IPS_GetName($VarId) != $Hostname)) {
-                    IPS_SetName($Ident, $Hostname);
-                }
+                if ($Variable) {
+                    $this->setIPSVariable($Ident, $Hostname, (int)$result["NewX_AVM-DE_Speed"] > 0, VARIABLETYPE_BOOLEAN, '~Switch', false, $pos);
+                    $VarId = $this->GetIDForIdent($Ident);
+                    $ChildsNew[]=$VarId;
+                    if ($Rename && (IPS_GetName($VarId) != $Hostname)) {
+                        IPS_SetName($Ident, $Hostname);
+                    }
                 
-                $SpeedId = $this->RegisterSubVariable($VarId, 'Speed', $this->Translate('Speed'), VARIABLETYPE_INTEGER, 'FB.MBits');
-                SetValueInteger($SpeedId, (int)$result["NewX_AVM-DE_Speed"]);
-                $SignalId = $this->RegisterSubVariable($VarId, 'Signal', $this->Translate('Signalstrength'), VARIABLETYPE_INTEGER, '~Intensity.100');
-                SetValueInteger($SignalId, (int)$result["NewX_AVM-DE_SignalStrength"]);
-            }
-            $OfflineVarIds= array_diff($ChildsOld, $ChildsNew);
-            foreach ($OfflineVarIds as $VarId) {
-                $Ident = IPS_GetObject($VarId)['ObjectIdent'];
-                if (strpos($Ident, 'MAC')===0) {
-                    $this->SetValue($Ident, false);
                     $SpeedId = $this->RegisterSubVariable($VarId, 'Speed', $this->Translate('Speed'), VARIABLETYPE_INTEGER, 'FB.MBits');
-                    SetValueInteger($SpeedId, 0);
+                    SetValueInteger($SpeedId, (int)$result["NewX_AVM-DE_Speed"]);
                     $SignalId = $this->RegisterSubVariable($VarId, 'Signal', $this->Translate('Signalstrength'), VARIABLETYPE_INTEGER, '~Intensity.100');
-                    SetValueInteger($SignalId, 0);
+                    SetValueInteger($SignalId, (int)$result["NewX_AVM-DE_SignalStrength"]);
                 }
             }
+            if ($Variable) {
+                $OfflineVarIds= array_diff($ChildsOld, $ChildsNew);
+                foreach ($OfflineVarIds as $VarId) {
+                    $Ident = IPS_GetObject($VarId)['ObjectIdent'];
+                    if (strpos($Ident, 'MAC')===0) {
+                        $this->SetValue($Ident, false);
+                        $SpeedId = $this->RegisterSubVariable($VarId, 'Speed', $this->Translate('Speed'), VARIABLETYPE_INTEGER, 'FB.MBits');
+                        SetValueInteger($SpeedId, 0);
+                        $SignalId = $this->RegisterSubVariable($VarId, 'Signal', $this->Translate('Signalstrength'), VARIABLETYPE_INTEGER, '~Intensity.100');
+                        SetValueInteger($SignalId, 0);
+                    }
+                }
+            }
+        }
+        public function GetWLANDeviceListPath()
+        {
+            $result = $this->Send('X_AVM-DE_GetWLANDeviceListPath');
+            if ($result === false) {
+                return false;
+            }
+            return $result;
         }
         public function ReceiveData($JSONString)
         {
@@ -198,15 +215,33 @@ require_once __DIR__ . '/../libs/FritzBoxBase.php';
             $this->SendDebug('ReceiveHostData', $data, 0);
             return true;
         }
+        private function UpdateInfo()
+        {
+            $result = $this->GetInfo();
+            if ($result === false) {
+                return false;
+            }
+            $this->setIPSVariable('X_AVM_DE_APEnabled', $this->Translate('Wlan active ?'), (int)$result['NewEnable']!==0, VARIABLETYPE_BOOLEAN, '~Switch', false, -10);
+            $this->setIPSVariable('SSID', $this->Translate('SSID Name'), (string)$result['NewSSID'], VARIABLETYPE_STRING, '', false, -9);
+            if ($this->ReadPropertyBoolean('InfoVariables')) {
+                $result = $this->GetWLANExtInfo();
+                if ((string)$result['NewX_AVM-DE_APType'] =='guest') {
+                    $this->setIPSVariable('TimeoutActive', $this->Translate('Timeout Active'), $result['NewX_AVM-DE_TimeoutActive'], VARIABLETYPE_BOOLEAN, '~Switch', false, -8);
+                    $this->setIPSVariable('TimeRemainRaw', $this->Translate('Remain time in minutes'), (int)$result['NewX_AVM-DE_TimeRemain'], VARIABLETYPE_INTEGER, '', false, -7);
+                    $this->setIPSVariable('TimeRemain', $this->Translate('Remain time'), $this->ConvertRuntime(((int)$result['NewX_AVM-DE_TimeRemain'])*60), VARIABLETYPE_STRING, '', false, -6);
+                    $this->setIPSVariable('OffTime', $this->Translate('Scheduled shutdown'), time()+((int)$result['NewX_AVM-DE_TimeRemain']*60), VARIABLETYPE_INTEGER, '~UnixTimestamp', false, -5);
+                    $this->setIPSVariable('ForcedOff', $this->Translate('No shutdown when guest is active'), $result['NewX_AVM-DE_NoForcedOff'], VARIABLETYPE_BOOLEAN, '~Switch', false, -4);
+                }
+            }
+            return true;
+        }
         public function GetInfo()
         {
             $result = $this->Send(__FUNCTION__);
             if ($result === false) {
                 return false;
             }
-            $this->setIPSVariable('X_AVM_DE_APEnabled', $this->Translate('Wlan active ?'), (int)$result['NewEnable']!==0, VARIABLETYPE_BOOLEAN, '~Switch', false, -10);
-            $this->setIPSVariable('SSID', $this->Translate('SSID Name'), (string)$result['NewSSID'], VARIABLETYPE_STRING, '', false, -9);
-            return true;
+            return $result;
         }
         public function SetEnable(bool $Enable)
         {
@@ -393,7 +428,7 @@ require_once __DIR__ . '/../libs/FritzBoxBase.php';
             if ($result === false) {
                 return false;
             }
-            $this->setIPSVariable('HostNumberOfEntries', $this->Translate('Number of hosts'), (int)$result, VARIABLETYPE_INTEGER, '', false, -2);
+            $this->setIPSVariable('HostNumberOfEntries', $this->Translate('Number of active hosts'), (int)$result, VARIABLETYPE_INTEGER, '', false, -2);
             return (int)$result;
         }
         public function GetGenericAssociatedDeviceInfo(int $Index)
