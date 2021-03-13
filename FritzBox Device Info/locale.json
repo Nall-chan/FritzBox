@@ -1,8 +1,19 @@
 {
     "translations": {
         "de": {
-            "Translation 1": "Übersetzung 1",
-            "Translation 2": "Übersetzung 2"
+            "Refresh Interval": "Aktualisierungsintervall",
+            "seconds": "Sekunden",
+            "Update Values": "Werte aktualisieren",
+            "Event subscribe error": "Ereignisabonnementfehler",
+            "Invalid Ident.": "Ungültiger Ident.",
+            "Manufacturer": "Hersteller",
+            "Model": "Modell",
+            "SerialNumber": "Seriennummer",
+            "Software-Version": "Software-Version",
+            "Last reboot": "Letzter Neustart",
+            "Runtime (seconds)": "Laufzeit (sekunden)",
+            "Runtime": "Laufzeit",
+            "Last events": "Letzte Ereignisse"
         }
     }
 }

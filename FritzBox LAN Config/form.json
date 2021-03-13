@@ -10,8 +10,19 @@
     ],
     "actions": [
         {
+            "type": "Button",
+            "caption": "Update Values",
+            "onClick": "IPS_RequestAction($id,'RefreshState',true);"
+        },
+        {
             "type": "TestCenter"
         }
     ],
-    "status": []
+    "status": [
+        {
+            "code": 201,
+            "icon": "error",
+            "caption": "Event subscribe error"
+        }
+    ]
 }

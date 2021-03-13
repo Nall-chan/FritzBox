@@ -1,25 +1,6 @@
 {
     "elements": [
         {
-            "name": "Index",
-            "type": "Select",
-            "caption": "Service",
-            "options": [
-                {
-                    "caption": "<none>",
-                    "value": -1
-                },
-                {
-                    "caption": "IGD",
-                    "value": 0
-                },
-                {
-                    "caption": "IGD2",
-                    "value": 1
-                }
-            ]
-        },
-        {
             "name": "RefreshInterval",
             "type": "NumberSpinner",
             "caption": "Refresh Interval",

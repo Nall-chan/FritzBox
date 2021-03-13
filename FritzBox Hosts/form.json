@@ -23,7 +23,16 @@
             "minimum": 0
         }
     ],
-    "actions": [],
+    "actions": [
+        {
+            "type": "Button",
+            "caption": "Read hosts",
+            "onClick": "IPS_RequestAction($id,'RefreshHosts',true);"
+        },
+        {
+            "type": "TestCenter"
+        }
+    ],
     "status": [
         {
             "code": 201,

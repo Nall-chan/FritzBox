@@ -1,8 +1,16 @@
 {
     "translations": {
         "de": {
-            "Translation 1": "Übersetzung 1",
-            "Translation 2": "Übersetzung 2"
+            "Create variable per host": "Erzeuge Variable pro Host",
+            "Rename Host-variables automatically": "Host-Variablen automatisch umbenennen",
+            "Create HTMLBox-Variable": "Erzeuge HTMLBox-Variable",
+            "Refresh Interval": "Aktualisierungsintervall",
+            "seconds": "Sekunden",
+            "Read hosts": "Lese Hosts",
+            "Event subscribe error": "Ereignisabonnementfehler",
+            "Invalid Ident.": "Ungültiger Ident.",
+            "Number of hosts": "Anzahl der Hosts",
+            "Number of active hosts": "Anzahl der aktiven Hosts"
         }
     }
 }

@@ -28,21 +28,33 @@ class FritzBoxDeviceInfo extends FritzBoxModulBase
 
         $this->UpdateInfo();
     }
+    public function RequestAction($Ident, $Value)
+    {
+        if (parent::RequestAction($Ident, $Value)) {
+            return true;
+        }
+        switch ($Ident) {
+            case 'RefreshState':
+                return $this->UpdateInfo();
+        }
+        trigger_error($this->Translate('Invalid Ident.'), E_USER_NOTICE);
 
+        return false;
+    }
     private function UpdateInfo()
     {
         $result = $this->GetInfo();
         if ($result === false) {
             return false;
         }
-        $this->setIPSVariable('Hersteller', 'Manufacturer', (string) $result['NewManufacturerName'], VARIABLETYPE_STRING);
+        $this->setIPSVariable('Manufacturer', 'Manufacturer', (string) $result['NewManufacturerName'], VARIABLETYPE_STRING);
         $this->setIPSVariable('Model', 'Model', (string) $result['NewModelName'], VARIABLETYPE_STRING);
-        $this->setIPSVariable('Seriennummer', 'SerialNumber', (string) $result['NewSerialNumber'], VARIABLETYPE_STRING);
+        $this->setIPSVariable('SerialNumber', 'SerialNumber', (string) $result['NewSerialNumber'], VARIABLETYPE_STRING);
         $this->setIPSVariable('SoftwareVersion', 'Software-Version', (string) $result['NewSoftwareVersion'], VARIABLETYPE_STRING);
-        $this->setIPSVariable('LetzterNeustart', 'last reboot', time() - (int) $result['NewUpTime'], VARIABLETYPE_INTEGER, '~UnixTimestamp');
-        $this->setIPSVariable('RunTimeRAW', 'UpTime seconds', (int) $result['NewUpTime'], VARIABLETYPE_INTEGER);
-        $this->setIPSVariable('Laufzeit', 'Uptime', $this->ConvertRunTime((int) $result['NewUpTime']), VARIABLETYPE_STRING);
-        $this->setIPSVariable('DeviceLog', 'Logfile', (string) $result['NewDeviceLog'], VARIABLETYPE_STRING, '~TextBox');
+        $this->setIPSVariable('LastReboot', 'Last reboot', time() - (int) $result['NewUpTime'], VARIABLETYPE_INTEGER, '~UnixTimestamp');
+        $this->setIPSVariable('RunTimeRAW', 'Runtime (seconds)', (int) $result['NewUpTime'], VARIABLETYPE_INTEGER);
+        $this->setIPSVariable('Laufzeit', 'Runtime', $this->ConvertRunTime((int) $result['NewUpTime']), VARIABLETYPE_STRING);
+        $this->setIPSVariable('DeviceLog', 'Last events', (string) $result['NewDeviceLog'], VARIABLETYPE_STRING, '~TextBox');
         return true;
     }
     public function GetInfo()

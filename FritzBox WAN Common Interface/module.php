@@ -31,12 +31,14 @@ require_once __DIR__ . '/../libs/FritzBoxBase.php';
             //Never delete this line!
             parent::Create();
             $this->RegisterPropertyInteger('Index', -1);
+            $this->RegisterPropertyInteger('RefreshInterval', 5);
+            $this->RegisterTimer('RefreshInfo', 0, 'IPS_RequestAction(' . $this->InstanceID . ',"RefreshInfo",true);');
             $this->Downstream = 0;
             $this->Upstream = 0;
         }
         public function ApplyChanges()
         {
-            //Never delete this line!
+            $this->SetTimerInterval('RefreshInfo', 0);
             $this->RegisterProfileIntegerEx(
                 'FB.LinkState',
                 '',
@@ -56,33 +58,55 @@ require_once __DIR__ . '/../libs/FritzBoxBase.php';
             $this->RegisterProfileFloat('FB.kbs', '', '', ' kb/s', 0, 0, 0, 2);
             parent::ApplyChanges();
             $Index = $this->ReadPropertyInteger('Index');
-            if ($Index > -1) {
-                $this->GetCommonLinkProperties();
-                if ($Index == 0) {
-                    $this->GetOnlineMonitor();
-                } else {
-                    $this->GetAddonInfos();
-                }
+            if ($Index == -1) {
+                $this->SetStatus(IS_INACTIVE);
+                return;
             }
+            $this->SetStatus(IS_ACTIVE);
+            $this->UpdateCommonLinkProperties();
+            $this->UpdateAddonInfos();
+            $this->SetTimerInterval('RefreshInfo', $this->ReadPropertyInteger('RefreshInterval')*1000);
         }
-        // todo
-        public function GetCommonLinkProperties(): bool
+        public function RequestAction($Ident, $Value)
+        {
+            if (parent::RequestAction($Ident, $Value)) {
+                return true;
+            }
+            switch ($Ident) {
+                case 'RefreshInfo':
+                    return $this->UpdateAddonInfos();
+
+                case 'RefreshLinkProperties':
+                    return $this->UpdateCommonLinkProperties();
+            }
+            trigger_error($this->Translate('Invalid Ident.'), E_USER_NOTICE);
+            return false;
+        }
+
+        private function UpdateCommonLinkProperties()
+        {
+            $result = $this->GetCommonLinkProperties();
+            if ($result === false) {
+                return false;
+            }
+
+            $this->setIPSVariable('WANAccessType', 'WAN Access type', (string) $result['NewWANAccessType'], VARIABLETYPE_STRING);
+            $this->setIPSVariable('PhysicalLinkStatus', 'Physical Link Status', $this->LinkStateToInt((string) $result['NewPhysicalLinkStatus']), VARIABLETYPE_INTEGER, 'FB.LinkState');
+            $Downstream = (int) ((int) $result['NewLayer1DownstreamMaxBitRate'] / 1000);
+            $Upstream = (int) ((int) $result['NewLayer1UpstreamMaxBitRate'] / 1000);
+            $this->Downstream = $Downstream;
+            $this->Upstream = $Upstream;
+            $this->setIPSVariable('UpstreamMaxBitRate', 'Upstream Max kBitrate', $Upstream, VARIABLETYPE_INTEGER, 'FB.kBit');
+            $this->setIPSVariable('DownstreamMaxBitRate', 'Downstream Max kBitrate', $Downstream, VARIABLETYPE_INTEGER, 'FB.kBit');
+            return true;
+        }
+        public function GetCommonLinkProperties()
         {
             $result = $this->Send(__FUNCTION__);
             if ($result === false) {
                 return false;
             }
-
-            $this->setIPSVariable('WANAccessType', 'Verbindungstyp', (string) $result['NewWANAccessType'], VARIABLETYPE_STRING, '', false, 2);
-            $this->setIPSVariable('PhysicalLinkStatus', 'Status', $this->LinkStateToInt((string) $result['NewPhysicalLinkStatus']), VARIABLETYPE_INTEGER, 'FB.LinkState', false, 1);
-            $Downstream = (int) ((int) $result['NewLayer1DownstreamMaxBitRate'] / 1000);
-            $Upstream = (int) ((int) $result['NewLayer1UpstreamMaxBitRate'] / 1000);
-            $this->Downstream = $Downstream;
-            $this->Upstream = $Upstream;
-            $this->setIPSVariable('UpstreamMaxBitRate', 'Upstream Max kBitrate', $Upstream, VARIABLETYPE_INTEGER, 'FB.kBit', false, 9);
-            $this->setIPSVariable('DownstreamMaxBitRate', 'Downstream Max kBitrate', $Downstream, VARIABLETYPE_INTEGER, 'FB.kBit', false, 4);
-
-            return true;
+            return $result;
         }
         public function GetTotalBytesSent()
         {
@@ -101,26 +125,22 @@ require_once __DIR__ . '/../libs/FritzBoxBase.php';
             return $this->Send(__FUNCTION__);
         }
 
-        public function GetAddonInfos()
+        private function UpdateAddonInfos()
         {
-            // nur bei igd
-            if (($this->ReadPropertyInteger('Index') != 1) && ($this->ReadPropertyInteger('Index') != 2)) {
-                trigger_error('Service does not support this action', E_USER_NOTICE);
-                return false;
-            }
-            $result = $this->Send(__FUNCTION__);
+            $result = $this->GetAddonInfos();
             if ($result === false) {
                 return false;
             }
-            $this->setIPSVariable('KByteSendRate', 'Senderate', $result['NewByteSendRate'] / 1024, VARIABLETYPE_FLOAT, 'FB.kbs', false, 10);
-            $this->setIPSVariable('KByteReceiveRate', 'Empfangsrate', $result['NewByteReceiveRate'] / 1024, VARIABLETYPE_FLOAT, 'FB.kbs', false, 5);
+            $this->setIPSVariable('KByteSendRate', 'Sending rate', $result['NewByteSendRate'] / 1024, VARIABLETYPE_FLOAT, 'FB.kbs');
+            $this->setIPSVariable('KByteReceiveRate', 'Receive rate', $result['NewByteReceiveRate'] / 1024, VARIABLETYPE_FLOAT, 'FB.kbs');
             $Downstream = $this->Downstream;
+            $this->SendDebug('$this->Downstream', $this->Downstream, 0);
             if ($Downstream > 0) {
-                $this->setIPSVariable('LevelReceiveRate', 'Last Downstream', (100 / ($Downstream / 8) * ($result['NewByteReceiveRate'] / 1024)), VARIABLETYPE_FLOAT, 'FB.Speed', false, 6);
+                $this->setIPSVariable('LevelReceiveRate', 'Load download', (100 / ($Downstream / 8) * ($result['NewByteReceiveRate'] / 1024)), VARIABLETYPE_FLOAT, 'FB.Speed');
             }
             $Upstream = $this->Upstream;
             if ($Upstream > 0) {
-                $this->setIPSVariable('LevelSendRate', 'Last Upstream', (100 / ($Upstream / 8) * ($result['NewByteSendRate'] / 1024)), VARIABLETYPE_FLOAT, 'FB.Speed', false, 11);
+                $this->setIPSVariable('LevelSendRate', 'Load upload', (100 / ($Upstream / 8) * ($result['NewByteSendRate'] / 1024)), VARIABLETYPE_FLOAT, 'FB.Speed');
             }
             if (array_key_exists('NewX_AVM_DE_TotalBytesReceived64', $result)) {
                 $send = $result['NewX_AVM_DE_TotalBytesSent64'];
@@ -129,18 +149,19 @@ require_once __DIR__ . '/../libs/FritzBoxBase.php';
                 $send = $result['NewTotalBytesSent'];
                 $recv = $result['NewTotalBytesReceived'];
             }
-            $this->setIPSVariable('TotalMBytesSent', 'Gesendet seit Reconnect', $send / 1024 / 1024, VARIABLETYPE_FLOAT, 'FB.MByte', false, 12);
-            $this->setIPSVariable('TotalMBytesReceived', 'Empfangen seit Reconnect', $recv / 1024 / 1024, VARIABLETYPE_FLOAT, 'FB.MByte', false, 7);
+            $this->setIPSVariable('TotalMBytesSent', 'Sent since connected', $send / 1024 / 1024, VARIABLETYPE_FLOAT, 'FB.MByte');
+            $this->setIPSVariable('TotalMBytesReceived', 'Received since connected', $recv / 1024 / 1024, VARIABLETYPE_FLOAT, 'FB.MByte');
 
             if (array_key_exists('NewX_AVM_DE_WANAccessType', $result)) {
-                $this->setIPSVariable('WANAccessType', 'Verbindungstyp', (string) $result['NewX_AVM_DE_WANAccessType'], VARIABLETYPE_STRING, '', false, 2);
+                $this->setIPSVariable('WANAccessType', 'WAN Access type', (string) $result['NewX_AVM_DE_WANAccessType'], VARIABLETYPE_STRING);
             }
             if (array_key_exists('NewVoipDNSServer1', $result)) {
-                $this->setIPSVariable('VoipDNSServer1', 'Voip DNS-Server 1', (string) $result['NewVoipDNSServer1'], VARIABLETYPE_STRING, '', false, 21);
+                $this->setIPSVariable('VoipDNSServer1', 'VoIP DNS-Server 1', (string) $result['NewVoipDNSServer1'], VARIABLETYPE_STRING);
             }
             if (array_key_exists('NewVoipDNSServer2', $result)) {
-                $this->setIPSVariable('VoipDNSServer2', 'Voip DNS-Server 2', (string) $result['NewVoipDNSServer2'], VARIABLETYPE_STRING, '', false, 21);
+                $this->setIPSVariable('VoipDNSServer2', 'VoIP DNS-Server 2', (string) $result['NewVoipDNSServer2'], VARIABLETYPE_STRING);
             }
+            return true;
             /*  ["NewAutoDisconnectTime"]=>
               string(1) "0"
               ["NewIdleDisconnectTime"]=>
@@ -155,34 +176,23 @@ require_once __DIR__ . '/../libs/FritzBoxBase.php';
               string(1) "1"
              */
         }
-        public function GetDsliteStatus()
+        public function GetAddonInfos()
         {
-            // nur bei igd
-            if (($this->ReadPropertyInteger('Index') != 1) && ($this->ReadPropertyInteger('Index') != 2)) {
-                trigger_error('Service does not support this action', E_USER_NOTICE);
+            $result = $this->Send(__FUNCTION__);
+            if ($result === false) {
                 return false;
             }
+            return $result;
+        }
+        public function GetDsliteStatus()
+        {
             return $this->Send('X_AVM_DE_GetDsliteStatus');
         }
         public function GetIPTVInfos()
         {
-            // nur bei igd
-            if (($this->ReadPropertyInteger('Index') != 1) && ($this->ReadPropertyInteger('Index') != 2)) {
-                trigger_error('Service does not support this action', E_USER_NOTICE);
-                return false;
-            }
             return $this->Send('X_AVM_DE_GetIPTVInfos');
         }
 
-        public function GetOnlineMonitor()
-        {
-            // nur bei tr64
-            if ($this->ReadPropertyInteger('Index') != 0) {
-                trigger_error('Service does not support this action', E_USER_NOTICE);
-                return false;
-            }
-            return $this->Send('X_AVM-DE_GetOnlineMonitor');
-        }
         public function GetConfigurationForm()
         {
             $Form = json_decode(file_get_contents(__DIR__ . '/form.json'), true);
@@ -209,7 +219,7 @@ require_once __DIR__ . '/../libs/FritzBoxBase.php';
         protected function DecodeEvent($Event)
         {
             if (array_key_exists('PhysicalLinkStatus', $Event)) {
-                $this->setIPSVariable('PhysicalLinkStatus', 'Status', $this->LinkStateToInt((string) $Event['PhysicalLinkStatus']), VARIABLETYPE_INTEGER, 'FB.LinkState', false, 1);
+                $this->setIPSVariable('PhysicalLinkStatus', 'Physical Link Status', $this->LinkStateToInt((string) $Event['PhysicalLinkStatus']), VARIABLETYPE_INTEGER, 'FB.LinkState');
                 unset($Event['PhysicalLinkStatus']);
                 //Todo
                 // GetCommonLinkProperties über runScriptText und RequestAction starten
@@ -223,13 +233,10 @@ require_once __DIR__ . '/../libs/FritzBoxBase.php';
 
                 case 'Up':
                     return 0;
-                break;
                         case 'Down':
                             return 1;
-                break;
                         case 'Initializing':
                             return 2;
-                break;
             }
             return 3;
         }

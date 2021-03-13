@@ -1,8 +1,28 @@
 {
     "translations": {
         "de": {
-            "Translation 1": "Übersetzung 1",
-            "Translation 2": "Übersetzung 2"
+            "Service": "Dienst",
+            "Refresh Interval": "Aktualisierungsintervall",
+            "seconds": "Sekunden",
+            "Update Values": "Werte aktualisieren",
+            "Event subscribe error": "Ereignisabonnementfehler",
+            "Invalid Ident.": "Ungültiger Ident.",
+            "Up": "Verbunden",
+            "Down": "Getrennt",
+            "Initializing": "Initialisieren",
+            "Unavailable": "Nicht verfügbar",
+            "WAN Access type": "WAN Zugangsart",
+            "Physical Link Status": "Status der physischen Verbindung",
+            "Upstream Max kBitrate": "Upstream Max kBitrate",
+            "Downstream Max kBitrate": "Downstream Max kBitrate",
+            "Sending rate": "Senderate",
+            "Receive rate": "Empfangsrate",
+            "Load download": "Auslastung Download",
+            "Load upload": "Auslastung Upload",
+            "Sent since connected": "Gesendet seit verbunden",
+            "Received since connected": "Empfangen seit verbunden",
+            "VoIP DNS-Server 1": "VoIP DNS-Server 1",
+            "VoIP DNS-Server 2": "VoIP DNS-Server 2"
         }
     }
 }

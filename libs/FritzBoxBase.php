@@ -374,7 +374,7 @@ class FritzBoxModulBase extends IPSModule
 
             IPS_SetParent($vid, $ParentID);
             IPS_SetIdent($vid, $Ident);
-            IPS_SetName($vid, $Name);
+            IPS_SetName($vid, $this->Translate($Name));
             IPS_SetPosition($vid, $Position);
             //IPS_SetReadOnly($vid, true);
         }

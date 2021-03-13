@@ -41,6 +41,7 @@ class FritzBoxHosts extends FritzBoxModulBase
 
     public function ApplyChanges()
     {
+        $this->SetTimerInterval('RefreshHosts', 0);
         $this->HostNumberOfEntriesId = $this->RegisterVariableInteger('HostNumberOfEntries', $this->Translate('Number of hosts'), '', -2);
         $this->SetTimerInterval('RefreshHosts', 0);
         $Table = $this->ReadPropertyBoolean('HostAsTable');
@@ -141,14 +142,19 @@ class FritzBoxHosts extends FritzBoxModulBase
                 $Action = true;
             }
             if ($Variable) {
+                $VarId= @$this->GetIDForIdent($Ident);
                 $this->setIPSVariable($Ident, (string)$xmlItem->HostName, (int)$xmlItem->Active==1, VARIABLETYPE_BOOLEAN, '~Switch', $Action, ++$pos);
+                if ($VarId == 0) {
+                    $VarId= $this->GetIDForIdent($Ident);
+                    IPS_SetVariableCustomAction($VarId, 1);
+                }
             }
             if ((bool)$xmlItem->Active) {
                 $OnlineCounter++;
             }
             $TableData[] = (array)$xmlItem;
         }
-        $this->setIPSVariable('HostNumberActive', $this->Translate('Number of active hosts'), $OnlineCounter, VARIABLETYPE_INTEGER, '', false, -1);
+        $this->setIPSVariable('HostNumberActive', 'Number of active hosts', $OnlineCounter, VARIABLETYPE_INTEGER, '', false, -1);
         // TableData
         //$this->CreateHostHTMLTable($TableData);
         return true;
@@ -163,7 +169,7 @@ class FritzBoxHosts extends FritzBoxModulBase
         if ($result === false) {
             return false;
         }
-        $this->setIPSVariable('HostNumberOfEntries', $this->Translate('Number of hosts'), (int)$result, VARIABLETYPE_INTEGER, '', false, -2);
+        $this->setIPSVariable('HostNumberOfEntries','Number of hosts', (int)$result, VARIABLETYPE_INTEGER, '', false, -2);
         return true;
     }
     public function GetHostNumberOfEntries()

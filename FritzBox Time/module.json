@@ -1,9 +1,9 @@
 {
-    "id": "{FD564AAF-E00A-4CF8-A60D-7F60B4CDFC1B}",
-    "name": "FritzBox WAN Common Interface",
+    "id": "{4BD2D88F-E56B-9DF1-19A2-E6A688C5EA70}",
+    "name": "FritzBox Time",
     "type": 3,
     "vendor": "AVM",
-    "aliases": [],
+    "aliases": ["FritzBox Time"],
     "parentRequirements": [
         "{D62D4515-7689-D1DB-EE97-F555AD9433F0}"
     ],
@@ -12,5 +12,5 @@
         "{CBD869A0-869B-3D4C-7EA8-D917D935E647}"
     ],
     "prefix": "FB",
-    "url": "https://github.com/Nall-chan/FritzBox/FritzBox WAN Common Interface/README.md"
+    "url": "https://github.com/Nall-chan/FritzBox/FritzBox Time/README.md"
 }

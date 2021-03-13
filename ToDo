@@ -2,19 +2,26 @@ Option WLAN PopUp mit QR Code auf WF oder nur QR Code vorbereiten
 Bei Host auto löschen?!
 HTML-Tabellen fehlen komplett in WLAN und Host
 
-'Fertige' Instanzen:
- - IO (+ Device Config für Reboot)
- - Konfigurator
+Fertige Instanzen:
+
+Aktionen fehlen:
  - Hosts
- - WLAN
  - DHCP
  - Device Info
  - WAN Common Interface
+
+Übersetzungen fehlen:
+ - WLAN
+ - IO (+ Device Config für Reboot)
+ - Konfigurator
+ 
 
 Nächste Instanzen zum Testen:
 - WAN IP Interface
 - WAN DSL Interface
 - WAN Port Mapping
+
+Unfertig:
 - UpnP / Freigaben
 - LAN Config
 - Phonebook!
