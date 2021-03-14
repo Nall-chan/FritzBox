@@ -134,7 +134,6 @@ require_once __DIR__ . '/../libs/FritzBoxBase.php';
             $this->setIPSVariable('KByteSendRate', 'Sending rate', $result['NewByteSendRate'] / 1024, VARIABLETYPE_FLOAT, 'FB.kbs');
             $this->setIPSVariable('KByteReceiveRate', 'Receive rate', $result['NewByteReceiveRate'] / 1024, VARIABLETYPE_FLOAT, 'FB.kbs');
             $Downstream = $this->Downstream;
-            $this->SendDebug('$this->Downstream', $this->Downstream, 0);
             if ($Downstream > 0) {
                 $this->setIPSVariable('LevelReceiveRate', 'Load download', (100 / ($Downstream / 8) * ($result['NewByteReceiveRate'] / 1024)), VARIABLETYPE_FLOAT, 'FB.Speed');
             }

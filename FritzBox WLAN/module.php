@@ -39,13 +39,21 @@ require_once __DIR__ . '/../libs/FritzBoxBase.php';
             $this->RegisterPropertyBoolean('InfoVariables', true);
             $this->RegisterPropertyBoolean('RenameHostVariables', true);
             $this->RegisterPropertyBoolean('HostAsTable', true);
+            $this->RegisterPropertyBoolean('ShowWLanKeyAsVariable', true);
+            $this->RegisterPropertyBoolean('ShowWLanKeyAsQRCode', true);
             $this->RegisterPropertyInteger('RefreshInterval', 60);
+            $this->RegisterPropertyInteger('QRCodeSize', 20);
             $this->RegisterTimer('RefreshState', 0, 'IPS_RequestAction(' . $this->InstanceID . ',"RefreshState",true);');
         }
 
         public function Destroy()
         {
-            //Never delete this line!
+            if (!IPS_InstanceExists($this->InstanceID)) {
+                $QRCodeID = @IPS_GetObjectIDByIdent('QRCodeIMG', $this->InstanceID);
+                if ($QRCodeID > 0) {
+                    @IPS_DeleteMedia($QRCodeID, true);
+                }
+            }
             parent::Destroy();
         }
 
@@ -53,7 +61,7 @@ require_once __DIR__ . '/../libs/FritzBoxBase.php';
         {
             $this->SetTimerInterval('RefreshState', 0);
             $this->RegisterProfileInteger('FB.MBits', '', '', ' MBit/s', 0, 0, 0);
-            $this->APEnabledId = $this->RegisterVariableBoolean('X_AVM_DE_APEnabled', $this->Translate('Wlan active ?'), '~Switch', -10);
+            $this->APEnabledId = $this->RegisterVariableBoolean('X_AVM_DE_APEnabled', $this->Translate('WLAN state'), '~Switch', -10);
             $this->EnableAction('X_AVM_DE_APEnabled');
             $this->UnregisterMessage($this->APEnabledId, VM_UPDATE);
             usleep(5);
@@ -130,6 +138,17 @@ require_once __DIR__ . '/../libs/FritzBoxBase.php';
             if ($MaxWLANs > $NoOfWlan) {
                 array_splice($Form['elements'][0]['options'], $NoOfWlan + 1);
             }
+            if ($this->ReadPropertyBoolean('ShowWLanKeyAsQRCode')) {
+                $QRCodeID = @IPS_GetObjectIDByIdent('QRCodeIMG', $this->InstanceID);
+                if ($QRCodeID > 0) {
+                    $Image =
+                    [
+                        'type'=> 'Image',
+                        'mediaID'=>$QRCodeID
+                    ];
+                    $Form['actions'][1]['items'][] = $Image;
+                }
+            }
             $this->SendDebug('FORM', json_encode($Form), 0);
             $this->SendDebug('FORM', json_last_error_msg(), 0);
             return json_encode($Form);
@@ -180,9 +199,9 @@ require_once __DIR__ . '/../libs/FritzBoxBase.php';
                         IPS_SetName($VarId, $Hostname);
                     }
                 
-                    $SpeedId = $this->RegisterSubVariable($VarId, 'Speed','Speed', VARIABLETYPE_INTEGER, 'FB.MBits');
+                    $SpeedId = $this->RegisterSubVariable($VarId, 'Speed', 'Speed', VARIABLETYPE_INTEGER, 'FB.MBits');
                     SetValueInteger($SpeedId, (int)$result["NewX_AVM-DE_Speed"]);
-                    $SignalId = $this->RegisterSubVariable($VarId, 'Signal','Signalstrength', VARIABLETYPE_INTEGER, '~Intensity.100');
+                    $SignalId = $this->RegisterSubVariable($VarId, 'Signal', 'Signalstrength', VARIABLETYPE_INTEGER, '~Intensity.100');
                     SetValueInteger($SignalId, (int)$result["NewX_AVM-DE_SignalStrength"]);
                 }
             }
@@ -192,9 +211,9 @@ require_once __DIR__ . '/../libs/FritzBoxBase.php';
                     $Ident = IPS_GetObject($VarId)['ObjectIdent'];
                     if (strpos($Ident, 'MAC')===0) {
                         $this->SetValue($Ident, false);
-                        $SpeedId = $this->RegisterSubVariable($VarId, 'Speed','Speed', VARIABLETYPE_INTEGER, 'FB.MBits');
+                        $SpeedId = $this->RegisterSubVariable($VarId, 'Speed', 'Speed', VARIABLETYPE_INTEGER, 'FB.MBits');
                         SetValueInteger($SpeedId, 0);
-                        $SignalId = $this->RegisterSubVariable($VarId, 'Signal','Signalstrength', VARIABLETYPE_INTEGER, '~Intensity.100');
+                        $SignalId = $this->RegisterSubVariable($VarId, 'Signal', 'Signalstrength', VARIABLETYPE_INTEGER, '~Intensity.100');
                         SetValueInteger($SignalId, 0);
                     }
                 }
@@ -221,23 +240,87 @@ require_once __DIR__ . '/../libs/FritzBoxBase.php';
         }
         private function UpdateInfo()
         {
-            $result = $this->GetInfo();
-            if ($result === false) {
+            $resultState = $this->GetInfo();
+            if ($resultState === false) {
                 return false;
             }
-            $this->setIPSVariable('X_AVM_DE_APEnabled','Wlan active ?', (int)$result['NewEnable']!==0, VARIABLETYPE_BOOLEAN, '~Switch', false, -10);
-            $this->setIPSVariable('SSID','SSID Name', (string)$result['NewSSID'], VARIABLETYPE_STRING, '', false, -9);
+            $this->setIPSVariable('X_AVM_DE_APEnabled', 'WLAN state', (int)$resultState['NewEnable']!==0, VARIABLETYPE_BOOLEAN, '~Switch', false, -10);
+            $this->setIPSVariable('SSID', 'SSID Name', (string)$resultState['NewSSID'], VARIABLETYPE_STRING, '', false, -9);
             if ($this->ReadPropertyBoolean('InfoVariables')) {
                 $result = $this->GetWLANExtInfo();
                 if ((string)$result['NewX_AVM-DE_APType'] =='guest') {
-                    $this->setIPSVariable('TimeoutActive','Timeout Active', $result['NewX_AVM-DE_TimeoutActive'], VARIABLETYPE_BOOLEAN, '~Switch', false, -8);
-                    $this->setIPSVariable('TimeRemainRaw','Remain time in minutes', (int)$result['NewX_AVM-DE_TimeRemain'], VARIABLETYPE_INTEGER, '', false, -7);
-                    $this->setIPSVariable('TimeRemain','Remain time', $this->ConvertRuntime(((int)$result['NewX_AVM-DE_TimeRemain'])*60), VARIABLETYPE_STRING, '', false, -6);
-                    $this->setIPSVariable('OffTime','Scheduled shutdown', time()+((int)$result['NewX_AVM-DE_TimeRemain']*60), VARIABLETYPE_INTEGER, '~UnixTimestamp', false, -5);
-                    $this->setIPSVariable('ForcedOff','No shutdown when guest is active', $result['NewX_AVM-DE_NoForcedOff'], VARIABLETYPE_BOOLEAN, '~Switch', false, -4);
+                    $this->setIPSVariable('TimeoutActive', 'Timeout active', $result['NewX_AVM-DE_TimeoutActive'], VARIABLETYPE_BOOLEAN, '~Switch', false, -6);
+                    $this->setIPSVariable('TimeRemainRaw', 'Remain time in minutes', (int)$result['NewX_AVM-DE_TimeRemain'], VARIABLETYPE_INTEGER, '', false, -5);
+                    $this->setIPSVariable('TimeRemain', 'Remain time', $this->ConvertRuntime(((int)$result['NewX_AVM-DE_TimeRemain'])*60), VARIABLETYPE_STRING, '', false, -4);
+                    $this->setIPSVariable('OffTime', 'Scheduled shutdown', time()+((int)$result['NewX_AVM-DE_TimeRemain']*60), VARIABLETYPE_INTEGER, '~UnixTimestamp', false, -3);
+                    $this->setIPSVariable('ForcedOff', 'No shutdown when guest is active', $result['NewX_AVM-DE_NoForcedOff'], VARIABLETYPE_BOOLEAN, '~Switch', false, -2);
+                }
+            }
+            $useVariable = $this->ReadPropertyBoolean('ShowWLanKeyAsVariable');
+            $useQRCode = $this->ReadPropertyBoolean('ShowWLanKeyAsQRCode');
+
+            if ($useQRCode || $useVariable) {
+                $resultKeys = $this->GetSecurityKeys();
+                if ($resultKeys === false) {
+                    return false;
+                }
+                if ($useVariable) {
+                    $this->setIPSVariable('KeyPassphrase', 'Password', (string)$resultKeys['NewKeyPassphrase'], VARIABLETYPE_STRING, '', false, -8);
+                }
+                if ($useQRCode) {
+                    $QRData = $this->GenerateQRCodeData((string)$resultState['NewSSID'], (string)$resultKeys['NewKeyPassphrase']);
+                    
+                    $QRCodeID = @IPS_GetObjectIDByIdent('QRCodeIMG', $this->InstanceID);
+                    if ($QRCodeID === false) {
+                        $QRCodeID = IPS_CreateMedia(1);
+                        IPS_SetParent($QRCodeID, $this->InstanceID);
+                        IPS_SetIdent($QRCodeID, 'QRCodeIMG');
+                        IPS_SetName($QRCodeID, 'QR-Code');
+                        IPS_SetPosition($QRCodeID, -5);
+                        IPS_SetMediaCached($QRCodeID, true);
+                        $filename = 'media' . DIRECTORY_SEPARATOR . 'QRCode_' . $this->InstanceID . '.png';
+                        IPS_SetMediaFile($QRCodeID, $filename, false);
+                        $this->SendDebug('Create Media', $filename, 0);
+                    }
+
+                    IPS_SetMediaContent($QRCodeID, base64_encode($QRData));
                 }
             }
             return true;
+        }
+        private function GenerateQRCodeData(string $SSID, string $KeyPassphrase, int $size=0)
+        {
+            $CodeText= 'WIFI:S:'.$SSID.';T:WPA;P:'.$KeyPassphrase.';;';
+            $Size = $this->ReadPropertyInteger('QRCodeSize');
+            include(__DIR__.'/../libs/phpqrcode/qrlib.php');
+            ob_end_clean();
+            ob_start();
+            QRcode::png($CodeText, null, QR_ECLEVEL_L, $Size);
+            $QRImage = ob_get_contents();
+            ob_end_clean();
+            return $QRImage;
+        }
+        public function GetHTMLQRCode()
+        {
+            $useVariable = $this->ReadPropertyBoolean('ShowWLanKeyAsVariable');
+            $useQRCode = $this->ReadPropertyBoolean('ShowWLanKeyAsQRCode');
+            $SSID = $this->GetValue('SSID');
+            if ($useQRCode && $useVariable) {
+                $KeyPassphrase =  @$this->GetValue('KeyPassphrase');
+                $QRCodeID = @IPS_GetObjectIDByIdent('QRCodeIMG', $this->InstanceID);
+                $QRData = IPS_GetMediaContent($QRCodeID);
+            } else {
+                $resultKeys = $this->GetSecurityKeys();
+                if ($resultKeys === false) {
+                    return false;
+                }
+                $KeyPassphrase=(string)$resultKeys['NewKeyPassphrase'];
+                $QRData = base64_encode($this->GenerateQRCodeData($SSID, $KeyPassphrase));
+            }
+
+            $HTMLData ='<center><h1 style="color:red">'.$this->Translate('Credentials').'</h1><h2>WLAN: '.$SSID.'</h2><h2>'.$this->Translate('Password').': '.$KeyPassphrase.'</h2></center>';
+            $HTMLData.= '<center><img src="data:image/png;base64,'.$QRData.'"></span></center>';
+            return $HTMLData;
         }
         public function GetInfo()
         {
@@ -432,7 +515,7 @@ require_once __DIR__ . '/../libs/FritzBoxBase.php';
             if ($result === false) {
                 return false;
             }
-            $this->setIPSVariable('HostNumberOfEntries','Number of active hosts', (int)$result, VARIABLETYPE_INTEGER, '', false, -2);
+            $this->setIPSVariable('HostNumberOfEntries', 'Number of active hosts', (int)$result, VARIABLETYPE_INTEGER, '', false, -2);
             return (int)$result;
         }
         public function GetGenericAssociatedDeviceInfo(int $Index)

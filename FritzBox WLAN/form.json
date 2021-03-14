@@ -24,6 +24,16 @@
             ]
         },
         {
+            "name": "ShowWLanKeyAsVariable",
+            "type": "CheckBox",
+            "caption": "Create variable for WLAN key"
+        },
+        {
+            "name": "ShowWLanKeyAsQRCode",
+            "type": "CheckBox",
+            "caption": "Create QR-Code media object"
+        },
+        {
             "name": "InfoVariables",
             "type": "CheckBox",
             "caption": "Create variables for extended information"
@@ -41,7 +51,8 @@
         {
             "name": "HostAsTable",
             "type": "CheckBox",
-            "caption": "Create HTMLBox-Variable"
+            "caption": "Create HTMLBox-Variable",
+            "enabled": false
         },
         {
             "name": "RefreshInterval",
@@ -49,11 +60,28 @@
             "caption": "Refresh Interval",
             "suffix": "seconds",
             "minimum": 0
+        },
+        {
+            "type": "HorizontalSlider",
+            "name": "QRCodeSize",
+            "caption": "Size of QR-Code",
+            "minimum": 1,
+            "maximum": 40
         }
     ],
     "actions": [
         {
-            "type": "TestCenter"
+            "type": "Button",
+            "caption": "Read state",
+            "onClick": "IPS_RequestAction($id,'RefreshState',true);"
+        },
+        {
+            "type": "RowLayout",
+            "items": [
+                {
+                    "type": "TestCenter"
+                }
+            ]
         }
     ],
     "status": [

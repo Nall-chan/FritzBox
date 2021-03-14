@@ -1,11 +1,32 @@
 {
     "translations": {
         "de": {
-            "Timeout Active": "Automatisch deaktivieren",
+            "Index of WLAN interface": "Index der WLAN-Schnittstelle",
+            "2 (5 Ghz or Guest)": "2 (5 Ghz oder Gast)",
+            "3 (Guest)": "3 (Gast)",
+            "Create variable for WLAN key": "Erzeuge Variable für WLAN Passwort",
+            "Create QR-Code media object": "Erzeuge Medien-Objekt mit QR-Code",
+            "Create variables for extended information": "Erzeuge Variablen für erweiterte Informationen",
+            "Create variable per host": "Erzeuge Variable pro Host",
+            "Rename Host-variables automatically": "Host-Variablen automatisch umbenennen",
+            "Create HTMLBox-Variable": "Erzeuge HTMLBox-Variable",
+            "Refresh Interval": "Aktualisierungsintervall",
+            "seconds": "Sekunden",
+            "Read state": "Lese Status",
+            "Event subscribe error": "Ereignisabonnementfehler",
+            "Invalid Ident.": "Ungültiger Ident.",
+            "WLAN state": "WLAN Status",
+            "Number of active hosts": "Anzahl der aktiven Hosts",
+            "Speed": "Geschwindigkeit",
+            "Signalstrength": "Signalstärke",
+            "SSID Name": "SSID Name",
+            "Timeout active": "Automatisch deaktivieren",
             "Remain time in minutes": "Restlaufzeit in Minuten",
             "Remain time": "Restlaufzeit",
             "Scheduled shutdown": "Geplante Abschaltung",
-            "No shutdown when guest is active": "Keine Abschaltung wenn Gast aktiv"
+            "No shutdown when guest is active": "Keine Abschaltung wenn Gast aktiv",
+            "Password":"Passwort",
+            "Credentials":"Anmeldedaten"
         }
     }
 }

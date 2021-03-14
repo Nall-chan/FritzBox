@@ -13,7 +13,8 @@
         {
             "name": "HostAsTable",
             "type": "CheckBox",
-            "caption": "Create HTMLBox-Variable"
+            "caption": "Create HTMLBox-Variable",
+            "enabled":false
         },
         {
             "name": "RefreshInterval",
