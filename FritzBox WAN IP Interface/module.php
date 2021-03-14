@@ -26,28 +26,82 @@ require_once __DIR__ . '/../libs/FritzBoxBase.php';
             //Never delete this line!
             parent::Create();
             $this->RegisterPropertyInteger('Index', -1);
+            $this->RegisterPropertyInteger('RefreshInterval', 60);
+            $this->RegisterTimer('RefreshInfo', 0, 'IPS_RequestAction(' . $this->InstanceID . ',"RefreshInfo",true);');
         }
         public function ApplyChanges()
         {
-            //Never delete this line!
-
-            $this->RegisterProfileBooleanEx('FB.ConnectionStatus', '', '', '', [
+            $this->SetTimerInterval('RefreshInfo', 0);
+            $this->RegisterProfileBooleanEx(
+                'FB.ConnectionStatus',
+                '',
+                '',
+                '',
+                [
                 [false, $this->Translate('Disconnected'), '', 0xff0000],
                 [true, $this->Translate('Connected'), '', 0x00ff00]
             ]
             );
             parent::ApplyChanges();
             $Index = $this->ReadPropertyInteger('Index');
-            if ($Index > -1) {
-                $this->GetStatusInfo();
-                $this->GetExternalIPAddress();
-                $this->GetDNSServer();
-                $this->GetExternalIPv6Address();
-                $this->GetIPv6Prefix();
-                $this->GetIPv6DNSServer();
+            if ($Index == -1) {
+                $this->SetStatus(IS_INACTIVE);
+                return;
             }
+            $this->SetStatus(IS_ACTIVE);
+            if (IPS_GetKernelRunlevel() != KR_READY) {
+                return;
+            }
+            //$this->UpdateInfo();
+            $this->SetTimerInterval('RefreshInfo', $this->ReadPropertyInteger('RefreshInterval')*1000);
         }
+        private function UpdateInfo()
+        {
+            $result = $this->GetStatusInfo();
+            if ($result === false) {
+                return false;
+            }
+            $this->setIPSVariable('ConnectionStatus', 'IP connection status', ($result['NewConnectionStatus'] == 'Connected'), VARIABLETYPE_BOOLEAN, 'FB.ConnectionStatus', true, 1);
+            $this->setIPSVariable('UptimeRAW', 'Connection duration in seconds', (int) $result['NewUptime'], VARIABLETYPE_INTEGER, '', false, 2);
+            $this->setIPSVariable('Uptime', 'Connection duration', $this->ConvertRunTime((int) $result['NewUptime']), VARIABLETYPE_STRING, '', false, 3);
 
+            $result = $this->GetExternalIPAddress();
+            if ($result === false) {
+                return false;
+            }
+            $this->setIPSVariable('ExternalIPAddress', 'External IPv4 Address', $result, VARIABLETYPE_STRING, '', false, 4);
+
+            $result = $this->GetDNSServer();
+            if ($result === false) {
+                return false;
+            }
+            $this->setIPSVariable('IPv4DNSServer1', 'IPv4 DNS-Server 1', $result['NewIPv4DNSServer1'], VARIABLETYPE_STRING, '', false, 5);
+            $this->setIPSVariable('IPv4DNSServer2', 'IPv4 DNS-Server 2', $result['NewIPv4DNSServer2'], VARIABLETYPE_STRING, '', false, 6);
+
+            $result = $this->GetExternalIPv6Address();
+            if ($result === false) {
+                return false;
+            }
+            $this->setIPSVariable('ExternalIPv6Address', 'External IPv6 Address', $result['NewExternalIPv6Address'], VARIABLETYPE_STRING, '', false, 10);
+
+            $result = $this->GetIPv6Prefix();
+            if ($result === false) {
+                return false;
+            }
+            $this->setIPSVariable('IPv6Prefix', 'IPv6 Prefix', $result['NewIPv6Prefix'], VARIABLETYPE_STRING, '', false, 16);
+            
+            $result = $this->GetIPv6DNSServer();
+            if ($result === false) {
+                return false;
+            }
+            $this->setIPSVariable('IPv6DNSServer1', 'IPv6 DNS-Server 1', $result['NewIPv6DNSServer1'], VARIABLETYPE_STRING, '', false, 14);
+            $this->setIPSVariable('IPv6DNSServer2', 'IPv6 DNS-Server 2', $result['NewIPv6DNSServer2'], VARIABLETYPE_STRING, '', false, 15);
+        }
+        
+        public function GetConnectionTypeInfo()
+        {
+            return $this->Send(__FUNCTION__);
+        }
         public function ForceTermination()
         {
             return $this->Send(__FUNCTION__);
@@ -66,10 +120,7 @@ require_once __DIR__ . '/../libs/FritzBoxBase.php';
             if ($result === false) {
                 return false;
             }
-            $this->setIPSVariable('ConnectionStatus', 'Verbindungsstatus', ($result['NewConnectionStatus'] == 'Connected'), VARIABLETYPE_BOOLEAN, 'FB.ConnectionStatus', true, 1);
-            $this->setIPSVariable('UptimeRAW', 'Verbindungsdauer', (int) $result['NewUptime'], VARIABLETYPE_INTEGER, '', false, 2);
-            $this->setIPSVariable('Uptime', 'Verbindungsdauer', $this->ConvertRunTime((int) $result['NewUptime']), VARIABLETYPE_STRING, '', false, 3);
-            return true;
+            return $result;
         }
         public function GetExternalIPAddress()
         {
@@ -77,8 +128,7 @@ require_once __DIR__ . '/../libs/FritzBoxBase.php';
             if ($result === false) {
                 return false;
             }
-            $this->setIPSVariable('ExternalIPAddress', 'Externe IPv4 Adresse', $result, VARIABLETYPE_STRING, '', false, 4);
-            return true;
+            return $result;
         }
         public function GetDNSServer()
         {
@@ -86,10 +136,7 @@ require_once __DIR__ . '/../libs/FritzBoxBase.php';
             if ($result === false) {
                 return false;
             }
-
-            $this->setIPSVariable('IPv4DNSServer1', 'IPv4 DNS-Server 1', $result['NewIPv4DNSServer1'], VARIABLETYPE_STRING, '', false, 5);
-            $this->setIPSVariable('IPv4DNSServer2', 'IPv4 DNS-Server 2', $result['NewIPv4DNSServer2'], VARIABLETYPE_STRING, '', false, 6);
-            return true;
+            return $result;
         }
         public function GetExternalIPv6Address()
         {
@@ -97,8 +144,7 @@ require_once __DIR__ . '/../libs/FritzBoxBase.php';
             if ($result === false) {
                 return false;
             }
-            $this->setIPSVariable('ExternalIPv6Address', 'Externe IPv6 Adresse', $result['NewExternalIPv6Address'], VARIABLETYPE_STRING, '', false, 10);
-            return true;
+            return $result;
         }
 
         public function GetIPv6DNSServer()
@@ -107,9 +153,7 @@ require_once __DIR__ . '/../libs/FritzBoxBase.php';
             if ($result === false) {
                 return false;
             }
-            $this->setIPSVariable('IPv6DNSServer1', 'IPv6 DNS-Server 1', $result['NewIPv6DNSServer1'], VARIABLETYPE_STRING, '', false, 14);
-            $this->setIPSVariable('IPv6DNSServer2', 'IPv6 DNS-Server 2', $result['NewIPv6DNSServer2'], VARIABLETYPE_STRING, '', false, 15);
-            return true;
+            return $result;
         }
         public function GetIPv6Prefix()
         {
@@ -117,8 +161,7 @@ require_once __DIR__ . '/../libs/FritzBoxBase.php';
             if ($result === false) {
                 return false;
             }
-            $this->setIPSVariable('IPv6Prefix', 'IPv6 Prefix', $result['NewIPv6Prefix'], VARIABLETYPE_STRING, '', false, 16);
-            return true;
+            return $result;
         }
         /*
         GetNATRSIPStatus
@@ -138,19 +181,28 @@ require_once __DIR__ . '/../libs/FritzBoxBase.php';
         {
             return $this->Send(__FUNCTION__);
         }
-        /*public function GetPortMappingNumberOfEntries()
-        {
-            return $this->Send('GetGenericPortMappingEntry', ['NewPortMappingIndex'=>0]);
-        }*/
-
+        /*        public function GetPortMappingNumberOfEntries()
+                {
+                    return $this->Send(__FUNCTION__);
+                }
+                public function GetGenericPortMappingEntry(int $Index)
+                {
+                    return $this->Send('GetGenericPortMappingEntry', ['NewPortMappingIndex'=>$Index]);
+                }
+        */
         public function RequestAction($Ident, $Value)
         {
+            if (parent::RequestAction($Ident, $Value)) {
+                return true;
+            }
             switch ($Ident) {
+                case 'RefreshInfo':
+                    return $this->UpdateInfo();
                 case 'ConnectionStatus':
                     if ($Value) {
-                        $this->RequestConnection();
+                        return $this->RequestConnection();
                     } else {
-                        $this->RequestTermination();
+                        return $this->ForceTermination();
                     }
                 break;
             }
@@ -182,20 +234,10 @@ require_once __DIR__ . '/../libs/FritzBoxBase.php';
         protected function DecodeEvent($Event)
         {
             if (array_key_exists('ConnectionStatus', $Event)) {
-                $this->setIPSVariable('ConnectionStatus', 'Verbindungsstatus', ($Event['ConnectionStatus'] == 'Connected'), VARIABLETYPE_BOOLEAN, 'FB.ConnectionStatus');
+                $this->setIPSVariable('ConnectionStatus', 'IP connection status', ($Event['ConnectionStatus'] == 'Connected'), VARIABLETYPE_BOOLEAN, 'FB.ConnectionStatus');
                 unset($Event['ConnectionStatus']);
-                //Todo
-                 // Über RunscriptText und RequestActiob starten:
-                 /*
-                $this->GetStatusInfo();
-                $this->GetExternalIPAddress();
-                $this->GetDNSServer();
-                $this->GetExternalIPv6Address();
-                $this->GetIPv6Prefix();
-                $this->GetIPv6DNSServer();
-                  */
+                $this->UpdateInfo();
             }
-
             parent::DecodeEvent($Event);
         }
     }

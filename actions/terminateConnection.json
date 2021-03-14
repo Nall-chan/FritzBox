@@ -1,0 +1,24 @@
+{
+    "id": "{87E9978A-0B44-B1E8-5C89-87EC3AD51AA3}",
+    "caption": "Terminate connection",
+    "form": [],
+    "action": "FB_ForceTermination($_IPS['TARGET']);",
+    "restrictions": {
+        "objectType": [
+            1
+        ],
+        "moduleID": [
+            "{061AEAF5-ADCD-AD9E-9BF9-AD40DF364EB6}",
+            "{61C9DC95-5A0F-7B9A-4427-82EDB57AA1B9}"
+        ],
+        "environments": [
+            "TestCommands",
+            "Default"
+        ]
+    },
+    "locale": {
+        "de": {
+            "Terminate connection": "Trenne die Verbindung"
+        }
+    }
+}

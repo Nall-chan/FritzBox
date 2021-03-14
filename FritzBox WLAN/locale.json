@@ -2,6 +2,7 @@
     "translations": {
         "de": {
             "Index of WLAN interface": "Index der WLAN-Schnittstelle",
+            "<none>": "<keins>",
             "2 (5 Ghz or Guest)": "2 (5 Ghz oder Gast)",
             "3 (Guest)": "3 (Gast)",
             "Create variable for WLAN key": "Erzeuge Variable für WLAN Passwort",
@@ -25,8 +26,8 @@
             "Remain time": "Restlaufzeit",
             "Scheduled shutdown": "Geplante Abschaltung",
             "No shutdown when guest is active": "Keine Abschaltung wenn Gast aktiv",
-            "Password":"Passwort",
-            "Credentials":"Anmeldedaten"
+            "Password": "Passwort",
+            "Credentials": "Anmeldedaten"
         }
     }
 }

@@ -1,0 +1,24 @@
+{
+    "id": "{B971BAC4-DB28-4C60-39E6-BFCA1B94991C}",
+    "caption": "Request connection",
+    "form": [],
+    "action": "FB_RequestConnection($_IPS['TARGET']);",
+    "restrictions": {
+        "objectType": [
+            1
+        ],
+        "moduleID": [
+            "{061AEAF5-ADCD-AD9E-9BF9-AD40DF364EB6}",
+            "{61C9DC95-5A0F-7B9A-4427-82EDB57AA1B9}"
+        ],
+        "environments": [
+            "TestCommands",
+            "Default"
+        ]
+    },
+    "locale": {
+        "de": {
+            "Request connection": "Verbindung anfordern"
+        }
+    }
+}

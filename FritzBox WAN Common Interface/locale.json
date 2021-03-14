@@ -2,6 +2,7 @@
     "translations": {
         "de": {
             "Service": "Dienst",
+            "<none>": "<keiner>",
             "Refresh Interval": "Aktualisierungsintervall",
             "seconds": "Sekunden",
             "Update Values": "Werte aktualisieren",

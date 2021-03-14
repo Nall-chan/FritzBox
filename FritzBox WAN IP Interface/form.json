@@ -3,7 +3,7 @@
         {
             "name": "Index",
             "type": "Select",
-            "caption": "Index of Service",
+            "caption": "Service",
             "options": [
                 {
                     "caption": "<none>",
@@ -18,9 +18,25 @@
                     "value": 1
                 }
             ]
+        },
+        {
+            "name": "RefreshInterval",
+            "type": "NumberSpinner",
+            "caption": "Refresh Interval",
+            "suffix": "seconds",
+            "minimum": 0
         }
     ],
-    "actions": [],
+    "actions": [
+        {
+            "type": "Button",
+            "caption": "Update Values",
+            "onClick": "IPS_RequestAction($id,'RefreshInfo',true);"
+        },
+        {
+            "type": "TestCenter"
+        }
+    ],
     "status": [
         {
             "code": 201,

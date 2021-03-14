@@ -51,7 +51,6 @@ require_once __DIR__ . '/../libs/FritzBoxBase.php';
                 [3, $this->Translate('Unavailable'), '', 0xff0000],
             ]
             );
-   
             $this->RegisterProfileInteger('FB.kBit', '', '', ' kBit/s', 0, 0, 0);
             $this->RegisterProfileFloat('FB.Speed', '', '', '%', 0, 100, 0, 2);
             $this->RegisterProfileFloat('FB.MByte', '', '', ' MB', 0, 0, 0, 2);
@@ -63,7 +62,9 @@ require_once __DIR__ . '/../libs/FritzBoxBase.php';
                 return;
             }
             $this->SetStatus(IS_ACTIVE);
-            $this->UpdateCommonLinkProperties();
+            if (IPS_GetKernelRunlevel() != KR_READY) {
+                return;
+            }
             $this->UpdateAddonInfos();
             $this->SetTimerInterval('RefreshInfo', $this->ReadPropertyInteger('RefreshInterval')*1000);
         }
@@ -220,8 +221,7 @@ require_once __DIR__ . '/../libs/FritzBoxBase.php';
             if (array_key_exists('PhysicalLinkStatus', $Event)) {
                 $this->setIPSVariable('PhysicalLinkStatus', 'Physical Link Status', $this->LinkStateToInt((string) $Event['PhysicalLinkStatus']), VARIABLETYPE_INTEGER, 'FB.LinkState');
                 unset($Event['PhysicalLinkStatus']);
-                //Todo
-                // GetCommonLinkProperties über runScriptText und RequestAction starten
+                $this->UpdateCommonLinkProperties();
             }
 
             parent::DecodeEvent($Event);

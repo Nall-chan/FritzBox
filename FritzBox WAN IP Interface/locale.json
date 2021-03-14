@@ -1,8 +1,25 @@
 {
     "translations": {
         "de": {
-            "Translation 1": "Übersetzung 1",
-            "Translation 2": "Übersetzung 2"
+            "Service": "Dienst",
+            "<none>": "<keiner>",
+            "Refresh Interval": "Aktualisierungsintervall",
+            "seconds": "Sekunden",
+            "Update Values": "Werte aktualisieren",
+            "Event subscribe error": "Ereignisabonnementfehler",
+            "Invalid Ident.": "Ungültiger Ident.",
+            "Connected": "Verbunden",
+            "Disconnected": "Getrennt",
+            "IP connection status": "IP Verbindungsstatus",
+            "Connection duration": "Verbindungsdauer",
+            "Connection duration in seconds": "Verbindungsdauer in Sekunden",
+            "External IPv4 Address": "Externe IPv4 Adresse",
+            "IPv4 DNS-Server 1": "IPv4 DNS-Server 1",
+            "IPv4 DNS-Server 2": "IPv4 DNS-Server 2",
+            "External IPv6 Address": "Externe IPv6 Adresse",
+            "IPv6 DNS-Server 1": "IPv6 DNS-Server 1",
+            "IPv6 DNS-Server 2": "IPv6 DNS-Server 2",
+            "IPv6 Prefix": "IPv6 Prefix"
         }
     }
 }
