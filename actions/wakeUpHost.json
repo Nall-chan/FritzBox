@@ -1,0 +1,36 @@
+{
+    "id": "{F7C8619E-21C1-4EE1-CCA8-0AC4CB111AD8}",
+    "caption": "Wake up host with WOL",
+    "form": [
+        "$Childs = IPS_GetChildrenIDs($_IPS['TARGET']);",
+        "$Form = ['type' => 'Select', 'name' => 'MACADRESS', 'caption' => 'Host'];",
+        "foreach ($Childs as $VarId) {",
+        "   $Ident = IPS_GetObject($VarId)['ObjectIdent'];",
+        "   if (strpos($Ident, 'MAC') === 0) {",
+        "       $Form['options'][] = [",
+        "           'caption'   =>  IPS_GetName($VarId),",
+        "           'value'     =>  implode(':', str_split(substr($Ident, 3), 2))",
+        "           ];",
+        "   }",
+        "}",
+        "return [$Form];"
+    ],
+    "action": "FB_WakeOnLANByMACAddress($_IPS['TARGET'],$_IPS['MACADRESS']);",
+    "restrictions": {
+        "objectType": [
+            1
+        ],
+        "moduleID": [
+            "{66495783-EAEF-7A90-B13C-399045E4790B}"
+        ],
+        "environments": [
+            "TestCommands",
+            "Default"
+        ]
+    },
+    "locale": {
+        "de": {
+            "Wake up host with WOL": "Host mit WOL aufwecken"
+        }
+    }
+}

@@ -1,0 +1,30 @@
+{
+    "id": "{5711094C-4C02-CEFE-E59A-9911B164EACB}",
+    "caption": "Switch WLAN on or off",
+    "form": [
+        {
+            "type": "CheckBox",
+            "name": "ACTIVE",
+            "caption": "WLAN active?"
+        }
+    ],
+    "action": "FB_SetEnable($_IPS['TARGET'],$_IPS['ACTIVE']);",
+    "restrictions": {
+        "objectType": [
+            1
+        ],
+        "moduleID": [
+            "{B3D72623-556E-B6C6-25E0-B3DEFE41F031}"
+        ],
+        "environments": [
+            "TestCommands",
+            "Default"
+        ]
+    },
+    "locale": {
+        "de": {
+            "Switch WLAN on or off": "Schalte WLAN ein oder aus",
+            "WLAN active?": "WLAN aktiv?"
+        }
+    }
+}

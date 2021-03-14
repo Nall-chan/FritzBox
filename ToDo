@@ -2,13 +2,13 @@ Bei Host auto löschen?!
 HTML-Tabellen fehlen komplett in WLAN und Host
 
 Fertige Instanzen:
-
-Aktionen fehlen:
  - Hosts
  - DHCP
  - Device Info
  - WAN Common Interface
  - WLAN
+
+Aktionen fehlen:
 
 Übersetzungen fehlen:
  - IO (+ Device Config für Reboot)

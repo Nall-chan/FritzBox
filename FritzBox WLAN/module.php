@@ -293,7 +293,6 @@ require_once __DIR__ . '/../libs/FritzBoxBase.php';
             $CodeText= 'WIFI:S:'.$SSID.';T:WPA;P:'.$KeyPassphrase.';;';
             $Size = $this->ReadPropertyInteger('QRCodeSize');
             include(__DIR__.'/../libs/phpqrcode/qrlib.php');
-            ob_end_clean();
             ob_start();
             QRcode::png($CodeText, null, QR_ECLEVEL_L, $Size);
             $QRImage = ob_get_contents();
