@@ -2,14 +2,14 @@ Bei Host auto löschen?!
 HTML-Tabellen fehlen komplett in WLAN und Host
 
 Fertige Instanzen:
- - Hosts
- - DHCP
  - Device Info
- - WAN Common Interface
+ - Hosts
  - WLAN
+ - DHCP Server
+ - WAN Common Interface
 
 Feldtest nötig:
- - FritzBox WAN DSL Link
+ - WAN DSL Link
 
 Aktionen fehlen:
 Übersetzungen fehlen:
@@ -18,16 +18,17 @@ Aktionen fehlen:
  
 
 Nächste Instanzen zum Testen:
-- WAN IP Interface
-- WAN DSL Interface
 - WAN Port Mapping
+- WAN IP Interface (= Port Mapping?)
+- WAN DSL Interface (= Port Mapping?)
 
 Unfertig:
-- UpnP / Freigaben
+- UpnP / NAS / Samba-Freigaben
 - LAN Config
-- Phonebook!
-- Caller List
-- Call Monitor
-- TAM
+- Phonebook !
+- Tel-Devices !
+- Anrufliste
+- Anruf-Monitor
+- Anrufbeantworter
 
 
