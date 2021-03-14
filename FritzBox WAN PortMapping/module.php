@@ -21,16 +21,42 @@ require_once __DIR__ . '/../libs/FritzBoxBase.php';
             //Never delete this line!
             parent::Create();
             $this->RegisterPropertyInteger('Index', -1);
+            $this->RegisterPropertyInteger('RefreshInterval', 60);
+            $this->RegisterTimer('RefreshInfo', 0, 'IPS_RequestAction(' . $this->InstanceID . ',"RefreshInfo",true);');
         }
         public function ApplyChanges()
         {
+            $this->SetTimerInterval('RefreshInfo', 0);
             parent::ApplyChanges();
             $Index = $this->ReadPropertyInteger('Index');
-            if ($Index > -1) {
-                $this->ReadPortMapping();
+            if ($Index == -1) {
+                $this->SetStatus(IS_INACTIVE);
+                return;
             }
+            $this->SetStatus(IS_ACTIVE);
+            if (IPS_GetKernelRunlevel() != KR_READY) {
+                return;
+            }
+            
+            $this->UpdatePortMapping();
+            $this->SetTimerInterval('RefreshInfo', $this->ReadPropertyInteger('RefreshInterval')*1000);
         }
-
+        public function RequestAction($Ident, $Value)
+        {
+            if (parent::RequestAction($Ident, $Value)) {
+                return true;
+            }
+            switch ($Ident) {
+                case 'RefreshInfo':
+                    return $this->UpdatePortMapping();
+            }
+            trigger_error($this->Translate('Invalid Ident.'), E_USER_NOTICE);
+            return false;
+        }
+        private function UpdatePortMapping()
+        {
+            $this->ReadPortMapping();
+        }
         public function GetPortMappingNumberOfEntries()
         {
             return $this->Send('GetPortMappingNumberOfEntries');
@@ -102,11 +128,15 @@ require_once __DIR__ . '/../libs/FritzBoxBase.php';
             ]);
         }
         public function AddPortMapping(
-            string $NewRemoteHost, int $NewExternalPort,
-            string $NewProtocol, int $NewInternalPort,
-            string $NewInternalClient, int $NewEnabled,
-            string $NewPortMappingDescription, int $NewLeaseDuration)
-        {
+            string $NewRemoteHost,
+            int $NewExternalPort,
+            string $NewProtocol,
+            int $NewInternalPort,
+            string $NewInternalClient,
+            int $NewEnabled,
+            string $NewPortMappingDescription,
+            int $NewLeaseDuration
+        ) {
             $result = $this->Send(__FUNCTION__, [
                 'NewRemoteHost'            => $NewRemoteHost,
                 'NewExternalPort'          => $NewExternalPort,

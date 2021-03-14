@@ -182,9 +182,9 @@ require_once __DIR__ . '/../libs/FritzBoxModule.php';
                     // test ohne Filter.
                     //$ServiceValues[] = $AddService;
                 }
-                //if ($Xml == 'igd2desc.xml') {
-                   // break 1;
-                //}
+                if ($Xml == 'igd2desc.xml') {
+                    break 1;
+                }
             }
             foreach ($KnownInstances as $InstanceId => $KnownInstance) {
                 $ServiceValues[] =[

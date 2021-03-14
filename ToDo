@@ -8,8 +8,10 @@ Fertige Instanzen:
  - WAN Common Interface
  - WLAN
 
-Aktionen fehlen:
+Feldtest nötig:
+ - FritzBox WAN DSL Link
 
+Aktionen fehlen:
 Übersetzungen fehlen:
  - IO (+ Device Config für Reboot)
  - Konfigurator

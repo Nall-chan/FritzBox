@@ -3,23 +3,22 @@
         {
             "name": "Index",
             "type": "Select",
-            "caption": "Type",
+            "caption": "Service",
             "options": [
                 {
                     "caption": "<none>",
                     "value": -1
                 },
                 {
-                    "caption": "PPP (DSL)",
+                    "caption": "IGD",
                     "value": 0
                 },
                 {
-                    "caption": "IP (Cable)",
+                    "caption": "IGD2",
                     "value": 1
                 }
             ]
-        },
-        {
+        },{
             "name": "RefreshInterval",
             "type": "NumberSpinner",
             "caption": "Refresh Interval",

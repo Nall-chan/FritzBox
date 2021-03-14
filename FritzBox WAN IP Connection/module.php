@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 require_once __DIR__ . '/../libs/FritzBoxBase.php';
 
-    class FritzBoxWANIPInterface extends FritzBoxModulBase
+    class FritzBoxWANIPConnection extends FritzBoxModulBase
     {
         protected static $ControlUrlArray = [
             // '/upnp/control/wanipconnection1',
@@ -206,6 +206,7 @@ require_once __DIR__ . '/../libs/FritzBoxBase.php';
                     }
                 break;
             }
+            trigger_error($this->Translate('Invalid Ident.'), E_USER_NOTICE);
         }
 
         public function GetConfigurationForm()

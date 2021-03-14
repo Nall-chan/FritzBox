@@ -1,0 +1,14 @@
+{
+    "translations": {
+        "de": {
+            "Service": "Dienst",
+            "<none>": "<keiner>",
+            "Refresh Interval": "Aktualisierungsintervall",
+            "seconds": "Sekunden",
+            "Update Values": "Werte aktualisieren",
+            "Event subscribe error": "Ereignisabonnementfehler",
+            "Invalid Ident.": "Ungültiger Ident.",
+            "DSL link status": "DSL Link Status"
+        }
+    }
+}
