@@ -110,7 +110,9 @@ class FritzBoxWANDSLLink extends FritzBoxModulBase
     protected function DecodeEvent($Event)
     {
         if (array_key_exists('LinkStatus', $Event)) {
-            $this->setIPSVariable('LinkStatus', 'DSL link status', $Event['LinkStatus'], VARIABLETYPE_STRING);
+            if (@$this->GetIDForIdent('LinkStatus')) {
+                $this->setIPSVariable('LinkStatus', 'DSL link status', $Event['LinkStatus'], VARIABLETYPE_STRING);
+            }
             unset($Event['LinkStatus']);
             $this->UpdateInfo();
         }

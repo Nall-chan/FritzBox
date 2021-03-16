@@ -8,6 +8,8 @@
             "Update Values": "Werte aktualisieren",
             "Event subscribe error": "Ereignisabonnementfehler",
             "Invalid Ident.": "Ungültiger Ident.",
+            "Reconnect":"Neu verbinden",
+            "Control connection":"Steuerung der Verbindung",
             "Connected": "Verbunden",
             "Disconnected": "Getrennt",
             "IP connection status": "IP Verbindungsstatus",

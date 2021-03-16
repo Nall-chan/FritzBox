@@ -37,7 +37,6 @@ require_once __DIR__ . '/../libs/FritzBoxBase.php';
             if (IPS_GetKernelRunlevel() != KR_READY) {
                 return;
             }
-            
             $this->UpdatePortMapping();
             $this->SetTimerInterval('RefreshInfo', $this->ReadPropertyInteger('RefreshInterval')*1000);
         }
@@ -46,6 +45,9 @@ require_once __DIR__ . '/../libs/FritzBoxBase.php';
             if (parent::RequestAction($Ident, $Value)) {
                 return true;
             }
+            if (strpos($Ident, 'P')===3) {
+                return $this->EnablePortMapping($Ident, $Value);
+            }
             switch ($Ident) {
                 case 'RefreshInfo':
                     return $this->UpdatePortMapping();
@@ -53,32 +55,53 @@ require_once __DIR__ . '/../libs/FritzBoxBase.php';
             trigger_error($this->Translate('Invalid Ident.'), E_USER_NOTICE);
             return false;
         }
-        private function UpdatePortMapping()
-        {
-            $this->ReadPortMapping();
-        }
-        public function GetPortMappingNumberOfEntries()
-        {
-            return $this->Send('GetPortMappingNumberOfEntries');
-        }
 
-        public function ReadPortMapping()
+        private function UpdatePortMapping(string $NewIdent = '', bool $NewEnabled = false)
         {
-            $NoOfMappings = $this->Send('GetPortMappingNumberOfEntries');
+            $NoOfMappings = $this->GetPortMappingNumberOfEntries();
             if ($NoOfMappings == false) {
                 return false;
             }
+            $MyIPs = array_column(Sys_GetNetworkInfo(), 'IP');
+            $this->setIPSVariable('PortMappingNumberOfEntries', 'Number of port mapping', $NoOfMappings, VARIABLETYPE_INTEGER, '', false, -1);
             for ($i = 0; $i < $NoOfMappings; $i++) {
                 $result = $this->GetGenericPortMappingEntry($i);
                 if ($result === false) {
                     continue;
                 }
-                $ident = str_replace('.', 'P', $result['NewInternalClient']) . '_' . $result['NewInternalPort'] . '_' . $result['NewProtocol'];
-                $this->SendDebug('Ident', $ident, 0);
-                $this->setIPSVariable($ident, $result['NewPortMappingDescription'], $result['NewEnabled'], VARIABLETYPE_BOOLEAN, '~Switch', false, $i);
+                $Ident = str_replace('.', 'P', $result['NewInternalClient']) . '_' . $result['NewInternalPort'] . '_' . $result['NewProtocol'];
+                if ($NewIdent == $Ident) {
+                    $changeResult = $this->AddPortMapping(
+                        $result['NewRemoteHost'],
+                        $result['NewExternalPort'],
+                        $result['NewProtocol'],
+                        $result['NewInternalPort'],
+                        $result['NewInternalClient'],
+                        $NewEnabled,
+                        $result['NewPortMappingDescription'],
+                        $result['NewLeaseDuration']
+                    );
+                    if ($changeResult) {
+                        $result['NewEnabled']=$NewEnabled;
+                    }
+                }
+                //$this->SendDebug('Ident', $ident, 0);
+                //$VarId= @$this->GetIDForIdent($Ident);
+                $this->setIPSVariable($Ident, $result['NewPortMappingDescription'], $result['NewEnabled'], VARIABLETYPE_BOOLEAN, '~Switch', false, $i);
+                if (in_array((string)$result['NewInternalClient'], $MyIPs)) {
+                    $this->EnableAction($Ident);
+                }
             }
+            return true;
         }
-
+        public function GetPortMappingNumberOfEntries()
+        {
+            $result = $this->Send(__FUNCTION__);
+            if ($result == false) {
+                return false;
+            }
+            return (int)$result;
+        }
         public function GetGenericPortMappingEntry(int $index)
         {
             $result = $this->Send(__FUNCTION__, ['NewPortMappingIndex'=>$index]);
@@ -133,7 +156,7 @@ require_once __DIR__ . '/../libs/FritzBoxBase.php';
             string $NewProtocol,
             int $NewInternalPort,
             string $NewInternalClient,
-            int $NewEnabled,
+            bool $NewEnabled,
             string $NewPortMappingDescription,
             int $NewLeaseDuration
         ) {
@@ -143,55 +166,62 @@ require_once __DIR__ . '/../libs/FritzBoxBase.php';
                 'NewProtocol'              => $NewProtocol,
                 'NewInternalPort'          => $NewInternalPort,
                 'NewInternalClient'        => $NewInternalClient,
-                'NewEnabled'               => $NewEnabled,
+                'NewEnabled'               => (int)$NewEnabled,
                 'NewPortMappingDescription'=> $NewPortMappingDescription,
                 'NewLeaseDuration'         => $NewLeaseDuration
             ]);
-            if ($result == false) {
-                return false;
+
+            if ($result === null) {
+                return true;
             }
-            return true;
+            return false;
         }
         /*
          hosts can only add port mapping entries for
          themselves and not for other hosts in the LAN.
-
+*/
         public function EnablePortMapping(string $Ident, bool $Value)
         {
             if (@$this->GetIDForIdent($Ident) == false) {
                 trigger_error('Invalid ident.', E_USER_NOTICE);
                 return false;
             }
-            $Parts = explode('_', $Ident);
-            $RemoteHost = '0.0.0.0';
-            $ExternalPort = (int) $Parts[1];
-            $Protocol = $Parts[2];
-            $Data = $this->GetSpecificPortMappingEntry($RemoteHost, $ExternalPort, $Protocol);
-            if ($Data == false) {
-                //trigger_error('Portmapping not found.', E_USER_NOTICE);
-                return false;
-            }
 
-            $Result = $this->AddPortMapping(
-    $Data['NewRemoteHost'],
-    $Data['NewInternalPort'],
-    $Data['NewProtocol'],
-    $Data['NewExternalPort'],
-    $Data['NewInternalClient'],
-    (int) $Value,
-    $Data['NewPortMappingDescription'],
-    $Data['NewLeaseDuration']
-);
-            if ($Result) {
-                $this->SetValue($Ident, $Value);
-            }
-            return $Result;
+            return $this->UpdatePortMapping($Ident, $Value);
         }
-        public function RequestAction($Ident, $Value)
-        {
-            if (parent::RequestAction($Ident, $Value)) {
-                return true;
-            }
-            return $this->EnablePortMapping($Ident, (bool) $Value);
-        }*/
+        /*
+                public function GetInfo()
+                {
+                    $this->Send(__FUNCTION__);
+                }
+                public function GetConnectionTypeInfo()
+                {
+                    $this->Send(__FUNCTION__);
+        
+                }
+                public function GetStatusInfo()
+                {
+                    $this->Send(__FUNCTION__);
+                }
+                public function GetNATRSIPStatus()
+                {
+                    $this->Send(__FUNCTION__);
+        
+                }
+                public function GetExternalIPAddress()
+                {
+                    $this->Send(__FUNCTION__);
+        
+                }
+                public function X_GetDNSServers()
+                {
+                    $this->Send(__FUNCTION__);
+        
+                }
+                public function GetLinkLayerMaxBitRates()
+                {
+                    $this->Send(__FUNCTION__);
+        
+                }
+        */
     }

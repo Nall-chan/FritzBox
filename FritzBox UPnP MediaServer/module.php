@@ -2,16 +2,15 @@
 
 declare(strict_types=1);
 require_once __DIR__ . '/../libs/FritzBoxBase.php';
-class FritzBoxTime extends FritzBoxModulBase
+class FritzBoxUPnPMediaServer extends FritzBoxModulBase
 {
     protected static $ControlUrlArray = [
-        '/upnp/control/time'
+        '/upnp/control/x_upnp'
     ];
     protected static $EventSubURLArray = [];
     protected static $ServiceTypeArray = [
-        'urn:dslforum-org:service:Time:1'
+        'urn:dslforum-org:service:X_AVM-DE_UPnP:1'
     ];
-
     public function Create()
     {
         //Never delete this line!
@@ -45,10 +44,10 @@ class FritzBoxTime extends FritzBoxModulBase
         switch ($Ident) {
             case 'RefreshInfo':
                 return $this->UpdateInfo();
-            case 'NTPServer':
-                return $this->SetNTPServers($Value, $this->GetValue('NTPServer2'));
-            case 'NTPServer2':
-                return $this->SetNTPServers($this->GetValue('NTPServer'), $Value);
+            case 'Enable':
+                return $this->EnableUPnPServer($Value, $this->GetValue('UPnPMediaServer'));
+            case 'UPnPMediaServer':
+                return $this->EnableUPnPServer($this->GetValue('Enable'), $Value);
          }
         trigger_error($this->Translate('Invalid Ident.'), E_USER_NOTICE);
         
@@ -60,16 +59,8 @@ class FritzBoxTime extends FritzBoxModulBase
         if ($result === false) {
             return false;
         }
-        $VarTime = new DateTime((string) $result['NewCurrentLocalTime']);
-        $this->setIPSVariable('CurrentLocalTime', 'Current systemclock', $VarTime->getTimestamp(), VARIABLETYPE_INTEGER, '~UnixTimestamp');
-        $this->setIPSVariable('NTPServer', 'NTP-Server 1', $result['NewNTPServer1'], VARIABLETYPE_STRING, '', true);
-        $this->setIPSVariable('NTPServer2', 'NTP-Server 2', $result['NewNTPServer2'], VARIABLETYPE_STRING, '', true);
-        //todo
-        /*
-        NewDaylightSavingsUsed
-        NewDaylightSavingsStart
-        NewDaylightSavingsEnd
-        */
+        $this->setIPSVariable('Enable', 'UPnP protocol active', (bool)$result['NewEnable'], VARIABLETYPE_BOOLEAN, '~Switch', true);
+        $this->setIPSVariable('UPnPMediaServer', 'UPnP Mediaserver active', (bool)$result['NewUPnPMediaServer'], VARIABLETYPE_BOOLEAN, '~Switch', true);
         return true;
     }
     public function GetInfo()
@@ -80,16 +71,15 @@ class FritzBoxTime extends FritzBoxModulBase
         }
         return $result;
     }
-    public function SetNTPServers(string $NTPServer1, string $NTPServer2)
+    public function EnableUPnPServer(bool $Enable, bool $UPnPMediaServer)
     {
-        $result = $this->Send(__FUNCTION__, [
-            'NewNTPServer1'=> $NTPServer1,
-            'NewNTPServer2'=> $NTPServer2
+        $result = $this->Send('SetConfig', [
+            'NewEnable'=> $Enable,
+            'NewUPnPMediaServer'=> $UPnPMediaServer
         ]);
         if ($result === false) {
             return false;
         }
-
         return true;
     }
 }

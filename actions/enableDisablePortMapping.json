@@ -1,0 +1,42 @@
+{
+    "id": "{51C841AF-A6FA-3EBC-EE13-C0323E213BB2}",
+    "caption": "Enable or disable port forwarding",
+    "form": [
+        "$Childs = IPS_GetChildrenIDs($_IPS['TARGET']);",
+        "$Form[] = ['type' => 'CheckBox', 'name' => 'ACTIVE', 'caption' => 'Rule active?'];",
+        "$Form[] = ['type' => 'Label', 'caption' => 'Caution: You can only switch rules for this Symcon-Host.'];",
+        "$Options=[];",
+        "foreach ($Childs as $VarId) {",
+        "   $Ident = IPS_GetObject($VarId)['ObjectIdent'];",
+        "   if (strpos($Ident, 'P') === 3) {",
+        "       $Options[] = [",
+        "           'caption'   =>  IPS_GetName($VarId),",
+        "           'value'     =>  $Ident",
+        "           ];",
+        "   }",
+        "}",
+        "$Form[] = ['type' => 'Select', 'name' => 'IDENT', 'caption' => 'Rule', 'options' => $Options];",
+        "return $Form;"
+    ],
+    "action": "FB_EnablePortMapping($_IPS['TARGET'],$_IPS['IDENT'],$_IPS['ACTIVE']);",
+    "restrictions": {
+        "objectType": [
+            1
+        ],
+        "moduleID": [
+            "{9396D756-40EA-46C7-AA06-623B8DCB789B}"
+        ],
+        "environments": [
+            "TestCommands",
+            "Default"
+        ]
+    },
+    "locale": {
+        "de": {
+            "Enable or disable port forwarding": "Aktivieren oder deaktivieren einer Portweiterleitung",
+            "Rule active?": "Regel aktiv?",
+            "Caution: You can only switch rules for this Symcon-Host.": "Achtung: Sie können nur die Regeln für diesen Symcon-Host schalten.",
+            "Rule": "Regel"
+        }
+    }
+}

@@ -15,11 +15,11 @@ Beschreibung des Moduls.
 
 ### 1. Funktionsumfang
 
-*
+* Alte Variablen vom FB-Project **sind** kompatibel.
 
 ### 2. Vorraussetzungen
 
-- IP-Symcon ab Version 5.2
+- IP-Symcon ab Version 5.6
 
 ### 3. Software-Installation
 

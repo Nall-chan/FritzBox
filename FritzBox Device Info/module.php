@@ -53,7 +53,7 @@ class FritzBoxDeviceInfo extends FritzBoxModulBase
         $this->setIPSVariable('SoftwareVersion', 'Software-Version', (string) $result['NewSoftwareVersion'], VARIABLETYPE_STRING);
         $this->setIPSVariable('LastReboot', 'Last reboot', time() - (int) $result['NewUpTime'], VARIABLETYPE_INTEGER, '~UnixTimestamp');
         $this->setIPSVariable('RunTimeRAW', 'Runtime (seconds)', (int) $result['NewUpTime'], VARIABLETYPE_INTEGER);
-        $this->setIPSVariable('Laufzeit', 'Runtime', $this->ConvertRunTime((int) $result['NewUpTime']), VARIABLETYPE_STRING);
+        $this->setIPSVariable('Runtime', 'Runtime', $this->ConvertRunTime((int) $result['NewUpTime']), VARIABLETYPE_STRING);
         $this->setIPSVariable('DeviceLog', 'Last events', (string) $result['NewDeviceLog'], VARIABLETYPE_STRING, '~TextBox');
         return true;
     }

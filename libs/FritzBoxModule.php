@@ -18,11 +18,12 @@ class Services
         'urn:dslforum-org:service:Time:1'                        => ['{4BD2D88F-E56B-9DF1-19A2-E6A688C5EA70}'=>0],
         'urn:schemas-upnp-org:service:WANIPConnection:1'         => ['{61C9DC95-5A0F-7B9A-4427-82EDB57AA1B9}'=>0],
         'urn:schemas-upnp-org:service:WANIPConnection:2'         => ['{61C9DC95-5A0F-7B9A-4427-82EDB57AA1B9}'=>1],
+        'urn:dslforum-org:service:WANIPConnection:1'             => ['{9396D756-40EA-46C7-AA06-623B8DCB789B}'=>1], //bei Cabel
+        'urn:dslforum-org:service:X_AVM-DE_UPnP:1'               => ['{0F09E36F-BE54-D01D-5AF1-48FF618426AC}'=>0],
         //TODO
         //prüfen / Fertig bauen
         'urn:schemas-upnp-org:service:WANDSLLinkConfig:1'        => ['{061AEAF5-ADCD-AD9E-9BF9-AD40DF364EB6}'=>0], // Prüfen im Feldtest
-        'urn:dslforum-org:service:WANPPPConnection:1'            => ['{9396D756-40EA-46C7-AA06-623B8DCB789B}'=>0], //bei DSL
-        'urn:dslforum-org:service:WANIPConnection:1'             => ['{9396D756-40EA-46C7-AA06-623B8DCB789B}'=>1], //bei Cabel
+        'urn:dslforum-org:service:WANPPPConnection:1'            => ['{9396D756-40EA-46C7-AA06-623B8DCB789B}'=>0], //bei DSL (prüfen im Feldtest)
         //Todo
         'urn:dslforum-org:service:Layer3Forwarding:1'            => [],
         'urn:dslforum-org:service:LANConfigSecurity:1'           => [],
@@ -30,7 +31,6 @@ class Services
         'urn:dslforum-org:service:UserInterface:1'               => [],
         'urn:dslforum-org:service:X_AVM-DE_Storage:1'            => [],
         'urn:dslforum-org:service:X_AVM-DE_WebDAVClient:1'       => [],
-        'urn:dslforum-org:service:X_AVM-DE_UPnP:1'               => [],
         'urn:dslforum-org:service:X_AVM-DE_Speedtest:1'          => [],
         'urn:dslforum-org:service:X_AVM-DE_RemoteAccess:1'       => [],
         'urn:dslforum-org:service:X_AVM-DE_MyFritz:1'            => [],

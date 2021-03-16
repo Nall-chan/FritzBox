@@ -290,6 +290,7 @@ class FritzBoxModulBase extends IPSModule
         }
         $Result = unserialize($Ret);
         if (is_a($Result, 'SoapFault')) {
+            $this->SendDebug('SoapFault', $Result->getMessage(), 0);
             trigger_error($Result->getMessage(), E_USER_WARNING);
             return false;
         }

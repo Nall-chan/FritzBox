@@ -32,15 +32,25 @@ require_once __DIR__ . '/../libs/FritzBoxBase.php';
         public function ApplyChanges()
         {
             $this->SetTimerInterval('RefreshInfo', 0);
+
+            $this->RegisterProfileIntegerEx(
+                'FB.Connect',
+                '',
+                '',
+                '',
+                [
+                    [0,$this->Translate('Reconnect'),'',0xff0000]
+                ]
+            );
             $this->RegisterProfileBooleanEx(
                 'FB.ConnectionStatus',
                 '',
                 '',
                 '',
                 [
-                [false, $this->Translate('Disconnected'), '', 0xff0000],
-                [true, $this->Translate('Connected'), '', 0x00ff00]
-            ]
+                    [false, $this->Translate('Disconnected'), '', 0xff0000],
+                    [true, $this->Translate('Connected'), '', 0x00ff00]
+                ]
             );
             parent::ApplyChanges();
             $Index = $this->ReadPropertyInteger('Index');
@@ -53,6 +63,9 @@ require_once __DIR__ . '/../libs/FritzBoxBase.php';
                 return;
             }
             //$this->UpdateInfo();
+            $this->RegisterVariableInteger('ConnectionAction', $this->Translate('Control connection'), 'FB.Connect', 0);
+            $this->EnableAction('ConnectionAction');
+
             $this->SetTimerInterval('RefreshInfo', $this->ReadPropertyInteger('RefreshInterval')*1000);
         }
         private function UpdateInfo()
@@ -61,7 +74,7 @@ require_once __DIR__ . '/../libs/FritzBoxBase.php';
             if ($result === false) {
                 return false;
             }
-            $this->setIPSVariable('ConnectionStatus', 'IP connection status', ($result['NewConnectionStatus'] == 'Connected'), VARIABLETYPE_BOOLEAN, 'FB.ConnectionStatus', true, 1);
+            $this->setIPSVariable('ConnectionStatus', 'IP connection status', ($result['NewConnectionStatus'] == 'Connected'), VARIABLETYPE_BOOLEAN, 'FB.ConnectionStatus', false, 1);
             $this->setIPSVariable('UptimeRAW', 'Connection duration in seconds', (int) $result['NewUptime'], VARIABLETYPE_INTEGER, '', false, 2);
             $this->setIPSVariable('Uptime', 'Connection duration', $this->ConvertRunTime((int) $result['NewUptime']), VARIABLETYPE_STRING, '', false, 3);
 
@@ -198,12 +211,12 @@ require_once __DIR__ . '/../libs/FritzBoxBase.php';
             switch ($Ident) {
                 case 'RefreshInfo':
                     return $this->UpdateInfo();
-                case 'ConnectionStatus':
-                    if ($Value) {
+                case 'ConnectionAction':
+/*                    if ($Value) {
                         return $this->RequestConnection();
-                    } else {
+                    } else {*/
                         return $this->ForceTermination();
-                    }
+                    //}
                 break;
             }
             trigger_error($this->Translate('Invalid Ident.'), E_USER_NOTICE);

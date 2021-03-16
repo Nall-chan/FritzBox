@@ -152,6 +152,15 @@ require_once __DIR__ . '/../libs/FritzBoxBase.php';
             $this->setIPSVariable('TotalMBytesSent', 'Sent since connected', $send / 1024 / 1024, VARIABLETYPE_FLOAT, 'FB.MByte');
             $this->setIPSVariable('TotalMBytesReceived', 'Received since connected', $recv / 1024 / 1024, VARIABLETYPE_FLOAT, 'FB.MByte');
 
+            if (array_key_exists('NewDNSServer1', $result)) {
+                $this->setIPSVariable('UpnpControlEnabled', 'Allow automatic port forwarding via UPnP',  $result['NewUpnpControlEnabled'], VARIABLETYPE_BOOLEAN,'~Switch');
+            }
+            if (array_key_exists('NewDNSServer1', $result)) {
+                $this->setIPSVariable('DNSServer1', 'DNS-Server 1', (string) $result['NewDNSServer1'], VARIABLETYPE_STRING);
+            }
+            if (array_key_exists('NewDNSServer2', $result)) {
+                $this->setIPSVariable('DNSServer2', 'DNS-Server 2', (string) $result['NewDNSServer2'], VARIABLETYPE_STRING);
+            }
             if (array_key_exists('NewX_AVM_DE_WANAccessType', $result)) {
                 $this->setIPSVariable('WANAccessType', 'WAN Access type', (string) $result['NewX_AVM_DE_WANAccessType'], VARIABLETYPE_STRING);
             }
@@ -162,19 +171,6 @@ require_once __DIR__ . '/../libs/FritzBoxBase.php';
                 $this->setIPSVariable('VoipDNSServer2', 'VoIP DNS-Server 2', (string) $result['NewVoipDNSServer2'], VARIABLETYPE_STRING);
             }
             return true;
-            /*  ["NewAutoDisconnectTime"]=>
-              string(1) "0"
-              ["NewIdleDisconnectTime"]=>
-              string(1) "0"
-              ["NewDNSServer1"]=>
-              string(0) ""
-              ["NewDNSServer2"]=>
-              string(0) ""
-              ["NewUpnpControlEnabled"]=>
-              string(1) "1"
-              ["NewRoutedBridgedModeBoth"]=>
-              string(1) "1"
-             */
         }
         public function GetAddonInfos()
         {

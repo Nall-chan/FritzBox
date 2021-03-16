@@ -1,4 +1,4 @@
-# FritzBox DHCP Server <!-- omit in toc -->
+# FritzBox NAT Port Forwarding <!-- omit in toc -->
 Beschreibung des Moduls.
 
 ### Inhaltsverzeichnis <!-- omit in toc -->
@@ -23,12 +23,12 @@ Beschreibung des Moduls.
 
 ### 3. Software-Installation
 
-* Über den Module Store das 'FritzBox DHCP Server'-Modul installieren.
+* Über den Module Store das 'FritzBox WLAN'-Modul installieren.
 * Alternativ über das Module Control folgende URL hinzufügen
 
 ### 4. Einrichten der Instanzen in IP-Symcon
 
- Unter 'Instanz hinzufügen' ist das 'FritzBox DHCP Server'-Modul unter dem Hersteller 'AVM' aufgeführt.
+ Unter 'Instanz hinzufügen' ist das 'FritzBox WLAN'-Modul unter dem Hersteller 'AVM' aufgeführt.
 
 __Konfigurationsseite__:
 

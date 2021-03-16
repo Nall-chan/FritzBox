@@ -1,16 +1,13 @@
 {
     "translations": {
         "de": {
-            "Type": "Typ",
-            "<none>": "<keiner>",
-            "PPP (DSL)":"PPP (DSL)",
-            "IP (Cable)":"IP (Kabel)",
             "Refresh Interval": "Aktualisierungsintervall",
             "seconds": "Sekunden",
             "Update Values": "Werte aktualisieren",
             "Event subscribe error": "Ereignisabonnementfehler",
             "Invalid Ident.": "Ungültiger Ident.",
-            "Number of port mapping":"Anzahl der Port Mappings"
+            "UPnP protocol active": "UPnP Protokoll aktiv",
+            "UPnP Mediaserver active": "UPnP Mediaserver aktiv"
         }
     }
 }

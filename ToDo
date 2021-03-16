@@ -7,9 +7,12 @@ Fertige Instanzen:
  - WLAN
  - DHCP Server
  - WAN Common Interface
+ - UPnP Media Server
 
 Feldtest nötig:
  - WAN DSL Link
+ - WAN Port Mapping (Cabel = Okay, DSL = Feldtest nötig)
+ - WAN IP Connection
 
 Aktionen fehlen:
 Übersetzungen fehlen:
@@ -18,12 +21,9 @@ Aktionen fehlen:
  
 
 Nächste Instanzen zum Testen:
-- WAN Port Mapping
-- WAN IP Interface (= Port Mapping?)
-- WAN DSL Interface (= Port Mapping?)
 
 Unfertig:
-- UpnP / NAS / Samba-Freigaben
+- NAS / Samba-Freigaben
 - LAN Config
 - Phonebook !
 - Tel-Devices !
