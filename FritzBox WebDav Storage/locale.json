@@ -1,0 +1,14 @@
+{
+    "translations": {
+        "de": {
+            "Refresh Interval": "Aktualisierungsintervall",
+            "seconds": "Sekunden",
+            "Username": "Benutzername",
+            "Password": "Passwort",
+            "Update Values": "Werte aktualisieren",
+            "Event subscribe error": "Ereignisabonnementfehler",
+            "Invalid Ident.": "Ungültiger Ident.",
+            "WebDav client active": "WebDav Client Aktiv"
+        }
+    }
+}

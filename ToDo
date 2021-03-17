@@ -8,7 +8,8 @@ Fertige Instanzen:
  - DHCP Server
  - WAN Common Interface
  - UPnP Media Server
-
+ - WebDav Client
+ 
 Feldtest nötig:
  - WAN DSL Link
  - WAN Port Mapping (Cabel = Okay, DSL = Feldtest nötig)

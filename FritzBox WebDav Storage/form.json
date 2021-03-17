@@ -1,0 +1,43 @@
+{
+    "elements": [
+        {
+            "name": "RefreshInterval",
+            "type": "NumberSpinner",
+            "caption": "Refresh Interval",
+            "suffix": "seconds",
+            "minimum": 0
+        },
+        {
+            "type": "RowLayout",
+            "items": [
+                {
+                    "type": "ValidationTextBox",
+                    "name": "Username",
+                    "caption": "Username"
+                },
+                {
+                    "type": "PasswordTextBox",
+                    "name": "Password",
+                    "caption": "Password"
+                }
+            ]
+        }
+    ],
+    "actions": [
+        {
+            "type": "Button",
+            "caption": "Update Values",
+            "onClick": "IPS_RequestAction($id,'RefreshInfo',true);"
+        },
+        {
+            "type": "TestCenter"
+        }
+    ],
+    "status": [
+        {
+            "code": 201,
+            "icon": "error",
+            "caption": "Event subscribe error"
+        }
+    ]
+}

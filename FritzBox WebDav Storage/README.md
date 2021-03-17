@@ -1,4 +1,4 @@
-# FritzBox UPnP MediaServer <!-- omit in toc -->
+# FritzBox WebDav Speicher <!-- omit in toc -->
 Beschreibung des Moduls.
 
 ### Inhaltsverzeichnis <!-- omit in toc -->

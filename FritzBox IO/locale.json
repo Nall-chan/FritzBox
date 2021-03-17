@@ -1,12 +1,19 @@
 {
     "translations": {
         "de": {
+            "Interface connected":"Verbindung hergestellt",
+            "Interface closed":"Verbindung geschlossen",
+            "Connection lost":"Verbindung verloren",
+            "Unauthorized":"Nicht autorisiert",
+            "Device not reachable":"Gerät nicht erreichbar",
+            "URL not valid":"URL ist ungültig",
+            "Open":"Aktiv",
+            "URL":"URL",
+            "Username":"Benutzername",
+            "Password":"Passwort",
+            "Use Symcon-Connect as callback. Needed for WAN connections to FritzBox.":"Verwende Symcon-Connect als Rückkanal. Wird für WAN-Verbindungen zur FritzBox benötigt.",
+            "Event hook:":"Ereignis-WebHook",
             "Couldn't determine webhook": "Konnte Webhook nicht ermitteln",
-            "SerialNumber": "Seriennummer",
-            "last reboot": "Letzter Neustart",
-            "Manufacturer": "Hersteller",
-            "UpTime seconds": "Laufzeit in Sekunden",
-            "Uptime": "Laufzeit",
             "Invalid":"Ungültig"
         }
     }
