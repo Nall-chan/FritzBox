@@ -9,23 +9,25 @@ Fertige Instanzen:
  - WAN Common Interface
  - UPnP Media Server
  - WebDav Client
- 
+ - FTP / Samba-Freigaben
+
 Feldtest nötig:
  - WAN DSL Link
  - WAN Port Mapping (Cabel = Okay, DSL = Feldtest nötig)
  - WAN IP Connection
 
 Aktionen fehlen:
-Übersetzungen fehlen:
  - IO (+ Device Config für Reboot)
+
+Übersetzungen fehlen:
  - Konfigurator
  
+Nächste Instanz:
 
-Nächste Instanzen zum Testen:
-
-Unfertig:
-- NAS / Samba-Freigaben
-- LAN Config
+Unfertig / Fehlen:
+- DDNS
+- MyFritz
+- LAN Config (wo?)
 - Phonebook !
 - Tel-Devices !
 - Anrufliste

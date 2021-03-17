@@ -1,0 +1,17 @@
+{
+    "translations": {
+        "de": {
+            "Refresh Interval": "Aktualisierungsintervall",
+            "seconds": "Sekunden",
+            "Update Values": "Werte aktualisieren",
+            "Event subscribe error": "Ereignisabonnementfehler",
+            "Invalid Ident.": "Ungültiger Ident.",
+            "SMB server": "SMB Server",
+            "FTP server": "FTP Server",
+            "FTP server state": "FTP Server Status",
+            "WAN FTP server": "WAN FTP Server",
+            "WAN FTP SSL only": "WAN FTP nur SSL",
+            "WAN FTP Port": "WAN FTP Port"
+        }
+    }
+}
