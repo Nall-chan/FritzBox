@@ -7,6 +7,7 @@ eval('declare(strict_types=1);namespace FritzBoxIO {?>' . file_get_contents(__DI
 eval('declare(strict_types=1);namespace FritzBoxIO {?>' . file_get_contents(__DIR__ . '/../libs/helper/DebugHelper.php') . '}');
 /**
  * @property string $Url
+ * @property string $Username
  */
     class FritzBoxIO extends IPSModule
     {
@@ -45,7 +46,7 @@ eval('declare(strict_types=1);namespace FritzBoxIO {?>' . file_get_contents(__DI
             $this->RegisterAttributeInteger('NoOfWlan', 0);
            
             $this->Url = '';
-            
+            $this->Username = '';
             //$this->RequireParent("{6179ED6A-FC31-413C-BB8E-1204150CF376}");
             if (IPS_GetKernelRunlevel() == KR_READY) {
                 $this->doNotLoadXML = false;
@@ -118,7 +119,11 @@ eval('declare(strict_types=1);namespace FritzBoxIO {?>' . file_get_contents(__DI
                                     $this->SetStatus(self::isURLnotValid);
                                     return;
                                 }*/
-
+                if ($this->ReadPropertyString('Username') == '') {
+                    $this->Username= $this->GetLastUser();
+                } else {
+                    $this->Username = $this->ReadPropertyString('Username');
+                }
                 if (!$this->getWANConnectionTyp($HttpCode)) {
                     $this->SetStatus(self::$http_error[$HttpCode][1]);
                     $this->ShowLastError(self::$http_error[$HttpCode][0]);
@@ -171,9 +176,16 @@ eval('declare(strict_types=1);namespace FritzBoxIO {?>' . file_get_contents(__DI
         }
         public function GetConfigurationForm()
         {
+            //prüfung ob Username in config leer.
+            // Wenn ja dann
+            // urn:LANConfigSecurity-com:serviceId:LANConfigSecurity1
+            // den letzten user ermitteln und eintragen
             $Form = json_decode(file_get_contents(__DIR__ . '/form.json'), true);
+            if ($this->Username != $this->ReadPropertyString('Username')) {
+                $Form['elements'][2]['visible'] = true;
+            }
             if (IPS_GetOption('NATSupport')) {
-                $Form['elements'][4]['visible'] = true;
+                $Form['elements'][5]['visible'] = true;
             }
             $ConsumerAddress = $this->ReadAttributeString('ConsumerAddress');
             if (($ConsumerAddress == 'Invalid') && ($this->ReadPropertyBoolean('Open'))) {
@@ -436,6 +448,28 @@ eval('declare(strict_types=1);namespace FritzBoxIO {?>' . file_get_contents(__DI
             $this->Url = $Scheme . '://' . $Host . ':' . $Port;
             return true;
         }
+        private function GetLastUser()
+        {
+            $result = $this->CallSoapAction(
+                $HttpCode,
+                'urn:dslforum-org:service:LANConfigSecurity:1',
+                '/upnp/control/lanconfigsecurity',
+                'X_AVM-DE_GetUserList'
+            );
+            if (is_a($result, 'SoapFault')) {
+                return '';
+            }
+            $xml = new simpleXMLElement($result);
+            if ($xml === false) {
+                $this->SendDebug('XML decode error', $result, 0);
+                return '';
+            }
+            $Xpath = $xml->xpath('/List/Username[@last_user="1"]');
+            if (sizeof($Xpath) >0) {
+                return (string)$Xpath[0];
+            }
+            return '';
+        }
         private function getWANConnectionTyp(&$HttpCode): bool
         {
             $result = $this->CallSoapAction(
@@ -519,7 +553,7 @@ eval('declare(strict_types=1);namespace FritzBoxIO {?>' . file_get_contents(__DI
                 'connection_timeout'     => 5,
                 'default_socket_timeout' => 5,
                 'keep_alive'             => false,
-                'login'                  => $this->ReadPropertyString('Username'),
+                'login'                  => $this->Username,
                 'password'               => $this->ReadPropertyString('Password'),
                 'authentication'         => SOAP_AUTHENTICATION_DIGEST,
                 'compression'            => SOAP_COMPRESSION_ACCEPT | SOAP_COMPRESSION_GZIP,
@@ -574,13 +608,17 @@ eval('declare(strict_types=1);namespace FritzBoxIO {?>' . file_get_contents(__DI
                 $ResponseHeaders = $client->__getLastResponseHeaders();
                 $this->SendDebug('Soap Response Error Header', $ResponseHeaders, 0);
                 $this->SendDebug('Soap Response Error', $Response, 0);
-                $this->SendDebug('Soap Response Error Message', $e->getMessage(), 0);
+                if (property_exists($e, 'detail')) {
+                    $Details = $e->detail->{$e->faultstring};
+                    $Detail = $e->faultstring . '('.$Details->errorCode.')';
+                    $this->SendDebug($Detail, $Details->errorDescription, 0);
+                }
                 if ($ResponseHeaders == null) {
                     $HttpCode = 418;
                 } else {
                     $HttpCode = (int) explode(' ', explode("\r\n", $ResponseHeaders)[0])[1];
                 }
-                $this->SendDebug('Soap Response Code', $HttpCode, 0);
+                $this->SendDebug('Soap Response Code ('.$HttpCode.')', $e->faultstring, 0);
 
                 return $e;
             }

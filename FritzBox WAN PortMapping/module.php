@@ -59,7 +59,7 @@ require_once __DIR__ . '/../libs/FritzBoxBase.php';
         private function UpdatePortMapping(string $NewIdent = '', bool $NewEnabled = false)
         {
             $NoOfMappings = $this->GetPortMappingNumberOfEntries();
-            if ($NoOfMappings == false) {
+            if ($NoOfMappings === false) {
                 return false;
             }
             $MyIPs = array_column(Sys_GetNetworkInfo(), 'IP');
@@ -85,8 +85,7 @@ require_once __DIR__ . '/../libs/FritzBoxBase.php';
                         $result['NewEnabled']=$NewEnabled;
                     }
                 }
-                //$this->SendDebug('Ident', $ident, 0);
-                //$VarId= @$this->GetIDForIdent($Ident);
+
                 $this->setIPSVariable($Ident, $result['NewPortMappingDescription'], $result['NewEnabled'], VARIABLETYPE_BOOLEAN, '~Switch', false, $i);
                 if (in_array((string)$result['NewInternalClient'], $MyIPs)) {
                     $this->EnableAction($Ident);
@@ -97,7 +96,7 @@ require_once __DIR__ . '/../libs/FritzBoxBase.php';
         public function GetPortMappingNumberOfEntries()
         {
             $result = $this->Send(__FUNCTION__);
-            if ($result == false) {
+            if ($result === false) {
                 return false;
             }
             return (int)$result;

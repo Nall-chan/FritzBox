@@ -11,6 +11,11 @@
             "caption": "URL"
         },
         {
+            "type": "Label",
+            "caption": "No username given, we will try to use fallback login.",
+            "visible": false
+        },
+        {
             "type": "RowLayout",
             "items": [
                 {

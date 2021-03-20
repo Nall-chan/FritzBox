@@ -1,0 +1,40 @@
+{
+    "id": "{54D0B9F7-56A0-7B32-97CC-DCF15E601F2F}",
+    "caption": "Enable or disable MyFritz service",
+    "form": [
+        "$Idents = FB_GetIdentsForActions($_IPS['TARGET']);",
+        "$Form[] = ['type' => 'CheckBox', 'name' => 'ACTIVE', 'caption' => 'Service active?'];",
+        "$Form[] = ['type' => 'Label', 'caption' => 'Caution: You can only switch services for this Symcon-Host.'];",
+        "$Options=[];",
+        "foreach ($Idents as $Ident) {",
+        "   $Name = IPS_GetName(IPS_GetObjectIDByIdent($Ident, $_IPS['TARGET']));",
+        "   $Options[] = [",
+        "       'caption'   =>  $Name,",
+        "       'value'     =>  $Ident",
+        "   ];",
+        "}",
+        "$Form[] = ['type' => 'Select', 'name' => 'IDENT', 'caption' => 'Service', 'options' => $Options];",
+        "return $Form;"
+    ],
+    "action": "FB_EnableService($_IPS['TARGET'],$_IPS['IDENT'],$_IPS['ACTIVE']);",
+    "restrictions": {
+        "objectType": [
+            1
+        ],
+        "moduleID": [
+            "{D8AA1AB8-0FCE-56F9-FE36-E0D49878FB75}"
+        ],
+        "environments": [
+            "TestCommands",
+            "Default"
+        ]
+    },
+    "locale": {
+        "de": {
+            "Enable or disable MyFritz service": "Aktivieren oder deaktivieren eines MyFritz Dienstes",
+            "Service active?": "Dienst aktiv?",
+            "Caution: You can only switch services for this Symcon-Host.": "Achtung: Sie können nur die Dienste für diesen Symcon-Host schalten.",
+            "Service": "Dienst"
+        }
+    }
+}

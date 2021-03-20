@@ -10,6 +10,7 @@ Fertige Instanzen:
  - UPnP Media Server
  - WebDav Client
  - FTP / Samba-Freigaben
+ - MyFritz
 
 Feldtest nötig:
  - WAN DSL Link
@@ -26,7 +27,6 @@ Nächste Instanz:
 
 Unfertig / Fehlen:
 - DDNS
-- MyFritz
 - LAN Config (wo?)
 - Phonebook !
 - Tel-Devices !

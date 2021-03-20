@@ -290,8 +290,10 @@ class FritzBoxModulBase extends IPSModule
         }
         $Result = unserialize($Ret);
         if (is_a($Result, 'SoapFault')) {
-            $this->SendDebug('SoapFault', $Result->getMessage(), 0);
-            trigger_error($Result->getMessage(), E_USER_WARNING);
+            $Details = $Result->detail->{$Result->faultstring};
+            $Detail = $Result->faultstring . '('.$Details->errorCode.')';
+            $this->SendDebug($Detail, $Details->errorDescription, 0);
+            trigger_error($Detail."\r\n".$Details->errorDescription, E_USER_WARNING);
             return false;
         }
         $this->SendDebug('Result', $Result, 0);
@@ -327,7 +329,8 @@ class FritzBoxModulBase extends IPSModule
     }
     protected function ConvertIdent(string $Ident)
     {
-        return str_replace([':','.','[',']'], ['','','',''], $Ident);
+        //return str_replace([':','.','[',']'], ['','','',''], $Ident);
+        return preg_replace('/[^a-zA-Z0-9_]/','', $Ident);
     }
     /**
      * Erstellt eine Untervariable in IPS.
