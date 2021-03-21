@@ -81,7 +81,7 @@
                 <argument>
                     <name>NewUpdateURL</name>
                     <direction>out</direction>
-                    <relatedStateVariable>UpdateURL</relatedStateVariable>
+                    <relatedStateVariable>ProviderName</relatedStateVariable>
                 </argument>
                 <argument>
                     <name>NewDomain</name>

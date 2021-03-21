@@ -1,0 +1,27 @@
+{
+    "translations": {
+        "de": {
+            "Refresh Interval": "Aktualisierungsintervall",
+            "seconds": "Sekunden",
+            "Username": "Benutzername",
+            "Password": "Passwort",
+            "Update Values": "Werte aktualisieren",
+            "Event subscribe error": "Ereignisabonnementfehler",
+            "Invalid Ident.": "Ungültiger Ident.",
+            "Remoteaccess active": "Fernzugriff Aktiv",
+            "DynDns active": "DynDns Aktiv",
+            "Provider": "Anbieter",
+            "offline": "Offline",
+            "checking": "Prüfe",
+            "updating": "Aktualisiere",
+            "updated": "Aktualisiert",
+            "verifying": "Überprüfe",
+            "complete": "Abgeschlossen",
+            "new address": "Neue Adresse",
+            "account disabled": "Zugang gesperrt",
+            "internet not connected": "Internet nicht verbunden",
+            "undefined": "nicht definiert",
+            "Invalid value for $Mode": "Ungültiger Wer für $Mode"
+        }
+    }
+}

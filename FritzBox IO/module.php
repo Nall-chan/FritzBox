@@ -181,7 +181,7 @@ eval('declare(strict_types=1);namespace FritzBoxIO {?>' . file_get_contents(__DI
             // urn:LANConfigSecurity-com:serviceId:LANConfigSecurity1
             // den letzten user ermitteln und eintragen
             $Form = json_decode(file_get_contents(__DIR__ . '/form.json'), true);
-            if ($this->Username != $this->ReadPropertyString('Username')) {
+            if ($this->ReadPropertyString('Username')=='') {
                 $Form['elements'][2]['visible'] = true;
             }
             if (IPS_GetOption('NATSupport')) {
