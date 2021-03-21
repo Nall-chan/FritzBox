@@ -1,0 +1,30 @@
+{
+    "id": "{FEE9B3A7-1853-6914-EE2E-4A11D79A57A8}",
+    "caption": "Enable or disable FTP service",
+    "form": [
+        {
+            "type": "CheckBox",
+            "name": "ACTIVE",
+            "caption": "FTP service active?"
+        }
+    ],
+    "action": "FB_SetFTPServer($_IPS['TARGET'],$_IPS['ACTIVE']);",
+    "restrictions": {
+        "objectType": [
+            1
+        ],
+        "moduleID": [
+            "{14588B6C-6F13-A3C1-0C79-88B6624E1D87}"
+        ],
+        "environments": [
+            "TestCommands",
+            "Default"
+        ]
+    },
+    "locale": {
+        "de": {
+            "Enable or disable FTP service": "Aktivieren oder deaktivieren des FTP Dienst",
+            "FTP service active?": "FTP Dienst aktiv?"
+        }
+    }
+}

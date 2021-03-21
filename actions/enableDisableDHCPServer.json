@@ -1,0 +1,30 @@
+{
+    "id": "{84136A92-5C4B-AF6D-ECB0-D18E7FB4DE2C}",
+    "caption": "Enable or disable DHCP-Server",
+    "form": [
+        {
+            "type": "CheckBox",
+            "name": "ACTIVE",
+            "caption": "DHCP-Server active?"
+        }
+    ],
+    "action": "FB_SetDHCPServerEnable($_IPS['TARGET'],$_IPS['ACTIVE']);",
+    "restrictions": {
+        "objectType": [
+            1
+        ],
+        "moduleID": [
+            "{BDD8382D-00EF-4D84-8B3E-795584ABEB12}"
+        ],
+        "environments": [
+            "TestCommands",
+            "Default"
+        ]
+    },
+    "locale": {
+        "de": {
+            "Enable or disable DHCP-Server": "Aktivieren oder deaktivieren des DHCP-Servers",
+            "DHCP-Server active?": "DHCP-Server aktiv?"
+        }
+    }
+}

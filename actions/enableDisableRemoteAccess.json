@@ -1,0 +1,30 @@
+{
+    "id": "{E37995FB-95E8-33CC-7F44-64ABDC5046E2}",
+    "caption": "Enable od disable remote access",
+    "form": [
+        {
+            "type": "CheckBox",
+            "name": "ACTIVE",
+            "caption": "Remote access active?"
+        }
+    ],
+    "action": "FB_EnableRemoteAccess($_IPS['TARGET'],$_IPS['ACTIVE']);",
+    "restrictions": {
+        "objectType": [
+            1
+        ],
+        "moduleID": [
+            "{A3828BD1-B487-1860-2812-36E8DA0D358E}"
+        ],
+        "environments": [
+            "TestCommands",
+            "Default"
+        ]
+    },
+    "locale": {
+        "de": {
+            "Enable od disable remote access": "Aktiviere oder Deaktiviere den Fernzugang",
+            "Remote access active?": "Fernzugang aktiv?"
+        }
+    }
+}

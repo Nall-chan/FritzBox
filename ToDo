@@ -11,6 +11,7 @@ Fertige Instanzen:
  - WebDav Client
  - FTP / Samba-Freigaben
  - MyFritz
+ - DDNS
 
 Feldtest nötig:
  - WAN DSL Link
@@ -26,7 +27,7 @@ Aktionen fehlen:
 Nächste Instanz:
 
 Unfertig / Fehlen:
-- DDNS
+
 - LAN Config (wo?)
 - Phonebook !
 - Tel-Devices !
