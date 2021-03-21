@@ -1,4 +1,4 @@
-# FritzBox WebDav Speicher <!-- omit in toc -->
+# FritzBox DynDns <!-- omit in toc -->
 Beschreibung des Moduls.
 
 ### Inhaltsverzeichnis <!-- omit in toc -->
