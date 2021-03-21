@@ -4,6 +4,3 @@
 [submodule ".style"]
 	path = .style
 	url = https://github.com/Nall-chan/StylePHP
-[submodule "libs/helper"]
-	path = libs/helper
-	url = https://github.com/Nall-chan/SymconModulHelper
