@@ -29,6 +29,16 @@ require_once __DIR__ . '/../libs/FritzBoxBase.php';
             $this->RegisterPropertyInteger('RefreshInterval', 60);
             $this->RegisterTimer('RefreshInfo', 0, 'IPS_RequestAction(' . $this->InstanceID . ',"RefreshInfo",true);');
         }
+        public function Destroy()
+        {
+            if (!IPS_InstanceExists($this->InstanceID)) {
+                $this->UnregisterProfile('FB.Connect');
+                $this->UnregisterProfile('FB.ConnectionStatus');
+            }
+            //Never delete this line!
+            parent::Destroy();
+        }
+    
         public function ApplyChanges()
         {
             $this->SetTimerInterval('RefreshInfo', 0);
@@ -42,6 +52,7 @@ require_once __DIR__ . '/../libs/FritzBoxBase.php';
                     [0,$this->Translate('Reconnect'),'',0xff0000]
                 ]
             );
+            //TODO String Asso
             $this->RegisterProfileBooleanEx(
                 'FB.ConnectionStatus',
                 '',

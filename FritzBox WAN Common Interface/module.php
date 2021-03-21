@@ -36,6 +36,20 @@ require_once __DIR__ . '/../libs/FritzBoxBase.php';
             $this->Downstream = 0;
             $this->Upstream = 0;
         }
+
+        public function Destroy()
+        {
+            if (!IPS_InstanceExists($this->InstanceID)) {
+                $this->UnregisterProfile('FB.LinkState');
+                $this->UnregisterProfile('FB.kBit');
+                $this->UnregisterProfile('FB.Speed');
+                $this->UnregisterProfile('FB.MByte');
+                $this->UnregisterProfile('FB.kbs');
+            }
+            //Never delete this line!
+            parent::Destroy();
+        }
+    
         public function ApplyChanges()
         {
             $this->SetTimerInterval('RefreshInfo', 0);
@@ -153,7 +167,7 @@ require_once __DIR__ . '/../libs/FritzBoxBase.php';
             $this->setIPSVariable('TotalMBytesReceived', 'Received since connected', $recv / 1024 / 1024, VARIABLETYPE_FLOAT, 'FB.MByte');
 
             if (array_key_exists('NewDNSServer1', $result)) {
-                $this->setIPSVariable('UpnpControlEnabled', 'Allow automatic port forwarding via UPnP',  $result['NewUpnpControlEnabled'], VARIABLETYPE_BOOLEAN,'~Switch');
+                $this->setIPSVariable('UpnpControlEnabled', 'Allow automatic port forwarding via UPnP', $result['NewUpnpControlEnabled'], VARIABLETYPE_BOOLEAN, '~Switch');
             }
             if (array_key_exists('NewDNSServer1', $result)) {
                 $this->setIPSVariable('DNSServer1', 'DNS-Server 1', (string) $result['NewDNSServer1'], VARIABLETYPE_STRING);
@@ -222,6 +236,7 @@ require_once __DIR__ . '/../libs/FritzBoxBase.php';
 
             parent::DecodeEvent($Event);
         }
+        //todo String Asso
         private function LinkStateToInt(string $Linkstate): int
         {
             switch ($Linkstate) {

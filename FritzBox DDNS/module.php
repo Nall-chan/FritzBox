@@ -22,6 +22,9 @@ class FritzBoxDynDns extends FritzBoxModulBase
 
     public function Destroy()
     {
+        if (!IPS_InstanceExists($this->InstanceID)) {
+            $this->UnregisterProfile('FB.DynDnyState');
+        }
         //Never delete this line!
         parent::Destroy();
     }

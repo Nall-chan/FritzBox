@@ -49,6 +49,7 @@ require_once __DIR__ . '/../libs/FritzBoxBase.php';
         public function Destroy()
         {
             if (!IPS_InstanceExists($this->InstanceID)) {
+                $this->UnregisterProfile('FB.MBits');
                 $QRCodeID = @IPS_GetObjectIDByIdent('QRCodeIMG', $this->InstanceID);
                 if ($QRCodeID > 0) {
                     @IPS_DeleteMedia($QRCodeID, true);
