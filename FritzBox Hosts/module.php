@@ -26,9 +26,9 @@ class FritzBoxHosts extends FritzBoxModulBase
         parent::Create();
         $this->HostNumberOfEntriesId=0;
         $this->RegisterPropertyInteger('Index', 0);
-        $this->RegisterPropertyBoolean('HostAsVariable', true);
+        $this->RegisterPropertyBoolean('HostAsVariable', false);
         $this->RegisterPropertyBoolean('RenameHostVariables', true);
-        $this->RegisterPropertyBoolean('HostAsTable', true);
+        $this->RegisterPropertyBoolean('HostAsTable', false);
         $this->RegisterPropertyInteger('RefreshInterval', 60);
         $this->RegisterTimer('RefreshHosts', 0, 'IPS_RequestAction(' . $this->InstanceID . ',"RefreshHosts",true);');
     }

@@ -1,6 +1,6 @@
 {
     "id": "{C0F2E8C9-7841-57B8-5D4E-ADC1A14E6F92}",
-    "caption": "Enable or disable WAN FTP service ",
+    "caption": "Enable or disable WAN FTP service",
     "form": [
         {
             "type": "CheckBox",

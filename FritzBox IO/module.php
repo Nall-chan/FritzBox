@@ -34,7 +34,7 @@ eval('declare(strict_types=1);namespace FritzBoxIO {?>' . file_get_contents(__DI
         {
             //Never delete this line!
             parent::Create();
-            $this->RegisterPropertyBoolean('Open', false);
+            $this->RegisterPropertyBoolean('Open', true);
             $this->RegisterPropertyString('Host', 'http://');
             $this->RegisterPropertyString('Username', '');
             $this->RegisterPropertyString('Password', '');
@@ -119,6 +119,9 @@ eval('declare(strict_types=1);namespace FritzBoxIO {?>' . file_get_contents(__DI
                                     $this->SetStatus(self::isURLnotValid);
                                     return;
                                 }*/
+                if ($this->ReadPropertyString('Password')=='') {
+                    return;
+                }
                 if ($this->ReadPropertyString('Username') == '') {
                     $this->Username= $this->GetLastUser();
                 } else {
