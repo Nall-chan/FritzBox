@@ -7,8 +7,6 @@ Fertige Instanzen:
  - WLAN
  - DHCP Server
  - WAN Common Interface
- - UPnP Media Server
- - WebDav Client
  - FTP / Samba-Freigaben
  - MyFritz
  - DDNS
@@ -20,7 +18,9 @@ Feldtest nötig:
 
 Aktionen fehlen:
  - IO (+ Device Config für Reboot)
-
+ - UPnP Media Server
+ - WebDav Client
+ 
 Übersetzungen fehlen:
  - Konfigurator
  
@@ -35,4 +35,6 @@ Unfertig / Fehlen:
 - Anruf-Monitor
 - Anrufbeantworter
 
-
+Übersetzung Size of QR Code fehlt
+WLAN Typ in der Konfig anzeigen, wenn geladen.
+WLAN braucht immer HOST-Instanz -> Hinweis einbauen

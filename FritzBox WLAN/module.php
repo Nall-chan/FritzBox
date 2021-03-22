@@ -167,7 +167,7 @@ require_once __DIR__ . '/../libs/FritzBoxBase.php';
             }
             $XMLData = $this->GetFile('Hosts.xml');
             if ($XMLData === false) {
-                $this->SendDebug('XML not found', $Url, 0);
+                $this->SendDebug('XML not found', 'Hosts.xml', 0);
                 return false;
             }
             $xml = new simpleXMLElement($XMLData);
