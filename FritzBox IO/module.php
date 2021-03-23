@@ -24,7 +24,7 @@ eval('declare(strict_types=1);namespace FritzBoxIO {?>' . file_get_contents(__DI
         const isServicenotValid = IS_EBASE + 4;
         private static $http_error =
         [
-            418 => ['Could not connect to host, mabye i am a teapot?', self::isDisconnected],
+            418 => ['Could not connect to host, maybe i am a teapot?', self::isDisconnected],
             404 => ['Service not Found', self::isServicenotValid],
             401 => ['Unauthorized', self::isUnauthorized],
             500 => ['UPnPError', self::isDisconnected]
@@ -109,7 +109,7 @@ eval('declare(strict_types=1);namespace FritzBoxIO {?>' . file_get_contents(__DI
                 if (($this->Url != $OldUrl) && !$this->doNotLoadXML) {
                     $this->doNotLoadXML = false;
                     if (!$this->LoadXMLs()) {
-                        $this->ShowLastError('Could not connect to host, mabye i am a teapot?');
+                        $this->ShowLastError('Could not connect to host, maybe i am a teapot?');
                         $this->SetStatus(IS_EBASE + 3);
                         return;
                     }

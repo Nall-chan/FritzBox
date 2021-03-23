@@ -44,13 +44,13 @@ class FritzBoxNASStorage extends FritzBoxModulBase
             case 'RefreshInfo':
                 return $this->UpdateInfo();
             case 'SMBEnable':
-                return $this->SetSMBServer($Value);
+                return $this->SetSMBServer((bool)$Value);
             case 'FTPEnable':
-                return $this->SetFTPServer($Value);
+                return $this->SetFTPServer((bool)$Value);
             case 'FTPWANEnable':
-                return $this->SetFTPServerWAN($Value, $this->GetValue('FTPWANSSLOnly'));
+                return $this->SetFTPServerWAN((bool)$Value, $this->GetValue('FTPWANSSLOnly'));
             case 'FTPWANSSLOnly':
-                return $this->SetFTPServerWAN($this->GetValue('FTPWANEnable'), $Value);
+                return $this->SetFTPServerWAN($this->GetValue('FTPWANEnable'), (bool)$Value);
             }
         trigger_error($this->Translate('Invalid Ident.'), E_USER_NOTICE);
         return false;

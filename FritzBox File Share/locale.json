@@ -1,0 +1,11 @@
+{
+    "translations": {
+        "de": {
+            "Refresh Interval": "Aktualisierungsintervall",
+            "seconds": "Sekunden",
+            "Read state": "Lese Status",
+            "Event subscribe error": "Ereignisabonnementfehler",
+            "Invalid Ident.": "Ungültiger Ident."
+        }
+    }
+}

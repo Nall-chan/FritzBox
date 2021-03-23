@@ -120,7 +120,7 @@ class FritzBoxHosts extends FritzBoxModulBase
         //$XMLData = @Sys_GetURLContentEx($Url, ['Timeout'=>3000]);
         $XMLData = $this->GetFile('Hosts.xml');
         if ($XMLData === false) {
-            $this->SendDebug('XML not found', $Url, 0);
+            $this->SendDebug('XML not found', 'Hosts.xml', 0);
             return false;
         }
         $xml = new simpleXMLElement($XMLData);
