@@ -10,7 +10,7 @@
                     "value": -1
                 },
                 {
-                    "caption": "1 (2,4Ghz)",
+                    "caption": "1 (2,4 Ghz)",
                     "value": 0
                 },
                 {
@@ -24,42 +24,56 @@
             ]
         },
         {
-            "name": "ShowWLanKeyAsVariable",
-            "type": "CheckBox",
-            "caption": "Create variable for WLAN key"
-        },
-        {
-            "name": "ShowWLanKeyAsQRCode",
-            "type": "CheckBox",
-            "caption": "Create QR-Code media object"
-        },
-        {
-            "name": "InfoVariables",
-            "type": "CheckBox",
-            "caption": "Create variables for extended information"
-        },
-        {
-            "name": "HostAsVariable",
-            "type": "CheckBox",
-            "caption": "Create variable per host"
-        },
-        {
-            "name": "RenameHostVariables",
-            "type": "CheckBox",
-            "caption": "Rename Host-variables automatically"
-        },
-        {
-            "name": "HostAsTable",
-            "type": "CheckBox",
-            "caption": "Create HTMLBox-Variable",
-            "enabled": false
-        },
-        {
             "name": "RefreshInterval",
             "type": "NumberSpinner",
             "caption": "Refresh Interval",
             "suffix": "seconds",
             "minimum": 0
+        },
+        {
+            "type": "RowLayout",
+            "items": [
+                {
+                    "name": "ShowWLanKeyAsVariable",
+                    "type": "CheckBox",
+                    "caption": "Create variable for WLAN key",
+                    "width": "400px"
+                },
+                {
+                    "name": "ShowWLanKeyAsQRCode",
+                    "type": "CheckBox",
+                    "caption": "Create QR-Code media object",
+                    "width": "400px"
+                },
+                {
+                    "name": "InfoVariables",
+                    "type": "CheckBox",
+                    "caption": "Create variables for extended information",
+                    "width": "400px"
+                }
+            ]
+        },
+        {
+            "type": "RowLayout",
+            "items": [
+                {
+                    "name": "HostAsVariable",
+                    "type": "CheckBox",
+                    "caption": "Create variable per host",
+                    "width": "400px"
+                },
+                {
+                    "name": "RenameHostVariables",
+                    "type": "CheckBox",
+                    "caption": "Rename Host-variables automatically",
+                    "width": "400px"
+                }
+            ]
+        },
+        {
+            "name": "HostAsTable",
+            "type": "CheckBox",
+            "caption": "Create HTMLBox-Variable"
         },
         {
             "type": "HorizontalSlider",

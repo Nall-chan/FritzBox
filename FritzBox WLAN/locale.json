@@ -27,7 +27,8 @@
             "Scheduled shutdown": "Geplante Abschaltung",
             "No shutdown when guest is active": "Keine Abschaltung wenn Gast aktiv",
             "Password": "Passwort",
-            "Credentials": "Anmeldedaten"
+            "Credentials": "Anmeldedaten",
+            "Size of QR-Code": "Größe vom QR-Code"
         }
     }
 }

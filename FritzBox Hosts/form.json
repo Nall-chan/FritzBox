@@ -1,27 +1,243 @@
 {
     "elements": [
         {
-            "name": "HostAsVariable",
-            "type": "CheckBox",
-            "caption": "Create variable per host"
-        },
-        {
-            "name": "RenameHostVariables",
-            "type": "CheckBox",
-            "caption": "Rename Host-variables automatically"
-        },
-        {
-            "name": "HostAsTable",
-            "type": "CheckBox",
-            "caption": "Create HTMLBox-Variable",
-            "enabled":false
-        },
-        {
             "name": "RefreshInterval",
             "type": "NumberSpinner",
             "caption": "Refresh Interval",
             "suffix": "seconds",
             "minimum": 0
+        },
+        {
+            "type": "RowLayout",
+            "items": [
+                {
+                    "name": "HostAsVariable",
+                    "type": "CheckBox",
+                    "caption": "Create variable per host",
+                    "width": "400px"
+                },
+                {
+                    "name": "RenameHostVariables",
+                    "type": "CheckBox",
+                    "caption": "Rename Host-variables automatically",
+                    "width": "400px"
+                }
+            ]
+        },
+        {
+            "name": "HostAsTable",
+            "type": "CheckBox",
+            "caption": "Show all hosts as HTML-Table"
+        },
+        {
+            "type": "ExpansionPanel",
+            "caption": "HTML-Table design",
+            "items": [
+                {
+                    "type": "List",
+                    "name": "Table",
+                    "caption": "Table design",
+                    "rowCount": 4,
+                    "add": false,
+                    "delete": false,
+                    "columns": [
+                        {
+                            "name": "tag",
+                            "caption": "HTML-Tag",
+                            "width": "75px",
+                            "save": true
+                        },
+                        {
+                            "caption": "CSS",
+                            "name": "style",
+                            "width": "auto",
+                            "edit": {
+                                "caption": "CSS:",
+                                "type": "ValidationTextBox"
+                            }
+                        }
+                    ]
+                },
+                {
+                    "type": "List",
+                    "name": "Columns",
+                    "caption": "Hostlist columns",
+                    "rowCount": 13,
+                    "add": false,
+                    "delete": false,
+                    "sort": {
+                        "column": "index",
+                        "direction": "ascending"
+                    },
+                    "columns": [
+                        {
+                            "name": "key",
+                            "caption": "Data",
+                            "width": "150px",
+                            "save": true
+                        },
+                        {
+                            "caption": "Visible",
+                            "name": "show",
+                            "width": "75px",
+                            "edit": {
+                                "caption": "Visible as column ?",
+                                "type": "CheckBox"
+                            }
+                        },
+                        {
+                            "caption": "No.",
+                            "name": "index",
+                            "width": "50px",
+                            "edit": {
+                                "caption": "Index of this column:",
+                                "type": "NumberSpinner"
+                            }
+                        },
+                        {
+                            "caption": "Display-Name",
+                            "name": "name",
+                            "width": "150px",
+                            "edit": {
+                                "caption": "Display-Name:",
+                                "type": "ValidationTextBox"
+                            }
+                        },
+                        {
+                            "caption": "Width",
+                            "name": "width",
+                            "width": "50px",
+                            "edit": {
+                                "caption": "Width of this column:",
+                                "type": "NumberSpinner"
+                            }
+                        },
+                        {
+                            "caption": "Header alignment",
+                            "name": "hralign",
+                            "width": "150px",
+                            "edit": {
+                                "type": "Select",
+                                "caption": "Text alignment",
+                                "options": [
+                                    {
+                                        "caption": "Left",
+                                        "value": "left"
+                                    },
+                                    {
+                                        "caption": "Center",
+                                        "value": "center"
+                                    },
+                                    {
+                                        "caption": "Right",
+                                        "value": "right"
+                                    }
+                                ]
+                            }
+                        },
+                        {
+                            "caption": "Header color",
+                            "name": "hrcolor",
+                            "width": "150px",
+                            "edit": {
+                                "caption": "Color of Text:",
+                                "type": "SelectColor"
+                            }
+                        },
+                        {
+                            "caption": "Header CSS",
+                            "name": "thstyle",
+                            "width": "200px",
+                            "edit": {
+                                "caption": "CSS:",
+                                "type": "ValidationTextBox"
+                            }
+                        },
+                        {
+                            "caption": "Alignment",
+                            "name": "tdalign",
+                            "width": "150px",
+                            "edit": {
+                                "type": "Select",
+                                "caption": "Text alignment",
+                                "options": [
+                                    {
+                                        "caption": "Left",
+                                        "value": "left"
+                                    },
+                                    {
+                                        "caption": "Center",
+                                        "value": "center"
+                                    },
+                                    {
+                                        "caption": "Right",
+                                        "value": "right"
+                                    }
+                                ]
+                            }
+                        },
+                        {
+                            "caption": "CSS",
+                            "name": "tdstyle",
+                            "width": "200px",
+                            "edit": {
+                                "caption": "CSS:",
+                                "type": "ValidationTextBox"
+                            }
+                        }
+                    ]
+                },
+                {
+                    "type": "List",
+                    "name": "Rows",
+                    "caption": "Hostlist rows",
+                    "rowCount": 4,
+                    "add": false,
+                    "delete": false,
+                    "columns": [
+                        {
+                            "name": "row",
+                            "caption": "",
+                            "width": "50px",
+                            "save": true,
+                            "visible": false
+                        },
+                        {
+                            "name": "name",
+                            "caption": "Row",
+                            "save": true,
+                            "width": "150px"
+                        },
+                        {
+                            "caption": "Backgroundcolor",
+                            "name": "bgcolor",
+                            "width": "150px",
+                            "edit": {
+                                "caption": "Color of background:",
+                                "type": "SelectColor"
+                            }
+                        },
+                        {
+                            "caption": "Color",
+                            "name": "color",
+                            "width": "100px",
+                            "edit": {
+                                "caption": "Color of Text:",
+                                "type": "SelectColor"
+                            }
+                        },
+                        {
+                            "caption": "CSS",
+                            "name": "style",
+                            "width": "auto",
+                            "edit": {
+                                "caption": "CSS:",
+                                "type": "ValidationTextBox"
+                            }
+                        }
+                    ]
+                }
+            ]
         }
     ],
     "actions": [

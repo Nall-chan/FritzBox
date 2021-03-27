@@ -3,12 +3,14 @@
 declare(strict_types=1);
 
 require_once __DIR__ . '/../libs/FritzBoxBase.php';
-
+require_once __DIR__ . '/../libs/FritzBoxTable.php';
 /**
  * @property int $HostNumberOfEntriesId
  */
 class FritzBoxHosts extends FritzBoxModulBase
 {
+    use \FritzBoxModul\HTMLTable;
+
     protected static $ControlUrlArray = [
         '/upnp/control/hosts'
     ];
@@ -28,8 +30,13 @@ class FritzBoxHosts extends FritzBoxModulBase
         $this->RegisterPropertyInteger('Index', 0);
         $this->RegisterPropertyBoolean('HostAsVariable', false);
         $this->RegisterPropertyBoolean('RenameHostVariables', true);
-        $this->RegisterPropertyBoolean('HostAsTable', false);
+        $this->RegisterPropertyBoolean('HostAsTable', true);
         $this->RegisterPropertyInteger('RefreshInterval', 60);
+        $Style = $this->GenerateHTMLStyleProperty();
+        $this->RegisterPropertyString('Table', json_encode($Style['Table']));
+        $this->RegisterPropertyString('Columns', json_encode($Style['Columns']));
+        $this->RegisterPropertyString('Rows', json_encode($Style['Rows']));
+
         $this->RegisterTimer('RefreshHosts', 0, 'IPS_RequestAction(' . $this->InstanceID . ',"RefreshHosts",true);');
     }
 
@@ -46,6 +53,12 @@ class FritzBoxHosts extends FritzBoxModulBase
         $this->SetTimerInterval('RefreshHosts', 0);
         $Table = $this->ReadPropertyBoolean('HostAsTable');
         $Variable = $this->ReadPropertyBoolean('HostAsVariable');
+        if ($Table) {
+            $this->RegisterVariableString('HostTable', $this->Translate('Hosttable'), '~HTMLBox', -3);
+        } else {
+            $this->UnregisterVariable('HostTable');
+        }
+        
         if (!($Variable || ($Table))) {
             $this->SetStatus(IS_INACTIVE);
             $this->UnregisterMessage($this->HostNumberOfEntriesId, VM_UPDATE);
@@ -100,6 +113,7 @@ class FritzBoxHosts extends FritzBoxModulBase
     {
         $Table = $this->ReadPropertyBoolean('HostAsTable');
         $Variable = $this->ReadPropertyBoolean('HostAsVariable');
+        $Rename = $this->ReadPropertyBoolean('RenameHostVariables');
         if (!($Variable || ($Table))) {
             return true;
         }
@@ -116,8 +130,6 @@ class FritzBoxHosts extends FritzBoxModulBase
             return false;
         }
         
-        //$Url = IPS_GetProperty($this->ParentID, 'Host'). $File;
-        //$XMLData = @Sys_GetURLContentEx($Url, ['Timeout'=>3000]);
         $XMLData = $this->GetFile('Hosts.xml');
         if ($XMLData === false) {
             $this->SendDebug('XML not found', 'Hosts.xml', 0);
@@ -126,9 +138,8 @@ class FritzBoxHosts extends FritzBoxModulBase
         $xml = new simpleXMLElement($XMLData);
         if ($xml === false) {
             $this->SendDebug('XML decode error', $XMLData, 0);
+            return false;
         }
-        //var_dump($xml->Item );
-        //$xmlItems = $xml->xpath('//Item');
         $OnlineCounter=0;
         $TableData=[];
         $pos=0;
@@ -147,6 +158,12 @@ class FritzBoxHosts extends FritzBoxModulBase
                 if ($VarId == 0) {
                     $VarId= $this->GetIDForIdent($Ident);
                     IPS_SetVariableCustomAction($VarId, 1);
+                } else {
+                    if ($Rename) {
+                        if (IPS_GetName($VarId) != (string)$xmlItem->HostName) {
+                            IPS_SetName($VarId, (string)$xmlItem->HostName);
+                        }
+                    }
                 }
             }
             if ((bool)$xmlItem->Active) {
@@ -155,12 +172,13 @@ class FritzBoxHosts extends FritzBoxModulBase
             $TableData[] = (array)$xmlItem;
         }
         $this->setIPSVariable('HostNumberActive', 'Number of active hosts', $OnlineCounter, VARIABLETYPE_INTEGER, '', false, -1);
-        // TableData
-        //$this->CreateHostHTMLTable($TableData);
+        $this->CreateHostHTMLTable($TableData);
         return true;
     }
     private function CreateHostHTMLTable(array $TableData)
     {
+        $HTML = $this->GetTable($TableData);
+        $this->SetValue('HostTable', $HTML);
     }
     
     private function UpdateHostNumberOfEntries()
@@ -169,7 +187,7 @@ class FritzBoxHosts extends FritzBoxModulBase
         if ($result === false) {
             return false;
         }
-        $this->setIPSVariable('HostNumberOfEntries','Number of hosts', (int)$result, VARIABLETYPE_INTEGER, '', false, -2);
+        $this->setIPSVariable('HostNumberOfEntries', 'Number of hosts', (int)$result, VARIABLETYPE_INTEGER, '', false, -2);
         return true;
     }
     public function GetHostNumberOfEntries()
@@ -293,5 +311,91 @@ class FritzBoxHosts extends FritzBoxModulBase
             return false;
         }
         return $result;
+    }
+    
+    private function GenerateHTMLStyleProperty()
+    {
+        $NewTableConfig = [
+            [
+                'tag'   => '<table>',
+                'style' => 'margin:0 auto; font-size:0.8em;'
+            ],
+            [
+                'tag'   => '<thead>',
+                'style' => ''
+            ],
+            [
+                'tag'   => '<tbody>',
+                'style' => ''
+            ]
+        ];
+        $NewColumnsConfig = [
+            [
+                'index' => 0,
+                'key'   => 'HostName',
+                'name'  => $this->Translate('Hostname'),
+                'show'  => true,
+                'width' => 200,
+                'hrcolor' => 0xffffff,
+                'hralign' => 'center',
+                'hrstyle' => '',
+                'tdalign' => 'left',
+                'tdstyle' => ''
+
+            ],
+            [
+                'index' => 1,
+                'key'   => 'IPAddress',
+                'name'  => $this->Translate('IP-Address'),
+                'show'  => true,
+                'width' => 200,
+                'hrcolor' => 0xffffff,
+                'hralign' => 'center',
+                'hrstyle' => '',
+                'tdalign' => 'left',
+                'tdstyle' => ''
+            ],
+            [
+                'index' => 2,
+                'key'   => 'MACAddress',
+                'name'  => $this->Translate('MAC-Address'),
+                'show'  => true,
+                'width' => 200,
+                'hrcolor' => 0xffffff,
+                'hralign' => 'center',
+                'hrstyle' => '',
+                'tdalign' => 'left',
+                'tdstyle' => ''
+            ],
+            [
+                'index' => 3,
+                'key'   => 'InterfaceType',
+                'name'  => $this->Translate('Interface'),
+                'show'  => true,
+                'width' => 200,
+                'hrcolor' => 0xffffff,
+                'hralign' => 'center',
+                'hrstyle' => '',
+                'tdalign' => 'left',
+                'tdstyle' => ''
+            ]
+        ];
+        $NewRowsConfig = [
+            [
+                'row'     => 'odd',
+                'name'    => $this->Translate('odd'),
+                'bgcolor' => 0x000000,
+                'color'   => 0xffffff,
+                'style'   => ''
+            ],
+            [
+                'row'     => 'even',
+                'name'    => $this->Translate('even'),
+                'bgcolor' => 0x080808,
+                'color'   => 0xffffff,
+                'style'   => ''
+            ]
+        ];
+        return ['Table' => $NewTableConfig, 'Columns' => $NewColumnsConfig, 'Rows' => $NewRowsConfig];
     }
 }
