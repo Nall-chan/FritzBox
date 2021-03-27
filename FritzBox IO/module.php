@@ -165,6 +165,9 @@ eval('declare(strict_types=1);namespace FritzBoxIO {?>' . file_get_contents(__DI
                 case 'LOADFILE':
                     $ret = $this->LoadFile($data['Uri'], $data['Filename']);
                     break;
+                case 'GETFILE':
+                    $ret = $this->LoadFile($data['Uri']);
+                    break;
                 default:
                     $ret = $this->CallSoapAction($HttpCode, $data['ServiceTyp'], $data['ControlUrl'], $data['Function'], $data['Parameter']);
                     break;
@@ -265,21 +268,30 @@ eval('declare(strict_types=1);namespace FritzBoxIO {?>' . file_get_contents(__DI
             header('Cache-Control: no-cache');
             header('Content-Type: text/plain');
         }
-        private function LoadFile(string $Uri, string $Filename)
+        private function LoadFile(string $Uri, string $Filename = '')
         {
-            @array_map('unlink', glob(IPS_GetKernelDir() . 'FritzBoxTemp/' . $this->InstanceID . '/'.$Filename));
-            $Url = $this->Url;
-            $Result = false;
-            $Result = true;
-            $Data = @Sys_GetURLContentEx($Url . $Uri, ['Timeout'=>3000]);
+            $Url = parse_url($Uri);
+            if (isset($Url['scheme'])) {
+                $Url['query'] = isset($Url['query']) ? '?' . $Url['query'] : '';
+                $Url = $this->Url.$Url['path'].$Url['query'];
+            } else {
+                $Url = $this->Url.$Uri;
+            }
+            if ($Filename!='') {
+                @array_map('unlink', glob(IPS_GetKernelDir() . 'FritzBoxTemp/' . $this->InstanceID . '/'.$Filename));
+            }
+            $Data = Sys_GetURLContentEx($Url, ['Timeout'=>10000]);
             if ($Data === false) {
                 $this->SendDebug('File not found', $Uri, 0);
                 return false;
             }
 
             $this->SendDebug('Load File: ' . $Uri, $Data, 0);
-            file_put_contents(IPS_GetKernelDir() . 'FritzBoxTemp/' . $this->InstanceID . '/' . $Filename, $Data);
-            return true;
+            if ($Filename!='') {
+                file_put_contents(IPS_GetKernelDir() . 'FritzBoxTemp/' . $this->InstanceID . '/' . $Filename, $Data);
+                return true;
+            }
+            return $Data;
         }
 
         private function LoadXmls()

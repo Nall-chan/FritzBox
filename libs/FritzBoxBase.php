@@ -30,7 +30,9 @@ class FritzBoxModulBase extends IPSModule
         parent::Create();
         $this->SID = '';
         $this->ConnectParent('{6FF9A05D-4E49-4371-23F1-7F58283FB1D9}');
-        $this->RegisterTimer('RenewSubscription', 0, 'IPS_RequestAction(' . $this->InstanceID . ',"Subscribe",true);');
+        if (count(static::$EventSubURLArray) > 0) {
+            $this->RegisterTimer('RenewSubscription', 0, 'IPS_RequestAction(' . $this->InstanceID . ',"Subscribe",true);');
+        }
     }
 
     public function Destroy()
@@ -42,7 +44,9 @@ class FritzBoxModulBase extends IPSModule
     public function ApplyChanges()
     {
         //Never delete this line!
-        $this->SetTimerInterval('RenewSubscription', 0);
+        if (count(static::$EventSubURLArray) > 0) {
+            $this->SetTimerInterval('RenewSubscription', 0);
+        }
         parent::ApplyChanges();
         $this->SID = '';
         $this->GotEvent = false;
@@ -231,7 +235,26 @@ class FritzBoxModulBase extends IPSModule
             $this->SendDebug('Result', $Result, 0);
             return $Result;
         } */
-
+    protected function LoadAndGetData(string $Uri)
+    {
+        if (!$this->HasActiveParent()) {
+            return false;
+        }
+        $this->SendDebug('Uri', $Uri, 0);
+        $Ret = $this->SendDataToParent(json_encode(
+                [
+                    'DataID'     => '{D62D4515-7689-D1DB-EE97-F555AD9433F0}',
+                    'Function'   => 'GETFILE',
+                    'Uri'=> $Uri
+                ]
+            ));
+        if ($Ret === false) {
+            return false;
+        }
+        $Result = unserialize($Ret);
+        $this->SendDebug('Result', $Result, 0);
+        return $Result;
+    }
     protected function LoadAndSaveFile(string $Uri, string $Filename)
     {
         if (!$this->HasActiveParent()) {
