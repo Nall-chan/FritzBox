@@ -182,9 +182,9 @@ class FritzBoxModulBase extends IPSModule
         $Result = unserialize($Ret);
         if ($Result === false) {
             $this->SID = '';
-
             $this->SendDebug('Error on subscribe', static::$EventSubURLArray[$Index], 0);
             trigger_error('Error on subscribe ' . static::$EventSubURLArray[$Index], E_USER_WARNING);
+            $this->SetTimerInterval('RenewSubscription', 60000);            
             return false;
         }
         $this->SendDebug('Result', $Result, 0);
