@@ -1,5 +1,4 @@
-Bei Host auto löschen?!
-HTML-Tabellen fehlen komplett in WLAN und Host
+Bei Host auto-löschen der Variablen?!
 
 Fertige Instanzen:
  - Device Info
@@ -26,16 +25,10 @@ Aktionen fehlen:
  - Konfigurator
  
 Nächste Instanz:
+- Phonebook (fertig, in Anrufliste)
+- Anrufliste (lesen okay, Darstellung fehlt)
 
 Unfertig / Fehlen:
-
-- LAN Config (wo?)
-- Phonebook !
 - Tel-Devices !
-- Anrufliste
 - Anruf-Monitor
 - Anrufbeantworter
-
-Übersetzung Size of QR Code fehlt
-WLAN Typ in der Konfig anzeigen, wenn geladen.
-WLAN braucht immer HOST-Instanz -> Hinweis einbauen

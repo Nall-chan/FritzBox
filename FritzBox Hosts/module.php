@@ -30,8 +30,8 @@ class FritzBoxHosts extends FritzBoxModulBase
         $this->RegisterPropertyInteger('Index', 0);
         $this->RegisterPropertyBoolean('HostAsVariable', false);
         $this->RegisterPropertyBoolean('RenameHostVariables', true);
-        $this->RegisterPropertyBoolean('HostAsTable', true);
         $this->RegisterPropertyInteger('RefreshInterval', 60);
+        $this->RegisterPropertyBoolean('HostAsTable', true);
         $Style = $this->GenerateHTMLStyleProperty();
         $this->RegisterPropertyString('Table', json_encode($Style['Table']));
         $this->RegisterPropertyString('Columns', json_encode($Style['Columns']));
