@@ -36,9 +36,12 @@ require_once __DIR__ . '/../libs/FritzBoxModule.php';
             }
             $Splitter = IPS_GetInstance($this->InstanceID)['ConnectionID'];
             if (($Splitter == 0) || !$this->HasActiveParent()) {
-                // TODO
-                //Parent inactive ausgeben.
-                //$Form[];
+                $Form['actions'][1]['visible']=true;
+                $Form['actions'][1]['popup']['items'][0]['caption']='Not connected!';
+                $Form['actions'][1]['popup']['items'][1]['caption']='The \'FritzBox IO\' instance is not connected or missing.';
+                $Form['actions'][1]['popup']['items'][1]['width']='200px';
+    
+                return json_encode($Form);
             }
             $Ret = $this->SendDataToParent(json_encode(
                 [

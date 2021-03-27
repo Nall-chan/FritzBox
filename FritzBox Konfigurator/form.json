@@ -32,6 +32,25 @@
                 }
             ],
             "values": []
+        },
+        {
+            "name": "ErrorPopup",
+            "type": "PopupAlert",
+            "visible": false,
+            "popup": {
+                "items": [
+                    {
+                        "name": "ErrorTitle",
+                        "type": "Label",
+                        "caption": ""
+                    },
+                    {
+                        "name": "ErrorText",
+                        "type": "Label",
+                        "caption": ""
+                    }
+                ]
+            }
         }
     ]
 }

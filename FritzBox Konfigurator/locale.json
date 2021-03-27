@@ -1,8 +1,8 @@
 {
     "translations": {
         "de": {
-            "Translation 1": "Übersetzung 1",
-            "Translation 2": "Übersetzung 2"
+            "Not connected!": "Nicht verbunden!",
+            "The 'FritzBox IO' instance is not connected or missing.": "Die 'FritzBox IO' Instanz ist nicht verbunden oder fehlt."
         }
     }
 }
