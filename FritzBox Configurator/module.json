@@ -1,9 +1,9 @@
 {
     "id": "{32CF40DC-51DA-6C63-8BD7-55E82F64B9E7}",
-    "name": "FritzBox Konfigurator",
+    "name": "FritzBox Configurator",
     "type": 4,
     "vendor": "AVM",
-    "aliases": [],
+    "aliases": ["FritzBox Konfigurator"],
     "parentRequirements": [
         "{D62D4515-7689-D1DB-EE97-F555AD9433F0}"
     ],
@@ -12,5 +12,5 @@
         "{CBD869A0-869B-3D4C-7EA8-D917D935E647}"
     ],
     "prefix": "FB",
-    "url": "https://github.com/Nall-chan/FritzBox/FritzBox Konfigurator/README.md"
+    "url": "https://github.com/Nall-chan/FritzBox/FritzBox Configurator/README.md"
 }

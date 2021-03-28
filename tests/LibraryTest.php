@@ -19,9 +19,9 @@ class LibraryValidationTest extends TestCaseSymconValidation
     {
         $this->validateModule(__DIR__ . '/../FritzBox IO');
     }
-    public function testValidateCabelModem(): void
+    public function testValidateConfigurator(): void
     {
-        $this->validateModule(__DIR__ . '/../FritzBox Cabel Modem');
+        $this->validateModule(__DIR__ . '/../FritzBox Configurator');
     }
     public function testValidateCallerList(): void
     {
@@ -31,28 +31,66 @@ class LibraryValidationTest extends TestCaseSymconValidation
     {
         $this->validateModule(__DIR__ . '/../FritzBox Callmonitor');
     }
+    public function testValidateDDNS(): void
+    {
+        $this->validateModule(__DIR__ . '/../FritzBox DDNS');
+    }
+    public function testValidateDeviceInfo(): void
+    {
+        $this->validateModule(__DIR__ . '/../FritzBox Device Info');
+    }
     public function testValidateDHCPServer(): void
     {
         $this->validateModule(__DIR__ . '/../FritzBox DHCP Server');
     }
-    public function testValidateDSLModem(): void
+    public function testValidateFileShare(): void
     {
-        $this->validateModule(__DIR__ . '/../FritzBox DSL Modem');
+        $this->validateModule(__DIR__ . '/../FritzBox File Share');
     }
     public function testValidateHosts(): void
     {
         $this->validateModule(__DIR__ . '/../FritzBox Hosts');
     }
-    public function testValidateKonfigurator(): void
+    public function testValidateMyFritz(): void
     {
-        $this->validateModule(__DIR__ . '/../FritzBox Konfigurator');
+        $this->validateModule(__DIR__ . '/../FritzBox MyFritz');
+    }
+    public function testValidateNASStorgae(): void
+    {
+        $this->validateModule(__DIR__ . '/../FritzBox NAS Storage');
+    }
+    
+    public function testValidateTime(): void
+    {
+        $this->validateModule(__DIR__ . '/../FritzBox Time');
+    }
+    
+    public function testValidateUPnPMediaServer(): void
+    {
+        $this->validateModule(__DIR__ . '/../FritzBox UPnP MediaServer');
+    }
+    public function testValidateWANCommonInterface(): void
+    {
+        $this->validateModule(__DIR__ . '/../FritzBox WAN Common Interface');
+    }
+    public function testValidateWANDSLLink(): void
+    {
+        $this->validateModule(__DIR__ . '/../FritzBox WAN DSL Link');
+    }
+    public function testValidateWANIPConnection(): void
+    {
+        $this->validateModule(__DIR__ . '/../FritzBox WAN IP Connection');
+    }
+    public function testValidateWANPortMapping(): void
+    {
+        $this->validateModule(__DIR__ . '/../FritzBox WAN PortMapping');
+    }
+    public function testValidateWebDavStorage(): void
+    {
+        $this->validateModule(__DIR__ . '/../FritzBox WebDav Storage');
     }
     public function testValidateWLAN(): void
     {
         $this->validateModule(__DIR__ . '/../FritzBox WLAN');
-    }
-    public function testValidateWANInterface(): void
-    {
-        $this->validateModule(__DIR__ . '/../FritzBox WAN Interface');
     }
 }

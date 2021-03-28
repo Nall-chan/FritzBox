@@ -4,7 +4,7 @@ declare(strict_types=1);
 eval('declare(strict_types=1);namespace FritzBoxModulBase {?>' . file_get_contents(__DIR__ . '/../libs/helper/DebugHelper.php') . '}');
 require_once __DIR__ . '/../libs/FritzBoxModule.php';
 
-    class FritzBoxKonfigurator extends IPSModule
+    class FritzBoxConfigurator extends IPSModule
     {
         use \FritzBoxModulBase\DebugHelper;
     

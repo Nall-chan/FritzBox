@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 require_once __DIR__ . '/../libs/FritzBoxBase.php';
 require_once __DIR__ . '/../libs/FritzBoxTable.php';
+
 /**
  * @property int $APEnabledId
  * @property int $HostNumberOfEntriesId
@@ -87,8 +88,6 @@ class FritzBoxWLAN extends FritzBoxModulBase
         $this->SetStatus(IS_ACTIVE);
         if (IPS_GetKernelRunlevel() == KR_READY) {
             @$this->UpdateInfo();
-            // todo
-                // typ aus cache auslesen und setsummery
         }
         usleep(5);
         $this->RegisterMessage($this->APEnabledId, VM_UPDATE);
@@ -133,9 +132,6 @@ class FritzBoxWLAN extends FritzBoxModulBase
     }
     public function GetConfigurationForm()
     {
-        //todo
-        // Wenn Typ bekannt, anzeigen
-
         $Form = json_decode(file_get_contents(__DIR__ . '/form.json'), true);
         if (count(static::$ServiceTypeArray) < 2) {
             return json_encode($Form);
@@ -143,19 +139,13 @@ class FritzBoxWLAN extends FritzBoxModulBase
         $Splitter = IPS_GetInstance($this->InstanceID)['ConnectionID'];
         if (($Splitter != 0) && $this->HasActiveParent()) {
             $this->GetWLANForm($Form['elements'][0]['options']);
-            /*$Ret = $this->SendDataToParent(json_encode(
-                [
-                        'DataID'     => '{D62D4515-7689-D1DB-EE97-F555AD9433F0}',
-                        'Function'   => 'COUNTWLAN'
-                    ]
-            ));
-            $NoOfWlan = unserialize($Ret);
-            $this->SendDebug('No of WLANs', $NoOfWlan, 0);
-            $MaxWLANs = count($Form['elements'][0]['options']) + 1;
-            if ($MaxWLANs > $NoOfWlan) {
-                array_splice($Form['elements'][0]['options'], $NoOfWlan + 1);
-            }*/
         }
+        $Index = $this->ReadPropertyInteger('Index');
+        $Summary = $Form['elements'][0]['options'][$Index+1]['caption'];
+        if ($Index != -1) {
+            $Summary = 'WLAN '.$Summary;
+        }
+        $this->SetSummary($Summary);
         if (!$this->GetFile('Hosts.xml')) {
             $Form['actions'][2]['visible']=true;
             $Form['actions'][2]['popup']['items'][0]['caption']='Hostnames not available!';
