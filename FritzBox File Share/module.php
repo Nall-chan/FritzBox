@@ -18,6 +18,7 @@ require_once __DIR__ . '/../libs/FritzBoxBase.php';
             //Never delete this line!
             parent::Create();
             $this->RegisterPropertyInteger('Index', 0);
+            //TODO
             $this->RegisterPropertyBoolean('SharesAsTable', false);
             $this->RegisterPropertyInteger('RefreshInterval', 3600);
     
@@ -64,7 +65,9 @@ require_once __DIR__ . '/../libs/FritzBoxBase.php';
             if ($File === false) {
                 return false;
             }
-            
+            //TODO
+            $Data=[];
+            /*
             $Url = IPS_GetProperty($this->ParentID, 'Host'). $File;
             $XMLData = @Sys_GetURLContentEx($Url, ['Timeout'=>3000]);
             if ($XMLData === false) {
@@ -80,7 +83,7 @@ require_once __DIR__ . '/../libs/FritzBoxBase.php';
                 $Item =(array)$Item;
                 unset($Item['Username']);
                 $Data[]=$Item;
-            }
+            }*/
             return $Data;
         }
         public function RefreshHTMLTable()

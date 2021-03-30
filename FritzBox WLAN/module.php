@@ -425,7 +425,7 @@ class FritzBoxWLAN extends FritzBoxModulBase
         }
         return true;
     }
-    public function SetConfig(
+    public function SetWLANConfig(
         string $MaxBitRate,
         int $Channel,
         string $SSID,
@@ -434,7 +434,7 @@ class FritzBoxWLAN extends FritzBoxModulBase
         string $BasicEncryptionModes,
         string $BasicAuthenticationMode
     ) {
-        $result = $this->Send(__FUNCTION__, [
+        $result = $this->Send('SetConfig', [
                 'NewMaxBitRate'              => $MaxBitRate,
                 'NewChannel'                 => $Channel,
                 'NewSSID'                    => $SSID,

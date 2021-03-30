@@ -24,7 +24,7 @@
         "moduleID": [
             "{D8AA1AB8-0FCE-56F9-FE36-E0D49878FB75}"
         ],
-        "environments": [
+        "includeEnvironments": [
             "TestCommands",
             "Default"
         ]

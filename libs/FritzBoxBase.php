@@ -184,18 +184,19 @@ class FritzBoxModulBase extends IPSModule
             $this->SID = '';
             $this->SendDebug('Error on subscribe', static::$EventSubURLArray[$Index], 0);
             trigger_error('Error on subscribe ' . static::$EventSubURLArray[$Index], E_USER_WARNING);
-            $this->SetTimerInterval('RenewSubscription', 60000);            
-            return false;
-        }
-        $this->SendDebug('Result', $Result, 0);
-
-        if (!$this->WaitForEvent()) {
-            $this->SID = '';
             $this->SetTimerInterval('RenewSubscription', 60000);
             return false;
         }
-        $this->SID = $Result['SID'];
-        $this->SetTimerInterval('RenewSubscription', ($Result['TIMEOUT'] - 5) * 1000);
+        $this->SendDebug('Result', $Result, 0);
+        if ($this->SID === '') {
+            if (!$this->WaitForEvent()) {
+                $this->SID = '';
+                $this->SetTimerInterval('RenewSubscription', 60000);
+                return false;
+            }
+            $this->SID = $Result['SID'];
+        }
+        $this->SetTimerInterval('RenewSubscription', ($Result['TIMEOUT'] - 300) * 1000);
         return true;
     }
     protected function WaitForEvent()
@@ -242,12 +243,12 @@ class FritzBoxModulBase extends IPSModule
         }
         $this->SendDebug('Uri', $Uri, 0);
         $Ret = $this->SendDataToParent(json_encode(
-                [
+            [
                     'DataID'     => '{D62D4515-7689-D1DB-EE97-F555AD9433F0}',
                     'Function'   => 'GETFILE',
                     'Uri'=> $Uri
                 ]
-            ));
+        ));
         if ($Ret === false) {
             return false;
         }
@@ -290,7 +291,7 @@ class FritzBoxModulBase extends IPSModule
         if (!$this->HasActiveParent()) {
             return false;
         }
-        if ($this->GetStatus() == IS_INACTIVE) {
+        if ($this->GetStatus() != IS_ACTIVE) {
             return false;
         }
         $Index = $this->ReadPropertyInteger('Index');

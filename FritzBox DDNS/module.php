@@ -114,9 +114,9 @@ class FritzBoxDynDns extends FritzBoxModulBase
         }
         return true;
     }
-    public function SetConfig(bool $Enable, int $Port, string $Username, string $Password)
+    public function EnableConfig(bool $Enable, int $Port, string $Username, string $Password)
     {
-        $result = $this->Send(__FUNCTION__, [
+        $result = $this->Send('SetConfig', [
             'NewEnabled'=> (int)$Enable,
             'NewPort'=> $Port,
             'NewUsername'=> $Username,
