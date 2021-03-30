@@ -209,7 +209,7 @@
                             "width": "150px"
                         },
                         {
-                            "caption": "Backgroundcolor",
+                            "caption": "Background color",
                             "name": "bgcolor",
                             "width": "150px",
                             "edit": {

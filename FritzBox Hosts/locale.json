@@ -42,10 +42,11 @@
             "Color of Text:": "Textfarbe:",
             "Hostlist rows": "Hostlist Zeilen",
             "Row": "Zeile",
-            "Backgroundcolor": "Hintergrundfarbe",
+            "Background color": "Hintergrundfarbe",
             "Color of background:": "Farbe des Hintergrund",
             "odd": "ungerade",
-            "even": "gerade"
+            "even": "gerade",
+            "Host table": "Host Tabelle"
         }
     }
 }

@@ -61,7 +61,7 @@ class FritzBoxTime extends FritzBoxModulBase
             return false;
         }
         $VarTime = new DateTime((string) $result['NewCurrentLocalTime']);
-        $this->setIPSVariable('CurrentLocalTime', 'Current systemclock', $VarTime->getTimestamp(), VARIABLETYPE_INTEGER, '~UnixTimestamp');
+        $this->setIPSVariable('CurrentLocalTime', 'Current system clock', $VarTime->getTimestamp(), VARIABLETYPE_INTEGER, '~UnixTimestamp');
         $this->setIPSVariable('NTPServer', 'NTP-Server 1', $result['NewNTPServer1'], VARIABLETYPE_STRING, '', true);
         $this->setIPSVariable('NTPServer2', 'NTP-Server 2', $result['NewNTPServer2'], VARIABLETYPE_STRING, '', true);
         //todo

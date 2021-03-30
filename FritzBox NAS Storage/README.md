@@ -11,7 +11,7 @@ Beschreibung des Moduls.
   - [Statusvariablen](#statusvariablen)
   - [Profile](#profile)
 - [6. WebFront](#6-webfront)
-- [7. PHP-Befehlsreferenze](#7-php-befehlsreferenze)
+- [7. PHP-Befehlsreferenz](#7-php-befehlsreferenz)
 
 ### 1. Funktionsumfang
 
@@ -59,7 +59,7 @@ Die Statusvariablen/Kategorien werden automatisch angelegt. Das Löschen einzeln
 
 Die Funktionalität, die das Modul im WebFront bietet.
 
-### 7. PHP-Befehlsreferenze
+### 7. PHP-Befehlsreferenz
 
 `boolean FB_BeispielFunktion(integer $InstanzID);`
 Erklärung der Funktion.

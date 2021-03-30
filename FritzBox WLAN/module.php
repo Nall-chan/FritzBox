@@ -71,7 +71,7 @@ class FritzBoxWLAN extends FritzBoxModulBase
         $this->SetTimerInterval('RefreshState', 0);
         $Table = $this->ReadPropertyBoolean('HostAsTable');
         if ($Table) {
-            $this->RegisterVariableString('HostTable', $this->Translate('Hosttable'), '~HTMLBox', -1);
+            $this->RegisterVariableString('HostTable', $this->Translate('Host Table'), '~HTMLBox', -1);
         } else {
             $this->UnregisterVariable('HostTable');
         }

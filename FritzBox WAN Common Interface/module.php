@@ -12,17 +12,14 @@ require_once __DIR__ . '/../libs/FritzBoxBase.php';
     class FritzBoxWANCommonInterface extends FritzBoxModulBase
     {
         protected static $ControlUrlArray = [
-            //'/upnp/control/wancommonifconfig1',
             '/igdupnp/control/WANCommonIFC1',
             '/igd2upnp/control/WANCommonIFC1'
         ];
         protected static $EventSubURLArray = [
-            //'/upnp/control/wancommonifconfig1',
             '/igdupnp/control/WANCommonIFC1',
             '/igd2upnp/control/WANCommonIFC1'
         ];
         protected static $ServiceTypeArray = [
-            //'urn:dslforum-org:service:WANCommonInterfaceConfig:1',
             'urn:schemas-upnp-org:service:WANCommonInterfaceConfig:1',
             'urn:schemas-upnp-org:service:WANCommonInterfaceConfig:1'
         ];
@@ -237,9 +234,9 @@ require_once __DIR__ . '/../libs/FritzBoxBase.php';
             parent::DecodeEvent($Event);
         }
         //todo String Asso
-        private function LinkStateToInt(string $Linkstate): int
+        private function LinkStateToInt(string $LinkState): int
         {
-            switch ($Linkstate) {
+            switch ($LinkState) {
 
                 case 'Up':
                     return 0;

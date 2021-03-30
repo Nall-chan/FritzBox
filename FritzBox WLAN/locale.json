@@ -59,12 +59,13 @@
             "Color of Text:": "Textfarbe:",
             "Hostlist rows": "Hostlist Zeilen",
             "Row": "Zeile",
-            "Backgroundcolor": "Hintergrundfarbe",
+            "Background color": "Hintergrundfarbe",
             "Color of background:": "Farbe des Hintergrund",
             "odd": "ungerade",
             "even": "gerade",
             "Hostnames not available!": "Hostnamen nicht verfügbar!",
-            "The 'FritzBox Host' instance is required to display hostnames.": "Die 'FritzBox Host' Instanz wird für die Darstellung der Hostnamen benötigt."
+            "The 'FritzBox Host' instance is required to display hostnames.": "Die 'FritzBox Host' Instanz wird für die Darstellung der Hostnamen benötigt.",
+            "Host Table": "Host Tabelle"
         }
     }
 }

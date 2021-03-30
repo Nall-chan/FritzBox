@@ -52,7 +52,7 @@ class FritzBoxWebDavStorage extends FritzBoxModulBase
             case 'RefreshInfo':
                 return $this->UpdateWebDAVClient();
             case 'Enable':
-                return $this->UpdateWebDAVClient($Value);
+                return $this->UpdateWebDAVClient((bool)$Value);
          }
         trigger_error($this->Translate('Invalid Ident.'), E_USER_NOTICE);
         

@@ -75,7 +75,7 @@ class FritzBoxDynDns extends FritzBoxModulBase
         if ($result === false) {
             return false;
         }
-        $this->setIPSVariable('Enable', 'Remoteaccess active', (bool)$result['NewEnabled'], VARIABLETYPE_BOOLEAN, '~Switch', true, 1);
+        $this->setIPSVariable('Enable', 'Remote access active', (bool)$result['NewEnabled'], VARIABLETYPE_BOOLEAN, '~Switch', true, 1);
 
         $result = $this->GetDDNSInfo();
         if ($result === false) {

@@ -381,7 +381,7 @@ eval('declare(strict_types=1);namespace FritzBoxIO {?>' . file_get_contents(__DI
                 }
                 if ($Url == '') {
                     $this->SendDebug('ConsumerAddress', 'Invalid', 0);
-                    $this->UpdateFormField('Eventhook', 'caption', 'Invalid');
+                    $this->UpdateFormField('EventHook', 'caption', 'Invalid');
                     $this->WriteAttributeString('ConsumerAddress', 'Invalid');
                     return false;
                 }
@@ -407,7 +407,7 @@ eval('declare(strict_types=1);namespace FritzBoxIO {?>' . file_get_contents(__DI
                     @socket_close($sock);
                     if ($ip == '0.0.0.0') {
                         $this->SendDebug('ConsumerAddress', 'Invalid', 0);
-                        $this->UpdateFormField('Eventhook', 'caption', 'Invalid');
+                        $this->UpdateFormField('EventHook', 'caption', 'Invalid');
                         $this->WriteAttributeString('ConsumerAddress', 'Invalid');
                         return false;
                     }
@@ -415,7 +415,7 @@ eval('declare(strict_types=1);namespace FritzBoxIO {?>' . file_get_contents(__DI
                     $this->SendDebug('ConsumerAddress', $Url, 0);
                 }
             }
-            $this->UpdateFormField('Eventhook', 'caption', $Url);
+            $this->UpdateFormField('EventHook', 'caption', $Url);
             $this->WriteAttributeString('ConsumerAddress', $Url);
             return true;
         }

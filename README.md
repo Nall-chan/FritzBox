@@ -5,6 +5,9 @@ Folgende Module beinhaltet das FritzBox Repository:
 - __FritzBox Discovery__ ([Dokumentation](FritzBox Discovery))
 	Kurze Beschreibung des Moduls.
 
+- __FritzBox Konfigurator__ ([Dokumentation](FritzBox Configurator))
+	Kurze Beschreibung des Moduls.
+
 - __FritzBox IO__ ([Dokumentation](FritzBox IO))
 	Kurze Beschreibung des Moduls.
 
@@ -30,7 +33,4 @@ Folgende Module beinhaltet das FritzBox Repository:
 	Kurze Beschreibung des Moduls.
 
 - __FritzBox Callmonitor__ ([Dokumentation](FritzBox Callmonitor))
-	Kurze Beschreibung des Moduls.
-
-- __FritzBox Konfigurator__ ([Dokumentation](FritzBox Konfigurator))
 	Kurze Beschreibung des Moduls.

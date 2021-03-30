@@ -53,7 +53,7 @@
                     "caption": "Event hook:"
                 },
                 {
-                    "name": "Eventhook",
+                    "name": "EventHook",
                     "type": "Label",
                     "link": false,
                     "caption": ""

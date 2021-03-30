@@ -55,7 +55,7 @@ class LibraryValidationTest extends TestCaseSymconValidation
     {
         $this->validateModule(__DIR__ . '/../FritzBox MyFritz');
     }
-    public function testValidateNASStorgae(): void
+    public function testValidateNASStorage(): void
     {
         $this->validateModule(__DIR__ . '/../FritzBox NAS Storage');
     }

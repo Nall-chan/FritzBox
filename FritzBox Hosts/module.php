@@ -54,7 +54,7 @@ class FritzBoxHosts extends FritzBoxModulBase
         $Table = $this->ReadPropertyBoolean('HostAsTable');
         $Variable = $this->ReadPropertyBoolean('HostAsVariable');
         if ($Table) {
-            $this->RegisterVariableString('HostTable', $this->Translate('Hosttable'), '~HTMLBox', -3);
+            $this->RegisterVariableString('HostTable', $this->Translate('Host table'), '~HTMLBox', -3);
         } else {
             $this->UnregisterVariable('HostTable');
         }

@@ -121,7 +121,7 @@
                     "type": "List",
                     "name": "Columns",
                     "caption": "Hostlist columns",
-                    "rowCount": 13,
+                    "rowCount": 6,
                     "add": false,
                     "delete": false,
                     "sort": {
@@ -250,7 +250,7 @@
                     "type": "List",
                     "name": "Rows",
                     "caption": "Hostlist rows",
-                    "rowCount": 4,
+                    "rowCount": 3,
                     "add": false,
                     "delete": false,
                     "columns": [
@@ -268,7 +268,7 @@
                             "width": "150px"
                         },
                         {
-                            "caption": "Backgroundcolor",
+                            "caption": "Background color",
                             "name": "bgcolor",
                             "width": "150px",
                             "edit": {

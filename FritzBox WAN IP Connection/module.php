@@ -7,17 +7,14 @@ require_once __DIR__ . '/../libs/FritzBoxBase.php';
     class FritzBoxWANIPConnection extends FritzBoxModulBase
     {
         protected static $ControlUrlArray = [
-            // '/upnp/control/wanipconnection1',
             '/igdupnp/control/WANIPConn1',
             '/igd2upnp/control/WANIPConn1'
         ];
         protected static $EventSubURLArray = [
-            // '/upnp/control/wanipconnection1',
             '/igdupnp/control/WANIPConn1',
             '/igd2upnp/control/WANIPConn1'
         ];
         protected static $ServiceTypeArray = [
-            // 'urn:dslforum-org:service:WANIPConnection:1',
             'urn:schemas-upnp-org:service:WANIPConnection:1',
             'urn:schemas-upnp-org:service:WANIPConnection:2'
         ];

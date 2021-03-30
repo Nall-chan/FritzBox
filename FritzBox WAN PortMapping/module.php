@@ -46,7 +46,7 @@ require_once __DIR__ . '/../libs/FritzBoxBase.php';
                 return true;
             }
             if (strpos($Ident, 'P')===3) {
-                return $this->EnablePortMapping($Ident, $Value);
+                return $this->EnablePortMapping($Ident, (bool)$Value);
             }
             switch ($Ident) {
                 case 'RefreshInfo':
