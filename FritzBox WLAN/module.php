@@ -331,7 +331,7 @@ class FritzBoxWLAN extends FritzBoxModulBase
         // Typ cachen
         if ($this->ReadPropertyBoolean('InfoVariables')) {
             $result = $this->GetWLANExtInfo();
-            if ($resultState === false) {
+            if ($result === false) {
                 return false;
             }
             if ((string)$result['NewX_AVM-DE_APType'] =='guest') {
