@@ -598,11 +598,7 @@ eval('declare(strict_types=1);namespace FritzBoxIO {?>' . file_get_contents(__DI
                     foreach ($params as $Name => $Value) {
                         $SoapParams[] = new SoapParam($Value, $Name);
                     }
-                    /*if (count($SoapParams) == 1) {
-                        $SoapParams = $SoapParams[0];
-                    }*/
                     $Result = $client->__soapCall($function, $SoapParams);
-                    //$Result = $client->{$function}($SoapParams);
                 }
                 $Response = $client->__getLastResponse();
                 $this->SendDebug('Soap Request Header', $client->__getLastRequestHeaders(), 0);

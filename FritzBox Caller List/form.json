@@ -1,5 +1,470 @@
 {
-    "elements": [],
-    "actions": [],
-    "status": []
+    "elements": [
+        {
+            "type": "RowLayout",
+            "items": [
+                {
+                    "name": "RefreshIntervalPhonebook",
+                    "type": "NumberSpinner",
+                    "caption": "Reload Phonebook",
+                    "suffix": "minutes",
+                    "minimum": 0,
+                    "width": "200px"
+                },
+                {
+                    "name": "ReverseSearch",
+                    "type": "Select",
+                    "caption": "Service for reverse serach",
+                    "options": [
+                        {
+                            "caption": "<none>",
+                            "value": 0
+                        },
+                        {
+                            "caption": "Das Örtliche Website",
+                            "value": 1
+                        },
+                        {
+                            "caption": "KlickTel Api",
+                            "value": 2
+                        },
+                        {
+                            "caption": "KlickTel CH Website",
+                            "value": 3
+                        },
+                        {
+                            "caption": "Custom",
+                            "value": 4
+                        }
+                    ],
+                    "width": "200px",
+                    "enabled": false
+                },
+                {
+                    "type": "SelectScript",
+                    "name": "CustomSerachScript",
+                    "caption": "Script for custom",
+                    "width": "300px",
+                    "enabled": false
+                }
+            ]
+        },
+        {
+            "type": "RowLayout",
+            "items": [
+                {
+                    "name": "RefreshIntervalCallList",
+                    "type": "NumberSpinner",
+                    "caption": "Reload call list intervall",
+                    "suffix": "minutes",
+                    "minimum": 0,
+                    "width": "200px"
+                },
+                {
+                    "name": "LoadListType",
+                    "type": "Select",
+                    "caption": "Load call list",
+                    "options": [
+                        {
+                            "caption": "full",
+                            "value": 0
+                        },
+                        {
+                            "caption": "last days",
+                            "value": 1
+                        },
+                        {
+                            "caption": "number of entries",
+                            "value": 2
+                        }
+                    ],
+                    "width": "200px"
+                },
+                {
+                    "name": "LastEntries",
+                    "type": "NumberSpinner",
+                    "caption": "number of last days or entries",
+                    "suffix": "days / entries",
+                    "minimum": 0,
+                    "width": "300px"
+                }
+            ]
+        },
+        {
+            "type": "RowLayout",
+            "items": [
+                {
+                    "name": "MaxNameSize",
+                    "type": "NumberSpinner",
+                    "caption": "max. length of names",
+                    "minimum": 5,
+                    "suffix":"char",
+                    "width": "200px"
+                },
+                {
+                    "type": "ValidationTextBox",
+                    "name": "SearchMarker",
+                    "caption": "Suffix for reverse-search hit",
+                    "width": "200px"
+                },
+                {
+                    "type": "ValidationTextBox",
+                    "name": "UnknownNumberName",
+                    "caption": "Display name for unknown numbers",
+                    "width": "300px"
+                }
+            ]
+        },
+        {
+            "type": "ExpansionPanel",
+            "caption": "HTML-Table design",
+            "items": [
+                {
+                    "type": "RowLayout",
+                    "items": [
+                        {
+                            "type": "List",
+                            "name": "Icons",
+                            "caption": "Icons for type of call",
+                            "rowCount": 9,
+                            "add": false,
+                            "delete": false,
+                            "sort": {
+                                "column": "type",
+                                "direction": "ascending"
+                            },
+                            "columns": [
+                                {
+                                    "name": "type",
+                                    "save": true,
+                                    "visible": false
+                                },
+                                {
+                                    "name": "DisplayName",
+                                    "save": true,
+                                    "caption": "Type",
+                                    "width": "150px"
+                                },
+                                {
+                                    "name": "icon",
+                                    "caption": "Icon",
+                                    "width": "200px",
+                                    "edit": {
+                                        "caption": "Select grafik",
+                                        "type": "SelectFile",
+                                        "extensions": ".gif,.jpg,.png,.jpeg"
+                                    }
+                                },
+                                {
+                                    "caption": "alignment",
+                                    "name": "align",
+                                    "width": "150px",
+                                    "edit": {
+                                        "type": "Select",
+                                        "caption": "Icon alignment",
+                                        "options": [
+                                            {
+                                                "caption": "Left",
+                                                "value": "left"
+                                            },
+                                            {
+                                                "caption": "Center",
+                                                "value": "center"
+                                            },
+                                            {
+                                                "caption": "Right",
+                                                "value": "right"
+                                            }
+                                        ]
+                                    }
+                                },
+                                {
+                                    "caption": "CSS",
+                                    "name": "style",
+                                    "width": "200px",
+                                    "edit": {
+                                        "caption": "CSS:",
+                                        "type": "ValidationTextBox"
+                                    }
+                                }
+                            ]
+                        },
+                        {
+                            "type": "Button",
+                            "name": "ShowImage",
+                            "caption": "Show selected icon",
+                            "onClick": "IPS_RequestAction($id,'PreviewIcon',serialize(['DisplayName'=>$Icons['DisplayName'],'Icon'=>$Icons['icon']]));"
+                        }
+                    ]
+                },
+                {
+                    "type": "List",
+                    "name": "Table",
+                    "caption": "Table design",
+                    "rowCount": 4,
+                    "add": false,
+                    "delete": false,
+                    "columns": [
+                        {
+                            "name": "tag",
+                            "caption": "HTML-Tag",
+                            "width": "75px",
+                            "save": true
+                        },
+                        {
+                            "caption": "CSS",
+                            "name": "style",
+                            "width": "auto",
+                            "edit": {
+                                "caption": "CSS:",
+                                "type": "ValidationTextBox"
+                            }
+                        }
+                    ]
+                },
+                {
+                    "type": "List",
+                    "name": "Columns",
+                    "caption": "Caller list columns",
+                    "rowCount": 9,
+                    "add": false,
+                    "delete": false,
+                    "sort": {
+                        "column": "index",
+                        "direction": "ascending"
+                    },
+                    "columns": [
+                        {
+                            "name": "key",
+                            "caption": "Data",
+                            "width": "150px",
+                            "save": true
+                        },
+                        {
+                            "caption": "Visible",
+                            "name": "show",
+                            "width": "75px",
+                            "edit": {
+                                "caption": "Visible as column ?",
+                                "type": "CheckBox"
+                            }
+                        },
+                        {
+                            "caption": "No.",
+                            "name": "index",
+                            "width": "50px",
+                            "edit": {
+                                "caption": "Index of this column:",
+                                "type": "NumberSpinner",
+                                "minimum": 0
+                            }
+                        },
+                        {
+                            "caption": "Display-Name",
+                            "name": "name",
+                            "width": "150px",
+                            "edit": {
+                                "caption": "Display-Name:",
+                                "type": "ValidationTextBox"
+                            }
+                        },
+                        {
+                            "caption": "Width",
+                            "name": "width",
+                            "width": "50px",
+                            "edit": {
+                                "caption": "Width of this column:",
+                                "type": "NumberSpinner",
+                                "minimum": 0
+                            }
+                        },
+                        {
+                            "caption": "Header alignment",
+                            "name": "hralign",
+                            "width": "150px",
+                            "edit": {
+                                "type": "Select",
+                                "caption": "Text alignment",
+                                "options": [
+                                    {
+                                        "caption": "Left",
+                                        "value": "left"
+                                    },
+                                    {
+                                        "caption": "Center",
+                                        "value": "center"
+                                    },
+                                    {
+                                        "caption": "Right",
+                                        "value": "right"
+                                    }
+                                ]
+                            }
+                        },
+                        {
+                            "caption": "Header color",
+                            "name": "hrcolor",
+                            "width": "150px",
+                            "edit": {
+                                "caption": "Color of Text:",
+                                "type": "SelectColor"
+                            }
+                        },
+                        {
+                            "caption": "Header CSS",
+                            "name": "hrstyle",
+                            "width": "200px",
+                            "edit": {
+                                "caption": "CSS:",
+                                "type": "ValidationTextBox"
+                            }
+                        },
+                        {
+                            "caption": "Alignment",
+                            "name": "tdalign",
+                            "width": "150px",
+                            "edit": {
+                                "type": "Select",
+                                "caption": "Text alignment",
+                                "options": [
+                                    {
+                                        "caption": "Left",
+                                        "value": "left"
+                                    },
+                                    {
+                                        "caption": "Center",
+                                        "value": "center"
+                                    },
+                                    {
+                                        "caption": "Right",
+                                        "value": "right"
+                                    }
+                                ]
+                            }
+                        },
+                        {
+                            "caption": "CSS",
+                            "name": "tdstyle",
+                            "width": "200px",
+                            "edit": {
+                                "caption": "CSS:",
+                                "type": "ValidationTextBox"
+                            }
+                        }
+                    ]
+                },
+                {
+                    "type": "List",
+                    "name": "Rows",
+                    "caption": "Caller list rows",
+                    "rowCount": 3,
+                    "add": false,
+                    "delete": false,
+                    "columns": [
+                        {
+                            "name": "row",
+                            "caption": "",
+                            "width": "50px",
+                            "save": true,
+                            "visible": false
+                        },
+                        {
+                            "name": "name",
+                            "caption": "Row",
+                            "save": true,
+                            "width": "150px"
+                        },
+                        {
+                            "caption": "Background color",
+                            "name": "bgcolor",
+                            "width": "150px",
+                            "edit": {
+                                "caption": "Color of background:",
+                                "type": "SelectColor"
+                            }
+                        },
+                        {
+                            "caption": "Color",
+                            "name": "color",
+                            "width": "100px",
+                            "edit": {
+                                "caption": "Color of Text:",
+                                "type": "SelectColor"
+                            }
+                        },
+                        {
+                            "caption": "CSS",
+                            "name": "style",
+                            "width": "auto",
+                            "edit": {
+                                "caption": "CSS:",
+                                "type": "ValidationTextBox"
+                            }
+                        }
+                    ]
+                }
+            ]
+        }
+    ],
+    "actions": [
+        {
+            "type": "Button",
+            "caption": "Reload Call-List",
+            "onClick": "IPS_RequestAction($id,'RefreshCallList',true);"
+        },
+        {
+            "type": "Button",
+            "caption": "Reload Phonebook",
+            "onClick": "IPS_RequestAction($id,'RefreshPhonebook',true);"
+        },
+        {
+            "type": "TestCenter"
+        },
+        {
+            "name": "IconPreview",
+            "type": "PopupAlert",
+            "visible": false,
+            "popup": {
+                "items": [
+                    {
+                        "type": "RowLayout",
+                        "items": [
+                            {
+                                "type": "Label",
+                                "caption": "Type:",
+                                "width": "100px"
+                            },
+                            {
+                                "name": "IconName",
+                                "type": "Label",
+                                "caption": ""
+                            }
+                        ]
+                    },
+                    {
+                        "type": "RowLayout",
+                        "items": [
+                            {
+                                "type": "Label",
+                                "caption": "Icon:",
+                                "width": "100px"
+                            },
+                            {
+                                "name": "IconImage",
+                                "type": "Image",
+                                "image": ""
+                            }
+                        ]
+                    }
+                ]
+            }
+        }
+    ],
+    "status": [
+        {
+            "code": 201,
+            "icon": "error",
+            "caption": "Event subscribe error"
+        }
+    ]
 }

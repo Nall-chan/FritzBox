@@ -57,7 +57,7 @@ Name   | Typ
 
 Die Funktionalität, die das Modul im WebFront bietet.
 
-### 7. PHP-Befehlsreferenze
+### 7. PHP-Befehlsreferenz
 
 `boolean FB_BeispielFunktion(integer $InstanzID);`
 Erklärung der Funktion.
