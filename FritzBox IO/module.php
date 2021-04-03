@@ -207,6 +207,7 @@ require_once __DIR__ . '/../libs/FritzBoxModule.php';
             $data = json_decode($JSONString);
             IPS_LogMessage('Splitter RECV', utf8_decode($data->Buffer));
             $data->DataID ='{FE5B2BCA-CA0F-25DC-8E79-BDFD242CB06E}';
+            $this->SendDebug('Forward', json_encode($data), 0);
             $this->SendDataToChildren(json_encode($data));
         }
         public function GetConfigurationForm()

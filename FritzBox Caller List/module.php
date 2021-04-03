@@ -498,7 +498,7 @@ class FritzBoxCallerList extends FritzBoxModulBase
                 'hrcolor' => -1,
                 'hralign' => 'center',
                 'hrstyle' => '',
-                'tdalign' => 'left',
+                'tdalign' => 'center',
                 'tdstyle' => ''
             ],
 

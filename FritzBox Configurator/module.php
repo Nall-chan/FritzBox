@@ -1,17 +1,22 @@
 <?php
 
 declare(strict_types=1);
+eval('declare(strict_types=1);namespace FritzBoxModulBase {?>' . file_get_contents(__DIR__ . '/../libs/helper/BufferHelper.php') . '}');
 eval('declare(strict_types=1);namespace FritzBoxModulBase {?>' . file_get_contents(__DIR__ . '/../libs/helper/DebugHelper.php') . '}');
 require_once __DIR__ . '/../libs/FritzBoxModule.php';
-
+/**
+ * @property bool $HasCallMonitor
+ */
     class FritzBoxConfigurator extends IPSModule
     {
+        use \FritzBoxModulBase\BufferHelper;
         use \FritzBoxModulBase\DebugHelper;
     
         public function Create()
         {
             //Never delete this line!
             parent::Create();
+            $this->HasCallMonitor=false;
             $this->ConnectParent('{6FF9A05D-4E49-4371-23F1-7F58283FB1D9}');
         }
 
@@ -26,6 +31,9 @@ require_once __DIR__ . '/../libs/FritzBoxModule.php';
             //Never delete this line!
             parent::ApplyChanges();
             $this->SetReceiveDataFilter('.*NOTHINGTORECEIVE.*');
+            //todo
+            //prüfen ob Anrufmonitor aktiv ist
+            $this->HasCallMonitor=true;
         }
 
         public function GetConfigurationForm()
@@ -141,6 +149,33 @@ require_once __DIR__ . '/../libs/FritzBoxModule.php';
                 if ($Xml == 'igd2desc.xml') {
                     break 1;
                 }
+            }
+            if ($this->HasCallMonitor) {
+                //todo reinpatchen
+                //und aus KnownInstances entfernen
+                $serviceType='callmonitor';
+                $guid = key(\FritzBox\Services::$Data[$serviceType]);
+                $AddService = [
+                    'instanceID'      => 0,
+                    'url'             => '',
+                    'name'            => 'currently not available',
+                    'event'           => true
+                ];
+                $AddService['type']= IPS_GetModule($guid)['ModuleName'];
+                $AddService['create'] = [
+                    'moduleID'      => $guid,
+                    'configuration' => ['Index' => 0],
+                    'location' => [IPS_GetName($this->InstanceID)]
+                ];
+                $Key = array_search(\FritzBox\Services::$Data[$serviceType], $KnownInstances);
+                if ($Key === false) {
+                    $AddService['name']= IPS_GetModule($guid)['ModuleName'];
+                } else {
+                    $AddService['name']= IPS_GetName($Key);
+                    $AddService['instanceID']= $Key;
+                    unset($KnownInstances[$Key]);
+                }
+                $ServiceValues[] =$AddService;
             }
             foreach ($KnownInstances as $InstanceId => $KnownInstance) {
                 $ServiceValues[] =[

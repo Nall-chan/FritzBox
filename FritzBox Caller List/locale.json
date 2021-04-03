@@ -6,7 +6,7 @@
             "Load call list": "Lade Anruferliste",
             "full": "Vollständig",
             "last days": "Anzahl Tage",
-            "number ob entries": "Anzahl Einträge",
+            "number of entries": "Anzahl Einträge",
             "number of last days or entries": "Anzahl Tage oder Einträge",
             "days / entries": "Tage / Einträge",
             "max. length of names": "kürze Namen auf",
@@ -56,7 +56,8 @@
             "Device": "Gerät",
             "Duration": "Dauer",
             "Fax / TAM": "Fax / AB",
-            "Number": "Rufnummer"
+            "Number": "Rufnummer",
+            "Show selected icon": "Zeige ausgewähltes Icon"
         }
     }
 }

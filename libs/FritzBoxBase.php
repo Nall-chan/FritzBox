@@ -70,10 +70,11 @@ class FritzBoxModulBase extends IPSModule
             $this->SendDebug('Filter', '.*"EventSubURL":"' . $Filter . '".*', 0);
         } else {
             if (property_exists($this, 'SecondEventGUID')) {
-                $Filter= '.*|.*"DataID":"'.preg_quote(static::$SecondEventGUID).'"';
-                $this->SetReceiveDataFilter('.*"EventSubURL":"' . $Filter . '".*');
-                $this->SendDebug('Filter', '.*"EventSubURL":"' . $Filter . '".*', 0);
+                $Filter= '.*"DataID":"'.preg_quote(static::$SecondEventGUID).'".*';
+                $this->SetReceiveDataFilter($Filter);
+                $this->SendDebug('FilterSecondEventGUID', $Filter, 0);
             } else {
+                $this->SendDebug('Filter', 'NOTHINGTORECEIVE', 0);
                 $this->SetReceiveDataFilter('.*NOTHINGTORECEIVE.*');
             }
         }

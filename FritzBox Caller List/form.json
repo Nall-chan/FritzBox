@@ -98,7 +98,7 @@
                     "type": "NumberSpinner",
                     "caption": "max. length of names",
                     "minimum": 5,
-                    "suffix":"char",
+                    "suffix": "char",
                     "width": "200px"
                 },
                 {
@@ -193,7 +193,7 @@
                             "type": "Button",
                             "name": "ShowImage",
                             "caption": "Show selected icon",
-                            "onClick": "IPS_RequestAction($id,'PreviewIcon',serialize(['DisplayName'=>$Icons['DisplayName'],'Icon'=>$Icons['icon']]));"
+                            "onClick": "if (isset($Icons['DisplayName'])) IPS_RequestAction($id,'PreviewIcon',serialize(['DisplayName'=>$Icons['DisplayName'],'Icon'=>$Icons['icon']]));"
                         }
                     ]
                 },
