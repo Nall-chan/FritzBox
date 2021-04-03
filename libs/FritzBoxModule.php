@@ -31,6 +31,7 @@ class Services
         'urn:schemas-upnp-org:service:WANDSLLinkConfig:1'        => ['{061AEAF5-ADCD-AD9E-9BF9-AD40DF364EB6}'=>0], // Prüfen im Feldtest
         'urn:dslforum-org:service:WANPPPConnection:1'            => ['{9396D756-40EA-46C7-AA06-623B8DCB789B}'=>0], // bei DSL (prüfen im Feldtest)
         //Todo
+        'callmonitor'                                            => ['{5B5C7F75-E7FE-AE5C-6A51-8252688CBF4D}'=>0],
         'urn:dslforum-org:service:X_AVM-DE_OnTel:1'              => ['{AD0B22A7-C71C-71DD-A40B-B70334C5AB3C}'=>0],
         'urn:dslforum-org:service:Layer3Forwarding:1'            => [],
         'urn:schemas-upnp-org:service:WANIPv6FirewallControl:1'  => [],

@@ -5,6 +5,7 @@ eval('declare(strict_types=1);namespace FritzBoxIO {?>' . file_get_contents(__DI
 eval('declare(strict_types=1);namespace FritzBoxIO {?>' . file_get_contents(__DIR__ . '/../libs/helper/WebhookHelper.php') . '}');
 eval('declare(strict_types=1);namespace FritzBoxIO {?>' . file_get_contents(__DIR__ . '/../libs/helper/BufferHelper.php') . '}');
 eval('declare(strict_types=1);namespace FritzBoxIO {?>' . file_get_contents(__DIR__ . '/../libs/helper/DebugHelper.php') . '}');
+require_once __DIR__ . '/../libs/FritzBoxModule.php';
 /**
  * @property string $Url
  * @property string $Username
@@ -80,9 +81,35 @@ eval('declare(strict_types=1);namespace FritzBoxIO {?>' . file_get_contents(__DI
                     }
                     break;
                 case FM_CHILDADDED:
+                    // TODO
                     //prüfen ob CS benötigt wird und dann anlegen.
+                    //$this->LogMessage('Sender:'.$SenderID, KL_MESSAGE);
+                    //$this->LogMessage('Message:'.$Message, KL_MESSAGE);
+                    //$this->LogMessage('Data:'.print_r($Data, true), KL_MESSAGE);
+                    if (IPS_GetInstance($Data[0])['ModuleInfo']['ModuleID']== key(\FritzBox\Services::$Data['callmonitor'])) {
+                        $this->CreateCallMonitorCS();
+                    }
                     break;
             }
+        }
+        private function CreateCallMonitorCS()
+        {
+            if (IPS_GetInstance($this->InstanceID)['ConnectionID'] != 0) {
+                return;
+            }
+            $this->RequireParent('{3CFF0FD9-E306-41DB-9B5A-9D06D38576C3}');
+            $ParentId = IPS_GetInstance($this->InstanceID)['ConnectionID'];
+            if ($ParentId >0) {
+                IPS_SetProperty($ParentId, 'Host', parse_url($this->Url, PHP_URL_HOST));
+                IPS_SetProperty($ParentId, 'Port', 1012);
+                IPS_SetProperty($ParentId, 'Open', true);
+                @IPS_ApplyChanges($ParentId);
+            }
+        }
+
+        public function GetConfigurationForParent()
+        {
+            return json_encode(['Host'=>parse_url($this->Url, PHP_URL_HOST),'Port' => 1012]);
         }
 
         public function RequestAction($Ident, $Value)
@@ -179,6 +206,8 @@ eval('declare(strict_types=1);namespace FritzBoxIO {?>' . file_get_contents(__DI
         {
             $data = json_decode($JSONString);
             IPS_LogMessage('Splitter RECV', utf8_decode($data->Buffer));
+            $data->DataID ='{FE5B2BCA-CA0F-25DC-8E79-BDFD242CB06E}';
+            $this->SendDataToChildren(json_encode($data));
         }
         public function GetConfigurationForm()
         {
@@ -563,7 +592,7 @@ eval('declare(strict_types=1);namespace FritzBoxIO {?>' . file_get_contents(__DI
                 'noroot'                 => true,
                 'trace'                  => true,
                 'exceptions'             => true,
-                'ssl_method '            => SOAP_SSL_METHOD_TLS,
+                'ssl_method'             => SOAP_SSL_METHOD_TLS,
                 'soap_version'           => SOAP_1_1,
                 'connection_timeout'     => 5,
                 'default_socket_timeout' => 5,

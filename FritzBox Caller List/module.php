@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 require_once __DIR__ . '/../libs/FritzBoxBase.php';
 require_once __DIR__ . '/../libs/FritzBoxTable.php';
+require_once __DIR__ . '/../libs/helper/WebhookHelper.php';
 
 /**
  * @property array $PhonebookFiles
@@ -11,6 +12,7 @@ require_once __DIR__ . '/../libs/FritzBoxTable.php';
 class FritzBoxCallerList extends FritzBoxModulBase
 {
     use \FritzBoxModul\HTMLTable;
+    use \WebhookHelper;
 
     protected static $ControlUrlArray = [
         '/upnp/control/x_contact'
@@ -22,6 +24,7 @@ class FritzBoxCallerList extends FritzBoxModulBase
         'urn:dslforum-org:service:X_AVM-DE_OnTel:1'
     ];
 
+    protected static $SecondEventGUID='{FE5B2BCA-CA0F-25DC-8E79-BDFD242CB06E}';
 
     const Call_Incoming = 1;
     const Call_Missed=2;
@@ -91,6 +94,7 @@ class FritzBoxCallerList extends FritzBoxModulBase
         // GetDeflection
         //$this->GetDeflections();
         // SetDeflectionEnable
+        $this->RegisterHook('/hook/FritzBoxCallList' . $this->InstanceID);
         $this->RegisterVariableString('CallerList', $this->Translate('Caller list'), '~HTMLBox', 0);
         $this->RefreshCallList();
     }
@@ -156,25 +160,27 @@ class FritzBoxCallerList extends FritzBoxModulBase
             if ((int)$CallList->Call[$i]->Type == self::Call_Outgoing) {
                 $Data[$i]['Caller'] = str_replace(strtoupper((string)$CallList->Call[$i]->Numbertype).": ", "", (string)$CallList->Call[$i]->Caller);
                 $Data[$i]['Called'] = (string)$CallList->Call[$i]->Called;
+                $Data[$i]['Number'] =  (string)$CallList->Call[$i]->Called;
             } else {
                 $Data[$i]['Caller'] = (string)$CallList->Call[$i]->Caller;
                 $Data[$i]['Called'] = str_replace(strtoupper((string)$CallList->Call[$i]->Numbertype).": ", "", (string)$CallList->Call[$i]->Called);
                 if ($Data[$i]['Caller'] =='') {
                     $Data[$i]['Name']=$UnknownName;
                 }
+                $Data[$i]['Number'] =  (string)$CallList->Call[$i]->Caller;
             }
             //$CallList->Call[$i]->addChild("Fax"); // leeren FAX Eintrag erzeugen.
             $Data[$i]['Fax']='';
             // Fax-Anruf ?
             if ((int)$CallList->Call[$i]->Port == 5) {
                 $Data[$i]['Type']= self::Call_Tam_Deleted; // vorbelegen mit Fax schon gelöscht
-                $Data[$i]['Called'] = (string)$CallList->Call[$i]->Device;
-                $Data[$i]['Duration'] = "---";  // Warum auch immer ist die Dauer immer 0:01 auch bei FAX
+                //$Data[$i]['Called'] = (string)$CallList->Call[$i]->Device;
+                //$Data[$i]['Duration'] = "---";  // Warum auch immer ist die Dauer immer 0:01 auch bei FAX
 
                 if (strlen((string)$CallList->Call[$i]->Path) <> 0) {
                     $Data[$i]['Fax'] = "1"; // FAX-Eintrag ist vorhanden !
                     //$CallList->Call[$i]->Path =  $AB_URL."?fax=".urlencode((string)$CallList->Call[$i]->Path);// URL-Anpassen
-                    $Data[$i]['Type'] = self::Call_Tam_Old;
+                    $Data[$i]['Type'] = self::Call_Fax;
                 }
             } else {
                 $Data[$i]['Type'] =(int)$CallList->Call[$i]->Type;
@@ -196,9 +202,10 @@ class FritzBoxCallerList extends FritzBoxModulBase
             }
             $Icon_CSS.='.Icon'.$this->InstanceID.$Config_Icon['type'].' {width:100%;height:'.$ImageData[1].'px;background:url('.'data://'.$ImageData['mime'].';base64,'.$Config_Icon['icon'].') no-repeat '.$Config_Icon['align'].' center;}'."\r\n";
         }
-        $Icon_CSS.='</style>'."\r\n";
+        $Icon_CSS.='</style>';
+        $JS ='<script type="text/javascript" src="hook/FritzBoxCallList'.$this->InstanceID.'/tooltips.js"></script>';
         $HTML = $this->GetTable($Data).'</div>';
-        $this->SetValue('CallerList', $Icon_CSS . $HTML);
+        $this->SetValue('CallerList', $Icon_CSS .$JS.$HTML);
         return true;
     }
     private function RefreshPhonebook()
@@ -403,7 +410,7 @@ class FritzBoxCallerList extends FritzBoxModulBase
                 'name'  => '',
                 'show'  => true,
                 'width' => 35,
-                'hrcolor' => 0xffffff,
+                'hrcolor' => -1,
                 'hralign' => 'center',
                 'hrstyle' => '',
                 'tdalign' => 'center',
@@ -415,7 +422,7 @@ class FritzBoxCallerList extends FritzBoxModulBase
                 'name'  => $this->Translate('Type'),
                 'show'  => false,
                 'width' => 35,
-                'hrcolor' => 0xffffff,
+                'hrcolor' => -1,
                 'hralign' => 'center',
                 'hrstyle' => '',
                 'tdalign' => 'left',
@@ -428,7 +435,7 @@ class FritzBoxCallerList extends FritzBoxModulBase
                 'name'  => $this->Translate('Time'),
                 'show'  => true,
                 'width' => 110,
-                'hrcolor' => 0xffffff,
+                'hrcolor' => -1,
                 'hralign' => 'center',
                 'hrstyle' => '',
                 'tdalign' => 'left',
@@ -440,7 +447,7 @@ class FritzBoxCallerList extends FritzBoxModulBase
                 'name'  => $this->Translate('Name'),
                 'show'  => true,
                 'width' => 200,
-                'hrcolor' => 0xffffff,
+                'hrcolor' => -1,
                 'hralign' => 'center',
                 'hrstyle' => '',
                 'tdalign' => 'left',
@@ -450,21 +457,9 @@ class FritzBoxCallerList extends FritzBoxModulBase
                 'index' => 4,
                 'key'   => 'Caller',
                 'name'  => $this->Translate('Caller'),
-                'show'  => true,
-                'width' => 200,
-                'hrcolor' => 0xffffff,
-                'hralign' => 'center',
-                'hrstyle' => '',
-                'tdalign' => 'left',
-                'tdstyle' => ''
-            ],
-            [
-                'index' => 7,
-                'key'   => 'Device',
-                'name'  => $this->Translate('Device'),
-                'show'  => true,
+                'show'  => false,
                 'width' => 150,
-                'hrcolor' => 0xffffff,
+                'hrcolor' => -1,
                 'hralign' => 'center',
                 'hrstyle' => '',
                 'tdalign' => 'left',
@@ -474,9 +469,9 @@ class FritzBoxCallerList extends FritzBoxModulBase
                 'index' => 5,
                 'key'   => 'Called',
                 'name'  => $this->Translate('Called'),
-                'show'  => true,
-                'width' => 100,
-                'hrcolor' => 0xffffff,
+                'show'  => false,
+                'width' => 150,
+                'hrcolor' => -1,
                 'hralign' => 'center',
                 'hrstyle' => '',
                 'tdalign' => 'left',
@@ -484,18 +479,43 @@ class FritzBoxCallerList extends FritzBoxModulBase
             ],
             [
                 'index' => 6,
-                'key'   => 'Duration',
-                'name'  => $this->Translate('Duration'),
+                'key'   => 'Number',
+                'name'  => $this->Translate('Number'),
                 'show'  => true,
-                'width' => 80,
-                'hrcolor' => 0xffffff,
+                'width' => 150,
+                'hrcolor' => -1,
+                'hralign' => 'center',
+                'hrstyle' => '',
+                'tdalign' => 'center',
+                'tdstyle' => ''
+            ],
+            [
+                'index' => 7,
+                'key'   => 'Device',
+                'name'  => $this->Translate('Device'),
+                'show'  => true,
+                'width' => 150,
+                'hrcolor' => -1,
                 'hralign' => 'center',
                 'hrstyle' => '',
                 'tdalign' => 'left',
                 'tdstyle' => ''
             ],
+
             [
                 'index' => 8,
+                'key'   => 'Duration',
+                'name'  => $this->Translate('Duration'),
+                'show'  => true,
+                'width' => 80,
+                'hrcolor' => -1,
+                'hralign' => 'center',
+                'hrstyle' => '',
+                'tdalign' => 'left',
+                'tdstyle' => ''
+            ]/*,
+            [
+                'index' => 9,
                 'key'   => 'Action',
                 'name'  => $this->Translate('Fax / TAM'),
                 'show'  => false,
@@ -505,21 +525,21 @@ class FritzBoxCallerList extends FritzBoxModulBase
                 'hrstyle' => '',
                 'tdalign' => 'center',
                 'tdstyle' => ''
-            ]
+            ]*/
         ];
         $NewRowsConfig = [
             [
                 'row'     => 'odd',
                 'name'    => $this->Translate('odd'),
-                'bgcolor' => 0x000000,
-                'color'   => 0xffffff,
+                'bgcolor' => -1,
+                'color'   => -1,
                 'style'   => ''
             ],
             [
                 'row'     => 'even',
                 'name'    => $this->Translate('even'),
-                'bgcolor' => 0x080808,
-                'color'   => 0xffffff,
+                'bgcolor' => -1,
+                'color'   => -1,
                 'style'   => ''
             ]
         ];
@@ -527,74 +547,119 @@ class FritzBoxCallerList extends FritzBoxModulBase
             [
                 'type'          => self::Call_Incoming,
                 'DisplayName'   => $this->Translate('Incoming'),
-                'icon'          => base64_encode(file_get_contents(__DIR__.'/imgs/callin.png')),
+                'icon'          => base64_encode(file_get_contents(__DIR__.'/../imgs/callin.png')),
                 'align'         => 'center',
                 'style'         => ''
             ],
             [
                 'type'          => self::Call_Missed,
                 'DisplayName'   => $this->Translate('Missed call'),
-                'icon'          => base64_encode(file_get_contents(__DIR__.'/imgs/callinfailed.png')),
+                'icon'          => base64_encode(file_get_contents(__DIR__.'/../imgs/callinfailed.png')),
                 'align'         => 'center',
                 'style'         => ''
             ],
             [
                 'type'          => self::Call_Outgoing,
                 'DisplayName'   => $this->Translate('Outgoing'),
-                'icon'          => base64_encode(file_get_contents(__DIR__.'/imgs/callout.png')),
+                'icon'          => base64_encode(file_get_contents(__DIR__.'/../imgs/callout.png')),
                 'align'         => 'center',
                 'style'         => ''
             ],
             [
                 'type'          => self::Call_Tam_New,
                 'DisplayName'   => $this->Translate('New message'),
-                'icon'          => base64_encode(file_get_contents(__DIR__.'/imgs/msgnew.png')),
+                'icon'          => base64_encode(file_get_contents(__DIR__.'/../imgs/msgnew.png')),
                 'align'         => 'center',
                 'style'         => ''
             ],
             [
                 'type'          => self::Call_Tam_Old,
                 'DisplayName'   => $this->Translate('Old message'),
-                'icon'          => base64_encode(file_get_contents(__DIR__.'/imgs/msgold.png')),
+                'icon'          => base64_encode(file_get_contents(__DIR__.'/../imgs/msgold.png')),
                 'align'         => 'center',
                 'style'         => ''
             ],
             [
                 'type'          => self::Call_Tam_Deleted,
                 'DisplayName'   => $this->Translate('Deleted message'),
-                'icon'          => base64_encode(file_get_contents(__DIR__.'/imgs/delete.png')),
+                'icon'          => base64_encode(file_get_contents(__DIR__.'/../imgs/delete.png')),
                 'align'         => 'center',
                 'style'         =>''
             ],
             [
                 'type'          => self::Call_Active_Incoming,
                 'DisplayName'   => $this->Translate('Incoming (active)'),
-                'icon'          => base64_encode(file_get_contents(__DIR__.'/imgs/callin.png')),
+                'icon'          => base64_encode(file_get_contents(__DIR__.'/../imgs/callin.png')),
                 'align'         => 'center',
                 'style'         => ''
             ],
             [
                 'type'          => self::Call_Rejected_Incoming,
                 'DisplayName'   => $this->Translate('Rejected call'),
-                'icon'          => base64_encode(file_get_contents(__DIR__.'/imgs/callinfailed.png')),
+                'icon'          => base64_encode(file_get_contents(__DIR__.'/../imgs/callinfailed.png')),
                 'align'         => 'center',
                 'style'         => ''
             ],
             [
                 'type'          => self::Call_Active_Outgoing,
                 'DisplayName'   => $this->Translate('Outgoing (active)'),
-                'icon'          => base64_encode(file_get_contents(__DIR__.'/imgs/callout.png')),
+                'icon'          => base64_encode(file_get_contents(__DIR__.'/../imgs/callout.png')),
                 'align'         => 'center',
                 'style'         => ''
             ],
             [
                 'type'          => self::Call_Fax,
                 'DisplayName'   => $this->Translate('Fax incoming'),
-                'icon'          => base64_encode(file_get_contents(__DIR__.'/imgs/msgfax.png')),
+                'icon'          => base64_encode(file_get_contents(__DIR__.'/../imgs/msgfax.png')),
                 'align'         => 'center',
                 'style'         => ''
             ]
         ];
         return ['Table' => $NewTableConfig, 'Columns' => $NewColumnsConfig, 'Rows' => $NewRowsConfig, 'Icons'=> $NewIcons];
+    }
+    /**
+     * Verarbeitet Daten aus dem Webhook.
+     *
+     * @global array $_GET
+     */
+    protected function ProcessHookdata()
+    {
+        $this->SendDebug('Server', $_SERVER['HOOK'], 0);
+        if ($_SERVER['SCRIPT_NAME'] == '/hook/FritzBoxCallList' . $this->InstanceID.'/tooltip.js') {
+            $this->ServeFile(__DIR__ . '/../libs/wz_tooltip.js');
+            return;
+        }
+        $this->SendDebug('GET', $_GET, 0);
+        $this->SendDebug('Server', $_SERVER['HOOK'], 0);
+        $this->SendDebug('Request', $_REQUEST, 0);
+        $this->SendDebug('Files', $_FILES, 0);
+        return;
+        if ((!isset($_GET['Type'])) || (!isset($_GET['Secret']))) {
+            echo $this->Translate('Bad Request');
+
+            return;
+        }
+
+        $CalcSecret = base64_encode(sha1($this->WebHookSecret . '0' . (string) $_GET['ID'], true));
+        if ($CalcSecret != rawurldecode($_GET['Secret'])) {
+            echo $this->Translate('Access denied');
+            return;
+        }
+        if ($_GET['Type'] != 'Index') {
+            echo $this->Translate('Bad Request');
+
+            return;
+        }
+
+        if ($this->SelectInfoListItem((int) $_GET['ID'])) {
+            echo 'OK';
+        }
+    }
+    public function ReceiveData($JSONString)
+    {
+        $data = json_decode($JSONString, true);
+        unset($data['DataID']);
+        $this->SendDebug('ReceiveCallMonitorData', $data, 0);
+        return true;
     }
 }

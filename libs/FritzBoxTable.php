@@ -85,7 +85,7 @@ sleep(10).then(() => {
             }
             $ThStyle[] = 'text-align:' . $Column['hralign'];
             $ThStyle[] = $Column['hrstyle'];
-            $th[$Column['index']] = '<th style="' . implode(';', $ThStyle) . ';">' . $Column['name'] . '</th>';
+            $th[$Column['index']] = '<th style="' . implode(';', $ThStyle) . '">' . $Column['name'] . '</th>';
         }
         ksort($th);
         $table .= implode('', $th) . '</tr>' . PHP_EOL;
@@ -141,7 +141,7 @@ sleep(10).then(() => {
                     $TrStyle[] = 'color:#' . substr('000000' . dechex($Config_Rows_Color[$LineIndex]), -6);
                 }
                 $TdStyle[] = $Config_Rows_Style[$LineIndex];
-                $HTMLData .= '<tr style="' . implode(';', $TrStyle) . ';"';
+                $HTMLData .= '<tr style="' . implode(';', $TrStyle) . '"';
                 if ($HookId != '') {
                     $LineSecret = '&Secret=' .rawurlencode(base64_encode(sha1($NewSecret . '0' . $Line[$HookId], true)));
                     $HTMLData.=' onclick="eval(document.getElementById(\'script' . $this->InstanceID . '\').innerHTML.toString()); window.xhrGet' . $this->InstanceID . '({ url: \'hook/' . $HookPrefix . $this->InstanceID . '?Type=' . $HookType . '&ID=' . ($HookId == 'Url' ? rawurlencode($Line[$HookId]) : $Line[$HookId]) . $LineSecret . '\' });"';
@@ -159,7 +159,7 @@ sleep(10).then(() => {
                     $TdStyle[] = 'text-align:' . $Column['tdalign'];
                     $TdStyle[] = $Column['tdstyle'];
 
-                    $td[$Column['index']] = '<td style="' . implode(';', $TdStyle) . ';">' . (string) $Line[$Column['key']] . '</td>';
+                    $td[$Column['index']] = '<td style="' . implode(';', $TdStyle) . '">' . (string) $Line[$Column['key']] . '</td>';
                 }
                 ksort($td);
                 $HTMLData .= implode('', $td) . '</tr>';

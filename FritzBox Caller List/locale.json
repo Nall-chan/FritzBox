@@ -55,7 +55,8 @@
             "(unknown)": "(unbekannt)",
             "Device": "Gerät",
             "Duration": "Dauer",
-            "Fax / TAM": "Fax / AB"
+            "Fax / TAM": "Fax / AB",
+            "Number": "Rufnummer"
         }
     }
 }
