@@ -486,4 +486,14 @@ class FritzBoxModulBase extends IPSModule
         }
         return "text/plain";
     }
+    protected function GetIconsList()
+    {
+        $id = IPS_GetInstanceListByModuleID('{B69010EA-96D5-46DF-B885-24821B8C8DBD}')[0];
+        $Icons = array();
+        $Icons[] = ['caption' => '<none>', 'value' => ''];
+        foreach (UC_GetIconList($id) as $Icon) {
+            $Icons[] = ['caption' => $Icon, 'value' => $Icon];
+        }
+        return $Icons;
+    }
 }

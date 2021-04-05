@@ -3,7 +3,7 @@
     "caption": "Wake up host with WOL",
     "form": [
         "$Childs = IPS_GetChildrenIDs($_IPS['TARGET']);",
-        "$Form = ['type' => 'Select', 'name' => 'MACADRESS', 'caption' => 'Host'];",
+        "$Form = ['type' => 'Select', 'name' => 'MACADRESS', 'caption' => 'Host','options'=>[]];",
         "foreach ($Childs as $VarId) {",
         "   $Ident = IPS_GetObject($VarId)['ObjectIdent'];",
         "   if (strpos($Ident, 'MAC') === 0) {",

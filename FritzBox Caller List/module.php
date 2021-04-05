@@ -36,6 +36,7 @@ class FritzBoxCallerList extends FritzBoxModulBase
     const Call_Active_Incoming = 9;
     const Call_Rejected_Incoming = 10;
     const Call_Active_Outgoing= 11;
+    const FoundMarker= 20;
     
     public function Create()
     {
@@ -43,7 +44,7 @@ class FritzBoxCallerList extends FritzBoxModulBase
         parent::Create();
         $this->RegisterPropertyInteger('Index', 0);
         $this->RegisterPropertyInteger('RefreshIntervalPhonebook', 60);
-        $this->RegisterPropertyInteger('RefreshIntervalCallList', 60);
+        $this->RegisterPropertyInteger('RefreshIntervalCallList', 10);
         $this->RegisterTimer('RefreshPhonebook', 0, 'IPS_RequestAction(' . $this->InstanceID . ',"RefreshPhonebook",true);');
         $this->RegisterTimer('RefreshCallList', 0, 'IPS_RequestAction(' . $this->InstanceID . ',"RefreshCallList",true);');
         $this->PhonebookFiles=[];
@@ -62,6 +63,8 @@ class FritzBoxCallerList extends FritzBoxModulBase
         $this->RegisterPropertyInteger('MaxNameSize', 30);
         $this->RegisterPropertyString('SearchMarker', '(*)');
         $this->RegisterPropertyString('UnknownNumberName', $this->Translate('(unknown)'));
+        //todo
+        // HTML Box abwählbar
 
         //DatumMaskieren für gestern / heute (def an)
         // Timer für 55sek nach 0Uhr
@@ -613,6 +616,13 @@ class FritzBoxCallerList extends FritzBoxModulBase
                 'icon'          => base64_encode(file_get_contents(__DIR__.'/../imgs/msgfax.png')),
                 'align'         => 'center',
                 'style'         => ''
+            ],
+            [
+                'type'          => self::FoundMarker,
+                'DisplayName'   => $this->Translate('Marker for reverse search'),
+                'icon'          => '',
+                'align'         => 'center',
+                'style'         => ''
             ]
         ];
         return ['Table' => $NewTableConfig, 'Columns' => $NewColumnsConfig, 'Rows' => $NewRowsConfig, 'Icons'=> $NewIcons];
@@ -634,6 +644,8 @@ class FritzBoxCallerList extends FritzBoxModulBase
         $this->SendDebug('Request', $_REQUEST, 0);
         $this->SendDebug('Files', $_FILES, 0);
         return;
+        /*
+        //Todo
         if ((!isset($_GET['Type'])) || (!isset($_GET['Secret']))) {
             echo $this->Translate('Bad Request');
 
@@ -653,13 +665,20 @@ class FritzBoxCallerList extends FritzBoxModulBase
 
         if ($this->SelectInfoListItem((int) $_GET['ID'])) {
             echo 'OK';
-        }
+        }*/
     }
     public function ReceiveData($JSONString)
     {
         $data = json_decode($JSONString, true);
         unset($data['DataID']);
         $this->SendDebug('ReceiveCallMonitorData', $data, 0);
+        $CallEvent = explode(";", utf8_decode($data->Buffer));
+        switch ($CallEvent[1]) {
+            case "CONNECT": // Verbunden
+            case "DISCONNECT": // Getrennt
+                    $this->RefreshCallList();
+            break;
+        }
         return true;
     }
 }

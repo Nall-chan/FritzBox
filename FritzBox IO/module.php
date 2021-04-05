@@ -74,6 +74,9 @@ require_once __DIR__ . '/../libs/FritzBoxModule.php';
 
         public function MessageSink($TimeStamp, $SenderID, $Message, $Data)
         {
+            // todo Host.xml löschen über child_Disconnect der host instanz
+            // buffer setzen das keine Host Instanz vorhanden ist.
+            // child_connect auf host instanz prüfen und dann merken. ?!
             switch ($Message) {
                 case IPS_KERNELMESSAGE:
                     if ($Data[0] == KR_READY) {

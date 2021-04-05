@@ -1,0 +1,46 @@
+{
+    "id": "{BC658A7A-347C-DAB5-FCB1-432206CA4DEA}",
+    "caption": "Send WebFront Notification",
+    "form": [
+        "$Form[]=['type' => 'ValidationTextBox','name'=>'TITLE','caption'=>'Title'];",
+        "$Form[]=['type' => 'ValidationTextBox','name'=>'TEXT','caption'=>'Text'];",
+        "$id = IPS_GetInstanceListByModuleID('{B69010EA-96D5-46DF-B885-24821B8C8DBD}')[0];",
+        "$Options=[];",
+        "foreach (UC_GetIconList($id) as $Icon) {",
+        "   $Options[] = [",
+        "       'caption'   =>  $Icon,",
+        "       'value'     =>  $Icon",
+        "   ];",
+        "}",
+        "sort($Options);",
+        "array_unshift($Options, ['caption' => '<none>', 'value' => 'Transparent']);",
+        "$Form[]=['type' => 'Select','name'=>'ICON','caption'=>'Icon','options'=>$Options];",
+        "$Form[]=['type' => 'NumberSpinner','name'=>'TIMEOUT','caption'=>'Timeout'];",
+        "return $Form;"
+    ],
+    "action": "WFC_SendNotification($_IPS['TARGET'], $_IPS['TITLE'], $_IPS['TEXT'], $_IPS['ICON'], $_IPS['TIMEOUT']);",
+    "restrictions": {
+        "objectType": [
+            1
+        ],
+        "moduleID": [
+            "{3565B1F2-8F7B-4311-A4B6-1BF1D868F39E}"
+        ],
+        "includeEnvironments": [
+            "TestCommands",
+            "Default"
+        ]
+    },
+    "locale": {
+        "de": {
+            "Send WebFront Notification": "Verschicke WebFront Nachricht",
+            "<none>": "keins",
+            "Title": "Titel",
+            "Text": "Text",
+            "Icon": "Icon",
+            "Target of Push Notification": "Ziel der Push Nachricht",
+            "Send Webfront Notification \"{TITLE} - {TEXT}\" with the icon {ICON} {TIMEOUT, select, 0 {} other {and timeout of {TIMEOUT, object} seconds}}": "Verschicke WebFront Nachricht \"{TITLE} - {TEXT}\" mit dem Icon {ICON} {TIMEOUT, select, 0 {} other {und einem Timeout von {TIMEOUT, object} Sekunden}}"
+        }
+    },
+    "format": "Send Webfront Notification \"{TITLE} - {TEXT}\" with the icon {ICON} {TIMEOUT, select, 0 {} other {and timeout of {TIMEOUT, object} seconds}}"
+}

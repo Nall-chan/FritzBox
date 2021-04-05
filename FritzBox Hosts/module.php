@@ -336,7 +336,7 @@ class FritzBoxHosts extends FritzBoxModulBase
                 'name'  => $this->Translate('Hostname'),
                 'show'  => true,
                 'width' => 200,
-                'hrcolor' => 0xffffff,
+                'hrcolor' => -1,
                 'hralign' => 'center',
                 'hrstyle' => '',
                 'tdalign' => 'left',
@@ -349,7 +349,7 @@ class FritzBoxHosts extends FritzBoxModulBase
                 'name'  => $this->Translate('IP-Address'),
                 'show'  => true,
                 'width' => 200,
-                'hrcolor' => 0xffffff,
+                'hrcolor' => -1,
                 'hralign' => 'center',
                 'hrstyle' => '',
                 'tdalign' => 'left',
@@ -361,7 +361,7 @@ class FritzBoxHosts extends FritzBoxModulBase
                 'name'  => $this->Translate('MAC-Address'),
                 'show'  => true,
                 'width' => 200,
-                'hrcolor' => 0xffffff,
+                'hrcolor' => -1,
                 'hralign' => 'center',
                 'hrstyle' => '',
                 'tdalign' => 'left',
@@ -373,7 +373,7 @@ class FritzBoxHosts extends FritzBoxModulBase
                 'name'  => $this->Translate('Interface'),
                 'show'  => true,
                 'width' => 200,
-                'hrcolor' => 0xffffff,
+                'hrcolor' => -1,
                 'hralign' => 'center',
                 'hrstyle' => '',
                 'tdalign' => 'left',
@@ -384,15 +384,15 @@ class FritzBoxHosts extends FritzBoxModulBase
             [
                 'row'     => 'odd',
                 'name'    => $this->Translate('odd'),
-                'bgcolor' => 0x000000,
-                'color'   => 0xffffff,
+                'bgcolor' => -1,
+                'color'   => -1,
                 'style'   => ''
             ],
             [
                 'row'     => 'even',
                 'name'    => $this->Translate('even'),
-                'bgcolor' => 0x080808,
-                'color'   => 0xffffff,
+                'bgcolor' => -1,
+                'color'   => -1,
                 'style'   => ''
             ]
         ];

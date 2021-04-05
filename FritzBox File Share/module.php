@@ -93,6 +93,9 @@ require_once __DIR__ . '/../libs/FritzBoxBase.php';
                 return false;
             }
             $Data = $this->GetShareList();
+            if (!$Data) {
+                return false;
+            }
             return $this->CreateHostHTMLTable($Data);
         }
         private function CreateHostHTMLTable(array $TableData)
