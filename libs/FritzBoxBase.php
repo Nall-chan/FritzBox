@@ -345,6 +345,8 @@ class FritzBoxModulBase extends IPSModule
         $this->SetValue($ident, $value);
     }
 
+    //todo
+    // Aktuell nur de Zeit
     protected function ConvertRuntime(int $Time)
     {
         $strtime = '';
@@ -496,15 +498,11 @@ class FritzBoxModulBase extends IPSModule
         }
         return $Icons;
     }
-    /**
-     *  Umkopieren Assoziiertes Array auf Prefix z.B. für IPS_RunScriptEx
-     *
-     */
-    protected function FlatArrayWithPrefix($Source, $Prefix)
+    protected function ArrayWithCurlyBracketsKey($Source)
     {
         $Target = [];
         foreach ($Source as $key=>$value) {
-            $Target[$Prefix.'_'.$key] = $value;
+            $Target['{'. strtoupper($key).'}'] = $value;
         }
         return $Target;
     }

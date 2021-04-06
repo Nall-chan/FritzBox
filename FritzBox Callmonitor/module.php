@@ -102,7 +102,27 @@ class FritzBoxCallmonitor extends FritzBoxModulBase
     private function SendNotification(array $NotifyData)
     {
         $this->SendDebug('SendNotification', $NotifyData, 0);
-        //WFC_SendNotification($ID,$Title, $text,$Icon,$Timeout);
+        $WFC_IDs = json_decode($this->ReadPropertyString('Targets'), true);
+        if (sizeof($WFC_IDs) == 0) {
+            return;
+        }
+        $this->SendDebug('Targets', $WFC_IDs, 0);
+        $NotificationConfig = json_decode($this->ReadPropertyString('Notification'), true);
+        $ConfigIndex = array_search($NotifyData['{EVENT}'], array_column($NotificationConfig, 'event'));
+        if ($ConfigIndex === false) {
+            return;
+        }
+        $Title = $NotificationConfig[$ConfigIndex]['title'];
+        $Text = $NotificationConfig[$ConfigIndex]['text'];
+        $Icon = $NotificationConfig[$ConfigIndex]['icon'];
+        $Timeout = $NotificationConfig[$ConfigIndex]['timeout'];
+        $Pattern=array_keys($NotifyData);
+        $Values = array_values($NotifyData);
+        $Title = str_replace($Pattern, $Values, $Title);
+        $Text = str_replace($Pattern, $Values, $Text);
+        foreach ($WFC_IDs as $Target) {
+            WFC_SendNotification($Target['target'], $Title, $Text, $Icon, $Timeout);
+        }
     }
     private function RunActions(array $NotifyData)
     {
@@ -287,20 +307,22 @@ class FritzBoxCallmonitor extends FritzBoxModulBase
         $CallEvent = explode(";", utf8_decode($data['Buffer']));
         $CallEvent[2]=(int)$CallEvent[2];
         $Calls = $this->CallData;
-        $Calls[$CallEvent[2]]=[];
+        
         $Calls[$CallEvent[2]]['Status'] =$CallEvent[1];
         $Name = false;
         switch ($CallEvent[1]) {
             case "RING": // Ankommend klingelt
-                //$WFCData =	$WFC_Notify[$CallEvent[1]];
-                $Calls[$CallEvent[2]]['Typ'] ='CALLIN';
+                $Calls[$CallEvent[2]]=[];
+                $Calls[$CallEvent[2]]['Type'] ='CALLIN';
+                $Calls[$CallEvent[2]]['Event'] =self::Call_Incoming;
                 $Calls[$CallEvent[2]]['Remote'] =$CallEvent[3];
                 $Calls[$CallEvent[2]]['Local'] =$CallEvent[4];
                 $Calls[$CallEvent[2]]['Line'] =$CallEvent[5];
                 $Calls[$CallEvent[2]]['Time'] =$CallEvent[0];
                 $Calls[$CallEvent[2]]['Device'] ='*** RING ***';
                 $Calls[$CallEvent[2]]['DeviceID'] =0;
-                $Calls[$CallEvent[2]]['ConnectTime'] =0;
+                $Calls[$CallEvent[2]]['Duration'] =$this->ConvertRuntime(0);
+                $Calls[$CallEvent[2]]['DurationRaw'] =0;
                 //todo
                 //$Name = FB_InversSuche($CallEvent[3], $Config['SucheType']);
                 if ($Name === false) {
@@ -308,15 +330,15 @@ class FritzBoxCallmonitor extends FritzBoxModulBase
                 }
                 $Calls[$CallEvent[2]]['Name'] = $Name;
                 //$WFCData['Text'] = sprintf($WFCData['Text'], (string)$CallEvent[3], (string)$CallEvent[4], $Name);
-                /*if ($User_Script <> 0) {
-                    IPS_RunScriptEx($User_Script, FB_CopyArray($Calls[$CallEvent[2]], 'CALL'));
-                }*/
             break;
             case "CALL": //Abgehend
-                //$WFCData =	$WFC_Notify[$CallEvent[1]];
-                $Calls[$CallEvent[2]]['Typ'] ='CALLOUT';
+                $Calls[$CallEvent[2]]=[];
+                $Calls[$CallEvent[2]]['Event'] =self::Call_Outgoing;
+                $Calls[$CallEvent[2]]['Type'] ='CALLOUT';
                 $Calls[$CallEvent[2]]['Device'] = 'ToDo'; //FB_GetPhoneDevice((int)$CallEvent[3]);
                 $Calls[$CallEvent[2]]['DeviceID'] =(int)$CallEvent[3];
+                $Calls[$CallEvent[2]]['DurationRaw'] =0;
+                $Calls[$CallEvent[2]]['Duration'] =$this->ConvertRuntime(0);
                 $Calls[$CallEvent[2]]['Local'] =$CallEvent[4];
                 $Calls[$CallEvent[2]]['Remote'] =$CallEvent[5];
                 $Calls[$CallEvent[2]]['Line'] =$CallEvent[6];
@@ -328,34 +350,34 @@ class FritzBoxCallmonitor extends FritzBoxModulBase
                 }
                 $Calls[$CallEvent[2]]['Name'] = $Name;
                 //$WFCData['Text'] = sprintf($WFCData['Text'], (string)$CallEvent[4], (string)$CallEvent[5], $Name);
-                /*if ($User_Script <> 0) {
-                    IPS_RunScriptEx($User_Script, FB_CopyArray($Calls[$CallEvent[2]], 'CALL'));
-                }*/
             break;
             case "CONNECT": // Verbunden
-                //$WFCData =	$WFC_Notify[$CallEvent[1].'_'.$Calls[$CallEvent[2]]['Typ']];
+                if ($Calls[$CallEvent[2]]['Type'] == 'CALLIN') {
+                    $Calls[$CallEvent[2]]['Event']= self::Connected_Incoming;
+                } else {
+                    $Calls[$CallEvent[2]]['Event']= self::Connected_Outgoing;
+                }
+                $Calls[$CallEvent[2]]['Status'] =$CallEvent[1];
                 $Calls[$CallEvent[2]]['Time'] =$CallEvent[0];
                 if ($Calls[$CallEvent[2]]['DeviceID'] == 0) {
                     $Calls[$CallEvent[2]]['Device'] ='ToDo';//FB_GetPhoneDevice($CallEvent[3]);
                     $Calls[$CallEvent[2]]['DeviceID'] =(int)$CallEvent[3];
                 }
                 //$WFCData['Text'] = sprintf($WFCData['Text'], $Calls[$CallEvent[2]]['Device'], $Calls[$CallEvent[2]]['Remote'], $Calls[$CallEvent[2]]['Name']);
-                /*if ($User_Script <> 0) {
-                    IPS_RunScriptEx($User_Script, FB_CopyArray($Calls[$CallEvent[2]], 'CALL'));
-                }*/
             break;
             case "DISCONNECT": // Getrennt
-                //$WFCData =	$WFC_Notify[$CallEvent[1].'_'.$Calls[$CallEvent[2]]['Typ']];
-                //$time = $this->ConvertRuntime((int)$CallEvent[3]);
-                $Calls[$CallEvent[2]]['ConnectTime'] =(int)$CallEvent[3];
-                //$WFCData['Text'] = sprintf($WFCData['Text'], $Calls[$CallEvent[2]]['Device'], $Calls[$CallEvent[2]]['Remote'], $Calls[$CallEvent[2]]['Name'], $time);
-                /*if ($User_Script <> 0) {
-                    IPS_RunScriptEx($User_Script, FB_CopyArray($Calls[$CallEvent[2]], 'CALL'));
+                if ($Calls[$CallEvent[2]]['Type'] == 'CALLIN') {
+                    $Calls[$CallEvent[2]]['Event']= self::Disconnect_Incoming;
+                } else {
+                    $Calls[$CallEvent[2]]['Event']= self::Disconnect_Outgoing;
                 }
-                */
+                //$time = $this->ConvertRuntime((int)$CallEvent[3]);
+                $Calls[$CallEvent[2]]['DurationRaw'] =(int)$CallEvent[3];
+                $Calls[$CallEvent[2]]['Duration'] =$this->ConvertRuntime((int)$CallEvent[3]);
+                //$WFCData['Text'] = sprintf($WFCData['Text'], $Calls[$CallEvent[2]]['Device'], $Calls[$CallEvent[2]]['Remote'], $Calls[$CallEvent[2]]['Name'], $time);
             break;
         }
-        $NotifyData=$this->FlatArrayWithPrefix($Calls[$CallEvent[2]], 'CALL');
+        $NotifyData=$this->ArrayWithCurlyBracketsKey($Calls[$CallEvent[2]]);
         if ($CallEvent[1] == "DISCONNECT") {
             unset($Calls[$CallEvent[2]]);
         }
@@ -381,42 +403,42 @@ class FritzBoxCallmonitor extends FritzBoxModulBase
             [
               'event' => self::Call_Incoming,
               'title' => $this->Translate('Incoming Call!'),
-              'text' => $this->Translate('From: %3$s To: %2$s'),
+              'text' => $this->Translate('From: {NAME} To: {LOCAL}'),
               'icon' => '',
               'timeout' => 30,
             ],
             [
                 'event' => self::Call_Outgoing,
                 'title' => $this->Translate('Outgoing call!'),
-                'text' => $this->Translate('%1$s calling %3$s.'),
+                'text' => $this->Translate('{DEVICE} calling {NAME}.'),
                 'icon' => '',
                 'timeout' => 30,
             ],
             [
                 'event' => self::Connected_Incoming,
                 'title' => $this->Translate('Call accepted!'),
-                'text' => $this->Translate('%3$s has accepted the call.'),
+                'text' => $this->Translate('{DEVICE} has accepted the call.'),
                 'icon' => '',
                 'timeout' => 30,
             ],
             [
                 'event' => self::Connected_Outgoing,
                 'title' => $this->Translate('Call accepted!'),
-                'text' => $this->Translate('%1$s has accepted the call.'),
+                'text' => $this->Translate('{NAME} has accepted the call.'),
                 'icon' => '',
                 'timeout' => 30,
             ],
             [
                 'event' => self::Disconnect_Incoming,
                 'title' => $this->Translate('Call ended!'),
-                'text' => $this->Translate('Call from %1$s ended after %4$s.'),
+                'text' => $this->Translate('Call from {NAME} ended after {DURATION}.'),
                 'icon' => '',
                 'timeout' => 30,
             ],
             [
                 'event' => self::Disconnect_Outgoing,
                 'title' => $this->Translate('Call ended!'),
-                'text' => $this->Translate('Call from %3$s ended after %4$s.'),
+                'text' => $this->Translate('Call from {DEVICE} ended after {DURATION}.'),
                 'icon' => '',
                 'timeout' => 30,
             ]

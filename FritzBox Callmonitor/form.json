@@ -108,7 +108,7 @@
                                     "name": "icon",
                                     "caption": "Icon",
                                     "width": "200px",
-                                    "add": "Transparent",
+                                    "add": "",
                                     "edit": {
                                         "type": "Select",
                                         "options": []
