@@ -15,7 +15,7 @@
         "sort($Options);",
         "array_unshift($Options, ['caption' => '<none>', 'value' => 'Transparent']);",
         "$Form[]=['type' => 'Select','name'=>'ICON','caption'=>'Icon','options'=>$Options];",
-        "$Form[]=['type' => 'NumberSpinner','name'=>'TIMEOUT','caption'=>'Timeout'];",
+        "$Form[]=['type' => 'NumberSpinner','name'=>'TIMEOUT','caption'=>'Timeout','minimum'=>0,'suffix'=>'seconds'];",
         "return $Form;"
     ],
     "action": "WFC_SendNotification($_IPS['TARGET'], $_IPS['TITLE'], $_IPS['TEXT'], $_IPS['ICON'], $_IPS['TIMEOUT']);",
@@ -39,8 +39,8 @@
             "Text": "Text",
             "Icon": "Icon",
             "Target of Push Notification": "Ziel der Push Nachricht",
-            "Send Webfront Notification \"{TITLE} - {TEXT}\" with the icon {ICON} {TIMEOUT, select, 0 {} other {and timeout of {TIMEOUT, object} seconds}}": "Verschicke WebFront Nachricht \"{TITLE} - {TEXT}\" mit dem Icon {ICON} {TIMEOUT, select, 0 {} other {und einem Timeout von {TIMEOUT, object} Sekunden}}"
+            "Send Webfront Notification \"{TITLE} - {TEXT}\" with the icon {ICON} {TIMEOUT, select, 0 {} other {and timeout of {TIMEOUT, number} seconds}}": "Verschicke WebFront Nachricht \"{TITLE} - {TEXT}\" mit dem Icon {ICON} {TIMEOUT, select, 0 {} other {und einem Timeout von {TIMEOUT, number} Sekunden}}"
         }
     },
-    "format": "Send Webfront Notification \"{TITLE} - {TEXT}\" with the icon {ICON} {TIMEOUT, select, 0 {} other {and timeout of {TIMEOUT, object} seconds}}"
+    "format": "Send Webfront Notification \"{TITLE} - {TEXT}\" with the icon {ICON} {TIMEOUT, select, 0 {} other {and timeout of {TIMEOUT, number} seconds}}"
 }

@@ -672,7 +672,7 @@ class FritzBoxCallerList extends FritzBoxModulBase
         $data = json_decode($JSONString, true);
         unset($data['DataID']);
         $this->SendDebug('ReceiveCallMonitorData', $data, 0);
-        $CallEvent = explode(";", utf8_decode($data->Buffer));
+        $CallEvent = explode(";", utf8_decode($data['Buffer']));
         switch ($CallEvent[1]) {
             case "CONNECT": // Verbunden
             case "DISCONNECT": // Getrennt

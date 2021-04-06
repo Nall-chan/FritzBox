@@ -23,21 +23,23 @@ class FritzBoxCallmonitor extends FritzBoxModulBase
 
     protected static $SecondEventGUID='{FE5B2BCA-CA0F-25DC-8E79-BDFD242CB06E}';
     const Call_Incoming = 1;
-    const Call_Missed=2;
-    const Call_Outgoing = 3;
-    const Call_Tam_New=4;
-    const Call_Tam_Old = 5;
-    const Call_Tam_Deleted = 6;
-    const Call_Fax = 7;
-    const Call_Active_Incoming = 9;
-    const Call_Rejected_Incoming = 10;
-    const Call_Active_Outgoing= 11;
+    const Call_Outgoing = 2;
+    const Connected_Incoming = 3;
+    const Connected_Outgoing = 4;
+    const Disconnect_Incoming = 5;
+    const Disconnect_Outgoing = 6;
+    const FoundMarker= 20;
     
     public function Create()
     {
         //Never delete this line!
         parent::Create();
         $this->RegisterPropertyInteger('Index', 0);
+        $this->RegisterPropertyBoolean('CallsAsTable', true);
+        $this->RegisterPropertyBoolean('CallsAsNotification', true);
+        $this->RegisterPropertyString('Targets', json_encode([]));
+        $this->RegisterPropertyString('Notification', json_encode($this->GenerateDefaultNotificationProperty()));
+        $this->RegisterPropertyString('Actions', json_encode([]));
         $Style = $this->GenerateHTMLStyleProperty();
         $this->RegisterPropertyString('Table', json_encode($Style['Table']));
         $this->RegisterPropertyString('Columns', json_encode($Style['Columns']));
@@ -69,15 +71,50 @@ class FritzBoxCallmonitor extends FritzBoxModulBase
         switch ($Ident) {
             case 'RefreshCallList':
                 return $this->RebuildTable();
+                case 'SendNotification':
+                    return $this->SendNotification(unserialize($Value));
+                    case 'RunActions':
+                        return $this->RunActions(unserialize($Value));
+                    case 'PreviewIcon':
+                    $Data = unserialize($Value);
+                    $ImageData =  @getimagesize('data://text/plain;base64,'.$Data['Icon']);
+                        if ($ImageData === false) {
+                            $this->UpdateFormField('IconName', 'caption', 'No valid image');
+                            $this->UpdateFormField('IconPreview', 'visible', true);
+                            return;
+                        }
+                    $this->UpdateFormField('IconName', 'caption', $Data['DisplayName']);
+                    $this->UpdateFormField('IconImage', 'image', 'data://'.$ImageData['mime'].';base64,'.$Data['Icon']);
+                    $this->UpdateFormField('IconPreview', 'visible', true);
+                    return;
         }
-        
         trigger_error($this->Translate('Invalid Ident.'), E_USER_NOTICE);
         return false;
     }
-
+    public function GetConfigurationForm()
+    {
+        $Form = json_decode(file_get_contents(__DIR__ . '/form.json'), true);
+        $Form['elements'][0]['items'][1]['items'][1]['columns'][3]['edit']['options'] =$this->GetIconsList();
+        $this->SendDebug('FORM', json_encode($Form), 0);
+        $this->SendDebug('FORM', json_last_error_msg(), 0);
+        return json_encode($Form);
+    }
+    private function SendNotification(array $NotifyData)
+    {
+        $this->SendDebug('SendNotification', $NotifyData, 0);
+        //WFC_SendNotification($ID,$Title, $text,$Icon,$Timeout);
+    }
+    private function RunActions(array $NotifyData)
+    {
+        $this->SendDebug('RunActions', $NotifyData, 0);
+        // IPS_RunAction($ActionId,$TargetID,$Parameters)
+    }
     private function RebuildTable()
     {
-        $Calls = $this->CallData=[];
+        if (!$this->ReadPropertyBoolean('CallsAsTable')) {
+            return true;
+        }
+        $Calls = $this->CallData;
         $this->SendDebug('Calls', $Calls, 0);
         //todo
         //Tabelle bauen
@@ -135,9 +172,20 @@ class FritzBoxCallmonitor extends FritzBoxModulBase
                 'hrstyle' => '',
                 'tdalign' => 'left',
                 'tdstyle' => ''
+            ],  [
+                'index' => 3,
+                'key'   => 'Line',
+                'name'  => $this->Translate('Line'),
+                'show'  => true,
+                'width' => 200,
+                'hrcolor' => -1,
+                'hralign' => 'center',
+                'hrstyle' => '',
+                'tdalign' => 'left',
+                'tdstyle' => ''
             ],
             [
-                'index' => 3,
+                'index' => 4,
                 'key'   => 'Name',
                 'name'  => $this->Translate('Name'),
                 'show'  => true,
@@ -149,21 +197,9 @@ class FritzBoxCallmonitor extends FritzBoxModulBase
                 'tdstyle' => ''
             ],
             [
-                'index' => 4,
-                'key'   => 'Caller',
-                'name'  => $this->Translate('Caller'),
-                'show'  => false,
-                'width' => 150,
-                'hrcolor' => -1,
-                'hralign' => 'center',
-                'hrstyle' => '',
-                'tdalign' => 'left',
-                'tdstyle' => ''
-            ],
-            [
                 'index' => 5,
-                'key'   => 'Called',
-                'name'  => $this->Translate('Called'),
+                'key'   => 'Remote',
+                'name'  => $this->Translate('Remote'),
                 'show'  => false,
                 'width' => 150,
                 'hrcolor' => -1,
@@ -174,53 +210,28 @@ class FritzBoxCallmonitor extends FritzBoxModulBase
             ],
             [
                 'index' => 6,
-                'key'   => 'Number',
-                'name'  => $this->Translate('Number'),
-                'show'  => true,
+                'key'   => 'Device',
+                'name'  => $this->Translate('Device'),
+                'show'  => false,
                 'width' => 150,
                 'hrcolor' => -1,
                 'hralign' => 'center',
                 'hrstyle' => '',
-                'tdalign' => 'center',
+                'tdalign' => 'left',
                 'tdstyle' => ''
             ],
             [
                 'index' => 7,
-                'key'   => 'Device',
-                'name'  => $this->Translate('Device'),
+                'key'   => 'Local',
+                'name'  => $this->Translate('Local number'),
                 'show'  => true,
                 'width' => 150,
                 'hrcolor' => -1,
                 'hralign' => 'center',
                 'hrstyle' => '',
-                'tdalign' => 'left',
-                'tdstyle' => ''
-            ],
-
-            [
-                'index' => 8,
-                'key'   => 'Duration',
-                'name'  => $this->Translate('Duration'),
-                'show'  => true,
-                'width' => 80,
-                'hrcolor' => -1,
-                'hralign' => 'center',
-                'hrstyle' => '',
-                'tdalign' => 'left',
-                'tdstyle' => ''
-            ]/*,
-            [
-                'index' => 9,
-                'key'   => 'Action',
-                'name'  => $this->Translate('Fax / TAM'),
-                'show'  => false,
-                'width' => 50,
-                'hrcolor' => 0xffffff,
-                'hralign' => 'center',
-                'hrstyle' => '',
                 'tdalign' => 'center',
                 'tdstyle' => ''
-            ]*/
+            ]
         ];
         $NewRowsConfig = [
             [
@@ -242,14 +253,7 @@ class FritzBoxCallmonitor extends FritzBoxModulBase
             [
                 'type'          => self::Call_Incoming,
                 'DisplayName'   => $this->Translate('Incoming'),
-                'icon'          => base64_encode(file_get_contents(__DIR__.'/../imgs/callin.png')),
-                'align'         => 'center',
-                'style'         => ''
-            ],
-            [
-                'type'          => self::Call_Missed,
-                'DisplayName'   => $this->Translate('Missed call'),
-                'icon'          => base64_encode(file_get_contents(__DIR__.'/../imgs/callinfailed.png')),
+                'icon'          => base64_encode(file_get_contents(__DIR__.'/../imgs/callnew.png')),
                 'align'         => 'center',
                 'style'         => ''
             ],
@@ -261,51 +265,9 @@ class FritzBoxCallmonitor extends FritzBoxModulBase
                 'style'         => ''
             ],
             [
-                'type'          => self::Call_Tam_New,
-                'DisplayName'   => $this->Translate('New message'),
-                'icon'          => base64_encode(file_get_contents(__DIR__.'/../imgs/msgnew.png')),
-                'align'         => 'center',
-                'style'         => ''
-            ],
-            [
-                'type'          => self::Call_Tam_Old,
-                'DisplayName'   => $this->Translate('Old message'),
-                'icon'          => base64_encode(file_get_contents(__DIR__.'/../imgs/msgold.png')),
-                'align'         => 'center',
-                'style'         => ''
-            ],
-            [
-                'type'          => self::Call_Tam_Deleted,
-                'DisplayName'   => $this->Translate('Deleted message'),
-                'icon'          => base64_encode(file_get_contents(__DIR__.'/../imgs/delete.png')),
-                'align'         => 'center',
-                'style'         =>''
-            ],
-            [
-                'type'          => self::Call_Active_Incoming,
-                'DisplayName'   => $this->Translate('Incoming (active)'),
-                'icon'          => base64_encode(file_get_contents(__DIR__.'/../imgs/callin.png')),
-                'align'         => 'center',
-                'style'         => ''
-            ],
-            [
-                'type'          => self::Call_Rejected_Incoming,
-                'DisplayName'   => $this->Translate('Rejected call'),
-                'icon'          => base64_encode(file_get_contents(__DIR__.'/../imgs/callinfailed.png')),
-                'align'         => 'center',
-                'style'         => ''
-            ],
-            [
-                'type'          => self::Call_Active_Outgoing,
-                'DisplayName'   => $this->Translate('Outgoing (active)'),
-                'icon'          => base64_encode(file_get_contents(__DIR__.'/../imgs/callout.png')),
-                'align'         => 'center',
-                'style'         => ''
-            ],
-            [
-                'type'          => self::Call_Fax,
-                'DisplayName'   => $this->Translate('Fax incoming'),
-                'icon'          => base64_encode(file_get_contents(__DIR__.'/../imgs/msgfax.png')),
+                'type'          => self::FoundMarker,
+                'DisplayName'   => $this->Translate('Marker for reverse search'),
+                'icon'          => '',
                 'align'         => 'center',
                 'style'         => ''
             ]
@@ -322,8 +284,10 @@ class FritzBoxCallmonitor extends FritzBoxModulBase
         04.04.21 18:50:56;RING;0;015233755959;44993;SIP2;\r\n
         04.04.21 18:50:59;DISCONNECT;0;0;\r\n
 */
-        $CallEvent = explode(";", utf8_decode($data->Buffer));
-        $Calls = $this->CallData=[];
+        $CallEvent = explode(";", utf8_decode($data['Buffer']));
+        $CallEvent[2]=(int)$CallEvent[2];
+        $Calls = $this->CallData;
+        $Calls[$CallEvent[2]]=[];
         $Calls[$CallEvent[2]]['Status'] =$CallEvent[1];
         $Name = false;
         switch ($CallEvent[1]) {
@@ -336,6 +300,8 @@ class FritzBoxCallmonitor extends FritzBoxModulBase
                 $Calls[$CallEvent[2]]['Time'] =$CallEvent[0];
                 $Calls[$CallEvent[2]]['Device'] ='*** RING ***';
                 $Calls[$CallEvent[2]]['DeviceID'] =0;
+                $Calls[$CallEvent[2]]['ConnectTime'] =0;
+                //todo
                 //$Name = FB_InversSuche($CallEvent[3], $Config['SucheType']);
                 if ($Name === false) {
                     $Name =$CallEvent[3];
@@ -349,12 +315,13 @@ class FritzBoxCallmonitor extends FritzBoxModulBase
             case "CALL": //Abgehend
                 //$WFCData =	$WFC_Notify[$CallEvent[1]];
                 $Calls[$CallEvent[2]]['Typ'] ='CALLOUT';
-                //$Calls[$CallEvent[2]]['Device'] = FB_GetPhoneDevice((int)$CallEvent[3]);
+                $Calls[$CallEvent[2]]['Device'] = 'ToDo'; //FB_GetPhoneDevice((int)$CallEvent[3]);
                 $Calls[$CallEvent[2]]['DeviceID'] =(int)$CallEvent[3];
                 $Calls[$CallEvent[2]]['Local'] =$CallEvent[4];
                 $Calls[$CallEvent[2]]['Remote'] =$CallEvent[5];
                 $Calls[$CallEvent[2]]['Line'] =$CallEvent[6];
                 $Calls[$CallEvent[2]]['Time'] =$CallEvent[0];
+                //todo
                 //$Name = FB_InversSuche($CallEvent[5], $Config['SucheType']);
                 if ($Name === false) {
                     $Name =$CallEvent[5];
@@ -368,8 +335,10 @@ class FritzBoxCallmonitor extends FritzBoxModulBase
             case "CONNECT": // Verbunden
                 //$WFCData =	$WFC_Notify[$CallEvent[1].'_'.$Calls[$CallEvent[2]]['Typ']];
                 $Calls[$CallEvent[2]]['Time'] =$CallEvent[0];
-                //$Calls[$CallEvent[2]]['Device'] =FB_GetPhoneDevice($CallEvent[3]);
-                $Calls[$CallEvent[2]]['DeviceID'] =(int)$CallEvent[3];
+                if ($Calls[$CallEvent[2]]['DeviceID'] == 0) {
+                    $Calls[$CallEvent[2]]['Device'] ='ToDo';//FB_GetPhoneDevice($CallEvent[3]);
+                    $Calls[$CallEvent[2]]['DeviceID'] =(int)$CallEvent[3];
+                }
                 //$WFCData['Text'] = sprintf($WFCData['Text'], $Calls[$CallEvent[2]]['Device'], $Calls[$CallEvent[2]]['Remote'], $Calls[$CallEvent[2]]['Name']);
                 /*if ($User_Script <> 0) {
                     IPS_RunScriptEx($User_Script, FB_CopyArray($Calls[$CallEvent[2]], 'CALL'));
@@ -377,18 +346,80 @@ class FritzBoxCallmonitor extends FritzBoxModulBase
             break;
             case "DISCONNECT": // Getrennt
                 //$WFCData =	$WFC_Notify[$CallEvent[1].'_'.$Calls[$CallEvent[2]]['Typ']];
-                $time = $this->ConvertRuntime((int)$CallEvent[3]);
+                //$time = $this->ConvertRuntime((int)$CallEvent[3]);
                 $Calls[$CallEvent[2]]['ConnectTime'] =(int)$CallEvent[3];
                 //$WFCData['Text'] = sprintf($WFCData['Text'], $Calls[$CallEvent[2]]['Device'], $Calls[$CallEvent[2]]['Remote'], $Calls[$CallEvent[2]]['Name'], $time);
                 /*if ($User_Script <> 0) {
                     IPS_RunScriptEx($User_Script, FB_CopyArray($Calls[$CallEvent[2]], 'CALL'));
                 }
                 */
-                unset($Calls[$CallEvent[2]]);
             break;
         }
-        $Calls = $this->CallData = $Calls;
-        IPS_RunScriptText('IPS_RequestAction('.$this->InstanceID.',\'RefreshCallList\',true);');
+        $NotifyData=$this->FlatArrayWithPrefix($Calls[$CallEvent[2]], 'CALL');
+        if ($CallEvent[1] == "DISCONNECT") {
+            unset($Calls[$CallEvent[2]]);
+        }
+        $this->CallData = $Calls;
+        // Nur wenn WebFront Notification aktiv
+        if ($this->ReadPropertyBoolean('CallsAsNotification')) {
+            IPS_RunScriptText('IPS_RequestAction('.$this->InstanceID.',\'SendNotification\',\''.serialize($NotifyData).'\');');
+        }
+        //nur wenn HTML-Tabelle aktiv
+        if ($this->ReadPropertyBoolean('CallsAsTable')) {
+            IPS_RunScriptText('IPS_RequestAction('.$this->InstanceID.',\'RefreshCallList\',true);');
+        }
+        //nur wenn Aktions aktiv
+        if (sizeof(json_decode($this->ReadPropertyString('Actions')))>0) {
+            IPS_RunScriptText('IPS_RequestAction('.$this->InstanceID.',\'RunActions\',\''.serialize($NotifyData).'\');');
+        }
         return true;
+    }
+
+    private function GenerateDefaultNotificationProperty()
+    {
+        return [
+            [
+              'event' => self::Call_Incoming,
+              'title' => $this->Translate('Incoming Call!'),
+              'text' => $this->Translate('From: %3$s To: %2$s'),
+              'icon' => '',
+              'timeout' => 30,
+            ],
+            [
+                'event' => self::Call_Outgoing,
+                'title' => $this->Translate('Outgoing call!'),
+                'text' => $this->Translate('%1$s calling %3$s.'),
+                'icon' => '',
+                'timeout' => 30,
+            ],
+            [
+                'event' => self::Connected_Incoming,
+                'title' => $this->Translate('Call accepted!'),
+                'text' => $this->Translate('%3$s has accepted the call.'),
+                'icon' => '',
+                'timeout' => 30,
+            ],
+            [
+                'event' => self::Connected_Outgoing,
+                'title' => $this->Translate('Call accepted!'),
+                'text' => $this->Translate('%1$s has accepted the call.'),
+                'icon' => '',
+                'timeout' => 30,
+            ],
+            [
+                'event' => self::Disconnect_Incoming,
+                'title' => $this->Translate('Call ended!'),
+                'text' => $this->Translate('Call from %1$s ended after %4$s.'),
+                'icon' => '',
+                'timeout' => 30,
+            ],
+            [
+                'event' => self::Disconnect_Outgoing,
+                'title' => $this->Translate('Call ended!'),
+                'text' => $this->Translate('Call from %3$s ended after %4$s.'),
+                'icon' => '',
+                'timeout' => 30,
+            ]
+            ];
     }
 }

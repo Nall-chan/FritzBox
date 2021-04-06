@@ -1,52 +1,344 @@
 {
     "elements": [
         {
-            "type": "ExpansionPanel",
-            "caption": "HTML-Table design",
+            "type": "RowLayout",
             "items": [
                 {
-                    "type": "RowLayout",
+                    "name": "CallsAsNotification",
+                    "type": "CheckBox",
+                    "caption": "Send notification",
+                    "width": "200px"
+                },
+                {
+                    "type": "ExpansionPanel",
+                    "caption": "WebFront Notification",
                     "items": [
                         {
                             "type": "List",
-                            "name": "Icons",
-                            "caption": "Icons for type of call",
+                            "name": "Targets",
+                            "caption": "WebFronts for notification",
                             "rowCount": 9,
-                            "add": false,
-                            "delete": false,
+                            "add": true,
+                            "delete": true,
                             "sort": {
-                                "column": "type",
+                                "column": "target",
                                 "direction": "ascending"
                             },
                             "columns": [
                                 {
-                                    "name": "type",
-                                    "save": true,
-                                    "visible": false
+                                    "name": "target",
+                                    "caption": "WebFront",
+                                    "width": "400px",
+                                    "add": 0,
+                                    "edit": {
+                                        "type": "SelectInstance",
+                                        "validModules": [
+                                            "{3565B1F2-8F7B-4311-A4B6-1BF1D868F39E}"
+                                        ]
+                                    }
+                                }
+                            ]
+                        },
+                        {
+                            "type": "List",
+                            "name": "Notification",
+                            "caption": "WebFront notification configuration",
+                            "rowCount": 9,
+                            "add": true,
+                            "delete": true,
+                            "sort": {
+                                "column": "event",
+                                "direction": "ascending"
+                            },
+                            "columns": [
+                                {
+                                    "name": "event",
+                                    "caption": "Event",
+                                    "width": "200px",
+                                    "add": 1,
+                                    "edit": {
+                                        "type": "Select",
+                                        "options": [
+                                            {
+                                                "value": 1,
+                                                "caption": "Incoming"
+                                            },
+                                            {
+                                                "value": 2,
+                                                "caption": "Outgoing"
+                                            },
+                                            {
+                                                "value": 3,
+                                                "caption": "Incoming connected"
+                                            },
+                                            {
+                                                "value": 4,
+                                                "caption": "Outgoing connected"
+                                            },
+                                            {
+                                                "value": 5,
+                                                "caption": "Incoming disconnected"
+                                            },
+                                            {
+                                                "value": 6,
+                                                "caption": "Outgoing disconnected"
+                                            }
+                                        ]
+                                    }
                                 },
                                 {
-                                    "name": "DisplayName",
-                                    "save": true,
-                                    "caption": "Type",
-                                    "width": "150px"
+                                    "name": "title",
+                                    "caption": "Title",
+                                    "width": "300px",
+                                    "add": "",
+                                    "edit": {
+                                        "type": "ValidationTextBox"
+                                    }
+                                },
+                                {
+                                    "name": "text",
+                                    "caption": "Text",
+                                    "width": "auto",
+                                    "add": "",
+                                    "edit": {
+                                        "type": "ValidationTextBox"
+                                    }
                                 },
                                 {
                                     "name": "icon",
                                     "caption": "Icon",
                                     "width": "200px",
+                                    "add": "Transparent",
                                     "edit": {
-                                        "caption": "Select grafik",
-                                        "type": "SelectFile",
-                                        "extensions": ".gif,.jpg,.png,.jpeg"
+                                        "type": "Select",
+                                        "options": []
                                     }
                                 },
                                 {
-                                    "caption": "Alignment",
-                                    "name": "align",
+                                    "name": "timeout",
+                                    "caption": "Display timeout",
+                                    "width": "150px",
+                                    "add": 0,
+                                    "edit": {
+                                        "type": "NumberSpinner",
+                                        "minimum": 0,
+                                        "suffix": " seconds"
+                                    }
+                                }
+                            ]
+                        }
+                    ]
+                }
+            ]
+        },
+        {
+            "type": "RowLayout",
+            "items": [
+                {
+                    "name": "CallsAsTable",
+                    "type": "CheckBox",
+                    "caption": "Show all calls as HTML-Table",
+                    "width": "200px"
+                },
+                {
+                    "type": "ExpansionPanel",
+                    "caption": "HTML-Table design",
+                    "items": [
+                        {
+                            "type": "RowLayout",
+                            "items": [
+                                {
+                                    "type": "List",
+                                    "name": "Icons",
+                                    "caption": "Icons for type of call",
+                                    "rowCount": 9,
+                                    "add": false,
+                                    "delete": false,
+                                    "sort": {
+                                        "column": "type",
+                                        "direction": "ascending"
+                                    },
+                                    "columns": [
+                                        {
+                                            "name": "type",
+                                            "save": true,
+                                            "visible": false
+                                        },
+                                        {
+                                            "name": "DisplayName",
+                                            "save": true,
+                                            "caption": "Type",
+                                            "width": "250px"
+                                        },
+                                        {
+                                            "name": "icon",
+                                            "caption": "Icon",
+                                            "width": "200px",
+                                            "edit": {
+                                                "type": "SelectFile",
+                                                "extensions": ".gif,.jpg,.png,.jpeg"
+                                            }
+                                        },
+                                        {
+                                            "caption": "Alignment",
+                                            "name": "align",
+                                            "width": "150px",
+                                            "edit": {
+                                                "type": "Select",
+                                                "options": [
+                                                    {
+                                                        "caption": "Left",
+                                                        "value": "left"
+                                                    },
+                                                    {
+                                                        "caption": "Center",
+                                                        "value": "center"
+                                                    },
+                                                    {
+                                                        "caption": "Right",
+                                                        "value": "right"
+                                                    }
+                                                ]
+                                            }
+                                        },
+                                        {
+                                            "caption": "CSS",
+                                            "name": "style",
+                                            "width": "200px",
+                                            "edit": {
+                                                "type": "ValidationTextBox"
+                                            }
+                                        }
+                                    ]
+                                },
+                                {
+                                    "type": "Button",
+                                    "name": "ShowImage",
+                                    "caption": "Show selected icon",
+                                    "onClick": "if (isset($Icons['DisplayName'])) IPS_RequestAction($id,'PreviewIcon',serialize(['DisplayName'=>$Icons['DisplayName'],'Icon'=>$Icons['icon']]));"
+                                }
+                            ]
+                        },
+                        {
+                            "type": "List",
+                            "name": "Table",
+                            "caption": "Table design",
+                            "rowCount": 4,
+                            "add": false,
+                            "delete": false,
+                            "columns": [
+                                {
+                                    "name": "tag",
+                                    "caption": "HTML-Tag",
+                                    "width": "75px",
+                                    "save": true
+                                },
+                                {
+                                    "caption": "CSS",
+                                    "name": "style",
+                                    "width": "auto",
+                                    "edit": {
+                                        "type": "ValidationTextBox"
+                                    }
+                                }
+                            ]
+                        },
+                        {
+                            "type": "List",
+                            "name": "Columns",
+                            "caption": "Columns",
+                            "rowCount": 9,
+                            "add": false,
+                            "delete": false,
+                            "sort": {
+                                "column": "index",
+                                "direction": "ascending"
+                            },
+                            "columns": [
+                                {
+                                    "name": "key",
+                                    "caption": "Data",
+                                    "width": "150px",
+                                    "save": true
+                                },
+                                {
+                                    "caption": "Visible",
+                                    "name": "show",
+                                    "width": "75px",
+                                    "edit": {
+                                        "type": "CheckBox"
+                                    }
+                                },
+                                {
+                                    "caption": "No.",
+                                    "name": "index",
+                                    "width": "50px",
+                                    "edit": {
+                                        "type": "NumberSpinner",
+                                        "minimum": 0
+                                    }
+                                },
+                                {
+                                    "caption": "Name of column",
+                                    "name": "name",
+                                    "width": "150px",
+                                    "edit": {
+                                        "type": "ValidationTextBox"
+                                    }
+                                },
+                                {
+                                    "caption": "Width",
+                                    "name": "width",
+                                    "width": "50px",
+                                    "edit": {
+                                        "type": "NumberSpinner",
+                                        "minimum": 0
+                                    }
+                                },
+                                {
+                                    "caption": "Header alignment",
+                                    "name": "hralign",
                                     "width": "150px",
                                     "edit": {
                                         "type": "Select",
-                                        "caption": "Icon alignment",
+                                        "options": [
+                                            {
+                                                "caption": "Left",
+                                                "value": "left"
+                                            },
+                                            {
+                                                "caption": "Center",
+                                                "value": "center"
+                                            },
+                                            {
+                                                "caption": "Right",
+                                                "value": "right"
+                                            }
+                                        ]
+                                    }
+                                },
+                                {
+                                    "caption": "Header color",
+                                    "name": "hrcolor",
+                                    "width": "150px",
+                                    "edit": {
+                                        "type": "SelectColor"
+                                    }
+                                },
+                                {
+                                    "caption": "Header CSS",
+                                    "name": "hrstyle",
+                                    "width": "200px",
+                                    "edit": {
+                                        "type": "ValidationTextBox"
+                                    }
+                                },
+                                {
+                                    "caption": "Text alignment",
+                                    "name": "tdalign",
+                                    "width": "150px",
+                                    "edit": {
+                                        "type": "Select",
                                         "options": [
                                             {
                                                 "caption": "Left",
@@ -65,225 +357,127 @@
                                 },
                                 {
                                     "caption": "CSS",
-                                    "name": "style",
+                                    "name": "tdstyle",
                                     "width": "200px",
                                     "edit": {
-                                        "caption": "CSS:",
                                         "type": "ValidationTextBox"
                                     }
                                 }
                             ]
                         },
                         {
-                            "type": "Button",
-                            "name": "ShowImage",
-                            "caption": "Show selected icon",
-                            "onClick": "if (isset($Icons['DisplayName'])) IPS_RequestAction($id,'PreviewIcon',serialize(['DisplayName'=>$Icons['DisplayName'],'Icon'=>$Icons['icon']]));"
+                            "type": "List",
+                            "name": "Rows",
+                            "caption": "Rows",
+                            "rowCount": 3,
+                            "add": false,
+                            "delete": false,
+                            "columns": [
+                                {
+                                    "name": "row",
+                                    "caption": "",
+                                    "width": "50px",
+                                    "save": true,
+                                    "visible": false
+                                },
+                                {
+                                    "name": "name",
+                                    "caption": "Row",
+                                    "save": true,
+                                    "width": "150px"
+                                },
+                                {
+                                    "caption": "Background color",
+                                    "name": "bgcolor",
+                                    "width": "150px",
+                                    "edit": {
+                                        "type": "SelectColor"
+                                    }
+                                },
+                                {
+                                    "caption": "Text color",
+                                    "name": "color",
+                                    "width": "100px",
+                                    "edit": {
+                                        "type": "SelectColor"
+                                    }
+                                },
+                                {
+                                    "caption": "CSS",
+                                    "name": "style",
+                                    "width": "auto",
+                                    "edit": {
+                                        "type": "ValidationTextBox"
+                                    }
+                                }
+                            ]
                         }
                     ]
-                },
+                }
+            ]
+        },
+        {
+            "type": "ExpansionPanel",
+            "caption": "Custom actions",
+            "items": [
                 {
                     "type": "List",
-                    "name": "Table",
-                    "caption": "Table design",
-                    "rowCount": 4,
-                    "add": false,
-                    "delete": false,
-                    "columns": [
-                        {
-                            "name": "tag",
-                            "caption": "HTML-Tag",
-                            "width": "75px",
-                            "save": true
-                        },
-                        {
-                            "caption": "CSS",
-                            "name": "style",
-                            "width": "auto",
-                            "edit": {
-                                "caption": "CSS:",
-                                "type": "ValidationTextBox"
-                            }
-                        }
-                    ]
-                },
-                {
-                    "type": "List",
-                    "name": "Columns",
-                    "caption": "Caller list columns",
+                    "name": "Actions",
+                    "caption": "Actions for events",
                     "rowCount": 9,
-                    "add": false,
-                    "delete": false,
+                    "add": true,
+                    "delete": true,
                     "sort": {
-                        "column": "index",
+                        "column": "event",
                         "direction": "ascending"
                     },
                     "columns": [
                         {
-                            "name": "key",
-                            "caption": "Data",
-                            "width": "150px",
-                            "save": true
-                        },
-                        {
-                            "caption": "Visible",
-                            "name": "show",
-                            "width": "75px",
-                            "edit": {
-                                "caption": "Visible as column ?",
-                                "type": "CheckBox"
-                            }
-                        },
-                        {
-                            "caption": "No.",
-                            "name": "index",
-                            "width": "50px",
-                            "edit": {
-                                "caption": "Index of this column:",
-                                "type": "NumberSpinner",
-                                "minimum": 0
-                            }
-                        },
-                        {
-                            "caption": "Display-Name",
-                            "name": "name",
-                            "width": "150px",
-                            "edit": {
-                                "caption": "Display-Name:",
-                                "type": "ValidationTextBox"
-                            }
-                        },
-                        {
-                            "caption": "Width",
-                            "name": "width",
-                            "width": "50px",
-                            "edit": {
-                                "caption": "Width of this column:",
-                                "type": "NumberSpinner",
-                                "minimum": 0
-                            }
-                        },
-                        {
-                            "caption": "Header alignment",
-                            "name": "hralign",
-                            "width": "150px",
-                            "edit": {
-                                "type": "Select",
-                                "caption": "Text alignment",
-                                "options": [
-                                    {
-                                        "caption": "Left",
-                                        "value": "left"
-                                    },
-                                    {
-                                        "caption": "Center",
-                                        "value": "center"
-                                    },
-                                    {
-                                        "caption": "Right",
-                                        "value": "right"
-                                    }
-                                ]
-                            }
-                        },
-                        {
-                            "caption": "Header color",
-                            "name": "hrcolor",
-                            "width": "150px",
-                            "edit": {
-                                "caption": "Color of Text:",
-                                "type": "SelectColor"
-                            }
-                        },
-                        {
-                            "caption": "Header CSS",
-                            "name": "hrstyle",
-                            "width": "200px",
-                            "edit": {
-                                "caption": "CSS:",
-                                "type": "ValidationTextBox"
-                            }
-                        },
-                        {
-                            "caption": "Alignment",
-                            "name": "tdalign",
-                            "width": "150px",
-                            "edit": {
-                                "type": "Select",
-                                "caption": "Text alignment",
-                                "options": [
-                                    {
-                                        "caption": "Left",
-                                        "value": "left"
-                                    },
-                                    {
-                                        "caption": "Center",
-                                        "value": "center"
-                                    },
-                                    {
-                                        "caption": "Right",
-                                        "value": "right"
-                                    }
-                                ]
-                            }
-                        },
-                        {
-                            "caption": "CSS",
-                            "name": "tdstyle",
-                            "width": "200px",
-                            "edit": {
-                                "caption": "CSS:",
-                                "type": "ValidationTextBox"
-                            }
-                        }
-                    ]
-                },
-                {
-                    "type": "List",
-                    "name": "Rows",
-                    "caption": "Caller list rows",
-                    "rowCount": 3,
-                    "add": false,
-                    "delete": false,
-                    "columns": [
-                        {
-                            "name": "row",
-                            "caption": "",
-                            "width": "50px",
-                            "save": true,
-                            "visible": false
-                        },
-                        {
-                            "name": "name",
-                            "caption": "Row",
-                            "save": true,
-                            "width": "150px"
-                        },
-                        {
-                            "caption": "Background color",
-                            "name": "bgcolor",
-                            "width": "150px",
-                            "edit": {
-                                "caption": "Color of background:",
-                                "type": "SelectColor"
-                            }
-                        },
-                        {
-                            "caption": "Color",
-                            "name": "color",
+                            "name": "event",
+                            "caption": "Event",
                             "width": "100px",
+                            "add": 0,
                             "edit": {
-                                "caption": "Color of Text:",
-                                "type": "SelectColor"
+                                "type": "Select",
+                                "options": [
+                                    {
+                                        "value": 0,
+                                        "caption": "All"
+                                    },
+                                    {
+                                        "value": 1,
+                                        "caption": "Incoming"
+                                    },
+                                    {
+                                        "value": 2,
+                                        "caption": "Outgoing"
+                                    },
+                                    {
+                                        "value": 3,
+                                        "caption": "Incoming connected"
+                                    },
+                                    {
+                                        "value": 4,
+                                        "caption": "Outgoing connected"
+                                    },
+                                    {
+                                        "value": 5,
+                                        "caption": "Incoming disconnected"
+                                    },
+                                    {
+                                        "value": 6,
+                                        "caption": "Outgoing disconnected"
+                                    }
+                                ]
                             }
                         },
                         {
-                            "caption": "CSS",
-                            "name": "style",
+                            "name": "action",
+                            "caption": "Action",
                             "width": "auto",
+                            "add": "",
                             "edit": {
-                                "caption": "CSS:",
-                                "type": "ValidationTextBox"
+                                "type": "SelectAction"
                             }
                         }
                     ]
@@ -294,8 +488,47 @@
     "actions": [
         {
             "type": "Button",
-            "caption": "Rebuild Calling List",
+            "caption": "Rebuild Table",
             "onClick": "IPS_RequestAction($id,'RefreshCallList',true);"
+        },
+        {
+            "name": "IconPreview",
+            "type": "PopupAlert",
+            "visible": false,
+            "popup": {
+                "items": [
+                    {
+                        "type": "RowLayout",
+                        "items": [
+                            {
+                                "type": "Label",
+                                "caption": "Type:",
+                                "width": "100px"
+                            },
+                            {
+                                "name": "IconName",
+                                "type": "Label",
+                                "caption": ""
+                            }
+                        ]
+                    },
+                    {
+                        "type": "RowLayout",
+                        "items": [
+                            {
+                                "type": "Label",
+                                "caption": "Icon:",
+                                "width": "100px"
+                            },
+                            {
+                                "name": "IconImage",
+                                "type": "Image",
+                                "image": ""
+                            }
+                        ]
+                    }
+                ]
+            }
         }
     ],
     "status": []

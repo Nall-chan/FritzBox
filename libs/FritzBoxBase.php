@@ -496,4 +496,16 @@ class FritzBoxModulBase extends IPSModule
         }
         return $Icons;
     }
+    /**
+     *  Umkopieren Assoziiertes Array auf Prefix z.B. für IPS_RunScriptEx
+     *
+     */
+    protected function FlatArrayWithPrefix($Source, $Prefix)
+    {
+        $Target = [];
+        foreach ($Source as $key=>$value) {
+            $Target[$Prefix.'_'.$key] = $value;
+        }
+        return $Target;
+    }
 }
