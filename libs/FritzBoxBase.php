@@ -506,4 +506,12 @@ class FritzBoxModulBase extends IPSModule
         }
         return $Target;
     }
+    protected function ArrayKeyToUpper($Source)
+    {
+        $Target = [];
+        foreach ($Source as $key=>$value) {
+            $Target[strtoupper($key)]= $value;
+        }
+        return $Target;
+    }
 }

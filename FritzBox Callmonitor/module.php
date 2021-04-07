@@ -101,6 +101,9 @@ class FritzBoxCallmonitor extends FritzBoxModulBase
     }
     private function SendNotification(array $NotifyData)
     {
+        if (!$this->ReadPropertyBoolean('CallsAsNotification')) {
+            return;
+        }
         $this->SendDebug('SendNotification', $NotifyData, 0);
         $WFC_IDs = json_decode($this->ReadPropertyString('Targets'), true);
         if (sizeof($WFC_IDs) == 0) {
@@ -108,15 +111,16 @@ class FritzBoxCallmonitor extends FritzBoxModulBase
         }
         $this->SendDebug('Targets', $WFC_IDs, 0);
         $NotificationConfig = json_decode($this->ReadPropertyString('Notification'), true);
-        $ConfigIndex = array_search($NotifyData['{EVENT}'], array_column($NotificationConfig, 'event'));
+        $ConfigIndex = array_search($NotifyData['EVENT'], array_column($NotificationConfig, 'event'));
         if ($ConfigIndex === false) {
             return;
         }
+        $NotifyData=$this->ArrayWithCurlyBracketsKey($NotifyData);
         $Title = $NotificationConfig[$ConfigIndex]['title'];
         $Text = $NotificationConfig[$ConfigIndex]['text'];
         $Icon = $NotificationConfig[$ConfigIndex]['icon'];
         $Timeout = $NotificationConfig[$ConfigIndex]['timeout'];
-        $Pattern=array_keys($NotifyData);
+        $Pattern = array_keys($NotifyData);
         $Values = array_values($NotifyData);
         $Title = str_replace($Pattern, $Values, $Title);
         $Text = str_replace($Pattern, $Values, $Text);
@@ -126,8 +130,24 @@ class FritzBoxCallmonitor extends FritzBoxModulBase
     }
     private function RunActions(array $NotifyData)
     {
+        $Actions = json_decode($this->ReadPropertyString('Actions'), true);
+        if (sizeof($Actions)==0) {
+            return;
+        }
+        $RunActions= array_filter($Actions, function ($Action) use ($NotifyData) {
+            if ($Action['event'] == 0) {
+                return true;
+            }
+            return $Action['event'] == $NotifyData['EVENT'];
+        });
+        $this->SendDebug('RunActions', $RunActions, 0);
         $this->SendDebug('RunActions', $NotifyData, 0);
-        // IPS_RunAction($ActionId,$TargetID,$Parameters)
+        foreach ($RunActions as $Action) {
+            $ActionData = json_decode($Action['action'], true);
+            $ActionData['parameters']=array_merge($ActionData['parameters'], $NotifyData);
+            $this->SendDebug('ActionData', $ActionData, 0);
+            IPS_RunAction($ActionData['actionID'], $ActionData['targetID'], $ActionData['parameters']);
+        }
     }
     private function RebuildTable()
     {
@@ -299,11 +319,7 @@ class FritzBoxCallmonitor extends FritzBoxModulBase
         $data = json_decode($JSONString, true);
         unset($data['DataID']);
         $this->SendDebug('ReceiveCallMonitorData', $data, 0);
-        //return true;
-        /*
-        04.04.21 18:50:56;RING;0;015233755959;44993;SIP2;\r\n
-        04.04.21 18:50:59;DISCONNECT;0;0;\r\n
-*/
+
         $CallEvent = explode(";", utf8_decode($data['Buffer']));
         $CallEvent[2]=(int)$CallEvent[2];
         $Calls = $this->CallData;
@@ -329,13 +345,12 @@ class FritzBoxCallmonitor extends FritzBoxModulBase
                     $Name =$CallEvent[3];
                 }
                 $Calls[$CallEvent[2]]['Name'] = $Name;
-                //$WFCData['Text'] = sprintf($WFCData['Text'], (string)$CallEvent[3], (string)$CallEvent[4], $Name);
             break;
             case "CALL": //Abgehend
                 $Calls[$CallEvent[2]]=[];
                 $Calls[$CallEvent[2]]['Event'] =self::Call_Outgoing;
                 $Calls[$CallEvent[2]]['Type'] ='CALLOUT';
-                $Calls[$CallEvent[2]]['Device'] = 'ToDo'; //FB_GetPhoneDevice((int)$CallEvent[3]);
+                $Calls[$CallEvent[2]]['Device'] = 'ToDo:'.(int)$CallEvent[3]; //FB_GetPhoneDevice((int)$CallEvent[3]);
                 $Calls[$CallEvent[2]]['DeviceID'] =(int)$CallEvent[3];
                 $Calls[$CallEvent[2]]['DurationRaw'] =0;
                 $Calls[$CallEvent[2]]['Duration'] =$this->ConvertRuntime(0);
@@ -349,7 +364,6 @@ class FritzBoxCallmonitor extends FritzBoxModulBase
                     $Name =$CallEvent[5];
                 }
                 $Calls[$CallEvent[2]]['Name'] = $Name;
-                //$WFCData['Text'] = sprintf($WFCData['Text'], (string)$CallEvent[4], (string)$CallEvent[5], $Name);
             break;
             case "CONNECT": // Verbunden
                 if ($Calls[$CallEvent[2]]['Type'] == 'CALLIN') {
@@ -360,10 +374,9 @@ class FritzBoxCallmonitor extends FritzBoxModulBase
                 $Calls[$CallEvent[2]]['Status'] =$CallEvent[1];
                 $Calls[$CallEvent[2]]['Time'] =$CallEvent[0];
                 if ($Calls[$CallEvent[2]]['DeviceID'] == 0) {
-                    $Calls[$CallEvent[2]]['Device'] ='ToDo';//FB_GetPhoneDevice($CallEvent[3]);
+                    $Calls[$CallEvent[2]]['Device'] ='ToDo:'.(int)$CallEvent[3];//FB_GetPhoneDevice($CallEvent[3]);
                     $Calls[$CallEvent[2]]['DeviceID'] =(int)$CallEvent[3];
                 }
-                //$WFCData['Text'] = sprintf($WFCData['Text'], $Calls[$CallEvent[2]]['Device'], $Calls[$CallEvent[2]]['Remote'], $Calls[$CallEvent[2]]['Name']);
             break;
             case "DISCONNECT": // Getrennt
                 if ($Calls[$CallEvent[2]]['Type'] == 'CALLIN') {
@@ -371,13 +384,14 @@ class FritzBoxCallmonitor extends FritzBoxModulBase
                 } else {
                     $Calls[$CallEvent[2]]['Event']= self::Disconnect_Outgoing;
                 }
-                //$time = $this->ConvertRuntime((int)$CallEvent[3]);
+                if ($Calls[$CallEvent[2]]['DeviceID'] == 0) {
+                    $Calls[$CallEvent[2]]['Device'] ='';
+                }
                 $Calls[$CallEvent[2]]['DurationRaw'] =(int)$CallEvent[3];
                 $Calls[$CallEvent[2]]['Duration'] =$this->ConvertRuntime((int)$CallEvent[3]);
-                //$WFCData['Text'] = sprintf($WFCData['Text'], $Calls[$CallEvent[2]]['Device'], $Calls[$CallEvent[2]]['Remote'], $Calls[$CallEvent[2]]['Name'], $time);
             break;
         }
-        $NotifyData=$this->ArrayWithCurlyBracketsKey($Calls[$CallEvent[2]]);
+        $NotifyData=$this->ArrayKeyToUpper($Calls[$CallEvent[2]]);
         if ($CallEvent[1] == "DISCONNECT") {
             unset($Calls[$CallEvent[2]]);
         }
