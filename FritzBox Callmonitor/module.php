@@ -61,7 +61,12 @@ class FritzBoxCallmonitor extends FritzBoxModulBase
         if (IPS_GetKernelRunlevel() != KR_READY) {
             return;
         }
-        $this->RebuildTable();
+        if ($this->ReadPropertyBoolean('CallsAsTable')) {
+            $this->RegisterVariableString('CallList', $this->Translate('Call list'), '~HTMLBox', 0);
+            $this->RebuildTable();
+        } else {
+            $this->UnregisterVariable('CallList');
+        }
     }
     public function RequestAction($Ident, $Value)
     {
@@ -157,7 +162,26 @@ class FritzBoxCallmonitor extends FritzBoxModulBase
         $Calls = $this->CallData;
         $this->SendDebug('Calls', $Calls, 0);
         //todo
-        //Tabelle bauen
+        $Config_Icons = json_decode($this->ReadPropertyString('Icons'), true);
+        $Icon_CSS='<div id="scoped-content"><style type="text/css" scoped>'."\r\n";
+        foreach ($Config_Icons as $Config_Icon) {
+            $ImageData =  @getimagesize('data://text/plain;base64,'.$Config_Icon['icon']);
+            if ($ImageData === false) {
+                continue;
+            }
+            $Icon_CSS.='.Icon'.$this->InstanceID.$Config_Icon['type'].' {width:100%;height:'.$ImageData[1].'px;background:url('.'data://'.$ImageData['mime'].';base64,'.$Config_Icon['icon'].') no-repeat '.$Config_Icon['align'].' center;}'."\r\n";
+        }
+        $Icon_CSS.='</style>';
+        foreach ($Calls as &$Call){
+            if ($Call['Type'] == 'CALLIN'){
+                $Call['Icon']='<div class="Icon'.$this->InstanceID.self::Call_Incoming.'"></div>';
+            } else {
+                $Call['Icon']='<div class="Icon'.$this->InstanceID.self::Call_Outgoing.'"></div>';
+            }
+        }
+        $HTML = $this->GetTable($Calls).'</div>';
+        $this->SetValue('CallList', $Icon_CSS .$HTML);
+        return true;
     }
     private function GenerateHTMLStyleProperty()
     {
@@ -183,9 +207,9 @@ class FritzBoxCallmonitor extends FritzBoxModulBase
                 'show'  => true,
                 'width' => 35,
                 'hrcolor' => -1,
-                'hralign' => 'center',
+                'hralign' => 'left',
                 'hrstyle' => '',
-                'tdalign' => 'center',
+                'tdalign' => 'left',
                 'tdstyle' => ''
 
             ],           [
@@ -195,7 +219,7 @@ class FritzBoxCallmonitor extends FritzBoxModulBase
                 'show'  => false,
                 'width' => 35,
                 'hrcolor' => -1,
-                'hralign' => 'center',
+                'hralign' => 'left',
                 'hrstyle' => '',
                 'tdalign' => 'left',
                 'tdstyle' => ''
@@ -203,12 +227,12 @@ class FritzBoxCallmonitor extends FritzBoxModulBase
             ],
             [
                 'index' => 2,
-                'key'   => 'Date',
+                'key'   => 'Time',
                 'name'  => $this->Translate('Time'),
                 'show'  => true,
                 'width' => 110,
                 'hrcolor' => -1,
-                'hralign' => 'center',
+                'hralign' => 'left',
                 'hrstyle' => '',
                 'tdalign' => 'left',
                 'tdstyle' => ''
@@ -219,7 +243,7 @@ class FritzBoxCallmonitor extends FritzBoxModulBase
                 'show'  => true,
                 'width' => 200,
                 'hrcolor' => -1,
-                'hralign' => 'center',
+                'hralign' => 'left',
                 'hrstyle' => '',
                 'tdalign' => 'left',
                 'tdstyle' => ''
@@ -231,7 +255,7 @@ class FritzBoxCallmonitor extends FritzBoxModulBase
                 'show'  => true,
                 'width' => 200,
                 'hrcolor' => -1,
-                'hralign' => 'center',
+                'hralign' => 'left',
                 'hrstyle' => '',
                 'tdalign' => 'left',
                 'tdstyle' => ''
@@ -243,7 +267,7 @@ class FritzBoxCallmonitor extends FritzBoxModulBase
                 'show'  => false,
                 'width' => 150,
                 'hrcolor' => -1,
-                'hralign' => 'center',
+                'hralign' => 'left',
                 'hrstyle' => '',
                 'tdalign' => 'left',
                 'tdstyle' => ''
@@ -255,7 +279,7 @@ class FritzBoxCallmonitor extends FritzBoxModulBase
                 'show'  => false,
                 'width' => 150,
                 'hrcolor' => -1,
-                'hralign' => 'center',
+                'hralign' => 'left',
                 'hrstyle' => '',
                 'tdalign' => 'left',
                 'tdstyle' => ''
@@ -267,9 +291,9 @@ class FritzBoxCallmonitor extends FritzBoxModulBase
                 'show'  => true,
                 'width' => 150,
                 'hrcolor' => -1,
-                'hralign' => 'center',
+                'hralign' => 'left',
                 'hrstyle' => '',
-                'tdalign' => 'center',
+                'tdalign' => 'left',
                 'tdstyle' => ''
             ]
         ];
@@ -294,21 +318,21 @@ class FritzBoxCallmonitor extends FritzBoxModulBase
                 'type'          => self::Call_Incoming,
                 'DisplayName'   => $this->Translate('Incoming'),
                 'icon'          => base64_encode(file_get_contents(__DIR__.'/../imgs/callnew.png')),
-                'align'         => 'center',
+                'align'         => 'left',
                 'style'         => ''
             ],
             [
                 'type'          => self::Call_Outgoing,
                 'DisplayName'   => $this->Translate('Outgoing'),
                 'icon'          => base64_encode(file_get_contents(__DIR__.'/../imgs/callout.png')),
-                'align'         => 'center',
+                'align'         => 'left',
                 'style'         => ''
             ],
             [
                 'type'          => self::FoundMarker,
                 'DisplayName'   => $this->Translate('Marker for reverse search'),
                 'icon'          => '',
-                'align'         => 'center',
+                'align'         => 'left',
                 'style'         => ''
             ]
         ];
