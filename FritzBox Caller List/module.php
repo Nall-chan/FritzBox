@@ -97,7 +97,7 @@ class FritzBoxCallerList extends FritzBoxModulBase
         // GetDeflection
         //$this->GetDeflections();
         // SetDeflectionEnable
-        $this->RegisterHook('/hook/FritzBoxCallList' . $this->InstanceID);
+        //$this->RegisterHook('/hook/FritzBoxCallList' . $this->InstanceID);
         $this->RegisterVariableString('CallerList', $this->Translate('Caller list'), '~HTMLBox', 0);
         $this->RefreshCallList();
     }
@@ -206,7 +206,8 @@ class FritzBoxCallerList extends FritzBoxModulBase
             $Icon_CSS.='.Icon'.$this->InstanceID.$Config_Icon['type'].' {width:100%;height:'.$ImageData[1].'px;background:url('.'data://'.$ImageData['mime'].';base64,'.$Config_Icon['icon'].') no-repeat '.$Config_Icon['align'].' center;}'."\r\n";
         }
         $Icon_CSS.='</style>';
-        $JS ='<script type="text/javascript" src="hook/FritzBoxCallList'.$this->InstanceID.'/tooltips.js"></script>';
+        //$JS ='<script type="text/javascript" src="hook/FritzBoxCallList'.$this->InstanceID.'/tooltips.js"></script>';
+        $JS='';
         $HTML = $this->GetTable($Data).'</div>';
         $this->SetValue('CallerList', $Icon_CSS .$JS.$HTML);
         return true;

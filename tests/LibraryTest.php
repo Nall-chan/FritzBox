@@ -31,9 +31,9 @@ class LibraryValidationTest extends TestCaseSymconValidation
     {
         $this->validateModule(__DIR__ . '/../FritzBox Callmonitor');
     }
-    public function testValidateDDNS(): void
+    public function testValidateDynDNS(): void
     {
-        $this->validateModule(__DIR__ . '/../FritzBox DDNS');
+        $this->validateModule(__DIR__ . '/../FritzBox DynDNS');
     }
     public function testValidateDeviceInfo(): void
     {

@@ -61,6 +61,15 @@ class FritzBoxCallmonitor extends FritzBoxModulBase
         if (IPS_GetKernelRunlevel() != KR_READY) {
             return;
         }
+        foreach ($this->GetReferenceList() as $Reference) {
+            $this->UnregisterReference($Reference);
+        }
+        foreach (json_decode($this->ReadPropertyString('Targets'), true) as $Target) {
+            $this->RegisterReference($Target['target']);
+        }
+        foreach (json_decode($this->ReadPropertyString('Actions'), true) as $Action) {
+            $this->RegisterReference(json_decode($Action['action'], true)['targetID']);
+        }
         if ($this->ReadPropertyBoolean('CallsAsTable')) {
             $this->RegisterVariableString('CallList', $this->Translate('Call list'), '~HTMLBox', 0);
             $this->RebuildTable();
