@@ -2,7 +2,24 @@
     "translations": {
         "de": {
             "Not connected!": "Nicht verbunden!",
-            "The 'FritzBox IO' instance is not connected or missing.": "Die 'FritzBox IO' Instanz ist nicht verbunden oder fehlt."
+            "The 'FritzBox IO' instance is not connected or missing.": "Die 'FritzBox IO' Instanz ist nicht verbunden oder fehlt.",
+            "FritzBox Caller List": "FritzBox Anruferliste",
+            "FritzBox Callmonitor": "FritzBox Anrufmonitor",
+            "FritzBox Device Info": "FritzBox Geräteinformationen",
+            "FritzBox DHCP Server": "FritzBox DHCP Server",
+            "FritzBox DynDns": "FritzBox DynDns",
+            "FritzBox File Share": "FritzBox Dateifreigabe",
+            "FritzBox Hosts": "FritzBox Netzwerkgeräte",
+            "FritzBox MyFritz": "FritzBox MyFritz",
+            "FritzBox NAS Storage": "FritzBox NAS Storage",
+            "FritzBox Time": "FritzBox Zeitserver",
+            "FritzBox UPnP MediaServer": "FritzBox UPnP MediaServer",
+            "FritzBox WAN Common Interface": "FritzBox allgemeine WAN-Schnittstelle",
+            "FritzBox WAN DSL Link": "FritzBox WAN DSL-Verbindung",
+            "FritzBox WAN IP Connection": "FritzBox WAN IP-Verbindung",
+            "FritzBox WAN Port Mapping": "FritzBox WAN Port-Weiterleitung",
+            "FritzBox WebDav Storage": "FritzBox Online-Speicher",
+            "FritzBox WLAN": "FritzBox WLAN"
         }
     }
 }

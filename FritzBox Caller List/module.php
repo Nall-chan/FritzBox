@@ -414,9 +414,9 @@ class FritzBoxCallerList extends FritzBoxModulBase
                 'show'  => true,
                 'width' => 35,
                 'hrcolor' => -1,
-                'hralign' => 'center',
+                'hralign' => 'left',
                 'hrstyle' => '',
-                'tdalign' => 'center',
+                'tdalign' => 'left',
                 'tdstyle' => ''
 
             ],           [
@@ -426,7 +426,7 @@ class FritzBoxCallerList extends FritzBoxModulBase
                 'show'  => false,
                 'width' => 35,
                 'hrcolor' => -1,
-                'hralign' => 'center',
+                'hralign' => 'left',
                 'hrstyle' => '',
                 'tdalign' => 'left',
                 'tdstyle' => ''
@@ -439,7 +439,7 @@ class FritzBoxCallerList extends FritzBoxModulBase
                 'show'  => true,
                 'width' => 110,
                 'hrcolor' => -1,
-                'hralign' => 'center',
+                'hralign' => 'left',
                 'hrstyle' => '',
                 'tdalign' => 'left',
                 'tdstyle' => ''
@@ -451,7 +451,7 @@ class FritzBoxCallerList extends FritzBoxModulBase
                 'show'  => true,
                 'width' => 200,
                 'hrcolor' => -1,
-                'hralign' => 'center',
+                'hralign' => 'left',
                 'hrstyle' => '',
                 'tdalign' => 'left',
                 'tdstyle' => ''
@@ -463,7 +463,7 @@ class FritzBoxCallerList extends FritzBoxModulBase
                 'show'  => false,
                 'width' => 150,
                 'hrcolor' => -1,
-                'hralign' => 'center',
+                'hralign' => 'left',
                 'hrstyle' => '',
                 'tdalign' => 'left',
                 'tdstyle' => ''
@@ -475,7 +475,7 @@ class FritzBoxCallerList extends FritzBoxModulBase
                 'show'  => false,
                 'width' => 150,
                 'hrcolor' => -1,
-                'hralign' => 'center',
+                'hralign' => 'left',
                 'hrstyle' => '',
                 'tdalign' => 'left',
                 'tdstyle' => ''
@@ -487,9 +487,9 @@ class FritzBoxCallerList extends FritzBoxModulBase
                 'show'  => true,
                 'width' => 150,
                 'hrcolor' => -1,
-                'hralign' => 'center',
+                'hralign' => 'left',
                 'hrstyle' => '',
-                'tdalign' => 'center',
+                'tdalign' => 'left',
                 'tdstyle' => ''
             ],
             [
@@ -499,9 +499,9 @@ class FritzBoxCallerList extends FritzBoxModulBase
                 'show'  => true,
                 'width' => 150,
                 'hrcolor' => -1,
-                'hralign' => 'center',
+                'hralign' => 'left',
                 'hrstyle' => '',
-                'tdalign' => 'center',
+                'tdalign' => 'left',
                 'tdstyle' => ''
             ],
 
@@ -512,7 +512,7 @@ class FritzBoxCallerList extends FritzBoxModulBase
                 'show'  => true,
                 'width' => 80,
                 'hrcolor' => -1,
-                'hralign' => 'center',
+                'hralign' => 'left',
                 'hrstyle' => '',
                 'tdalign' => 'left',
                 'tdstyle' => ''
@@ -524,9 +524,9 @@ class FritzBoxCallerList extends FritzBoxModulBase
                 'show'  => false,
                 'width' => 50,
                 'hrcolor' => 0xffffff,
-                'hralign' => 'center',
+                'hralign' => 'left',
                 'hrstyle' => '',
-                'tdalign' => 'center',
+                'tdalign' => 'left',
                 'tdstyle' => ''
             ]*/
         ];

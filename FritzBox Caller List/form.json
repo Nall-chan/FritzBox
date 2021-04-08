@@ -55,7 +55,7 @@
                 {
                     "name": "RefreshIntervalCallList",
                     "type": "NumberSpinner",
-                    "caption": "Reload call list intervall",
+                    "caption": "Reload caller list intervall",
                     "suffix": "minutes",
                     "minimum": 0,
                     "width": "200px"
@@ -63,7 +63,7 @@
                 {
                     "name": "LoadListType",
                     "type": "Select",
-                    "caption": "Load call list",
+                    "caption": "Load caller list",
                     "options": [
                         {
                             "caption": "full",
@@ -393,7 +393,7 @@
     "actions": [
         {
             "type": "Button",
-            "caption": "Reload Call-List",
+            "caption": "Reload caller list",
             "onClick": "IPS_RequestAction($id,'RefreshCallList',true);"
         },
         {

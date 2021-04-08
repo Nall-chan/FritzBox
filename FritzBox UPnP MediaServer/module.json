@@ -3,7 +3,9 @@
     "name": "FritzBox UPnP MediaServer",
     "type": 3,
     "vendor": "AVM",
-    "aliases": ["FritzBox UPnP MediaServer"],
+    "aliases": [
+        "FritzBox UPnP MediaServer"
+    ],
     "parentRequirements": [
         "{D62D4515-7689-D1DB-EE97-F555AD9433F0}"
     ],

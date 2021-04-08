@@ -3,7 +3,9 @@
     "name": "FritzBox Hosts",
     "type": 3,
     "vendor": "AVM",
-    "aliases": [],
+    "aliases": [
+        "FritzBox Netzwerkgeräte"
+    ],
     "parentRequirements": [
         "{D62D4515-7689-D1DB-EE97-F555AD9433F0}"
     ],

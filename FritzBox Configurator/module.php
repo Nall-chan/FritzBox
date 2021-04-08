@@ -121,7 +121,7 @@ require_once __DIR__ . '/../libs/FritzBoxModule.php';
                         $guid = key(\FritzBox\Services::$Data[$serviceType]);
                         if ($guid !== null) {
                             $index = \FritzBox\Services::$Data[$serviceType][$guid];
-                            $AddService['type']= $AddService['type']. ' (' . IPS_GetModule($guid)['ModuleName']. ')';
+                            $AddService['type']= $AddService['type']. ' (' . $this->Translate(IPS_GetModule($guid)['ModuleName']). ')';
                             $AddService['create'] = [
                                 'moduleID'      => $guid,
                                 'configuration' => ['Index' => $index],
@@ -130,9 +130,9 @@ require_once __DIR__ . '/../libs/FritzBoxModule.php';
                             $Key = array_search(\FritzBox\Services::$Data[$serviceType], $KnownInstances);
                             if ($Key === false) {
                                 if (is_numeric($AddService['url'][-1])) {
-                                    $AddService['name']= IPS_GetModule($guid)['ModuleName'].' '.$AddService['url'][-1];
+                                    $AddService['name']= $this->Translate(IPS_GetModule($guid)['ModuleName']).' '.$AddService['url'][-1];
                                 } else {
-                                    $AddService['name']= IPS_GetModule($guid)['ModuleName'];
+                                    $AddService['name']= $this->Translate(IPS_GetModule($guid)['ModuleName']);
                                 }
                             } else {
                                 $AddService['name']= IPS_GetName($Key);
@@ -161,7 +161,7 @@ require_once __DIR__ . '/../libs/FritzBoxModule.php';
                     'name'            => 'currently not available',
                     'event'           => true
                 ];
-                $AddService['type']= IPS_GetModule($guid)['ModuleName'];
+                $AddService['type']= $this->Translate(IPS_GetModule($guid)['ModuleName']);
                 $AddService['create'] = [
                     'moduleID'      => $guid,
                     'configuration' => ['Index' => 0],
@@ -169,7 +169,7 @@ require_once __DIR__ . '/../libs/FritzBoxModule.php';
                 ];
                 $Key = array_search(\FritzBox\Services::$Data[$serviceType], $KnownInstances);
                 if ($Key === false) {
-                    $AddService['name']= IPS_GetModule($guid)['ModuleName'];
+                    $AddService['name']= $this->Translate(IPS_GetModule($guid)['ModuleName']);
                 } else {
                     $AddService['name']= IPS_GetName($Key);
                     $AddService['instanceID']= $Key;

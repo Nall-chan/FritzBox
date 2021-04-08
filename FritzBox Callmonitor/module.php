@@ -150,6 +150,7 @@ class FritzBoxCallmonitor extends FritzBoxModulBase
         foreach ($RunActions as $Action) {
             $ActionData = json_decode($Action['action'], true);
             $ActionData['parameters']=array_merge($ActionData['parameters'], $NotifyData);
+            $ActionData['parameters']['SENDER']='FritzBox';
             $this->SendDebug('ActionData', $ActionData, 0);
             IPS_RunAction($ActionData['actionID'], $ActionData['targetID'], $ActionData['parameters']);
         }
@@ -172,8 +173,8 @@ class FritzBoxCallmonitor extends FritzBoxModulBase
             $Icon_CSS.='.Icon'.$this->InstanceID.$Config_Icon['type'].' {width:100%;height:'.$ImageData[1].'px;background:url('.'data://'.$ImageData['mime'].';base64,'.$Config_Icon['icon'].') no-repeat '.$Config_Icon['align'].' center;}'."\r\n";
         }
         $Icon_CSS.='</style>';
-        foreach ($Calls as &$Call){
-            if ($Call['Type'] == 'CALLIN'){
+        foreach ($Calls as &$Call) {
+            if ($Call['Type'] == 'CALLIN') {
                 $Call['Icon']='<div class="Icon'.$this->InstanceID.self::Call_Incoming.'"></div>';
             } else {
                 $Call['Icon']='<div class="Icon'.$this->InstanceID.self::Call_Outgoing.'"></div>';
@@ -362,7 +363,7 @@ class FritzBoxCallmonitor extends FritzBoxModulBase
                 $Calls[$CallEvent[2]]['Device'] ='*** RING ***';
                 $Calls[$CallEvent[2]]['DeviceID'] =0;
                 $Calls[$CallEvent[2]]['Duration'] =$this->ConvertRuntime(0);
-                $Calls[$CallEvent[2]]['DurationRaw'] =0;
+                $Calls[$CallEvent[2]]['Duration_Raw'] =0;
                 //todo
                 //$Name = FB_InversSuche($CallEvent[3], $Config['SucheType']);
                 if ($Name === false) {
@@ -376,7 +377,7 @@ class FritzBoxCallmonitor extends FritzBoxModulBase
                 $Calls[$CallEvent[2]]['Type'] ='CALLOUT';
                 $Calls[$CallEvent[2]]['Device'] = 'ToDo:'.(int)$CallEvent[3]; //FB_GetPhoneDevice((int)$CallEvent[3]);
                 $Calls[$CallEvent[2]]['DeviceID'] =(int)$CallEvent[3];
-                $Calls[$CallEvent[2]]['DurationRaw'] =0;
+                $Calls[$CallEvent[2]]['Duration_Raw'] =0;
                 $Calls[$CallEvent[2]]['Duration'] =$this->ConvertRuntime(0);
                 $Calls[$CallEvent[2]]['Local'] =$CallEvent[4];
                 $Calls[$CallEvent[2]]['Remote'] =$CallEvent[5];
@@ -411,7 +412,7 @@ class FritzBoxCallmonitor extends FritzBoxModulBase
                 if ($Calls[$CallEvent[2]]['DeviceID'] == 0) {
                     $Calls[$CallEvent[2]]['Device'] ='';
                 }
-                $Calls[$CallEvent[2]]['DurationRaw'] =(int)$CallEvent[3];
+                $Calls[$CallEvent[2]]['Duration_Raw'] =(int)$CallEvent[3];
                 $Calls[$CallEvent[2]]['Duration'] =$this->ConvertRuntime((int)$CallEvent[3]);
             break;
         }

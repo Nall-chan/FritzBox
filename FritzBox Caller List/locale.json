@@ -2,8 +2,9 @@
     "translations": {
         "de": {
             "Reload Phonebook": "Lade Telefonbuch neu",
-            "Reload call list intervall": "Lade Anruferliste Interval",
-            "Load call list": "Lade Anruferliste",
+            "Reload caller list intervall": "Lade Anruferliste Interval",
+            "Reload caller list": "Anruferliste neu laden",
+            "Load caller list": "Lade Anruferliste",
             "full": "Vollständig",
             "last days": "Anzahl Tage",
             "number of entries": "Anzahl Einträge",
@@ -47,7 +48,7 @@
             "Color of background:": "Farbe des Hintergrund",
             "odd": "ungerade",
             "even": "gerade",
-            "Icons for type of call": "Icon für Type des Anrufes",
+            "Icons for type of call": "Icon für Typ des Anrufes",
             "Icon": "Icon",
             "Time": "Zeitpunkt",
             "Caller": "Anrufer",
@@ -57,7 +58,8 @@
             "Duration": "Dauer",
             "Fax / TAM": "Fax / AB",
             "Number": "Rufnummer",
-            "Show selected icon": "Zeige ausgewähltes Icon"
+            "Show selected icon": "Zeige ausgewähltes Icon",
+            "Type:": "Typ:"
         }
     }
 }
