@@ -1,10 +1,12 @@
 {
     "translations": {
         "de": {
-            "Reload Phonebook": "Lade Telefonbuch neu",
-            "Reload caller list intervall": "Lade Anruferliste Interval",
-            "Reload caller list": "Anruferliste neu laden",
-            "Load caller list": "Lade Anruferliste",
+            "Reload Phonebook": "Telefonbuch neu laden",
+            "Instance for reverse serach": "Instanz für Rückwärtsuche",
+            "Script for custom reverse serach": "Skript für eigene Rückwärtsuche",
+            "Reload caller list intervall": "Lade Anrufliste Interval",
+            "Reload caller list": "Anrufliste neu laden",
+            "Load caller list": "Lade Anrufliste",
             "full": "Vollständig",
             "last days": "Anzahl Tage",
             "number of entries": "Anzahl Einträge",
@@ -22,7 +24,7 @@
             "HTML-Tag": "HTML-Tag",
             "CSS": "CSS",
             "CSS:": "CSS:",
-            "Caller list columns": "Anruferliste Spalten",
+            "Caller list columns": "Anrufliste Spalten",
             "Data": "Data",
             "Visible": "Sichtbar",
             "Visible as column ?": "Sichtbar als Spalte ?",
@@ -42,7 +44,7 @@
             "Right": "Rechts",
             "Color": "Farbe",
             "Color of Text:": "Textfarbe:",
-            "Caller list rows": "Anruferliste Zeilen",
+            "Caller list rows": "Anrufliste Zeilen",
             "Row": "Zeile",
             "Background color": "Hintergrundfarbe",
             "Color of background:": "Farbe des Hintergrund",
@@ -59,7 +61,19 @@
             "Fax / TAM": "Fax / AB",
             "Number": "Rufnummer",
             "Show selected icon": "Zeige ausgewähltes Icon",
-            "Type:": "Typ:"
+            "Type:": "Typ:",
+            "Type": "Typ",
+            "Incoming": "Ankommend",
+            "Missed call": "Verpasster Anruf",
+            "Outgoing": "Abgehend",
+            "Incoming (active)": "Ankommend (aktiv)",
+            "Rejected call": "Abgelehnter Anruf",
+            "Outgoing (active)": "Abgehend (aktiv)",
+            "{ICON} for reverse search": "{ICON} für die Rückwärtssuche",
+            "Reverse search not possible.": "Rückwärtssuche nicht möglich.",
+            "The reverse search library is not installed.": "Die Bibliothek für die Rückwärtssuche ist nicht installiert.",
+            "Please open the 'Module-Store' and install the 'Caller ID Reverse Search'-library.": "Bitte den 'Module-Store' öffnen und die 'Anrufer Rückwärtssuche'-Bibliothek installieren.",
+            "Do not display the message again": "Meldung nicht erneut anzeigen"
         }
     }
 }

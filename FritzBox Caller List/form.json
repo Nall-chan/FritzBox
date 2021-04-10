@@ -12,40 +12,21 @@
                     "width": "200px"
                 },
                 {
-                    "name": "ReverseSearch",
-                    "type": "Select",
-                    "caption": "Service for reverse serach",
-                    "options": [
-                        {
-                            "caption": "<none>",
-                            "value": 0
-                        },
-                        {
-                            "caption": "Das Örtliche Website",
-                            "value": 1
-                        },
-                        {
-                            "caption": "KlickTel Api",
-                            "value": 2
-                        },
-                        {
-                            "caption": "KlickTel CH Website",
-                            "value": 3
-                        },
-                        {
-                            "caption": "Custom",
-                            "value": 4
-                        }
-                    ],
-                    "width": "200px",
-                    "enabled": false
+                    "name": "ReverseSearchInstanceID",
+                    "type": "SelectInstance",
+                    "caption": "Instance for reverse serach",
+                    "width": "300px",
+                    "validModules": [
+                        "{243EF65B-B909-1070-09F1-6F7EF2EDFED4}",
+                        "{D8A9CD14-959C-2CC0-CB1D-C29B2A4A8C93}",
+                        "{ECD03F5E-6087-82D1-282E-D5D426FE57BC}"
+                    ]
                 },
                 {
                     "type": "SelectScript",
-                    "name": "CustomSerachScript",
-                    "caption": "Script for custom",
-                    "width": "300px",
-                    "enabled": false
+                    "name": "CustomSerachScriptID",
+                    "caption": "Script for custom reverse serach",
+                    "width": "300px"
                 }
             ]
         },
@@ -78,7 +59,7 @@
                             "value": 2
                         }
                     ],
-                    "width": "200px"
+                    "width": "300px"
                 },
                 {
                     "name": "LastEntries",
@@ -105,7 +86,7 @@
                     "type": "ValidationTextBox",
                     "name": "SearchMarker",
                     "caption": "Suffix for reverse-search hit",
-                    "width": "200px"
+                    "width": "300px"
                 },
                 {
                     "type": "ValidationTextBox",
@@ -143,7 +124,7 @@
                                     "name": "DisplayName",
                                     "save": true,
                                     "caption": "Type",
-                                    "width": "150px"
+                                    "width": "250px"
                                 },
                                 {
                                     "name": "icon",
@@ -388,6 +369,32 @@
                     ]
                 }
             ]
+        },
+        {
+            "name": "ReversSearchPopup",
+            "type": "PopupAlert",
+            "visible": false,
+            "popup": {
+                "items": [
+                    {
+                        "type": "Label",
+                        "caption": "Reverse search not possible."
+                    },
+                    {
+                        "type": "Label",
+                        "caption": "The reverse search library is not installed."
+                    },
+                    {
+                        "type": "Label",
+                        "caption": "Please open the 'Module-Store' and install the 'Caller ID Reverse Search'-library."
+                    },
+                    {
+                        "name": "NotShowWarning",
+                        "caption": "Do not display the message again",
+                        "type": "CheckBox"
+                    }
+                ]
+            }
         }
     ],
     "actions": [
@@ -414,6 +421,7 @@
                         "type": "RowLayout",
                         "items": [
                             {
+                                "name": "IconType",
                                 "type": "Label",
                                 "caption": "Type:",
                                 "width": "100px"
@@ -429,6 +437,7 @@
                         "type": "RowLayout",
                         "items": [
                             {
+                                "name": "Icon",
                                 "type": "Label",
                                 "caption": "Icon:",
                                 "width": "100px"

@@ -1,4 +1,5 @@
 <?php
+
 declare(strict_types=1);
 
 require_once __DIR__ . '/../libs/FritzBoxBase.php';
@@ -14,22 +15,20 @@ class FritzBoxCallmonitor extends FritzBoxModulBase
     protected static $ControlUrlArray = [
         '/upnp/control/x_contact'
     ];
-    protected static $EventSubURLArray = [
-
-    ];
+    protected static $EventSubURLArray = [];
     protected static $ServiceTypeArray = [
         'urn:dslforum-org:service:X_AVM-DE_OnTel:1'
     ];
 
-    protected static $SecondEventGUID='{FE5B2BCA-CA0F-25DC-8E79-BDFD242CB06E}';
+    protected static $SecondEventGUID = '{FE5B2BCA-CA0F-25DC-8E79-BDFD242CB06E}';
     const Call_Incoming = 1;
     const Call_Outgoing = 2;
     const Connected_Incoming = 3;
     const Connected_Outgoing = 4;
     const Disconnect_Incoming = 5;
     const Disconnect_Outgoing = 6;
-    const FoundMarker= 20;
-    
+    const FoundMarker = 20;
+
     public function Create()
     {
         //Never delete this line!
@@ -45,7 +44,7 @@ class FritzBoxCallmonitor extends FritzBoxModulBase
         $this->RegisterPropertyString('Columns', json_encode($Style['Columns']));
         $this->RegisterPropertyString('Rows', json_encode($Style['Rows']));
         $this->RegisterPropertyString('Icons', json_encode($Style['Icons']));
-        $this->CallData=[];
+        $this->CallData = [];
     }
 
     public function Destroy()
@@ -85,22 +84,22 @@ class FritzBoxCallmonitor extends FritzBoxModulBase
         switch ($Ident) {
             case 'RefreshCallList':
                 return $this->RebuildTable();
-                case 'SendNotification':
-                    return $this->SendNotification(unserialize($Value));
-                    case 'RunActions':
-                        return $this->RunActions(unserialize($Value));
-                    case 'PreviewIcon':
-                    $Data = unserialize($Value);
-                    $ImageData =  @getimagesize('data://text/plain;base64,'.$Data['Icon']);
-                        if ($ImageData === false) {
-                            $this->UpdateFormField('IconName', 'caption', 'No valid image');
-                            $this->UpdateFormField('IconPreview', 'visible', true);
-                            return;
-                        }
-                    $this->UpdateFormField('IconName', 'caption', $Data['DisplayName']);
-                    $this->UpdateFormField('IconImage', 'image', 'data://'.$ImageData['mime'].';base64,'.$Data['Icon']);
+            case 'SendNotification':
+                return $this->SendNotification(unserialize($Value));
+            case 'RunActions':
+                return $this->RunActions(unserialize($Value));
+            case 'PreviewIcon':
+                $Data = unserialize($Value);
+                $ImageData =  @getimagesize('data://text/plain;base64,' . $Data['Icon']);
+                if ($ImageData === false) {
+                    $this->UpdateFormField('IconName', 'caption', 'No valid image');
                     $this->UpdateFormField('IconPreview', 'visible', true);
                     return;
+                }
+                $this->UpdateFormField('IconName', 'caption', $Data['DisplayName']);
+                $this->UpdateFormField('IconImage', 'image', 'data://' . $ImageData['mime'] . ';base64,' . $Data['Icon']);
+                $this->UpdateFormField('IconPreview', 'visible', true);
+                return;
         }
         trigger_error($this->Translate('Invalid Ident.'), E_USER_NOTICE);
         return false;
@@ -108,7 +107,7 @@ class FritzBoxCallmonitor extends FritzBoxModulBase
     public function GetConfigurationForm()
     {
         $Form = json_decode(file_get_contents(__DIR__ . '/form.json'), true);
-        $Form['elements'][0]['items'][1]['items'][1]['columns'][3]['edit']['options'] =$this->GetIconsList();
+        $Form['elements'][0]['items'][1]['items'][1]['columns'][3]['edit']['options'] = $this->GetIconsList();
         $this->SendDebug('FORM', json_encode($Form), 0);
         $this->SendDebug('FORM', json_last_error_msg(), 0);
         return json_encode($Form);
@@ -129,7 +128,8 @@ class FritzBoxCallmonitor extends FritzBoxModulBase
         if ($ConfigIndex === false) {
             return;
         }
-        $NotifyData=$this->ArrayWithCurlyBracketsKey($NotifyData);
+
+        $NotifyData = $this->ArrayWithCurlyBracketsKey($NotifyData);
         $Title = $NotificationConfig[$ConfigIndex]['title'];
         $Text = $NotificationConfig[$ConfigIndex]['text'];
         $Icon = $NotificationConfig[$ConfigIndex]['icon'];
@@ -145,10 +145,10 @@ class FritzBoxCallmonitor extends FritzBoxModulBase
     private function RunActions(array $NotifyData)
     {
         $Actions = json_decode($this->ReadPropertyString('Actions'), true);
-        if (sizeof($Actions)==0) {
+        if (sizeof($Actions) == 0) {
             return;
         }
-        $RunActions= array_filter($Actions, function ($Action) use ($NotifyData) {
+        $RunActions = array_filter($Actions, function ($Action) use ($NotifyData) {
             if ($Action['event'] == 0) {
                 return true;
             }
@@ -158,8 +158,8 @@ class FritzBoxCallmonitor extends FritzBoxModulBase
         $this->SendDebug('RunActions', $NotifyData, 0);
         foreach ($RunActions as $Action) {
             $ActionData = json_decode($Action['action'], true);
-            $ActionData['parameters']=array_merge($ActionData['parameters'], $NotifyData);
-            $ActionData['parameters']['SENDER']='FritzBox';
+            $ActionData['parameters'] = array_merge($ActionData['parameters'], $NotifyData);
+            $ActionData['parameters']['SENDER'] = 'FritzBox';
             $this->SendDebug('ActionData', $ActionData, 0);
             IPS_RunAction($ActionData['actionID'], $ActionData['targetID'], $ActionData['parameters']);
         }
@@ -173,24 +173,24 @@ class FritzBoxCallmonitor extends FritzBoxModulBase
         $this->SendDebug('Calls', $Calls, 0);
         //todo
         $Config_Icons = json_decode($this->ReadPropertyString('Icons'), true);
-        $Icon_CSS='<div id="scoped-content"><style type="text/css" scoped>'."\r\n";
+        $Icon_CSS = '<div id="scoped-content"><style type="text/css" scoped>' . "\r\n";
         foreach ($Config_Icons as $Config_Icon) {
-            $ImageData =  @getimagesize('data://text/plain;base64,'.$Config_Icon['icon']);
+            $ImageData =  @getimagesize('data://text/plain;base64,' . $Config_Icon['icon']);
             if ($ImageData === false) {
                 continue;
             }
-            $Icon_CSS.='.Icon'.$this->InstanceID.$Config_Icon['type'].' {width:100%;height:'.$ImageData[1].'px;background:url('.'data://'.$ImageData['mime'].';base64,'.$Config_Icon['icon'].') no-repeat '.$Config_Icon['align'].' center;}'."\r\n";
+            $Icon_CSS .= '.Icon' . $this->InstanceID . $Config_Icon['type'] . ' {width:100%;height:' . $ImageData[1] . 'px;background:url(' . 'data://' . $ImageData['mime'] . ';base64,' . $Config_Icon['icon'] . ') no-repeat ' . $Config_Icon['align'] . ' center;}' . "\r\n";
         }
-        $Icon_CSS.='</style>';
+        $Icon_CSS .= '</style>';
         foreach ($Calls as &$Call) {
             if ($Call['Type'] == 'CALLIN') {
-                $Call['Icon']='<div class="Icon'.$this->InstanceID.self::Call_Incoming.'"></div>';
+                $Call['Icon'] = '<div class="Icon' . $this->InstanceID . self::Call_Incoming . '"></div>';
             } else {
-                $Call['Icon']='<div class="Icon'.$this->InstanceID.self::Call_Outgoing.'"></div>';
+                $Call['Icon'] = '<div class="Icon' . $this->InstanceID . self::Call_Outgoing . '"></div>';
             }
         }
-        $HTML = $this->GetTable($Calls).'</div>';
-        $this->SetValue('CallList', $Icon_CSS .$HTML);
+        $HTML = $this->GetTable($Calls) . '</div>';
+        $this->SetValue('CallList', $Icon_CSS . $HTML);
         return true;
     }
     private function GenerateHTMLStyleProperty()
@@ -323,18 +323,18 @@ class FritzBoxCallmonitor extends FritzBoxModulBase
                 'style'   => ''
             ]
         ];
-        $NewIcons=[
+        $NewIcons = [
             [
                 'type'          => self::Call_Incoming,
                 'DisplayName'   => $this->Translate('Incoming'),
-                'icon'          => base64_encode(file_get_contents(__DIR__.'/../imgs/callnew.png')),
+                'icon'          => base64_encode(file_get_contents(__DIR__ . '/../imgs/callnew.png')),
                 'align'         => 'left',
                 'style'         => ''
             ],
             [
                 'type'          => self::Call_Outgoing,
                 'DisplayName'   => $this->Translate('Outgoing'),
-                'icon'          => base64_encode(file_get_contents(__DIR__.'/../imgs/callout.png')),
+                'icon'          => base64_encode(file_get_contents(__DIR__ . '/../imgs/callout.png')),
                 'align'         => 'left',
                 'style'         => ''
             ],
@@ -346,7 +346,7 @@ class FritzBoxCallmonitor extends FritzBoxModulBase
                 'style'         => ''
             ]
         ];
-        return ['Table' => $NewTableConfig, 'Columns' => $NewColumnsConfig, 'Rows' => $NewRowsConfig, 'Icons'=> $NewIcons];
+        return ['Table' => $NewTableConfig, 'Columns' => $NewColumnsConfig, 'Rows' => $NewRowsConfig, 'Icons' => $NewIcons];
     }
     public function ReceiveData($JSONString)
     {
@@ -355,92 +355,92 @@ class FritzBoxCallmonitor extends FritzBoxModulBase
         $this->SendDebug('ReceiveCallMonitorData', $data, 0);
 
         $CallEvent = explode(";", utf8_decode($data['Buffer']));
-        $CallEvent[2]=(int)$CallEvent[2];
+        $CallEvent[2] = (int)$CallEvent[2];
         $Calls = $this->CallData;
-        
-        $Calls[$CallEvent[2]]['Status'] =$CallEvent[1];
+
+        $Calls[$CallEvent[2]]['Status'] = $CallEvent[1];
         $Name = false;
         switch ($CallEvent[1]) {
             case "RING": // Ankommend klingelt
-                $Calls[$CallEvent[2]]=[];
-                $Calls[$CallEvent[2]]['Type'] ='CALLIN';
-                $Calls[$CallEvent[2]]['Event'] =self::Call_Incoming;
-                $Calls[$CallEvent[2]]['Remote'] =$CallEvent[3];
-                $Calls[$CallEvent[2]]['Local'] =$CallEvent[4];
-                $Calls[$CallEvent[2]]['Line'] =$CallEvent[5];
-                $Calls[$CallEvent[2]]['Time'] =$CallEvent[0];
-                $Calls[$CallEvent[2]]['Device'] ='*** RING ***';
-                $Calls[$CallEvent[2]]['DeviceID'] =0;
-                $Calls[$CallEvent[2]]['Duration'] =$this->ConvertRuntime(0);
-                $Calls[$CallEvent[2]]['Duration_Raw'] =0;
+                $Calls[$CallEvent[2]] = [];
+                $Calls[$CallEvent[2]]['Type'] = 'CALLIN';
+                $Calls[$CallEvent[2]]['Event'] = self::Call_Incoming;
+                $Calls[$CallEvent[2]]['Remote'] = $CallEvent[3];
+                $Calls[$CallEvent[2]]['Local'] = $CallEvent[4];
+                $Calls[$CallEvent[2]]['Line'] = $CallEvent[5];
+                $Calls[$CallEvent[2]]['Time'] = $CallEvent[0];
+                $Calls[$CallEvent[2]]['Device'] = '*** RING ***';
+                $Calls[$CallEvent[2]]['DeviceID'] = 0;
+                $Calls[$CallEvent[2]]['Duration'] = $this->ConvertRuntime(0);
+                $Calls[$CallEvent[2]]['Duration_Raw'] = 0;
                 //todo
                 //$Name = FB_InversSuche($CallEvent[3], $Config['SucheType']);
                 if ($Name === false) {
-                    $Name =$CallEvent[3];
+                    $Name = $CallEvent[3];
                 }
                 $Calls[$CallEvent[2]]['Name'] = $Name;
-            break;
+                break;
             case "CALL": //Abgehend
-                $Calls[$CallEvent[2]]=[];
-                $Calls[$CallEvent[2]]['Event'] =self::Call_Outgoing;
-                $Calls[$CallEvent[2]]['Type'] ='CALLOUT';
-                $Calls[$CallEvent[2]]['Device'] = 'ToDo:'.(int)$CallEvent[3]; //FB_GetPhoneDevice((int)$CallEvent[3]);
-                $Calls[$CallEvent[2]]['DeviceID'] =(int)$CallEvent[3];
-                $Calls[$CallEvent[2]]['Duration_Raw'] =0;
-                $Calls[$CallEvent[2]]['Duration'] =$this->ConvertRuntime(0);
-                $Calls[$CallEvent[2]]['Local'] =$CallEvent[4];
-                $Calls[$CallEvent[2]]['Remote'] =$CallEvent[5];
-                $Calls[$CallEvent[2]]['Line'] =$CallEvent[6];
-                $Calls[$CallEvent[2]]['Time'] =$CallEvent[0];
+                $Calls[$CallEvent[2]] = [];
+                $Calls[$CallEvent[2]]['Event'] = self::Call_Outgoing;
+                $Calls[$CallEvent[2]]['Type'] = 'CALLOUT';
+                $Calls[$CallEvent[2]]['Device'] = 'ToDo:' . (int)$CallEvent[3]; //FB_GetPhoneDevice((int)$CallEvent[3]);
+                $Calls[$CallEvent[2]]['DeviceID'] = (int)$CallEvent[3];
+                $Calls[$CallEvent[2]]['Duration_Raw'] = 0;
+                $Calls[$CallEvent[2]]['Duration'] = $this->ConvertRuntime(0);
+                $Calls[$CallEvent[2]]['Local'] = $CallEvent[4];
+                $Calls[$CallEvent[2]]['Remote'] = $CallEvent[5];
+                $Calls[$CallEvent[2]]['Line'] = $CallEvent[6];
+                $Calls[$CallEvent[2]]['Time'] = $CallEvent[0];
                 //todo
                 //$Name = FB_InversSuche($CallEvent[5], $Config['SucheType']);
                 if ($Name === false) {
-                    $Name =$CallEvent[5];
+                    $Name = $CallEvent[5];
                 }
                 $Calls[$CallEvent[2]]['Name'] = $Name;
-            break;
+                break;
             case "CONNECT": // Verbunden
                 if ($Calls[$CallEvent[2]]['Type'] == 'CALLIN') {
-                    $Calls[$CallEvent[2]]['Event']= self::Connected_Incoming;
+                    $Calls[$CallEvent[2]]['Event'] = self::Connected_Incoming;
                 } else {
-                    $Calls[$CallEvent[2]]['Event']= self::Connected_Outgoing;
+                    $Calls[$CallEvent[2]]['Event'] = self::Connected_Outgoing;
                 }
-                $Calls[$CallEvent[2]]['Status'] =$CallEvent[1];
-                $Calls[$CallEvent[2]]['Time'] =$CallEvent[0];
+                $Calls[$CallEvent[2]]['Status'] = $CallEvent[1];
+                $Calls[$CallEvent[2]]['Time'] = $CallEvent[0];
                 if ($Calls[$CallEvent[2]]['DeviceID'] == 0) {
-                    $Calls[$CallEvent[2]]['Device'] ='ToDo:'.(int)$CallEvent[3];//FB_GetPhoneDevice($CallEvent[3]);
-                    $Calls[$CallEvent[2]]['DeviceID'] =(int)$CallEvent[3];
+                    $Calls[$CallEvent[2]]['Device'] = 'ToDo:' . (int)$CallEvent[3]; //FB_GetPhoneDevice($CallEvent[3]);
+                    $Calls[$CallEvent[2]]['DeviceID'] = (int)$CallEvent[3];
                 }
-            break;
+                break;
             case "DISCONNECT": // Getrennt
                 if ($Calls[$CallEvent[2]]['Type'] == 'CALLIN') {
-                    $Calls[$CallEvent[2]]['Event']= self::Disconnect_Incoming;
+                    $Calls[$CallEvent[2]]['Event'] = self::Disconnect_Incoming;
                 } else {
-                    $Calls[$CallEvent[2]]['Event']= self::Disconnect_Outgoing;
+                    $Calls[$CallEvent[2]]['Event'] = self::Disconnect_Outgoing;
                 }
                 if ($Calls[$CallEvent[2]]['DeviceID'] == 0) {
-                    $Calls[$CallEvent[2]]['Device'] ='';
+                    $Calls[$CallEvent[2]]['Device'] = '';
                 }
-                $Calls[$CallEvent[2]]['Duration_Raw'] =(int)$CallEvent[3];
-                $Calls[$CallEvent[2]]['Duration'] =$this->ConvertRuntime((int)$CallEvent[3]);
-            break;
+                $Calls[$CallEvent[2]]['Duration_Raw'] = (int)$CallEvent[3];
+                $Calls[$CallEvent[2]]['Duration'] = $this->ConvertRuntime((int)$CallEvent[3]);
+                break;
         }
-        $NotifyData=$this->ArrayKeyToUpper($Calls[$CallEvent[2]]);
+        $NotifyData = $this->ArrayKeyToUpper($Calls[$CallEvent[2]]);
         if ($CallEvent[1] == "DISCONNECT") {
             unset($Calls[$CallEvent[2]]);
         }
         $this->CallData = $Calls;
         // Nur wenn WebFront Notification aktiv
         if ($this->ReadPropertyBoolean('CallsAsNotification')) {
-            IPS_RunScriptText('IPS_RequestAction('.$this->InstanceID.',\'SendNotification\',\''.serialize($NotifyData).'\');');
+            IPS_RunScriptText('IPS_RequestAction(' . $this->InstanceID . ',\'SendNotification\',\'' . serialize($NotifyData) . '\');');
         }
         //nur wenn HTML-Tabelle aktiv
         if ($this->ReadPropertyBoolean('CallsAsTable')) {
-            IPS_RunScriptText('IPS_RequestAction('.$this->InstanceID.',\'RefreshCallList\',true);');
+            IPS_RunScriptText('IPS_RequestAction(' . $this->InstanceID . ',\'RefreshCallList\',true);');
         }
         //nur wenn Aktions aktiv
-        if (sizeof(json_decode($this->ReadPropertyString('Actions')))>0) {
-            IPS_RunScriptText('IPS_RequestAction('.$this->InstanceID.',\'RunActions\',\''.serialize($NotifyData).'\');');
+        if (sizeof(json_decode($this->ReadPropertyString('Actions'))) > 0) {
+            IPS_RunScriptText('IPS_RequestAction(' . $this->InstanceID . ',\'RunActions\',\'' . serialize($NotifyData) . '\');');
         }
         return true;
     }
@@ -449,11 +449,11 @@ class FritzBoxCallmonitor extends FritzBoxModulBase
     {
         return [
             [
-              'event' => self::Call_Incoming,
-              'title' => $this->Translate('Incoming Call!'),
-              'text' => $this->Translate('From: {NAME} To: {LOCAL}'),
-              'icon' => '',
-              'timeout' => 30,
+                'event' => self::Call_Incoming,
+                'title' => $this->Translate('Incoming Call!'),
+                'text' => $this->Translate('From: {NAME} To: {LOCAL}'),
+                'icon' => '',
+                'timeout' => 30,
             ],
             [
                 'event' => self::Call_Outgoing,
@@ -490,6 +490,6 @@ class FritzBoxCallmonitor extends FritzBoxModulBase
                 'icon' => '',
                 'timeout' => 30,
             ]
-            ];
+        ];
     }
 }
