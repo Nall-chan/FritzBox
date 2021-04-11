@@ -194,7 +194,12 @@ class FritzBoxCallmonitor extends FritzBoxModulBase
             if ($ImageData === false) {
                 continue;
             }
-            $Icon_CSS .= '.Icon' . $this->InstanceID . $Config_Icon['type'] . ' {width:100%;height:' . $ImageData[1] . 'px;background:url(' . 'data://' . $ImageData['mime'] . ';base64,' . $Config_Icon['icon'] . ') no-repeat ' . $Config_Icon['align'] . ' center;}' . "\r\n";
+            if ($Config_Icon['type'] == self::FoundMarker) {
+                $width = $ImageData[0].'px';
+            } else {
+                $width = '100%';
+            }
+            $Icon_CSS .= '.Icon' . $this->InstanceID . $Config_Icon['type'] . ' {width:'.$width.';height:'.$ImageData[1].'px;background:url('.'data://'.$ImageData['mime'].';base64,'.$Config_Icon['icon'].') no-repeat '.$Config_Icon['align'].' center;'.$Config_Icon['style'].'}'."\r\n";
         }
         $Icon_CSS .= '</style>';
         foreach ($Calls as &$Call) {
@@ -203,6 +208,7 @@ class FritzBoxCallmonitor extends FritzBoxModulBase
             } else {
                 $Call['Icon'] = '<div class="Icon' . $this->InstanceID . self::Call_Outgoing . '"></div>';
             }
+            $Call['Name']  = str_replace('{ICON}', '<div class="Icon'.$this->InstanceID.self::FoundMarker.'"></div>', $Call['Name']);
         }
         $HTML = $this->GetTable($Calls) . '</div>';
         $this->SetValue('CallList', $Icon_CSS . $HTML);
@@ -358,7 +364,7 @@ class FritzBoxCallmonitor extends FritzBoxModulBase
                 'DisplayName'   => $this->Translate('Marker for reverse search'),
                 'icon'          => '',
                 'align'         => 'left',
-                'style'         => ''
+                'style'         => 'display:inline-block;'
             ]
         ];
         return ['Table' => $NewTableConfig, 'Columns' => $NewColumnsConfig, 'Rows' => $NewRowsConfig, 'Icons' => $NewIcons];
@@ -447,6 +453,7 @@ class FritzBoxCallmonitor extends FritzBoxModulBase
                 break;
         }
         $NotifyData = $this->ArrayKeyToUpper($Calls[$CallEvent[2]]);
+        $NotifyData['NAME'] = str_replace('{ICON}', '', $NotifyData['NAME']);
         if ($CallEvent[1] == "DISCONNECT") {
             unset($Calls[$CallEvent[2]]);
         }

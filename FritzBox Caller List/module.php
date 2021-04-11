@@ -225,7 +225,7 @@ class FritzBoxCallerList extends FritzBoxModulBase
             $Data[$i]['Device']=(string)$CallList->Call[$i]->Device;
         }
         $Config_Icons = json_decode($this->ReadPropertyString('Icons'), true);
-        $Icon_CSS='<div id="scoped-content"><style type="text/css" scoped>'."\r\n";
+        $Icon_CSS = '<div id="scoped-content"><style type="text/css" scoped>'."\r\n";
         foreach ($Config_Icons as $Config_Icon) {
             $ImageData =  @getimagesize('data://text/plain;base64,'.$Config_Icon['icon']);
             if ($ImageData === false) {
@@ -236,9 +236,9 @@ class FritzBoxCallerList extends FritzBoxModulBase
             } else {
                 $width = '100%';
             }
-            $Icon_CSS.='.Icon'.$this->InstanceID.$Config_Icon['type'].' {width:'.$width.';height:'.$ImageData[1].'px;background:url('.'data://'.$ImageData['mime'].';base64,'.$Config_Icon['icon'].') no-repeat '.$Config_Icon['align'].' center;'.$Config_Icon['style'].'}'."\r\n";
+            $Icon_CSS .= '.Icon'.$this->InstanceID.$Config_Icon['type'].' {width:'.$width.';height:'.$ImageData[1].'px;background:url('.'data://'.$ImageData['mime'].';base64,'.$Config_Icon['icon'].') no-repeat '.$Config_Icon['align'].' center;'.$Config_Icon['style'].'}'."\r\n";
         }
-        $Icon_CSS.='</style>';
+        $Icon_CSS .= '</style>';
         //$JS ='<script type="text/javascript" src="hook/FritzBoxCallList'.$this->InstanceID.'/tooltips.js"></script>';
         $JS='';
         $HTML = $this->GetTable($Data).'</div>';
