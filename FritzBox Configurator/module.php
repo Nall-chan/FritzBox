@@ -16,6 +16,7 @@ require_once __DIR__ . '/../libs/FritzBoxModule.php';
         {
             //Never delete this line!
             parent::Create();
+            $this->ParentID=0;
             $this->HasCallMonitor=false;
             $this->ConnectParent('{6FF9A05D-4E49-4371-23F1-7F58283FB1D9}');
         }

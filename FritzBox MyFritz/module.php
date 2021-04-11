@@ -138,7 +138,7 @@ require_once __DIR__ . '/../libs/FritzBoxBase.php';
                     $SaveResult['NewEnabled']=$NewEnabled;
                 }
                 $Ident = $this->ConvertIdent((string)$SaveResult['NewName']);
-                $this->setIPSVariable($Ident, (string)$SaveResult['NewName'], (bool)$SaveResult['NewEnabled'], VARIABLETYPE_BOOLEAN,'~Switch');
+                $this->setIPSVariable($Ident, (string)$SaveResult['NewName'], (bool)$SaveResult['NewEnabled'], VARIABLETYPE_BOOLEAN, '~Switch');
             }
 
             $this->ServiceIdents=$MyIdents;

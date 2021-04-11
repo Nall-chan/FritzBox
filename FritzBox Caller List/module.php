@@ -7,9 +7,6 @@ require_once __DIR__ . '/../libs/FritzBoxTelHelper.php';
 require_once __DIR__ . '/../libs/FritzBoxTable.php';
 //require_once __DIR__ . '/../libs/helper/WebhookHelper.php';
 
-/**
- * @property array $PhonebookFiles
- */
 class FritzBoxCallerList extends FritzBoxModulBase
 {
     use \FritzBoxModul\HTMLTable;
@@ -49,7 +46,6 @@ class FritzBoxCallerList extends FritzBoxModulBase
         $this->RegisterPropertyInteger('RefreshIntervalCallList', 10);
         $this->RegisterTimer('RefreshPhonebook', 0, 'IPS_RequestAction(' . $this->InstanceID . ',"RefreshPhonebook",true);');
         $this->RegisterTimer('RefreshCallList', 0, 'IPS_RequestAction(' . $this->InstanceID . ',"RefreshCallList",true);');
-        $this->PhonebookFiles=[];
         $Style = $this->GenerateHTMLStyleProperty();
         $this->RegisterPropertyString('Table', json_encode($Style['Table']));
         $this->RegisterPropertyString('Columns', json_encode($Style['Columns']));
@@ -271,8 +267,23 @@ class FritzBoxCallerList extends FritzBoxModulBase
             $LoadedFiles[]=$FileName;
         }
         // $LoadedFiles im IO ablegen, damit andere es lesen können.
-        $this->PhonebookFiles=$LoadedFiles;
+        $this->SetPhonebookFiles($LoadedFiles);
         return true;
+    }
+    private function SetPhonebookFiles(array $Files)
+    {
+        if (!$this->HasActiveParent()) {
+            return false;
+        }
+        $this->SendDebug('Function', 'SetPhonebookFiles', 0);
+        $this->SendDebug('Files', $Files, 0);
+        $this->SendDataToParent(json_encode(
+            [
+                'DataID'     => '{D62D4515-7689-D1DB-EE97-F555AD9433F0}',
+                'Function'   => 'SETPHONEBOOKS',
+                'Files'=> $Files
+            ]
+        ));
     }
     public function GetInfoByIndex(int $Index)
     {

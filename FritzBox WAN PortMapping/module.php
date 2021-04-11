@@ -196,7 +196,7 @@ require_once __DIR__ . '/../libs/FritzBoxBase.php';
                 public function GetConnectionTypeInfo()
                 {
                     $this->Send(__FUNCTION__);
-        
+
                 }
                 public function GetStatusInfo()
                 {
@@ -205,22 +205,22 @@ require_once __DIR__ . '/../libs/FritzBoxBase.php';
                 public function GetNATRSIPStatus()
                 {
                     $this->Send(__FUNCTION__);
-        
+
                 }
                 public function GetExternalIPAddress()
                 {
                     $this->Send(__FUNCTION__);
-        
+
                 }
                 public function X_GetDNSServers()
                 {
                     $this->Send(__FUNCTION__);
-        
+
                 }
                 public function GetLinkLayerMaxBitRates()
                 {
                     $this->Send(__FUNCTION__);
-        
+
                 }
         */
     }

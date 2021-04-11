@@ -9,6 +9,7 @@ require_once __DIR__ . '/../libs/FritzBoxModule.php';
 /**
  * @property string $Url
  * @property string $Username
+ * @property array $PhoneBooks
  */
 class FritzBoxIO extends IPSModule
 {
@@ -48,6 +49,7 @@ class FritzBoxIO extends IPSModule
            
         $this->Url = '';
         $this->Username = '';
+        $this->PhoneBooks=[];
         //$this->RequireParent("{6179ED6A-FC31-413C-BB8E-1204150CF376}");
         if (IPS_GetKernelRunlevel() == KR_READY) {
             $this->doNotLoadXML = false;
@@ -197,6 +199,13 @@ class FritzBoxIO extends IPSModule
                 case 'GETFILE':
                     $ret = $this->LoadFile($data['Uri']);
                     break;
+                case 'SETPHONEBOOKS':
+                    $this->PhoneBooks=$data['Files'];
+                    $ret=true;
+                    break;
+                case 'GETPHONEBOOKS':
+                    $ret = $this->PhoneBooks;
+                    break;
                 default:
                     $ret = $this->CallSoapAction($HttpCode, $data['ServiceTyp'], $data['ControlUrl'], $data['Function'], $data['Parameter']);
                     break;
@@ -283,12 +292,12 @@ class FritzBoxIO extends IPSModule
         //todo Send to Childs
         $this->SendDataToChildren(
             json_encode(
-                    [
+                [
                         'DataID'     => '{CBD869A0-869B-3D4C-7EA8-D917D935E647}',
                         'EventSubURL'=> $eventSubUrl,
                         'EventData'  => $Propertys
                     ]
-                )
+            )
         );
     }
     private function SendHeaders()

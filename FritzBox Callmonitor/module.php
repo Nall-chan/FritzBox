@@ -363,6 +363,22 @@ class FritzBoxCallmonitor extends FritzBoxModulBase
         ];
         return ['Table' => $NewTableConfig, 'Columns' => $NewColumnsConfig, 'Rows' => $NewRowsConfig, 'Icons' => $NewIcons];
     }
+    private function SearchName(string $Number)
+    {
+        if ($Number == '') {
+            return $this->ReadPropertyString('UnknownNumberName');
+        }
+        $Name = $this->DoPhonebookSearch($Number);
+        if ($Name === false) {
+            $UnknownName='('.$Number.')';
+            $ReverseSearchInstanceID= $this->ReadPropertyInteger('ReverseSearchInstanceID');
+            $CustomSearchScriptID = $this->ReadPropertyInteger('CustomSearchScriptID');
+            $MaxNameSize=$this->ReadPropertyInteger('MaxNameSize');
+            $SearchMarker = $this->ReadPropertyString('SearchMarker');
+            $Name = $this->DoReverseSearch($ReverseSearchInstanceID, $CustomSearchScriptID, $Number, $UnknownName, $SearchMarker, $MaxNameSize);
+        }
+        return $Name;
+    }
     public function ReceiveData($JSONString)
     {
         $data = json_decode($JSONString, true);
@@ -388,12 +404,7 @@ class FritzBoxCallmonitor extends FritzBoxModulBase
                 $Calls[$CallEvent[2]]['DeviceID'] = 0;
                 $Calls[$CallEvent[2]]['Duration'] = $this->ConvertRuntime(0);
                 $Calls[$CallEvent[2]]['Duration_Raw'] = 0;
-                //todo
-                //$Name = FB_InversSuche($CallEvent[3], $Config['SucheType']);
-                if ($Name === false) {
-                    $Name = $CallEvent[3];
-                }
-                $Calls[$CallEvent[2]]['Name'] = $Name;
+                $Calls[$CallEvent[2]]['Name'] = $this->SearchName($CallEvent[3]);
                 break;
             case "CALL": //Abgehend
                 $Calls[$CallEvent[2]] = [];
@@ -407,12 +418,7 @@ class FritzBoxCallmonitor extends FritzBoxModulBase
                 $Calls[$CallEvent[2]]['Remote'] = $CallEvent[5];
                 $Calls[$CallEvent[2]]['Line'] = $CallEvent[6];
                 $Calls[$CallEvent[2]]['Time'] = $CallEvent[0];
-                //todo
-                //$Name = FB_InversSuche($CallEvent[5], $Config['SucheType']);
-                if ($Name === false) {
-                    $Name = $CallEvent[5];
-                }
-                $Calls[$CallEvent[2]]['Name'] = $Name;
+                $Calls[$CallEvent[2]]['Name'] = $this->SearchName($CallEvent[5]);
                 break;
             case "CONNECT": // Verbunden
                 if ($Calls[$CallEvent[2]]['Type'] == 'CALLIN') {

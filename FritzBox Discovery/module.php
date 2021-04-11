@@ -121,7 +121,7 @@ class FritzBoxDiscovery extends IPSModule
             'Content-Length: 0'
         ];
         $SendData = implode("\r\n", $message) . "\r\n\r\n";
-        $this->SendDebug('Search',$SendData,0);
+        $this->SendDebug('Search', $SendData, 0);
         if (@socket_sendto($socket, $SendData, strlen($SendData), 0, self::WS_DISCOVERY_MULTICAST_ADDRESS, self::WS_DISCOVERY_MULTICAST_PORT) === false) {
             return [];
         }
@@ -134,7 +134,7 @@ class FritzBoxDiscovery extends IPSModule
             'Content-Length: 0'
         ];
         $SendData = implode("\r\n", $message) . "\r\n\r\n";
-        $this->SendDebug('Search',$SendData,0);
+        $this->SendDebug('Search', $SendData, 0);
         if (@socket_sendto($socket, $SendData, strlen($SendData), 0, self::WS_DISCOVERY_MULTICAST_ADDRESS, self::WS_DISCOVERY_MULTICAST_PORT) === false) {
             return [];
         }

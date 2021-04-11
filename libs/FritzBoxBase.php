@@ -29,6 +29,7 @@ class FritzBoxModulBase extends IPSModule
         //Never delete this line!
         parent::Create();
         $this->SID = '';
+        $this->ParentID=0;
         $this->ConnectParent('{6FF9A05D-4E49-4371-23F1-7F58283FB1D9}');
         if (count(static::$EventSubURLArray) > 0) {
             $this->RegisterTimer('RenewSubscription', 0, 'IPS_RequestAction(' . $this->InstanceID . ',"Subscribe",true);');
@@ -487,31 +488,5 @@ class FritzBoxModulBase extends IPSModule
             }
         }
         return "text/plain";
-    }
-    protected function GetIconsList()
-    {
-        $id = IPS_GetInstanceListByModuleID('{B69010EA-96D5-46DF-B885-24821B8C8DBD}')[0];
-        $Icons = array();
-        $Icons[] = ['caption' => '<none>', 'value' => ''];
-        foreach (UC_GetIconList($id) as $Icon) {
-            $Icons[] = ['caption' => $Icon, 'value' => $Icon];
-        }
-        return $Icons;
-    }
-    protected function ArrayWithCurlyBracketsKey($Source)
-    {
-        $Target = [];
-        foreach ($Source as $key=>$value) {
-            $Target['{'. strtoupper($key).'}'] = $value;
-        }
-        return $Target;
-    }
-    protected function ArrayKeyToUpper($Source)
-    {
-        $Target = [];
-        foreach ($Source as $key=>$value) {
-            $Target[strtoupper($key)]= $value;
-        }
-        return $Target;
     }
 }
