@@ -14,7 +14,7 @@
                 {
                     "name": "ReverseSearchInstanceID",
                     "type": "SelectInstance",
-                    "caption": "Instance for reverse serach",
+                    "caption": "Instance for reverse Search",
                     "width": "300px",
                     "validModules": [
                         "{243EF65B-B909-1070-09F1-6F7EF2EDFED4}",
@@ -24,8 +24,8 @@
                 },
                 {
                     "type": "SelectScript",
-                    "name": "CustomSerachScriptID",
-                    "caption": "Script for custom reverse serach",
+                    "name": "CustomSearchScriptID",
+                    "caption": "Script for custom reverse Search",
                     "width": "300px"
                 }
             ]

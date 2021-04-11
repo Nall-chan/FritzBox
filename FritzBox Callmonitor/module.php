@@ -3,6 +3,7 @@
 declare(strict_types=1);
 
 require_once __DIR__ . '/../libs/FritzBoxBase.php';
+require_once __DIR__ . '/../libs/FritzBoxTelHelper.php';
 require_once __DIR__ . '/../libs/FritzBoxTable.php';
 
 /**
@@ -11,6 +12,7 @@ require_once __DIR__ . '/../libs/FritzBoxTable.php';
 class FritzBoxCallmonitor extends FritzBoxModulBase
 {
     use \FritzBoxModul\HTMLTable;
+    use \FritzBoxModul\TelHelper;
 
     protected static $ControlUrlArray = [
         '/upnp/control/x_contact'
@@ -34,6 +36,14 @@ class FritzBoxCallmonitor extends FritzBoxModulBase
         //Never delete this line!
         parent::Create();
         $this->RegisterPropertyInteger('Index', 0);
+
+        $this->RegisterPropertyInteger('ReverseSearchInstanceID', 0);
+        $this->RegisterPropertyInteger('CustomSearchScriptID', 0);
+        $this->RegisterPropertyInteger('MaxNameSize', 30);
+        $this->RegisterPropertyString('SearchMarker', '(*) ');
+        $this->RegisterPropertyString('UnknownNumberName', $this->Translate('(unknown)'));
+        $this->RegisterPropertyBoolean('NotShowWarning', false);
+
         $this->RegisterPropertyBoolean('CallsAsTable', true);
         $this->RegisterPropertyBoolean('CallsAsNotification', true);
         $this->RegisterPropertyString('Targets', json_encode([]));
@@ -107,7 +117,12 @@ class FritzBoxCallmonitor extends FritzBoxModulBase
     public function GetConfigurationForm()
     {
         $Form = json_decode(file_get_contents(__DIR__ . '/form.json'), true);
-        $Form['elements'][0]['items'][1]['items'][1]['columns'][3]['edit']['options'] = $this->GetIconsList();
+        if (!IPS_LibraryExists('{D0E8905A-F00C-EA84-D607-3D27000348D8}')) {
+            if (!$this->ReadPropertyBoolean('NotShowWarning')) {
+                $Form['elements'][5]['visible']=true;
+            }
+        }
+        $Form['elements'][2]['items'][1]['items'][1]['columns'][3]['edit']['options'] = $this->GetIconsList();
         $this->SendDebug('FORM', json_encode($Form), 0);
         $this->SendDebug('FORM', json_last_error_msg(), 0);
         return json_encode($Form);

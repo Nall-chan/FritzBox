@@ -3,8 +3,9 @@
 declare(strict_types=1);
 
 require_once __DIR__ . '/../libs/FritzBoxBase.php';
+require_once __DIR__ . '/../libs/FritzBoxTelHelper.php';
 require_once __DIR__ . '/../libs/FritzBoxTable.php';
-require_once __DIR__ . '/../libs/helper/WebhookHelper.php';
+//require_once __DIR__ . '/../libs/helper/WebhookHelper.php';
 
 /**
  * @property array $PhonebookFiles
@@ -12,7 +13,8 @@ require_once __DIR__ . '/../libs/helper/WebhookHelper.php';
 class FritzBoxCallerList extends FritzBoxModulBase
 {
     use \FritzBoxModul\HTMLTable;
-    use \WebhookHelper;
+    use \FritzBoxModul\TelHelper;
+    //use \WebhookHelper;
 
     protected static $ControlUrlArray = [
         '/upnp/control/x_contact'
@@ -29,9 +31,9 @@ class FritzBoxCallerList extends FritzBoxModulBase
     const Call_Incoming = 1;
     const Call_Missed=2;
     const Call_Outgoing = 3;
-    const Call_Tam_New=4;
-    const Call_Tam_Old = 5;
-    const Call_Tam_Deleted = 6;
+    //const Call_Tam_New=4;
+    //const Call_Tam_Old = 5;
+    //const Call_Tam_Deleted = 6;
     const Call_Fax = 7;
     const Call_Active_Incoming = 9;
     const Call_Rejected_Incoming = 10;
@@ -55,7 +57,7 @@ class FritzBoxCallerList extends FritzBoxModulBase
         $this->RegisterPropertyString('Icons', json_encode($Style['Icons']));
         
         $this->RegisterPropertyInteger('ReverseSearchInstanceID', 0);
-        $this->RegisterPropertyInteger('CustomSerachScriptID', 0);
+        $this->RegisterPropertyInteger('CustomSearchScriptID', 0);
 
         $this->RegisterPropertyInteger('LoadListType', 2);
         $this->RegisterPropertyInteger('LastEntries', 20);
@@ -171,7 +173,7 @@ class FritzBoxCallerList extends FritzBoxModulBase
         $Data=[];
         $UnknownName=$this->ReadPropertyString('UnknownNumberName');
         $ReverseSearchInstanceID= $this->ReadPropertyInteger('ReverseSearchInstanceID');
-        $CustomSerachScriptID = $this->ReadPropertyInteger('CustomSerachScriptID');
+        $CustomSearchScriptID = $this->ReadPropertyInteger('CustomSearchScriptID');
         $MaxNameSize=$this->ReadPropertyInteger('MaxNameSize');
         $SearchMarker = $this->ReadPropertyString('SearchMarker');
         $SearchMarker = str_replace('{ICON}', '<div class="Icon'.$this->InstanceID.self::FoundMarker.'"></div>', $SearchMarker);
@@ -183,7 +185,7 @@ class FritzBoxCallerList extends FritzBoxModulBase
                 $Data[$i]['Called'] = (string)$CallList->Call[$i]->Called;
                 $Data[$i]['Number'] =  (string)$CallList->Call[$i]->Called;
                 if ($Data[$i]['Name']=='') {
-                    $Data[$i]['Name']= $this->DoReverseSearch($ReverseSearchInstanceID, $CustomSerachScriptID, $Data[$i]['Called'], $UnknownName, $SearchMarker, $MaxNameSize);
+                    $Data[$i]['Name']= $this->DoReverseSearch($ReverseSearchInstanceID, $CustomSearchScriptID, $Data[$i]['Called'], $UnknownName, $SearchMarker, $MaxNameSize);
                 } else {
                     if (strlen($Data[$i]['Name'])>$MaxNameSize) {
                         $Data[$i]['Name']=substr($Data[$i]['Name'], 0, $MaxNameSize);
@@ -196,7 +198,7 @@ class FritzBoxCallerList extends FritzBoxModulBase
                     $Data[$i]['Name']=$UnknownName;
                 } else {
                     if ($Data[$i]['Name']=='') {
-                        $Data[$i]['Name']= $this->DoReverseSearch($ReverseSearchInstanceID, $CustomSerachScriptID, $Data[$i]['Called'], $UnknownName, $SearchMarker, $MaxNameSize);
+                        $Data[$i]['Name']= $this->DoReverseSearch($ReverseSearchInstanceID, $CustomSearchScriptID, $Data[$i]['Called'], $UnknownName, $SearchMarker, $MaxNameSize);
                     } else {
                         if (strlen($Data[$i]['Name'])>$MaxNameSize) {
                             $Data[$i]['Name']=substr($Data[$i]['Name'], 0, $MaxNameSize);
@@ -248,30 +250,7 @@ class FritzBoxCallerList extends FritzBoxModulBase
         $this->SendDebug('RefreshCallList', 'done', 0);
         return true;
     }
-    private function DoReverseSearch(int $ReverseSearchInstanceID, int $CustomSerachScriptID, string $Number, string $UnknownName, string $SearchMarker, int $MaxNameSize)
-    {
-        if ($ReverseSearchInstanceID !=0) {
-            $Name = CIRS_GetName($ReverseSearchInstanceID, $Number);
-            if ($Name === false) {
-                return $UnknownName;
-            }
-            if (strlen($Name)>$MaxNameSize) {
-                $Name=substr($Name, 0, $MaxNameSize);
-            }
-            return $SearchMarker.$Name;
-        }
-        if ($CustomSerachScriptID !=0) {
-            $Name = IPS_RunScriptWaitEx($CustomSerachScriptID, ['NUMBER'=>$Number]);
-            if ($Name === false) {
-                return $UnknownName;
-            }
-            if (strlen($Name)>$MaxNameSize) {
-                $Name=substr($Name, 0, $MaxNameSize);
-            }
-            return $SearchMarker.$Name;
-        }
-        return $UnknownName;
-    }
+
     private function RefreshPhonebook()
     {
         $result = $this->GetPhonebookList();
@@ -291,6 +270,7 @@ class FritzBoxCallerList extends FritzBoxModulBase
             }
             $LoadedFiles[]=$FileName;
         }
+        // $LoadedFiles im IO ablegen, damit andere es lesen können.
         $this->PhonebookFiles=$LoadedFiles;
         return true;
     }

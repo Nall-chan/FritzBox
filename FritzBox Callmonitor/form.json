@@ -4,6 +4,58 @@
             "type": "RowLayout",
             "items": [
                 {
+                    "type": "Label",
+                    "caption": "",
+                    "width": "200px"
+                },
+                {
+                    "name": "ReverseSearchInstanceID",
+                    "type": "SelectInstance",
+                    "caption": "Instance for reverse Search",
+                    "width": "300px",
+                    "validModules": [
+                        "{243EF65B-B909-1070-09F1-6F7EF2EDFED4}",
+                        "{D8A9CD14-959C-2CC0-CB1D-C29B2A4A8C93}",
+                        "{ECD03F5E-6087-82D1-282E-D5D426FE57BC}"
+                    ]
+                },
+                {
+                    "type": "SelectScript",
+                    "name": "CustomSearchScriptID",
+                    "caption": "Script for custom reverse Search",
+                    "width": "300px"
+                }
+            ]
+        },
+        {
+            "type": "RowLayout",
+            "items": [
+                {
+                    "name": "MaxNameSize",
+                    "type": "NumberSpinner",
+                    "caption": "max. length of names",
+                    "minimum": 5,
+                    "suffix": "char",
+                    "width": "200px"
+                },
+                {
+                    "type": "ValidationTextBox",
+                    "name": "SearchMarker",
+                    "caption": "Suffix for reverse-search hit",
+                    "width": "300px"
+                },
+                {
+                    "type": "ValidationTextBox",
+                    "name": "UnknownNumberName",
+                    "caption": "Display name for unknown numbers",
+                    "width": "300px"
+                }
+            ]
+        },
+        {
+            "type": "RowLayout",
+            "items": [
+                {
                     "name": "CallsAsNotification",
                     "type": "CheckBox",
                     "caption": "Send notification",
@@ -483,6 +535,32 @@
                     ]
                 }
             ]
+        },
+        {
+            "name": "ReversSearchPopup",
+            "type": "PopupAlert",
+            "visible": false,
+            "popup": {
+                "items": [
+                    {
+                        "type": "Label",
+                        "caption": "Reverse search not possible."
+                    },
+                    {
+                        "type": "Label",
+                        "caption": "The reverse search library is not installed."
+                    },
+                    {
+                        "type": "Label",
+                        "caption": "Please open the 'Module-Store' and install the 'Caller ID Reverse Search'-library."
+                    },
+                    {
+                        "name": "NotShowWarning",
+                        "caption": "Do not display the message again",
+                        "type": "CheckBox"
+                    }
+                ]
+            }
         }
     ],
     "actions": [
