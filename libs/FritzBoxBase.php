@@ -48,6 +48,7 @@ class FritzBoxModulBase extends IPSModule
         if (count(static::$EventSubURLArray) > 0) {
             $this->SetTimerInterval('RenewSubscription', 0);
         }
+        $this->SetReceiveDataFilter('.*NOTHINGTORECEIVE.*');
         parent::ApplyChanges();
         $this->SID = '';
         $this->GotEvent = false;
