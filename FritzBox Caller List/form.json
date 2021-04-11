@@ -4,29 +4,75 @@
             "type": "RowLayout",
             "items": [
                 {
-                    "name": "RefreshIntervalPhonebook",
-                    "type": "NumberSpinner",
-                    "caption": "Reload Phonebook",
-                    "suffix": "minutes",
-                    "minimum": 0,
-                    "width": "200px"
-                },
-                {
-                    "name": "ReverseSearchInstanceID",
-                    "type": "SelectInstance",
-                    "caption": "Instance for reverse Search",
-                    "width": "300px",
-                    "validModules": [
-                        "{243EF65B-B909-1070-09F1-6F7EF2EDFED4}",
-                        "{D8A9CD14-959C-2CC0-CB1D-C29B2A4A8C93}",
-                        "{ECD03F5E-6087-82D1-282E-D5D426FE57BC}"
+                    "type": "ColumnLayout",
+                    "items": [
+                        {
+                            "name": "RefreshIntervalPhonebook",
+                            "type": "NumberSpinner",
+                            "caption": "Reload Phonebook",
+                            "suffix": "minutes",
+                            "minimum": 0,
+                            "width": "300px"
+                        },
+                        {
+                            "name": "RefreshIntervalCallList",
+                            "type": "NumberSpinner",
+                            "caption": "Reload caller list intervall",
+                            "suffix": "minutes",
+                            "minimum": 0,
+                            "width": "300px"
+                        }
                     ]
                 },
                 {
-                    "type": "SelectScript",
-                    "name": "CustomSearchScriptID",
-                    "caption": "Script for custom reverse Search",
-                    "width": "300px"
+                    "type": "ExpansionPanel",
+                    "name": "ReverseSearchPanel",
+                    "expanded": true,
+                    "caption": "Reverse Search",
+                    "items": [
+                        {
+                            "type": "RowLayout",
+                            "items": [
+                                {
+                                    "name": "MaxNameSize",
+                                    "type": "NumberSpinner",
+                                    "caption": "max. length of names",
+                                    "minimum": 5,
+                                    "suffix": "char",
+                                    "width": "200px"
+                                },
+                                {
+                                    "name": "ReverseSearchInstanceID",
+                                    "type": "SelectInstance",
+                                    "caption": "Instance for reverse Search",
+                                    "width": "300px",
+                                    "onChange": "IPS_RequestAction($id,'ReverseSearchInstanceID',$ReverseSearchInstanceID);",
+                                    "validModules": [
+                                        "{243EF65B-B909-1070-09F1-6F7EF2EDFED4}",
+                                        "{D8A9CD14-959C-2CC0-CB1D-C29B2A4A8C93}",
+                                        "{ECD03F5E-6087-82D1-282E-D5D426FE57BC}"
+                                    ]
+                                }
+                            ]
+                        },
+                        {
+                            "type": "RowLayout",
+                            "items": [
+                                {
+                                    "type": "ValidationTextBox",
+                                    "name": "SearchMarker",
+                                    "caption": "Suffix for reverse-search hit",
+                                    "width": "200px"
+                                },
+                                {
+                                    "type": "ValidationTextBox",
+                                    "name": "UnknownNumberName",
+                                    "caption": "Display name for unknown numbers",
+                                    "width": "300px"
+                                }
+                            ]
+                        }
+                    ]
                 }
             ]
         },
@@ -34,12 +80,28 @@
             "type": "RowLayout",
             "items": [
                 {
-                    "name": "RefreshIntervalCallList",
-                    "type": "NumberSpinner",
-                    "caption": "Reload caller list intervall",
-                    "suffix": "minutes",
-                    "minimum": 0,
-                    "width": "200px"
+                    "name": "",
+                    "type": "Label",
+                    "caption": "",
+                    "width": "300px"
+                },
+                {
+                    "type": "SelectScript",
+                    "name": "CustomSearchScriptID",
+                    "caption": "Script for custom reverse Search",
+                    "onChange": "IPS_RequestAction($id,'CustomSearchScriptID',$CustomSearchScriptID);",
+                    "width": "550px"
+                }
+            ]
+        },
+        {
+            "type": "RowLayout",
+            "items": [
+                {
+                    "name": "",
+                    "type": "Label",
+                    "caption": "",
+                    "width": "300px"
                 },
                 {
                     "name": "LoadListType",
@@ -59,7 +121,7 @@
                             "value": 2
                         }
                     ],
-                    "width": "300px"
+                    "width": "250px"
                 },
                 {
                     "name": "LastEntries",
@@ -67,31 +129,6 @@
                     "caption": "number of last days or entries",
                     "suffix": "days / entries",
                     "minimum": 0,
-                    "width": "300px"
-                }
-            ]
-        },
-        {
-            "type": "RowLayout",
-            "items": [
-                {
-                    "name": "MaxNameSize",
-                    "type": "NumberSpinner",
-                    "caption": "max. length of names",
-                    "minimum": 5,
-                    "suffix": "char",
-                    "width": "200px"
-                },
-                {
-                    "type": "ValidationTextBox",
-                    "name": "SearchMarker",
-                    "caption": "Suffix for reverse-search hit",
-                    "width": "300px"
-                },
-                {
-                    "type": "ValidationTextBox",
-                    "name": "UnknownNumberName",
-                    "caption": "Display name for unknown numbers",
                     "width": "300px"
                 }
             ]

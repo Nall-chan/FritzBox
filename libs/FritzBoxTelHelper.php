@@ -7,18 +7,12 @@ trait TelHelper
 {
     private function DoReverseSearch(int $ReverseSearchInstanceID, int $CustomSearchScriptID, string $Number, string $UnknownName, string $SearchMarker, int $MaxNameSize)
     {
+        if ($CustomSearchScriptID !=0) {
+            return IPS_RunScriptWaitEx($CustomSearchScriptID, ['NUMBER'=>$Number]);
+        }
+
         if ($ReverseSearchInstanceID !=0) {
             $Name = CIRS_GetName($ReverseSearchInstanceID, $Number);
-            if ($Name === false) {
-                return $UnknownName;
-            }
-            if (strlen($Name)>$MaxNameSize) {
-                $Name=substr($Name, 0, $MaxNameSize);
-            }
-            return $SearchMarker.$Name;
-        }
-        if ($CustomSearchScriptID !=0) {
-            $Name = IPS_RunScriptWaitEx($CustomSearchScriptID, ['NUMBER'=>$Number]);
             if ($Name === false) {
                 return $UnknownName;
             }

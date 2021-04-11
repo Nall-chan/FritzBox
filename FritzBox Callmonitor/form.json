@@ -4,26 +4,60 @@
             "type": "RowLayout",
             "items": [
                 {
+                    "name": "",
                     "type": "Label",
                     "caption": "",
-                    "width": "200px"
-                },
-                {
-                    "name": "ReverseSearchInstanceID",
-                    "type": "SelectInstance",
-                    "caption": "Instance for reverse Search",
-                    "width": "300px",
-                    "validModules": [
-                        "{243EF65B-B909-1070-09F1-6F7EF2EDFED4}",
-                        "{D8A9CD14-959C-2CC0-CB1D-C29B2A4A8C93}",
-                        "{ECD03F5E-6087-82D1-282E-D5D426FE57BC}"
-                    ]
-                },
-                {
-                    "type": "SelectScript",
-                    "name": "CustomSearchScriptID",
-                    "caption": "Script for custom reverse Search",
                     "width": "300px"
+                },
+                {
+                    "type": "ExpansionPanel",
+                    "name": "ReverseSearchPanel",
+                    "expanded": true,
+                    "caption": "Reverse Search",
+                    "items": [
+                        {
+                            "type": "RowLayout",
+                            "items": [
+                                {
+                                    "name": "MaxNameSize",
+                                    "type": "NumberSpinner",
+                                    "caption": "max. length of names",
+                                    "minimum": 5,
+                                    "suffix": "char",
+                                    "width": "200px"
+                                },
+                                {
+                                    "name": "ReverseSearchInstanceID",
+                                    "type": "SelectInstance",
+                                    "caption": "Instance for reverse Search",
+                                    "width": "300px",
+                                    "onChange": "IPS_RequestAction($id,'ReverseSearchInstanceID',$ReverseSearchInstanceID);",
+                                    "validModules": [
+                                        "{243EF65B-B909-1070-09F1-6F7EF2EDFED4}",
+                                        "{D8A9CD14-959C-2CC0-CB1D-C29B2A4A8C93}",
+                                        "{ECD03F5E-6087-82D1-282E-D5D426FE57BC}"
+                                    ]
+                                }
+                            ]
+                        },
+                        {
+                            "type": "RowLayout",
+                            "items": [
+                                {
+                                    "type": "ValidationTextBox",
+                                    "name": "SearchMarker",
+                                    "caption": "Suffix for reverse-search hit",
+                                    "width": "200px"
+                                },
+                                {
+                                    "type": "ValidationTextBox",
+                                    "name": "UnknownNumberName",
+                                    "caption": "Display name for unknown numbers",
+                                    "width": "300px"
+                                }
+                            ]
+                        }
+                    ]
                 }
             ]
         },
@@ -31,24 +65,17 @@
             "type": "RowLayout",
             "items": [
                 {
-                    "name": "MaxNameSize",
-                    "type": "NumberSpinner",
-                    "caption": "max. length of names",
-                    "minimum": 5,
-                    "suffix": "char",
-                    "width": "200px"
-                },
-                {
-                    "type": "ValidationTextBox",
-                    "name": "SearchMarker",
-                    "caption": "Suffix for reverse-search hit",
+                    "name": "",
+                    "type": "Label",
+                    "caption": "",
                     "width": "300px"
                 },
                 {
-                    "type": "ValidationTextBox",
-                    "name": "UnknownNumberName",
-                    "caption": "Display name for unknown numbers",
-                    "width": "300px"
+                    "type": "SelectScript",
+                    "name": "CustomSearchScriptID",
+                    "caption": "Script for custom reverse Search",
+                    "onChange": "IPS_RequestAction($id,'CustomSearchScriptID',$CustomSearchScriptID);",
+                    "width": "550px"
                 }
             ]
         },
@@ -59,7 +86,7 @@
                     "name": "CallsAsNotification",
                     "type": "CheckBox",
                     "caption": "Send notification",
-                    "width": "200px"
+                    "width": "300px"
                 },
                 {
                     "type": "ExpansionPanel",
@@ -190,7 +217,7 @@
                     "name": "CallsAsTable",
                     "type": "CheckBox",
                     "caption": "Show all calls as HTML-Table",
-                    "width": "200px"
+                    "width": "300px"
                 },
                 {
                     "type": "ExpansionPanel",

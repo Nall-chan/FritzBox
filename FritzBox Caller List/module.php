@@ -107,10 +107,10 @@ class FritzBoxCallerList extends FritzBoxModulBase
             return true;
         }
         switch ($Ident) {
-        case 'RefreshPhonebook':
-            return $this->RefreshPhonebook();
-        case 'RefreshCallList':
-            return $this->RefreshCallList();
+            case 'RefreshPhonebook':
+                return $this->RefreshPhonebook();
+            case 'RefreshCallList':
+                return $this->RefreshCallList();
             case 'PreviewIcon':
                 $Data = unserialize($Value);
                 $ImageData =  @getimagesize('data://text/plain;base64,'.$Data['Icon']);
@@ -123,7 +123,28 @@ class FritzBoxCallerList extends FritzBoxModulBase
                 $this->UpdateFormField('IconImage', 'image', 'data://'.$ImageData['mime'].';base64,'.$Data['Icon']);
                 $this->UpdateFormField('IconPreview', 'visible', true);
                 return;
-                
+            case 'ReverseSearchInstanceID':
+                $this->SendDebug('ReverseSearchInstanceID', $Value, 0);
+                if ($Value > 0) {
+                    $this->UpdateFormField('CustomSearchScriptID', 'enabled', false);
+                } else {
+                    $this->UpdateFormField('CustomSearchScriptID', 'enabled', true);
+                }
+                return;
+            case 'CustomSearchScriptID':
+                $this->SendDebug('CustomSearchScriptID', $Value, 0);
+                if ($Value > 0) {
+                    $this->UpdateFormField('MaxNameSize', 'enabled', false);
+                    $this->UpdateFormField('ReverseSearchInstanceID', 'enabled', false);
+                    $this->UpdateFormField('SearchMarker', 'enabled', false);
+                    $this->UpdateFormField('UnknownNumberName', 'enabled', false);
+                } else {
+                    $this->UpdateFormField('MaxNameSize', 'enabled', true);
+                    $this->UpdateFormField('ReverseSearchInstanceID', 'enabled', true);
+                    $this->UpdateFormField('SearchMarker', 'enabled', true);
+                    $this->UpdateFormField('UnknownNumberName', 'enabled', true);
+                }
+                return;
         }
         
         trigger_error($this->Translate('Invalid Ident.'), E_USER_NOTICE);
@@ -136,6 +157,16 @@ class FritzBoxCallerList extends FritzBoxModulBase
             if (!$this->ReadPropertyBoolean('NotShowWarning')) {
                 $Form['elements'][4]['visible']=true;
             }
+        }
+        if ($this->ReadPropertyInteger('CustomSearchScriptID')>0) {
+            $Form['elements'][0]['items'][1]['expanded']=false;
+            $Form['elements'][0]['items'][1]['items'][0]['items'][0]['enabled']=false;
+            $Form['elements'][0]['items'][1]['items'][0]['items'][1]['enabled']=false;
+            $Form['elements'][0]['items'][1]['items'][1]['items'][0]['enabled']=false;
+            $Form['elements'][0]['items'][1]['items'][1]['items'][1]['enabled']=false;
+        }
+        if ($this->ReadPropertyInteger('ReverseSearchInstanceID')>0) {
+            $Form['elements'][1]['items'][1]['enabled']=false;
         }
         $this->SendDebug('FORM', json_encode($Form), 0);
         $this->SendDebug('FORM', json_last_error_msg(), 0);
@@ -172,7 +203,6 @@ class FritzBoxCallerList extends FritzBoxModulBase
         $CustomSearchScriptID = $this->ReadPropertyInteger('CustomSearchScriptID');
         $MaxNameSize=$this->ReadPropertyInteger('MaxNameSize');
         $SearchMarker = $this->ReadPropertyString('SearchMarker');
-        $SearchMarker = str_replace('{ICON}', '<div class="Icon'.$this->InstanceID.self::FoundMarker.'"></div>', $SearchMarker);
         for ($i=0;$i<count($CallList->Call);$i++) {
             // Eigene Nummer bereinigen, entfernt z.B. ISDN: POTS: SIP: etc...
             $Data[$i]['Name']=(string)$CallList->Call[$i]->Name;
@@ -203,6 +233,7 @@ class FritzBoxCallerList extends FritzBoxModulBase
                 }
                 $Data[$i]['Number'] =  (string)$CallList->Call[$i]->Caller;
             }
+            $Data[$i]['Name']  = str_replace('{ICON}', '<div class="Icon'.$this->InstanceID.self::FoundMarker.'"></div>', $Data[$i]['Name']);
             //$CallList->Call[$i]->addChild("Fax"); // leeren FAX Eintrag erzeugen.
             $Data[$i]['Fax']='';
             // Fax-Anruf ?
