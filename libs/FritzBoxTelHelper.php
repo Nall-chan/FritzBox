@@ -8,7 +8,7 @@ trait TelHelper
     private function DoReverseSearch(int $ReverseSearchInstanceID, int $CustomSearchScriptID, string $Number, string $UnknownName, string $SearchMarker, int $MaxNameSize)
     {
         if ($CustomSearchScriptID !=0) {
-            return IPS_RunScriptWaitEx($CustomSearchScriptID, ['NUMBER'=>$Number]);
+            return IPS_RunScriptWaitEx($CustomSearchScriptID, ['SENDER'=>'FritzBox','NUMBER'=>$Number]);
         }
 
         if ($ReverseSearchInstanceID !=0) {

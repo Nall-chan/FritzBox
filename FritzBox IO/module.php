@@ -9,7 +9,7 @@ require_once __DIR__ . '/../libs/FritzBoxModule.php';
 /**
  * @property string $Url
  * @property string $Username
- * @property array $PhoneBooks
+
  */
 class FritzBoxIO extends IPSModule
 {
@@ -43,13 +43,13 @@ class FritzBoxIO extends IPSModule
         $this->RegisterPropertyBoolean('UseConnect', false);
         $this->RegisterAttributeString('ConsumerAddress', 'Invalid');
         $this->RegisterAttributeArray('Events', []);
+        $this->RegisterAttributeArray('PhoneBooks', []);
         $this->RegisterAttributeBoolean('usePPP', false);
         $this->RegisterAttributeBoolean('HasIGD2', false);
         $this->RegisterAttributeInteger('NoOfWlan', 0);
            
         $this->Url = '';
         $this->Username = '';
-        $this->PhoneBooks=[];
         //$this->RequireParent("{6179ED6A-FC31-413C-BB8E-1204150CF376}");
         if (IPS_GetKernelRunlevel() == KR_READY) {
             $this->doNotLoadXML = false;
@@ -200,11 +200,11 @@ class FritzBoxIO extends IPSModule
                     $ret = $this->LoadFile($data['Uri']);
                     break;
                 case 'SETPHONEBOOKS':
-                    $this->PhoneBooks=$data['Files'];
+                    $this->WriteAttributeArray('PhoneBooks', $data['Files']);
                     $ret=true;
                     break;
                 case 'GETPHONEBOOKS':
-                    $ret = $this->PhoneBooks;
+                    $ret = $this->ReadAttributeArray('PhoneBooks');
                     break;
                 default:
                     $ret = $this->CallSoapAction($HttpCode, $data['ServiceTyp'], $data['ControlUrl'], $data['Function'], $data['Parameter']);
