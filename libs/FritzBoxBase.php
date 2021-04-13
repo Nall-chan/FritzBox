@@ -52,10 +52,10 @@ class FritzBoxModulBase extends IPSModule
         parent::ApplyChanges();
         $this->SID = '';
         $this->GotEvent = false;
-        $this->RegisterMessage(0, IPS_KERNELSTARTED);
         $this->RegisterMessage($this->InstanceID, FM_CONNECT);
         $this->RegisterMessage($this->InstanceID, FM_DISCONNECT);
         if (IPS_GetKernelRunlevel() != KR_READY) {
+            $this->RegisterMessage(0, IPS_KERNELSTARTED);
             return;
         }
         $this->RegisterParent();
@@ -133,7 +133,8 @@ class FritzBoxModulBase extends IPSModule
     }
     protected function KernelReady()
     {
-        $this->RegisterParent();
+        $this->UnregisterMessage(0, IPS_KERNELSTARTED);
+        $this->ApplyChanges();
     }
 
     protected function RegisterParent()
