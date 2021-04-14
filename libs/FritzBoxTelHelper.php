@@ -52,14 +52,66 @@ trait TelHelper
         return $Name;
     }
 
-    private function SetPhoneDevice(int $DeviceID, string $DeviceName)
+    private function SetPhoneDevices(array $PhoneDevices)
     {
+        if (!$this->HasActiveParent()) {
+            return [];
+        }
+        $this->SendDebug('Function', 'SetPhoneDevices', 0);
+        $Ret = $this->SendDataToParent(json_encode(
+            [
+                'DataID'     => '{D62D4515-7689-D1DB-EE97-F555AD9433F0}',
+                'Function'   => 'SETPHONEDEVICES',
+                'Devices'    => $PhoneDevices
+            ]
+        ));
+        if ($Ret === false) {
+            return false;
+        }
+        $Result = unserialize($Ret);
+        $this->SendDebug('Result', $Result, 0);
+        return $Result;
     }
 
-    private function GetPhoneDeviceName(int $DeviceID)
+    private function GetPhoneDeviceNameByID(int $DeviceID)
     {
+        if (!$this->HasActiveParent()) {
+            return '';
+        }
+        $this->SendDebug('Function', 'GetPhoneDevices', 0);
+        $Ret = $this->SendDataToParent(json_encode(
+        [
+            'DataID'     => '{D62D4515-7689-D1DB-EE97-F555AD9433F0}',
+            'Function'   => 'GETPHONEDEVICE',
+            'DeviceID'   => $DeviceID
+        ]
+        ));
+        if ($Ret === false) {
+            return '';
+        }
+        $Result = unserialize($Ret);
+        $this->SendDebug('Result', $Result, 0);
+        return $Result;
     }
-
+    private function GetPhoneDevices()
+    {
+        if (!$this->HasActiveParent()) {
+            return [];
+        }
+        $this->SendDebug('Function', 'GetPhoneDevices', 0);
+        $Ret = $this->SendDataToParent(json_encode(
+            [
+                'DataID'     => '{D62D4515-7689-D1DB-EE97-F555AD9433F0}',
+                'Function'   => 'GETPHONEDEVICES'
+            ]
+        ));
+        if ($Ret === false) {
+            return false;
+        }
+        $Result = unserialize($Ret);
+        $this->SendDebug('Result', $Result, 0);
+        return $Result;
+    }
     private function GetPhoneBookFiles() : array
     {
         if (!$this->HasActiveParent()) {

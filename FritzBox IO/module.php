@@ -44,6 +44,7 @@ class FritzBoxIO extends IPSModule
         $this->RegisterAttributeString('ConsumerAddress', 'Invalid');
         $this->RegisterAttributeArray('Events', []);
         $this->RegisterAttributeArray('PhoneBooks', []);
+        $this->RegisterAttributeArray('PhoneDevices', []);
         $this->RegisterAttributeBoolean('usePPP', false);
         $this->RegisterAttributeBoolean('HasIGD2', false);
         $this->RegisterAttributeInteger('NoOfWlan', 0);
@@ -85,11 +86,6 @@ class FritzBoxIO extends IPSModule
                     }
                     break;
                 case FM_CHILDADDED:
-                    // TODO
-                    //prüfen ob CS benötigt wird und dann anlegen.
-                    //$this->LogMessage('Sender:'.$SenderID, KL_MESSAGE);
-                    //$this->LogMessage('Message:'.$Message, KL_MESSAGE);
-                    //$this->LogMessage('Data:'.print_r($Data, true), KL_MESSAGE);
                     if (IPS_GetInstance($Data[0])['ModuleInfo']['ModuleID']== key(\FritzBox\Services::$Data['callmonitor'])) {
                         $this->CreateCallMonitorCS();
                     }
@@ -140,16 +136,11 @@ class FritzBoxIO extends IPSModule
             if (($this->Url != $OldUrl) && !$this->doNotLoadXML) {
                 $this->doNotLoadXML = false;
                 if (!$this->LoadXMLs()) {
-                    $this->ShowLastError('Could not connect to host, maybe i am a teapot?');
-                    $this->SetStatus(IS_EBASE + 3);
+                    $this->ShowLastError(self::$http_error[418][0]);
+                    $this->SetStatus(self::isURLnotValid + 3);
                     return;
                 }
             }
-            /*                if (!$this->getDeviceStateVars()) {
-                                $this->ShowLastError(self::$http_error[418][0]);
-                                $this->SetStatus(self::isURLnotValid);
-                                return;
-                            }*/
             if ($this->ReadPropertyString('Password')=='') {
                 return;
             }
@@ -205,6 +196,21 @@ class FritzBoxIO extends IPSModule
                     break;
                 case 'GETPHONEBOOKS':
                     $ret = $this->ReadAttributeArray('PhoneBooks');
+                    break;
+                case 'SETPHONEDEVICES':
+                        $this->WriteAttributeArray('PhoneDevices', $data['Devices']);
+                        $ret=true;
+                    break;
+                case 'GETPHONEDEVICE':
+                    $Devices = $this->ReadAttributeArray('PhoneDevices');
+                    if (array_key_exists($data['DeviceID'], $Devices)) {
+                        $ret = $Devices[$data['DeviceID']];
+                    } else {
+                        $ret = '';
+                    }
+                break;
+                case 'GETPHONEDEVICES':
+                        $ret = $this->ReadAttributeArray('PhoneDevices');
                     break;
                 default:
                     $ret = $this->CallSoapAction($HttpCode, $data['ServiceTyp'], $data['ControlUrl'], $data['Function'], $data['Parameter']);

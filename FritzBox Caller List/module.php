@@ -197,6 +197,7 @@ class FritzBoxCallerList extends FritzBoxModulBase
             $this->SendDebug('XML decode error', $XMLData, 0);
             return false;
         }
+        $PhoneDevices = $this->GetPhoneDevices();
         $Data=[];
         $UnknownName=$this->ReadPropertyString('UnknownNumberName');
         $ReverseSearchInstanceID= $this->ReadPropertyInteger('ReverseSearchInstanceID');
@@ -204,7 +205,6 @@ class FritzBoxCallerList extends FritzBoxModulBase
         $MaxNameSize=$this->ReadPropertyInteger('MaxNameSize');
         $SearchMarker = $this->ReadPropertyString('SearchMarker');
         for ($i=0;$i<count($CallList->Call);$i++) {
-            // Eigene Nummer bereinigen, entfernt z.B. ISDN: POTS: SIP: etc...
             $Data[$i]['Name']=(string)$CallList->Call[$i]->Name;
             if ((int)$CallList->Call[$i]->Type == self::Call_Outgoing) {
                 $Data[$i]['Caller'] = str_replace(strtoupper((string)$CallList->Call[$i]->Numbertype).": ", "", (string)$CallList->Call[$i]->Caller);
@@ -254,7 +254,9 @@ class FritzBoxCallerList extends FritzBoxModulBase
             $Data[$i]['Icon']='<div class="Icon'.$this->InstanceID.$Data[$i]['Type'].'"></div>';
             $Data[$i]['Date']=(string)$CallList->Call[$i]->Date;
             $Data[$i]['Device']=(string)$CallList->Call[$i]->Device;
+            $PhoneDevices[(int)$CallList->Call[$i]->Port]=(string)$CallList->Call[$i]->Device;
         }
+        $this->SetPhoneDevices($PhoneDevices);
         $Config_Icons = json_decode($this->ReadPropertyString('Icons'), true);
         $Icon_CSS = '<div id="scoped-content"><style type="text/css" scoped>'."\r\n";
         foreach ($Config_Icons as $Config_Icon) {

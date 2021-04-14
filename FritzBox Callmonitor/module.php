@@ -448,7 +448,7 @@ class FritzBoxCallmonitor extends FritzBoxModulBase
                 $Calls[$CallEvent[2]] = [];
                 $Calls[$CallEvent[2]]['Event'] = self::Call_Outgoing;
                 $Calls[$CallEvent[2]]['Type'] = 'CALLOUT';
-                $Calls[$CallEvent[2]]['Device'] = 'ToDo:' . (int)$CallEvent[3]; //FB_GetPhoneDevice((int)$CallEvent[3]);
+                $Calls[$CallEvent[2]]['Device'] = $this->GetPhoneDeviceNameByID((int)$CallEvent[3]);
                 $Calls[$CallEvent[2]]['DeviceID'] = (int)$CallEvent[3];
                 $Calls[$CallEvent[2]]['Duration_Raw'] = 0;
                 $Calls[$CallEvent[2]]['Duration'] = $this->ConvertRuntime(0);
@@ -467,7 +467,7 @@ class FritzBoxCallmonitor extends FritzBoxModulBase
                 $Calls[$CallEvent[2]]['Status'] = $CallEvent[1];
                 $Calls[$CallEvent[2]]['Time'] = $CallEvent[0];
                 if ($Calls[$CallEvent[2]]['DeviceID'] == 0) {
-                    $Calls[$CallEvent[2]]['Device'] = 'ToDo:' . (int)$CallEvent[3]; //FB_GetPhoneDevice($CallEvent[3]);
+                    $Calls[$CallEvent[2]]['Device'] = $this->GetPhoneDeviceNameByID((int)$CallEvent[3]);
                     $Calls[$CallEvent[2]]['DeviceID'] = (int)$CallEvent[3];
                 }
                 break;
