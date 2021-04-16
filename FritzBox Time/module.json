@@ -4,6 +4,7 @@
     "type": 3,
     "vendor": "AVM",
     "aliases": [
+        "FritzBox Time",
         "FritzBox Zeitserver"
     ],
     "parentRequirements": [

@@ -14,13 +14,13 @@
             "IP-Address": "IP-Adresse",
             "MAC-Address": "MAC-Adresse",
             "Interface": "Verbindung",
-            "Show all hosts as HTML-Table": "Zeige alle Hosts als HTML-Tabelle",
+            "Show all network devices as HTML-Table": "Zeige alle Netzwerkgeräte als HTML-Tabelle",
             "HTML-Table design": "HTML-Tabellen Darstellung",
             "Table design": "Darstellung Tabelle",
             "HTML-Tag": "HTML-Tag",
             "CSS": "CSS",
             "CSS:": "CSS:",
-            "Hostlist columns": "Hostlist Spalten",
+            "Columns": "Spalten",
             "Data": "Data",
             "Visible": "Sichtbar",
             "Visible as column ?": "Sichtbar als Spalte ?",
@@ -40,13 +40,16 @@
             "Right": "Rechts",
             "Color": "Farbe",
             "Color of Text:": "Textfarbe:",
-            "Hostlist rows": "Hostlist Zeilen",
+            "Rows": "Zeilen",
             "Row": "Zeile",
             "Background color": "Hintergrundfarbe",
             "Color of background:": "Farbe des Hintergrund",
             "odd": "ungerade",
             "even": "gerade",
-            "Host table": "Host Tabelle"
+            "Network devices": "Netzwerkgeräte",
+            "Active": "Aktiv",
+            "Inactive": "Inaktiv",
+            "Connection": "Verbindung"
         }
     }
 }

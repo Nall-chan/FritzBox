@@ -80,7 +80,7 @@ class FritzBoxCallmonitor extends FritzBoxModulBase
             $this->RegisterReference(json_decode($Action['action'], true)['targetID']);
         }
         if ($this->ReadPropertyBoolean('CallsAsTable')) {
-            $this->RegisterVariableString('CallList', $this->Translate('Call list'), '~HTMLBox', 0);
+            $this->RegisterVariableString('CallList', $this->Translate('Active calls'), '~HTMLBox', 0);
             $this->RebuildTable();
         } else {
             $this->UnregisterVariable('CallList');

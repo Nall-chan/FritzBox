@@ -19,7 +19,10 @@
             "FritzBox WAN IP Connection": "FritzBox WAN IP-Verbindung",
             "FritzBox WAN Port Mapping": "FritzBox WAN Port-Weiterleitung",
             "FritzBox WebDav Storage": "FritzBox Online-Speicher",
-            "FritzBox WLAN": "FritzBox WLAN"
+            "FritzBox WLAN": "FritzBox WLAN",
+            "Events": "Ereignisse",
+            "no": "Nein",
+            "yes": "Ja"
         }
     }
 }

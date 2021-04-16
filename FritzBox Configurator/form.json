@@ -21,14 +21,14 @@
                     "width": "auto"
                 },
                 {
-                    "caption": "Event",
-                    "name": "event",
-                    "width": "50px"
-                },
-                {
                     "caption": "Type",
                     "name": "type",
                     "width": "700px"
+                },
+                {
+                    "caption": "Events",
+                    "name": "event",
+                    "width": "100px"
                 }
             ],
             "values": []

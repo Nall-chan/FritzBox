@@ -3,7 +3,10 @@
     "name": "FritzBox WebDav Storage",
     "type": 3,
     "vendor": "AVM",
-    "aliases": ["FritzBox Online-Speicher"],
+    "aliases": [
+        "FritzBox WebDav Storage",
+        "FritzBox Online-Speicher"
+    ],
     "parentRequirements": [
         "{D62D4515-7689-D1DB-EE97-F555AD9433F0}"
     ],

@@ -4,6 +4,7 @@
     "type": 3,
     "vendor": "AVM",
     "aliases": [
+        "FritzBox WAN IP Connection",
         "FritzBox WAN IP-Verbindung"
     ],
     "parentRequirements": [

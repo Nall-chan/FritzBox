@@ -1,9 +1,10 @@
 {
     "id": "{AD0B22A7-C71C-71DD-A40B-B70334C5AB3C}",
-    "name": "FritzBox Caller List",
+    "name": "FritzBox Call List",
     "type": 3,
     "vendor": "AVM",
     "aliases": [
+        "FritzBox Call List",
         "FritzBox Anrufliste"
     ],
     "parentRequirements": [
@@ -15,5 +16,5 @@
         "{FE5B2BCA-CA0F-25DC-8E79-BDFD242CB06E}"
     ],
     "prefix": "FB",
-    "url": "https://github.com/Nall-chan/FritzBox/FritzBox Caller List/README.md"
+    "url": "https://github.com/Nall-chan/FritzBox/FritzBox Call List/README.md"
 }

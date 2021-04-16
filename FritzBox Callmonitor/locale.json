@@ -76,7 +76,8 @@
             "Reverse search not possible.": "Rückwärtssuche nicht möglich.",
             "The reverse search library is not installed.": "Die Bibliothek für die Rückwärtssuche ist nicht installiert.",
             "Please open the 'Module-Store' and install the 'Caller ID Reverse Search'-library.": "Bitte den 'Module-Store' öffnen und die 'Anrufer Rückwärtssuche'-Bibliothek installieren.",
-            "Do not display the message again": "Meldung nicht erneut anzeigen"
+            "Do not display the message again": "Meldung nicht erneut anzeigen",
+            "Active calls": "Aktive Gespräche"
         }
     }
 }

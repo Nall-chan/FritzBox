@@ -27,7 +27,7 @@
         {
             "name": "HostAsTable",
             "type": "CheckBox",
-            "caption": "Show all hosts as HTML-Table"
+            "caption": "Show all network devices as HTML-Table"
         },
         {
             "type": "ExpansionPanel",
@@ -37,7 +37,7 @@
                     "type": "List",
                     "name": "Table",
                     "caption": "Table design",
-                    "rowCount": 4,
+                    "rowCount": 6,
                     "add": false,
                     "delete": false,
                     "columns": [
@@ -61,8 +61,8 @@
                 {
                     "type": "List",
                     "name": "Columns",
-                    "caption": "Hostlist columns",
-                    "rowCount": 13,
+                    "caption": "Columns",
+                    "rowCount": 6,
                     "add": false,
                     "delete": false,
                     "sort": {
@@ -190,7 +190,7 @@
                 {
                     "type": "List",
                     "name": "Rows",
-                    "caption": "Hostlist rows",
+                    "caption": "Rows",
                     "rowCount": 4,
                     "add": false,
                     "delete": false,

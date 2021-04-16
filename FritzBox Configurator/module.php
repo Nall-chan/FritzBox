@@ -104,17 +104,17 @@ require_once __DIR__ . '/../libs/FritzBoxModule.php';
                         }
                         $DeviceValues[] = $AddDevice;
                     }
-                    $Event = false;
+                    $Event = 'no';
                     $SCPDUrl = substr($xmlDevice->getElementsByTagName('SCPDURL')[0]->nodeValue, 1);
                     if (array_key_exists($SCPDUrl, $SCPDhasEvent)) {
-                        $Event = $SCPDhasEvent[$SCPDUrl];
+                        $Event = $SCPDhasEvent[$SCPDUrl] ? 'yes' : 'no';
                     }
 
                     $AddService = [
                         'instanceID'      => 0,
                         'url'             => $xmlDevice->getElementsByTagName('controlURL')[0]->nodeValue,
-                        'name'            => 'currently not available',
-                        'event'           => $Event,
+                        'name'            => $this->Translate('currently not available'),
+                        'event'           => $this->Translate($Event),
                         'type'            => $serviceType,
                         'parent'          => $deviceType
                     ];
@@ -160,7 +160,7 @@ require_once __DIR__ . '/../libs/FritzBoxModule.php';
                     'instanceID'      => 0,
                     'url'             => '',
                     'name'            => 'currently not available',
-                    'event'           => true
+                    'event'           => ''
                 ];
                 $AddService['type']= $this->Translate(IPS_GetModule($guid)['ModuleName']);
                 $AddService['create'] = [
@@ -183,7 +183,7 @@ require_once __DIR__ . '/../libs/FritzBoxModule.php';
                 'instanceID'      => $InstanceId,
                 'url'             => 'invalid',
                 'name'            => IPS_GetName($InstanceId),
-                'event'           => false,
+                'event'           => '',
                 'type'            => 'unknown'];
             }
             $Form['actions'][0]['values'] = array_merge($DeviceValues, $ServiceValues);

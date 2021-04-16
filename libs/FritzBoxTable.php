@@ -18,8 +18,6 @@ trait HTMLTable
     protected function GetTableHeader(array $Config_Table, array $Config_Columns, bool $JSActive)
     {
         $table = '';
-        // Kopf der Tabelle erzeugen
-        $table .= '<table style="' . $Config_Table['<table>'] . '">' . PHP_EOL;
         if ($JSActive) {
             // JS Rückkanal erzeugen
             $table .= '<script type="text/javascript" id="script' . $this->InstanceID . '">
@@ -62,6 +60,18 @@ sleep(10).then(() => {
 
 </script>';
         }
+        $Style='';
+        if (isset($Config_Table['active'])) {
+            $Style .= '.isactive {' . $Config_Table['active'] . '}' . PHP_EOL;
+        }
+        if (isset($Config_Table['inactive'])) {
+            $Style .= '.isinactive {' . $Config_Table['inactive'] . '}' . PHP_EOL;
+        }
+        if ($Style != '') {
+            $table .= '<style>'.$Style. '</style>' . PHP_EOL;
+        }
+        // Kopf der Tabelle erzeugen
+        $table .= '<table style="' . $Config_Table['<table>'] . '">' . PHP_EOL;
         $table .= '<colgroup>' . PHP_EOL;
         $colgroup = [];
         foreach ($Config_Columns as $Column) {

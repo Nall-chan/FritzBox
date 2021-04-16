@@ -96,7 +96,7 @@
                             "type": "List",
                             "name": "Targets",
                             "caption": "WebFronts for notification",
-                            "rowCount": 9,
+                            "rowCount": 6,
                             "add": true,
                             "delete": true,
                             "sort": {
@@ -122,7 +122,7 @@
                             "type": "List",
                             "name": "Notification",
                             "caption": "WebFront notification configuration",
-                            "rowCount": 9,
+                            "rowCount": 7,
                             "add": true,
                             "delete": true,
                             "sort": {
@@ -230,7 +230,7 @@
                                     "type": "List",
                                     "name": "Icons",
                                     "caption": "Icons for type of call",
-                                    "rowCount": 9,
+                                    "rowCount": 4,
                                     "add": false,
                                     "delete": false,
                                     "sort": {

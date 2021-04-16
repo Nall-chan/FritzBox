@@ -4,6 +4,7 @@
     "type": 3,
     "vendor": "AVM",
     "aliases": [
+        "FritzBox WAN Port Mapping",
         "FritzBox WAN Port-Weiterleitung"
     ],
     "parentRequirements": [

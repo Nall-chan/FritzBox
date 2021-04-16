@@ -54,7 +54,7 @@ class FritzBoxHosts extends FritzBoxModulBase
         $Table = $this->ReadPropertyBoolean('HostAsTable');
         $Variable = $this->ReadPropertyBoolean('HostAsVariable');
         if ($Table) {
-            $this->RegisterVariableString('HostTable', $this->Translate('Host table'), '~HTMLBox', -3);
+            $this->RegisterVariableString('HostTable', $this->Translate('Network devices'), '~HTMLBox', -3);
         } else {
             $this->UnregisterVariable('HostTable');
         }
@@ -140,11 +140,11 @@ class FritzBoxHosts extends FritzBoxModulBase
             $this->SendDebug('XML decode error', $XMLData, 0);
             return false;
         }
+        $this->SendDebug('XML', $XMLData, 0);
         $OnlineCounter=0;
         $TableData=[];
-        $pos=0;
         foreach ($xml as $xmlItem) {
-            $this->SendDebug('XML xmlItem', (array)$xmlItem, 0);
+            //$this->SendDebug('XML xmlItem', (array)$xmlItem, 0);
             if ((string)$xmlItem->MACAddress == '') {
                 $Ident = 'IP'.strtoupper($this->ConvertIdent((string)$xmlItem->IPAddress));
                 $Action = false;
@@ -154,7 +154,7 @@ class FritzBoxHosts extends FritzBoxModulBase
             }
             if ($Variable) {
                 $VarId= @$this->GetIDForIdent($Ident);
-                $this->setIPSVariable($Ident, (string)$xmlItem->HostName, (int)$xmlItem->Active==1, VARIABLETYPE_BOOLEAN, '~Switch', $Action, ++$pos);
+                $this->setIPSVariable($Ident, (string)$xmlItem->HostName, (int)$xmlItem->Active==1, VARIABLETYPE_BOOLEAN, '~Switch', $Action);
                 if ($VarId == 0) {
                     $VarId= $this->GetIDForIdent($Ident);
                     IPS_SetVariableCustomAction($VarId, 1);
@@ -166,9 +166,13 @@ class FritzBoxHosts extends FritzBoxModulBase
                     }
                 }
             }
-            if ((bool)$xmlItem->Active) {
+            if ((int)$xmlItem->Active==1) {
                 $OnlineCounter++;
+                $xmlItem->Active='<div class="isactive">'.$this->Translate('Active').'</div>';
+            } else {
+                $xmlItem->Active='<div class="isinactive">'.$this->Translate('Inactive').'</div>';
             }
+
             $TableData[] = (array)$xmlItem;
         }
         $this->setIPSVariable('HostNumberActive', 'Number of active hosts', $OnlineCounter, VARIABLETYPE_INTEGER, '', false, -1);
@@ -327,6 +331,43 @@ class FritzBoxHosts extends FritzBoxModulBase
             [
                 'tag'   => '<tbody>',
                 'style' => ''
+            ],
+            [
+                'tag'   => 'active',
+                'style' => 'background-image: linear-gradient(top,rgba(0,0,0,0) 0,rgba(0,0,0,0.3) 28%,rgba(0,0,0,0.3) 100%);
+                background-image: -o-linear-gradient(top,rgba(0,0,0,0) 0,rgba(0,0,0,0.3) 28%,rgba(0,0,0,0.3) 100%);
+                background-image: -moz-linear-gradient(50% 0%, transparent 0px, rgba(0, 0, 0, 0.3) 28%, rgba(0, 0, 0, 0.3) 100%);
+                background-image: -webkit-linear-gradient(top,rgba(0,0,0,0) 0,rgba(0,0,0,0.3) 28%,rgba(0,0,0,0.3) 100%);
+                background-image: -ms-linear-gradient(top,rgba(0,0,0,0) 0,rgba(0,0,0,0.3) 28%,rgba(0,0,0,0.3) 100%);
+                color: rgba(255, 255, 255, 0.3);
+                color: rgb(255, 255, 255);
+                background-color: rgba(255,255,255,0.1);
+                background-color: rgb(0, 255, 0);
+                width: 25%;
+                display: inline-block;
+                margin: 2px 0px 1px 3px;
+                border-color: transparent;
+                border-style: solid;
+                border-width: 1px 0px;
+                padding: 0px 10px;
+                vertical-align: middle;'
+            ],
+            [
+                'tag'   => 'inactive',
+                'style' => 'background-image: linear-gradient(top,rgba(0,0,0,0) 0,rgba(0,0,0,0.3) 28%,rgba(0,0,0,0.3) 100%);
+                background-image: -o-linear-gradient(top,rgba(0,0,0,0) 0,rgba(0,0,0,0.3) 28%,rgba(0,0,0,0.3) 100%);
+                background-image: -moz-linear-gradient(top,rgba(0,0,0,0) 0,rgba(0,0,0,0.3) 28%,rgba(0,0,0,0.3) 100%);
+                background-image: -webkit-linear-gradient(top,rgba(0,0,0,0) 0,rgba(0,0,0,0.3) 28%,rgba(0,0,0,0.3) 100%);
+                background-image: -ms-linear-gradient(top,rgba(0,0,0,0) 0,rgba(0,0,0,0.3) 28%,rgba(0,0,0,0.3) 100%);
+                background-color: rgba(255, 255, 255, 0.3);
+                width: 25%;
+                display: inline-block;
+                margin: 2px 0px 1px 3px;
+                border-color: transparent;
+                border-style: solid;
+                border-width: 1px 0px;
+                padding: 0px 10px;
+                vertical-align: middle;'
             ]
         ];
         $NewColumnsConfig = [
@@ -339,7 +380,7 @@ class FritzBoxHosts extends FritzBoxModulBase
                 'hrcolor' => -1,
                 'hralign' => 'center',
                 'hrstyle' => '',
-                'tdalign' => 'left',
+                'tdalign' => 'center',
                 'tdstyle' => ''
 
             ],
@@ -352,7 +393,7 @@ class FritzBoxHosts extends FritzBoxModulBase
                 'hrcolor' => -1,
                 'hralign' => 'center',
                 'hrstyle' => '',
-                'tdalign' => 'left',
+                'tdalign' => 'center',
                 'tdstyle' => ''
             ],
             [
@@ -364,7 +405,7 @@ class FritzBoxHosts extends FritzBoxModulBase
                 'hrcolor' => -1,
                 'hralign' => 'center',
                 'hrstyle' => '',
-                'tdalign' => 'left',
+                'tdalign' => 'center',
                 'tdstyle' => ''
             ],
             [
@@ -376,7 +417,18 @@ class FritzBoxHosts extends FritzBoxModulBase
                 'hrcolor' => -1,
                 'hralign' => 'center',
                 'hrstyle' => '',
-                'tdalign' => 'left',
+                'tdalign' => 'center',
+                'tdstyle' => ''
+            ],            [
+                'index' => 4,
+                'key'   => 'Active',
+                'name'  => $this->Translate('Connection'),
+                'show'  => true,
+                'width' => 200,
+                'hrcolor' => -1,
+                'hralign' => 'center',
+                'hrstyle' => '',
+                'tdalign' => 'center',
                 'tdstyle' => ''
             ]
         ];

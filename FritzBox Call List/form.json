@@ -17,7 +17,7 @@
                         {
                             "name": "RefreshIntervalCallList",
                             "type": "NumberSpinner",
-                            "caption": "Reload caller list intervall",
+                            "caption": "Reload call list intervall",
                             "suffix": "minutes",
                             "minimum": 0,
                             "width": "300px"
@@ -106,7 +106,7 @@
                 {
                     "name": "LoadListType",
                     "type": "Select",
-                    "caption": "Load caller list",
+                    "caption": "Load call list",
                     "options": [
                         {
                             "caption": "full",
@@ -239,7 +239,7 @@
                 {
                     "type": "List",
                     "name": "Columns",
-                    "caption": "Caller list columns",
+                    "caption": "Columns",
                     "rowCount": 9,
                     "add": false,
                     "delete": false,
@@ -361,7 +361,7 @@
                 {
                     "type": "List",
                     "name": "Rows",
-                    "caption": "Caller list rows",
+                    "caption": "Rows",
                     "rowCount": 3,
                     "add": false,
                     "delete": false,
@@ -437,7 +437,7 @@
     "actions": [
         {
             "type": "Button",
-            "caption": "Reload caller list",
+            "caption": "Reload call list",
             "onClick": "IPS_RequestAction($id,'RefreshCallList',true);"
         },
         {

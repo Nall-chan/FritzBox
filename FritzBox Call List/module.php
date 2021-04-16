@@ -7,7 +7,7 @@ require_once __DIR__ . '/../libs/FritzBoxTelHelper.php';
 require_once __DIR__ . '/../libs/FritzBoxTable.php';
 //require_once __DIR__ . '/../libs/helper/WebhookHelper.php';
 
-class FritzBoxCallerList extends FritzBoxModulBase
+class FritzBoxCallList extends FritzBoxModulBase
 {
     use \FritzBoxModul\HTMLTable;
     use \FritzBoxModul\TelHelper;
@@ -97,7 +97,7 @@ class FritzBoxCallerList extends FritzBoxModulBase
         //$this->GetDeflections();
         // SetDeflectionEnable
         //$this->RegisterHook('/hook/FritzBoxCallList' . $this->InstanceID);
-        $this->RegisterVariableString('CallerList', $this->Translate('Caller list'), '~HTMLBox', 0);
+        $this->RegisterVariableString('CallList', $this->Translate('Call list'), '~HTMLBox', 0);
         $this->RefreshCallList();
     }
 
