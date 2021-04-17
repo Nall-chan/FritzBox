@@ -59,12 +59,12 @@ class LibraryValidationTest extends TestCaseSymconValidation
     {
         $this->validateModule(__DIR__ . '/../FritzBox NAS Storage');
     }
-    
+
     public function testValidateTime(): void
     {
         $this->validateModule(__DIR__ . '/../FritzBox Time');
     }
-    
+
     public function testValidateUPnPMediaServer(): void
     {
         $this->validateModule(__DIR__ . '/../FritzBox UPnP MediaServer');
