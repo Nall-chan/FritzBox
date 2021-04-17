@@ -21,7 +21,7 @@ class FritzBoxDeviceInfo extends FritzBoxModulBase
     {
         //Never delete this line!
         parent::ApplyChanges();
-        $this->SetTimerInterval('RefreshState', $this->ReadPropertyInteger('RefreshInterval')*1000);
+        $this->SetTimerInterval('RefreshState', $this->ReadPropertyInteger('RefreshInterval') * 1000);
         if (IPS_GetKernelRunlevel() != KR_READY) {
             return;
         }
@@ -41,6 +41,14 @@ class FritzBoxDeviceInfo extends FritzBoxModulBase
 
         return false;
     }
+    public function GetInfo()
+    {
+        $result = $this->Send(__FUNCTION__);
+        if ($result === false) {
+            return false;
+        }
+        return $result;
+    }
     private function UpdateInfo()
     {
         $result = $this->GetInfo();
@@ -56,13 +64,5 @@ class FritzBoxDeviceInfo extends FritzBoxModulBase
         $this->setIPSVariable('Runtime', 'Runtime', $this->ConvertRunTime((int) $result['NewUpTime']), VARIABLETYPE_STRING);
         $this->setIPSVariable('DeviceLog', 'Last events', (string) $result['NewDeviceLog'], VARIABLETYPE_STRING, '~TextBox');
         return true;
-    }
-    public function GetInfo()
-    {
-        $result = $this->Send(__FUNCTION__);
-        if ($result === false) {
-            return false;
-        }
-        return $result;
     }
 }

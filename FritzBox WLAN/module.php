@@ -9,34 +9,33 @@ require_once __DIR__ . '/../libs/FritzBoxTable.php';
  * @property int $APEnabledId
  * @property int $HostNumberOfEntriesId
  */
-
 class FritzBoxWLAN extends FritzBoxModulBase
 {
     use \FritzBoxModul\HTMLTable;
 
     protected static $ControlUrlArray = [
-            '/upnp/control/wlanconfig1',
-            '/upnp/control/wlanconfig2',
-            '/upnp/control/wlanconfig3'
-        ];
+        '/upnp/control/wlanconfig1',
+        '/upnp/control/wlanconfig2',
+        '/upnp/control/wlanconfig3'
+    ];
     protected static $EventSubURLArray = [
-            '/upnp/control/wlanconfig1',
-            '/upnp/control/wlanconfig2',
-            '/upnp/control/wlanconfig3'
-        ];
+        '/upnp/control/wlanconfig1',
+        '/upnp/control/wlanconfig2',
+        '/upnp/control/wlanconfig3'
+    ];
     protected static $ServiceTypeArray = [
-            'urn:dslforum-org:service:WLANConfiguration:1',
-            'urn:dslforum-org:service:WLANConfiguration:2',
-            'urn:dslforum-org:service:WLANConfiguration:3'
-        ];
-    protected static $SecondEventGUID ='{FE6C73CB-028B-F569-46AC-3C02FF1F8F2F}';
+        'urn:dslforum-org:service:WLANConfiguration:1',
+        'urn:dslforum-org:service:WLANConfiguration:2',
+        'urn:dslforum-org:service:WLANConfiguration:3'
+    ];
+    protected static $SecondEventGUID = '{FE6C73CB-028B-F569-46AC-3C02FF1F8F2F}';
 
     public function Create()
     {
         //Never delete this line!
         parent::Create();
-        $this->APEnabledId=0;
-        $this->HostNumberOfEntriesId=0;
+        $this->APEnabledId = 0;
+        $this->HostNumberOfEntriesId = 0;
         $this->RegisterPropertyInteger('Index', -1);
         $this->RegisterPropertyBoolean('HostAsVariable', false);
         $this->RegisterPropertyBoolean('InfoVariables', false);
@@ -50,7 +49,7 @@ class FritzBoxWLAN extends FritzBoxModulBase
         $this->RegisterPropertyString('Table', json_encode($Style['Table']));
         $this->RegisterPropertyString('Columns', json_encode($Style['Columns']));
         $this->RegisterPropertyString('Rows', json_encode($Style['Rows']));
-    
+
         $this->RegisterTimer('RefreshState', 0, 'IPS_RequestAction(' . $this->InstanceID . ',"RefreshState",true);');
     }
 
@@ -94,7 +93,7 @@ class FritzBoxWLAN extends FritzBoxModulBase
         $this->HostNumberOfEntriesId = $this->RegisterVariableInteger('HostNumberOfEntries', $this->Translate('Number of active WLAN devices'), '', -2);
         $this->RegisterMessage($this->HostNumberOfEntriesId, VM_UPDATE);
         parent::ApplyChanges();
-        $this->SetTimerInterval('RefreshState', $this->ReadPropertyInteger('RefreshInterval')*1000);
+        $this->SetTimerInterval('RefreshState', $this->ReadPropertyInteger('RefreshInterval') * 1000);
         if (IPS_GetKernelRunlevel() != KR_READY) {
             return;
         }
@@ -125,7 +124,7 @@ class FritzBoxWLAN extends FritzBoxModulBase
                     return $this->UpdateInfo();
 
                 case 'X_AVM_DE_APEnabled':
-                    return $this->SetEnable((bool)$Value);
+                    return $this->SetEnable((bool) $Value);
             }
         trigger_error($this->Translate('Invalid Ident.'), E_USER_NOTICE);
         return false;
@@ -141,24 +140,24 @@ class FritzBoxWLAN extends FritzBoxModulBase
             $this->GetWLANForm($Form['elements'][0]['options']);
         }
         $Index = $this->ReadPropertyInteger('Index');
-        $Summary = $Form['elements'][0]['options'][$Index+1]['caption'];
+        $Summary = $Form['elements'][0]['options'][$Index + 1]['caption'];
         if ($Index != -1) {
-            $Summary = 'WLAN '.$Summary;
+            $Summary = 'WLAN ' . $Summary;
         }
         $this->SetSummary($Summary);
         if (!$this->GetFile('Hosts.xml')) {
-            $Form['actions'][2]['visible']=true;
-            $Form['actions'][2]['popup']['items'][0]['caption']='Hostnames not available!';
-            $Form['actions'][2]['popup']['items'][1]['caption']='The \'FritzBox Host\' instance is required to display hostnames.';
-            $Form['actions'][2]['popup']['items'][1]['width']='200px';
+            $Form['actions'][2]['visible'] = true;
+            $Form['actions'][2]['popup']['items'][0]['caption'] = 'Hostnames not available!';
+            $Form['actions'][2]['popup']['items'][1]['caption'] = 'The \'FritzBox Host\' instance is required to display hostnames.';
+            $Form['actions'][2]['popup']['items'][1]['width'] = '200px';
         }
         if ($this->ReadPropertyBoolean('ShowWLanKeyAsQRCode')) {
             $QRCodeID = @IPS_GetObjectIDByIdent('QRCodeIMG', $this->InstanceID);
             if ($QRCodeID > 0) {
                 $Image =
                     [
-                        'type'=> 'Image',
-                        'mediaID'=>$QRCodeID
+                        'type'   => 'Image',
+                        'mediaID'=> $QRCodeID
                     ];
                 $Form['actions'][1]['items'][] = $Image;
             }
@@ -166,57 +165,6 @@ class FritzBoxWLAN extends FritzBoxModulBase
         $this->SendDebug('FORM', json_encode($Form), 0);
         $this->SendDebug('FORM', json_last_error_msg(), 0);
         return json_encode($Form);
-    }
-    private function GetWLANForm(array &$Options)
-    {
-        $result = $this->SendDataToParent(json_encode(
-            [
-                    'DataID'     => '{D62D4515-7689-D1DB-EE97-F555AD9433F0}',
-                    'Function'   => 'COUNTWLAN'
-                ]
-        ));
-        if ($result === false) {
-            return;
-        }
-        $NoOfWlan = unserialize($result);
-        for ($i=1; $i <= $NoOfWlan; $i++) {
-            $Index = $Options[$i]['value'];
-            $result = $this->SendDataToParent(json_encode(
-                [
-                        'DataID'    => '{D62D4515-7689-D1DB-EE97-F555AD9433F0}',
-                        'ServiceTyp'=> static::$ServiceTypeArray[$Index],
-                        'ControlUrl'=> static::$ControlUrlArray[$Index],
-                        'Function'  => 'X_AVM-DE_GetWLANExtInfo',
-                        'Parameter' => []
-                    ]
-            ));
-            $guest = unserialize($result);
-            if ($guest === false) {
-                continue;
-            }
-            if ($guest['NewX_AVM-DE_APType'] == 'guest') {
-                $Options[$i]['caption'] =$i.$this->Translate(' (Guest)');
-                continue;
-            }
-            $result = $this->SendDataToParent(json_encode(
-                [
-                        'DataID'    => '{D62D4515-7689-D1DB-EE97-F555AD9433F0}',
-                        'ServiceTyp'=> static::$ServiceTypeArray[$Index],
-                        'ControlUrl'=> static::$ControlUrlArray[$Index],
-                        'Function'  => 'GetInfo',
-                        'Parameter' => []
-                    ]
-            ));
-            $info = unserialize($result);
-            if ($info === false) {
-                continue;
-            }
-            if ($info['NewStandard'] == 'ac') {
-                $Options[$i]['caption'] =$i.$this->Translate(' (5 Ghz)');
-            } else {
-                $Options[$i]['caption'] =$i.$this->Translate(' (2,4 Ghz)');
-            }
-        }
     }
     //private
     public function RefreshHostList()
@@ -239,53 +187,53 @@ class FritzBoxWLAN extends FritzBoxModulBase
                 $this->SendDebug('XML decode error', $XMLData, 0);
             }
         }
-        $OnlineCounter=0;
-        $TableData=[];
-        $pos=0;
+        $OnlineCounter = 0;
+        $TableData = [];
+        $pos = 0;
         $Hosts = $this->GetValue('HostNumberOfEntries');
         $ChildsOld = IPS_GetChildrenIDs($this->InstanceID);
-        $ChildsNew=[];
-        for ($i=0;$i< $Hosts; $i++) {
+        $ChildsNew = [];
+        for ($i = 0; $i < $Hosts; $i++) {
             $result = @$this->GetGenericAssociatedDeviceInfo($i);
             if ($result === false) {
                 continue;
             }
-            $Hostname =strtoupper((string)$result['NewAssociatedDeviceMACAddress']).' ('.(string)$result['NewAssociatedDeviceIPAddress'].')';
-            $Ident = 'MAC'.strtoupper($this->ConvertIdent((string)$result['NewAssociatedDeviceMACAddress']));
+            $Hostname = strtoupper((string) $result['NewAssociatedDeviceMACAddress']) . ' (' . (string) $result['NewAssociatedDeviceIPAddress'] . ')';
+            $Ident = 'MAC' . strtoupper($this->ConvertIdent((string) $result['NewAssociatedDeviceMACAddress']));
             if (isset($xml)) {
-                $Xpath = $xml->xpath('/List/Item[MACAddress="'.(string)$result['NewAssociatedDeviceMACAddress'].'"]/HostName');
-                if (sizeof($Xpath)>0) {
-                    $Hostname = (string)$Xpath[0];
+                $Xpath = $xml->xpath('/List/Item[MACAddress="' . (string) $result['NewAssociatedDeviceMACAddress'] . '"]/HostName');
+                if (count($Xpath) > 0) {
+                    $Hostname = (string) $Xpath[0];
                 }
             }
             if ($Variable) {
-                $this->setIPSVariable($Ident, $Hostname, (int)$result["NewX_AVM-DE_Speed"] > 0, VARIABLETYPE_BOOLEAN, '~Switch', false, $pos);
+                $this->setIPSVariable($Ident, $Hostname, (int) $result['NewX_AVM-DE_Speed'] > 0, VARIABLETYPE_BOOLEAN, '~Switch', false, $pos);
                 $VarId = $this->GetIDForIdent($Ident);
-                $ChildsNew[]=$VarId;
+                $ChildsNew[] = $VarId;
                 if ($Rename && (IPS_GetName($VarId) != $Hostname)) {
                     IPS_SetName($VarId, $Hostname);
                 }
-                
+
                 $SpeedId = $this->RegisterSubVariable($VarId, 'Speed', 'Speed', VARIABLETYPE_INTEGER, 'FB.MBits');
-                SetValueInteger($SpeedId, (int)$result["NewX_AVM-DE_Speed"]);
+                SetValueInteger($SpeedId, (int) $result['NewX_AVM-DE_Speed']);
                 $SignalId = $this->RegisterSubVariable($VarId, 'Signal', 'Signalstrength', VARIABLETYPE_INTEGER, '~Intensity.100');
-                SetValueInteger($SignalId, (int)$result["NewX_AVM-DE_SignalStrength"]);
+                SetValueInteger($SignalId, (int) $result['NewX_AVM-DE_SignalStrength']);
             }
             if ($Table) {
-                $TableData[$Hostname]=[
-                    'Hostname' => $Hostname,
-                    'IPAddress'=> (string)$result['NewAssociatedDeviceIPAddress'],
-                    'MACAddress'=> (string)$result['NewAssociatedDeviceMACAddress'],
-                    'Speed'=>(string)$result["NewX_AVM-DE_Speed"].' MBit/s',
-                    'Signalstrength'=> (string)$result["NewX_AVM-DE_SignalStrength"].' %'
+                $TableData[$Hostname] = [
+                    'Hostname'      => $Hostname,
+                    'IPAddress'     => (string) $result['NewAssociatedDeviceIPAddress'],
+                    'MACAddress'    => (string) $result['NewAssociatedDeviceMACAddress'],
+                    'Speed'         => (string) $result['NewX_AVM-DE_Speed'] . ' MBit/s',
+                    'Signalstrength'=> (string) $result['NewX_AVM-DE_SignalStrength'] . ' %'
                 ];
             }
         }
         if ($Variable) {
-            $OfflineVarIds= array_diff($ChildsOld, $ChildsNew);
+            $OfflineVarIds = array_diff($ChildsOld, $ChildsNew);
             foreach ($OfflineVarIds as $VarId) {
                 $Ident = IPS_GetObject($VarId)['ObjectIdent'];
-                if (strpos($Ident, 'MAC')===0) {
+                if (strpos($Ident, 'MAC') === 0) {
                     $this->SetValue($Ident, false);
                     $SpeedId = $this->RegisterSubVariable($VarId, 'Speed', 'Speed', VARIABLETYPE_INTEGER, 'FB.MBits');
                     SetValueInteger($SpeedId, 0);
@@ -319,79 +267,13 @@ class FritzBoxWLAN extends FritzBoxModulBase
         $this->SendDebug('ReceiveHostData', $data, 0);
         return true;
     }
-    private function UpdateInfo()
-    {
-        $resultState = $this->GetInfo();
-        if ($resultState === false) {
-            return false;
-        }
-        $this->setIPSVariable('X_AVM_DE_APEnabled', 'WLAN state', (int)$resultState['NewEnable']!==0, VARIABLETYPE_BOOLEAN, '~Switch', false, -11);
-        $this->setIPSVariable('SSID', 'SSID Name', (string)$resultState['NewSSID'], VARIABLETYPE_STRING, '', false, -10);
-        //todo
-        // Typ cachen
-        if ($this->ReadPropertyBoolean('InfoVariables')) {
-            $result = $this->GetWLANExtInfo();
-            if ($result === false) {
-                return false;
-            }
-            if ((string)$result['NewX_AVM-DE_APType'] =='guest') {
-                $this->setIPSVariable('TimeoutActive', 'Timeout active', $result['NewX_AVM-DE_TimeoutActive'], VARIABLETYPE_BOOLEAN, '~Switch', false, -7);
-                $this->setIPSVariable('TimeRemainRaw', 'Remain time in minutes', (int)$result['NewX_AVM-DE_TimeRemain'], VARIABLETYPE_INTEGER, '', false, -6);
-                $this->setIPSVariable('TimeRemain', 'Remain time', $this->ConvertRuntime(((int)$result['NewX_AVM-DE_TimeRemain'])*60), VARIABLETYPE_STRING, '', false, -5);
-                $this->setIPSVariable('OffTime', 'Scheduled shutdown', time()+((int)$result['NewX_AVM-DE_TimeRemain']*60), VARIABLETYPE_INTEGER, '~UnixTimestamp', false, -4);
-                $this->setIPSVariable('ForcedOff', 'No shutdown when guest is active', $result['NewX_AVM-DE_NoForcedOff'], VARIABLETYPE_BOOLEAN, '~Switch', false, -3);
-            }
-        }
-        $useVariable = $this->ReadPropertyBoolean('ShowWLanKeyAsVariable');
-        $useQRCode = $this->ReadPropertyBoolean('ShowWLanKeyAsQRCode');
-
-        if ($useQRCode || $useVariable) {
-            $resultKeys = $this->GetSecurityKeys();
-            if ($resultKeys === false) {
-                return false;
-            }
-            if ($useVariable) {
-                $this->setIPSVariable('KeyPassphrase', 'Password', (string)$resultKeys['NewKeyPassphrase'], VARIABLETYPE_STRING, '', false, -9);
-            }
-            if ($useQRCode) {
-                $QRData = $this->GenerateQRCodeData((string)$resultState['NewSSID'], (string)$resultKeys['NewKeyPassphrase']);
-                    
-                $QRCodeID = @IPS_GetObjectIDByIdent('QRCodeIMG', $this->InstanceID);
-                if ($QRCodeID === false) {
-                    $QRCodeID = IPS_CreateMedia(1);
-                    IPS_SetParent($QRCodeID, $this->InstanceID);
-                    IPS_SetIdent($QRCodeID, 'QRCodeIMG');
-                    IPS_SetName($QRCodeID, 'QR-Code');
-                    IPS_SetPosition($QRCodeID, -8);
-                    IPS_SetMediaCached($QRCodeID, true);
-                    $filename = 'media' . DIRECTORY_SEPARATOR . 'QRCode_' . $this->InstanceID . '.png';
-                    IPS_SetMediaFile($QRCodeID, $filename, false);
-                    $this->SendDebug('Create Media', $filename, 0);
-                }
-
-                IPS_SetMediaContent($QRCodeID, base64_encode($QRData));
-            }
-        }
-        return true;
-    }
-    private function GenerateQRCodeData(string $SSID, string $KeyPassphrase, int $size=0)
-    {
-        $CodeText= 'WIFI:S:'.$SSID.';T:WPA;P:'.$KeyPassphrase.';;';
-        $Size = $this->ReadPropertyInteger('QRCodeSize');
-        include(__DIR__.'/../libs/phpqrcode/qrlib.php');
-        ob_start();
-        QRcode::png($CodeText, null, QR_ECLEVEL_L, $Size);
-        $QRImage = ob_get_contents();
-        ob_end_clean();
-        return $QRImage;
-    }
     public function GetHTMLQRCode()
     {
         $useVariable = $this->ReadPropertyBoolean('ShowWLanKeyAsVariable');
         $useQRCode = $this->ReadPropertyBoolean('ShowWLanKeyAsQRCode');
         $SSID = $this->GetValue('SSID');
         if ($useQRCode && $useVariable) {
-            $KeyPassphrase =  @$this->GetValue('KeyPassphrase');
+            $KeyPassphrase = @$this->GetValue('KeyPassphrase');
             $QRCodeID = @IPS_GetObjectIDByIdent('QRCodeIMG', $this->InstanceID);
             $QRData = IPS_GetMediaContent($QRCodeID);
         } else {
@@ -399,12 +281,12 @@ class FritzBoxWLAN extends FritzBoxModulBase
             if ($resultKeys === false) {
                 return false;
             }
-            $KeyPassphrase=(string)$resultKeys['NewKeyPassphrase'];
+            $KeyPassphrase = (string) $resultKeys['NewKeyPassphrase'];
             $QRData = base64_encode($this->GenerateQRCodeData($SSID, $KeyPassphrase));
         }
 
-        $HTMLData ='<center><h1 style="color:red">'.$this->Translate('Credentials').'</h1><h2>WLAN: '.$SSID.'</h2><h2>'.$this->Translate('Password').': '.$KeyPassphrase.'</h2></center>';
-        $HTMLData.= '<center><img src="data:image/png;base64,'.$QRData.'"></span></center>';
+        $HTMLData = '<center><h1 style="color:red">' . $this->Translate('Credentials') . '</h1><h2>WLAN: ' . $SSID . '</h2><h2>' . $this->Translate('Password') . ': ' . $KeyPassphrase . '</h2></center>';
+        $HTMLData .= '<center><img src="data:image/png;base64,' . $QRData . '"></span></center>';
         return $HTMLData;
     }
     public function GetInfo()
@@ -418,8 +300,8 @@ class FritzBoxWLAN extends FritzBoxModulBase
     public function SetEnable(bool $Enable)
     {
         $result = $this->Send(__FUNCTION__, [
-                'NewEnable'=> $Enable
-            ]);
+            'NewEnable'=> $Enable
+        ]);
         if ($result === false) {
             return false;
         }
@@ -435,14 +317,14 @@ class FritzBoxWLAN extends FritzBoxModulBase
         string $BasicAuthenticationMode
     ) {
         $result = $this->Send('SetConfig', [
-                'NewMaxBitRate'              => $MaxBitRate,
-                'NewChannel'                 => $Channel,
-                'NewSSID'                    => $SSID,
-                'NewBeaconType'              => $BeaconType,
-                'NewMACAddressControlEnabled'=> $MACAddressControlEnabled,
-                'NewBasicEncryptionModes'    => $BasicEncryptionModes,
-                'NewBasicAuthenticationMode' => $BasicAuthenticationMode
-            ]);
+            'NewMaxBitRate'              => $MaxBitRate,
+            'NewChannel'                 => $Channel,
+            'NewSSID'                    => $SSID,
+            'NewBeaconType'              => $BeaconType,
+            'NewMACAddressControlEnabled'=> $MACAddressControlEnabled,
+            'NewBasicEncryptionModes'    => $BasicEncryptionModes,
+            'NewBasicAuthenticationMode' => $BasicAuthenticationMode
+        ]);
         if ($result === false) {
             return false;
         }
@@ -457,13 +339,13 @@ class FritzBoxWLAN extends FritzBoxModulBase
         string $KeyPassphrase
     ) {
         $result = $this->Send(__FUNCTION__, [
-                'NewWEPKey0'                    => $WEPKey0,
-                'NewWEPKey1'                    => $WEPKey1,
-                'NewWEPKey2'                    => $WEPKey2,
-                'NewWEPKey3'                    => $WEPKey3,
-                'NewPreSharedKey'               => $PreSharedKey,
-                'NewKeyPassphrase'              => $KeyPassphrase
-            ]);
+            'NewWEPKey0'                    => $WEPKey0,
+            'NewWEPKey1'                    => $WEPKey1,
+            'NewWEPKey2'                    => $WEPKey2,
+            'NewWEPKey3'                    => $WEPKey3,
+            'NewPreSharedKey'               => $PreSharedKey,
+            'NewKeyPassphrase'              => $KeyPassphrase
+        ]);
         if ($result === false) {
             return false;
         }
@@ -482,9 +364,9 @@ class FritzBoxWLAN extends FritzBoxModulBase
         string $BasicAuthenticationMode
     ) {
         $result = $this->Send(__FUNCTION__, [
-                'NewBasicEncryptionModes'    => $BasicEncryptionModes,
-                'NewBasicAuthenticationMode' => $BasicAuthenticationMode
-            ]);
+            'NewBasicEncryptionModes'    => $BasicEncryptionModes,
+            'NewBasicAuthenticationMode' => $BasicAuthenticationMode
+        ]);
         if ($result === false) {
             return false;
         }
@@ -533,8 +415,8 @@ class FritzBoxWLAN extends FritzBoxModulBase
     public function SetSSID(string $SSID)
     {
         $result = $this->Send(__FUNCTION__, [
-                'NewSSID'=> $SSID
-            ]);
+            'NewSSID'=> $SSID
+        ]);
         if ($result === false) {
             return false;
         }
@@ -551,8 +433,8 @@ class FritzBoxWLAN extends FritzBoxModulBase
     public function SetBeaconType(string $BeaconType)
     {
         $result = $this->Send(__FUNCTION__, [
-                'NewBeaconType'=> $BeaconType
-            ]);
+            'NewBeaconType'=> $BeaconType
+        ]);
         if ($result === false) {
             return false;
         }
@@ -569,8 +451,8 @@ class FritzBoxWLAN extends FritzBoxModulBase
     public function SetChannel(int $Channel)
     {
         $result = $this->Send(__FUNCTION__, [
-                'NewChannel'=> $Channel
-            ]);
+            'NewChannel'=> $Channel
+        ]);
         if ($result === false) {
             return false;
         }
@@ -587,8 +469,8 @@ class FritzBoxWLAN extends FritzBoxModulBase
     public function SetBeaconAdvertisement(bool $BeaconAdvertisementEnabled)
     {
         $result = $this->Send(__FUNCTION__, [
-                'NewBeaconAdvertisementEnabled'=> $BeaconAdvertisementEnabled
-            ]);
+            'NewBeaconAdvertisementEnabled'=> $BeaconAdvertisementEnabled
+        ]);
         if ($result === false) {
             return false;
         }
@@ -600,14 +482,14 @@ class FritzBoxWLAN extends FritzBoxModulBase
         if ($result === false) {
             return false;
         }
-        $this->setIPSVariable('HostNumberOfEntries', 'Number of active WLAN devices', (int)$result, VARIABLETYPE_INTEGER, '', false, -2);
-        return (int)$result;
+        $this->setIPSVariable('HostNumberOfEntries', 'Number of active WLAN devices', (int) $result, VARIABLETYPE_INTEGER, '', false, -2);
+        return (int) $result;
     }
     public function GetGenericAssociatedDeviceInfo(int $Index)
     {
         $result = $this->Send(__FUNCTION__, [
-                'NewAssociatedDeviceIndex'=> $Index
-            ]);
+            'NewAssociatedDeviceIndex'=> $Index
+        ]);
         if ($result === false) {
             return false;
         }
@@ -616,8 +498,8 @@ class FritzBoxWLAN extends FritzBoxModulBase
     public function GetSpecificAssociatedDeviceInfo(string $Mac)
     {
         $result = $this->Send(__FUNCTION__, [
-                'NewAssociatedDeviceMACAddress'=> $Mac
-            ]);
+            'NewAssociatedDeviceMACAddress'=> $Mac
+        ]);
         if ($result === false) {
             return false;
         }
@@ -626,8 +508,8 @@ class FritzBoxWLAN extends FritzBoxModulBase
     public function GetSpecificAssociatedDeviceInfoByIp(string $Ip)
     {
         $result = $this->Send('X_AVM-DE_GetSpecificAssociatedDeviceInfoByIp', [
-                'NewAssociatedDeviceIPAddress'=> $Ip
-            ]);
+            'NewAssociatedDeviceIPAddress'=> $Ip
+        ]);
         if ($result === false) {
             return false;
         }
@@ -661,16 +543,16 @@ class FritzBoxWLAN extends FritzBoxModulBase
         int $MaxSpeedUS
     ) {
         $result = $this->Send('X_AVM-DE_SetWLANHybridMode', [
-                'NewEnable'                  => (int) $Enable,
-                'NewBeaconType'              => $BeaconType,
-                'NewKeyPassphrase'           => $KeyPassphrase,
-                'NewSSID'                    => $SSID,
-                'NewBSSID'                   => $BSSID,
-                'NewTrafficMode'             => $TrafficMode,
-                'NewManualSpeed'             => $ManualSpeed,
-                'NewMaxSpeedDS'              => $MaxSpeedDS,
-                'NewMaxSpeedUS'              => $MaxSpeedUS
-            ]);
+            'NewEnable'                  => (int) $Enable,
+            'NewBeaconType'              => $BeaconType,
+            'NewKeyPassphrase'           => $KeyPassphrase,
+            'NewSSID'                    => $SSID,
+            'NewBSSID'                   => $BSSID,
+            'NewTrafficMode'             => $TrafficMode,
+            'NewManualSpeed'             => $ManualSpeed,
+            'NewMaxSpeedDS'              => $MaxSpeedDS,
+            'NewMaxSpeedUS'              => $MaxSpeedUS
+        ]);
         if ($result === false) {
             return false;
         }
@@ -684,7 +566,124 @@ class FritzBoxWLAN extends FritzBoxModulBase
         }
         return $result;
     }
-        
+    private function GetWLANForm(array &$Options)
+    {
+        $result = $this->SendDataToParent(json_encode(
+            [
+                'DataID'     => '{D62D4515-7689-D1DB-EE97-F555AD9433F0}',
+                'Function'   => 'COUNTWLAN'
+            ]
+        ));
+        if ($result === false) {
+            return;
+        }
+        $NoOfWlan = unserialize($result);
+        for ($i = 1; $i <= $NoOfWlan; $i++) {
+            $Index = $Options[$i]['value'];
+            $result = $this->SendDataToParent(json_encode(
+                [
+                    'DataID'    => '{D62D4515-7689-D1DB-EE97-F555AD9433F0}',
+                    'ServiceTyp'=> static::$ServiceTypeArray[$Index],
+                    'ControlUrl'=> static::$ControlUrlArray[$Index],
+                    'Function'  => 'X_AVM-DE_GetWLANExtInfo',
+                    'Parameter' => []
+                ]
+            ));
+            $guest = unserialize($result);
+            if ($guest === false) {
+                continue;
+            }
+            if ($guest['NewX_AVM-DE_APType'] == 'guest') {
+                $Options[$i]['caption'] = $i . $this->Translate(' (Guest)');
+                continue;
+            }
+            $result = $this->SendDataToParent(json_encode(
+                [
+                    'DataID'    => '{D62D4515-7689-D1DB-EE97-F555AD9433F0}',
+                    'ServiceTyp'=> static::$ServiceTypeArray[$Index],
+                    'ControlUrl'=> static::$ControlUrlArray[$Index],
+                    'Function'  => 'GetInfo',
+                    'Parameter' => []
+                ]
+            ));
+            $info = unserialize($result);
+            if ($info === false) {
+                continue;
+            }
+            if ($info['NewStandard'] == 'ac') {
+                $Options[$i]['caption'] = $i . $this->Translate(' (5 Ghz)');
+            } else {
+                $Options[$i]['caption'] = $i . $this->Translate(' (2,4 Ghz)');
+            }
+        }
+    }
+    private function UpdateInfo()
+    {
+        $resultState = $this->GetInfo();
+        if ($resultState === false) {
+            return false;
+        }
+        $this->setIPSVariable('X_AVM_DE_APEnabled', 'WLAN state', (int) $resultState['NewEnable'] !== 0, VARIABLETYPE_BOOLEAN, '~Switch', false, -11);
+        $this->setIPSVariable('SSID', 'SSID Name', (string) $resultState['NewSSID'], VARIABLETYPE_STRING, '', false, -10);
+        //todo
+        // Typ cachen
+        if ($this->ReadPropertyBoolean('InfoVariables')) {
+            $result = $this->GetWLANExtInfo();
+            if ($result === false) {
+                return false;
+            }
+            if ((string) $result['NewX_AVM-DE_APType'] == 'guest') {
+                $this->setIPSVariable('TimeoutActive', 'Timeout active', $result['NewX_AVM-DE_TimeoutActive'], VARIABLETYPE_BOOLEAN, '~Switch', false, -7);
+                $this->setIPSVariable('TimeRemainRaw', 'Remain time in minutes', (int) $result['NewX_AVM-DE_TimeRemain'], VARIABLETYPE_INTEGER, '', false, -6);
+                $this->setIPSVariable('TimeRemain', 'Remain time', $this->ConvertRuntime(((int) $result['NewX_AVM-DE_TimeRemain']) * 60), VARIABLETYPE_STRING, '', false, -5);
+                $this->setIPSVariable('OffTime', 'Scheduled shutdown', time() + ((int) $result['NewX_AVM-DE_TimeRemain'] * 60), VARIABLETYPE_INTEGER, '~UnixTimestamp', false, -4);
+                $this->setIPSVariable('ForcedOff', 'No shutdown when guest is active', $result['NewX_AVM-DE_NoForcedOff'], VARIABLETYPE_BOOLEAN, '~Switch', false, -3);
+            }
+        }
+        $useVariable = $this->ReadPropertyBoolean('ShowWLanKeyAsVariable');
+        $useQRCode = $this->ReadPropertyBoolean('ShowWLanKeyAsQRCode');
+
+        if ($useQRCode || $useVariable) {
+            $resultKeys = $this->GetSecurityKeys();
+            if ($resultKeys === false) {
+                return false;
+            }
+            if ($useVariable) {
+                $this->setIPSVariable('KeyPassphrase', 'Password', (string) $resultKeys['NewKeyPassphrase'], VARIABLETYPE_STRING, '', false, -9);
+            }
+            if ($useQRCode) {
+                $QRData = $this->GenerateQRCodeData((string) $resultState['NewSSID'], (string) $resultKeys['NewKeyPassphrase']);
+
+                $QRCodeID = @IPS_GetObjectIDByIdent('QRCodeIMG', $this->InstanceID);
+                if ($QRCodeID === false) {
+                    $QRCodeID = IPS_CreateMedia(1);
+                    IPS_SetParent($QRCodeID, $this->InstanceID);
+                    IPS_SetIdent($QRCodeID, 'QRCodeIMG');
+                    IPS_SetName($QRCodeID, 'QR-Code');
+                    IPS_SetPosition($QRCodeID, -8);
+                    IPS_SetMediaCached($QRCodeID, true);
+                    $filename = 'media' . DIRECTORY_SEPARATOR . 'QRCode_' . $this->InstanceID . '.png';
+                    IPS_SetMediaFile($QRCodeID, $filename, false);
+                    $this->SendDebug('Create Media', $filename, 0);
+                }
+
+                IPS_SetMediaContent($QRCodeID, base64_encode($QRData));
+            }
+        }
+        return true;
+    }
+    private function GenerateQRCodeData(string $SSID, string $KeyPassphrase, int $size = 0)
+    {
+        $CodeText = 'WIFI:S:' . $SSID . ';T:WPA;P:' . $KeyPassphrase . ';;';
+        $Size = $this->ReadPropertyInteger('QRCodeSize');
+        include __DIR__ . '/../libs/phpqrcode/qrlib.php';
+        ob_start();
+        QRcode::png($CodeText, null, QR_ECLEVEL_L, $Size);
+        $QRImage = ob_get_contents();
+        ob_end_clean();
+        return $QRImage;
+    }
+
     private function GenerateHTMLStyleProperty()
     {
         $NewTableConfig = [
@@ -703,11 +702,11 @@ class FritzBoxWLAN extends FritzBoxModulBase
         ];
         $NewColumnsConfig = [
             [
-                'index' => 0,
-                'key'   => 'Hostname',
-                'name'  => $this->Translate('Hostname'),
-                'show'  => true,
-                'width' => 200,
+                'index'   => 0,
+                'key'     => 'Hostname',
+                'name'    => $this->Translate('Hostname'),
+                'show'    => true,
+                'width'   => 200,
                 'hrcolor' => -1,
                 'hralign' => 'center',
                 'hrstyle' => '',
@@ -716,11 +715,11 @@ class FritzBoxWLAN extends FritzBoxModulBase
 
             ],
             [
-                'index' => 1,
-                'key'   => 'IPAddress',
-                'name'  => $this->Translate('IP-Address'),
-                'show'  => true,
-                'width' => 200,
+                'index'   => 1,
+                'key'     => 'IPAddress',
+                'name'    => $this->Translate('IP-Address'),
+                'show'    => true,
+                'width'   => 200,
                 'hrcolor' => -1,
                 'hralign' => 'center',
                 'hrstyle' => '',
@@ -728,11 +727,11 @@ class FritzBoxWLAN extends FritzBoxModulBase
                 'tdstyle' => ''
             ],
             [
-                'index' => 2,
-                'key'   => 'MACAddress',
-                'name'  => $this->Translate('MAC-Address'),
-                'show'  => true,
-                'width' => 200,
+                'index'   => 2,
+                'key'     => 'MACAddress',
+                'name'    => $this->Translate('MAC-Address'),
+                'show'    => true,
+                'width'   => 200,
                 'hrcolor' => -1,
                 'hralign' => 'center',
                 'hrstyle' => '',
@@ -740,11 +739,11 @@ class FritzBoxWLAN extends FritzBoxModulBase
                 'tdstyle' => ''
             ],
             [
-                'index' => 3,
-                'key'   => 'Speed',
-                'name'  => $this->Translate('Speed'),
-                'show'  => true,
-                'width' => 200,
+                'index'   => 3,
+                'key'     => 'Speed',
+                'name'    => $this->Translate('Speed'),
+                'show'    => true,
+                'width'   => 200,
                 'hrcolor' => -1,
                 'hralign' => 'center',
                 'hrstyle' => '',
@@ -752,11 +751,11 @@ class FritzBoxWLAN extends FritzBoxModulBase
                 'tdstyle' => ''
             ],
             [
-                'index' => 4,
-                'key'   => 'Signalstrength',
-                'name'  => $this->Translate('Signalstrength'),
-                'show'  => true,
-                'width' => 200,
+                'index'   => 4,
+                'key'     => 'Signalstrength',
+                'name'    => $this->Translate('Signalstrength'),
+                'show'    => true,
+                'width'   => 200,
                 'hrcolor' => -1,
                 'hralign' => 'center',
                 'hrstyle' => '',

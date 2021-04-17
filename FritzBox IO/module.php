@@ -9,7 +9,7 @@ require_once __DIR__ . '/../libs/FritzBoxModule.php';
 /**
  * @property string $Url
  * @property string $Username
-
+ *
  */
 class FritzBoxIO extends IPSModule
 {
@@ -48,7 +48,7 @@ class FritzBoxIO extends IPSModule
         $this->RegisterAttributeBoolean('usePPP', false);
         $this->RegisterAttributeBoolean('HasIGD2', false);
         $this->RegisterAttributeInteger('NoOfWlan', 0);
-           
+
         $this->Url = '';
         $this->Username = '';
         //$this->RequireParent("{6179ED6A-FC31-413C-BB8E-1204150CF376}");
@@ -86,30 +86,16 @@ class FritzBoxIO extends IPSModule
                     }
                     break;
                 case FM_CHILDADDED:
-                    if (IPS_GetInstance($Data[0])['ModuleInfo']['ModuleID']== key(\FritzBox\Services::$Data['callmonitor'])) {
+                    if (IPS_GetInstance($Data[0])['ModuleInfo']['ModuleID'] == key(\FritzBox\Services::$Data['callmonitor'])) {
                         $this->CreateCallMonitorCS();
                     }
                     break;
             }
     }
-    private function CreateCallMonitorCS()
-    {
-        if (IPS_GetInstance($this->InstanceID)['ConnectionID'] != 0) {
-            return;
-        }
-        $this->RequireParent('{3CFF0FD9-E306-41DB-9B5A-9D06D38576C3}');
-        $ParentId = IPS_GetInstance($this->InstanceID)['ConnectionID'];
-        if ($ParentId >0) {
-            IPS_SetProperty($ParentId, 'Host', parse_url($this->Url, PHP_URL_HOST));
-            IPS_SetProperty($ParentId, 'Port', 1012);
-            IPS_SetProperty($ParentId, 'Open', true);
-            @IPS_ApplyChanges($ParentId);
-        }
-    }
 
     public function GetConfigurationForParent()
     {
-        return json_encode(['Host'=>parse_url($this->Url, PHP_URL_HOST),'Port' => 1012]);
+        return json_encode(['Host'=>parse_url($this->Url, PHP_URL_HOST), 'Port' => 1012]);
     }
 
     public function RequestAction($Ident, $Value)
@@ -141,11 +127,11 @@ class FritzBoxIO extends IPSModule
                     return;
                 }
             }
-            if ($this->ReadPropertyString('Password')=='') {
+            if ($this->ReadPropertyString('Password') == '') {
                 return;
             }
             if ($this->ReadPropertyString('Username') == '') {
-                $this->Username= $this->GetLastUser();
+                $this->Username = $this->GetLastUser();
             } else {
                 $this->Username = $this->ReadPropertyString('Username');
             }
@@ -192,14 +178,14 @@ class FritzBoxIO extends IPSModule
                     break;
                 case 'SETPHONEBOOKS':
                     $this->WriteAttributeArray('PhoneBooks', $data['Files']);
-                    $ret=true;
+                    $ret = true;
                     break;
                 case 'GETPHONEBOOKS':
                     $ret = $this->ReadAttributeArray('PhoneBooks');
                     break;
                 case 'SETPHONEDEVICES':
                         $this->WriteAttributeArray('PhoneDevices', $data['Devices']);
-                        $ret=true;
+                        $ret = true;
                     break;
                 case 'GETPHONEDEVICE':
                     $Devices = $this->ReadAttributeArray('PhoneDevices');
@@ -223,7 +209,7 @@ class FritzBoxIO extends IPSModule
     {
         $data = json_decode($JSONString);
         IPS_LogMessage('Splitter RECV', utf8_decode($data->Buffer));
-        $data->DataID ='{FE5B2BCA-CA0F-25DC-8E79-BDFD242CB06E}';
+        $data->DataID = '{FE5B2BCA-CA0F-25DC-8E79-BDFD242CB06E}';
         $this->SendDebug('Forward', json_encode($data), 0);
         $this->SendDataToChildren(json_encode($data));
     }
@@ -234,7 +220,7 @@ class FritzBoxIO extends IPSModule
         // urn:LANConfigSecurity-com:serviceId:LANConfigSecurity1
         // den letzten user ermitteln und eintragen
         $Form = json_decode(file_get_contents(__DIR__ . '/form.json'), true);
-        if ($this->ReadPropertyString('Username')=='') {
+        if ($this->ReadPropertyString('Username') == '') {
             $Form['elements'][2]['visible'] = true;
         }
         if (IPS_GetOption('NATSupport')) {
@@ -250,6 +236,20 @@ class FritzBoxIO extends IPSModule
         $this->SendDebug('FORM', json_encode($Form), 0);
         $this->SendDebug('FORM', json_last_error_msg(), 0);
         return json_encode($Form);
+    }
+
+    public function Reboot()
+    {
+        $result = $this->CallSoapAction(
+            $HttpCode,
+            'urn:dslforum-org:service:DeviceConfig:1',
+            '/upnp/control/deviceconfig',
+            'Reboot'
+        );
+        if (is_a($result, 'SoapFault')) {
+            return false;
+        }
+        return true;
     }
     protected function ProcessHookData()
     {
@@ -278,7 +278,7 @@ class FritzBoxIO extends IPSModule
             echo 'Bad Request!';
             return;
         }
-            
+
         $eventSubUrl = substr($_SERVER['REQUEST_URI'], strlen($_SERVER['HOOK']));
         $SID = $_SERVER['HTTP_SID'];
 
@@ -290,21 +290,35 @@ class FritzBoxIO extends IPSModule
         $xml = new simpleXMLElement($Data);
         $xml->registerXPathNamespace('event', $xml->getNameSpaces(false)['e']);
         $xmlPropertys = $xml->xpath('//event:property');
-        $Propertys=[];
+        $Propertys = [];
         foreach ($xmlPropertys as $property) {
-            $Propertys[str_replace('-', '_', $property->Children()->GetName())] =(string)$property->Children();
+            $Propertys[str_replace('-', '_', $property->Children()->GetName())] = (string) $property->Children();
         }
         $this->SendDebug('EVENT XML', $Propertys, 0);
         //todo Send to Childs
         $this->SendDataToChildren(
             json_encode(
                 [
-                        'DataID'     => '{CBD869A0-869B-3D4C-7EA8-D917D935E647}',
-                        'EventSubURL'=> $eventSubUrl,
-                        'EventData'  => $Propertys
-                    ]
+                    'DataID'     => '{CBD869A0-869B-3D4C-7EA8-D917D935E647}',
+                    'EventSubURL'=> $eventSubUrl,
+                    'EventData'  => $Propertys
+                ]
             )
         );
+    }
+    private function CreateCallMonitorCS()
+    {
+        if (IPS_GetInstance($this->InstanceID)['ConnectionID'] != 0) {
+            return;
+        }
+        $this->RequireParent('{3CFF0FD9-E306-41DB-9B5A-9D06D38576C3}');
+        $ParentId = IPS_GetInstance($this->InstanceID)['ConnectionID'];
+        if ($ParentId > 0) {
+            IPS_SetProperty($ParentId, 'Host', parse_url($this->Url, PHP_URL_HOST));
+            IPS_SetProperty($ParentId, 'Port', 1012);
+            IPS_SetProperty($ParentId, 'Open', true);
+            @IPS_ApplyChanges($ParentId);
+        }
     }
     private function SendHeaders()
     {
@@ -320,12 +334,12 @@ class FritzBoxIO extends IPSModule
         $Url = parse_url($Uri);
         if (isset($Url['scheme'])) {
             $Url['query'] = isset($Url['query']) ? '?' . $Url['query'] : '';
-            $Url = $this->Url.$Url['path'].$Url['query'];
+            $Url = $this->Url . $Url['path'] . $Url['query'];
         } else {
-            $Url = $this->Url.$Uri;
+            $Url = $this->Url . $Uri;
         }
-        if ($Filename!='') {
-            @array_map('unlink', glob(IPS_GetKernelDir() . 'FritzBoxTemp/' . $this->InstanceID . '/'.$Filename));
+        if ($Filename != '') {
+            @array_map('unlink', glob(IPS_GetKernelDir() . 'FritzBoxTemp/' . $this->InstanceID . '/' . $Filename));
         }
         $Data = Sys_GetURLContentEx($Url, ['Timeout'=>10000]);
         if ($Data === false) {
@@ -334,7 +348,7 @@ class FritzBoxIO extends IPSModule
         }
 
         $this->SendDebug('Load File: ' . $Uri, $Data, 0);
-        if ($Filename!='') {
+        if ($Filename != '') {
             file_put_contents(IPS_GetKernelDir() . 'FritzBoxTemp/' . $this->InstanceID . '/' . $Filename, $Data);
             return true;
         }
@@ -527,8 +541,8 @@ class FritzBoxIO extends IPSModule
             return '';
         }
         $Xpath = $xml->xpath('/List/Username[@last_user="1"]');
-        if (sizeof($Xpath) >0) {
-            return (string)$Xpath[0];
+        if (count($Xpath) > 0) {
+            return (string) $Xpath[0];
         }
         return '';
     }
@@ -552,20 +566,6 @@ class FritzBoxIO extends IPSModule
     {
         $this->MaintainVariable($ident, $this->Translate($name), $type, '', 0, true);
         $this->SetValue($ident, $value);
-    }
-
-    public function Reboot()
-    {
-        $result = $this->CallSoapAction(
-            $HttpCode,
-            'urn:dslforum-org:service:DeviceConfig:1',
-            '/upnp/control/deviceconfig',
-            'Reboot'
-        );
-        if (is_a($result, 'SoapFault')) {
-            return false;
-        }
-        return true;
     }
 
     # Parameter und Result  eines Dienste aus der FritzBox lesen
@@ -605,37 +605,37 @@ class FritzBoxIO extends IPSModule
         $this->SendDebug('Service', $serviceTyp, 0);
         $this->SendDebug('Action', $function, 0);
         $Options = [
-                'uri'                    => $serviceTyp,
-                'location'               => $this->Url . $controlURL,
-                'noroot'                 => true,
-                'trace'                  => true,
-                'exceptions'             => true,
-                'ssl_method'             => SOAP_SSL_METHOD_TLS,
-                'soap_version'           => SOAP_1_1,
-                'connection_timeout'     => 5,
-                'default_socket_timeout' => 5,
-                'keep_alive'             => false,
-                'login'                  => $this->Username,
-                'password'               => $this->ReadPropertyString('Password'),
-                'authentication'         => SOAP_AUTHENTICATION_DIGEST,
-                'compression'            => SOAP_COMPRESSION_ACCEPT | SOAP_COMPRESSION_GZIP,
-                'stream_context'         => $stream = stream_context_create(
-                    [
-                        'ssl'  => [
-                            'verify_peer'       => false,
-                            'verify_peer_name'  => false,
-                            'allow_self_signed' => true
-                        ],
-                        'http' => [
-                            'protocol_version' => 1.1,
-                            'timeout'          => 4,
-                            'header'           => [
-                                'Connection: close',
-                            ]
+            'uri'                    => $serviceTyp,
+            'location'               => $this->Url . $controlURL,
+            'noroot'                 => true,
+            'trace'                  => true,
+            'exceptions'             => true,
+            'ssl_method'             => SOAP_SSL_METHOD_TLS,
+            'soap_version'           => SOAP_1_1,
+            'connection_timeout'     => 5,
+            'default_socket_timeout' => 5,
+            'keep_alive'             => false,
+            'login'                  => $this->Username,
+            'password'               => $this->ReadPropertyString('Password'),
+            'authentication'         => SOAP_AUTHENTICATION_DIGEST,
+            'compression'            => SOAP_COMPRESSION_ACCEPT | SOAP_COMPRESSION_GZIP,
+            'stream_context'         => $stream = stream_context_create(
+                [
+                    'ssl'  => [
+                        'verify_peer'       => false,
+                        'verify_peer_name'  => false,
+                        'allow_self_signed' => true
+                    ],
+                    'http' => [
+                        'protocol_version' => 1.1,
+                        'timeout'          => 4,
+                        'header'           => [
+                            'Connection: close',
                         ]
                     ]
-                )
-            ];
+                ]
+            )
+        ];
         $client = new SoapClient(null, $Options);
         try {
             if (count($params) == 0) {
@@ -668,7 +668,7 @@ class FritzBoxIO extends IPSModule
             $this->SendDebug('Soap Response Error', $Response, 0);
             if (property_exists($e, 'detail')) {
                 $Details = $e->detail->{$e->faultstring};
-                $Detail = $e->faultstring . '('.$Details->errorCode.')';
+                $Detail = $e->faultstring . '(' . $Details->errorCode . ')';
                 $this->SendDebug($Detail, $Details->errorDescription, 0);
             }
             if ($ResponseHeaders == null) {
@@ -676,7 +676,7 @@ class FritzBoxIO extends IPSModule
             } else {
                 $HttpCode = (int) explode(' ', explode("\r\n", $ResponseHeaders)[0])[1];
             }
-            $this->SendDebug('Soap Response Code ('.$HttpCode.')', $e->faultstring, 0);
+            $this->SendDebug('Soap Response Code (' . $HttpCode . ')', $e->faultstring, 0);
 
             return $e;
         }
@@ -692,16 +692,16 @@ class FritzBoxIO extends IPSModule
         }
         $stream = stream_context_create(
             [
-                        'ssl'  => [
-                            'verify_peer'       => false,
-                            'verify_peer_name'  => false,
-                            'allow_self_signed' => true
-                        ]
-                    ]
+                'ssl'  => [
+                    'verify_peer'       => false,
+                    'verify_peer_name'  => false,
+                    'allow_self_signed' => true
+                ]
+            ]
         );
 
         if ($SID == '') {
-            $SID = 'CALLBACK: <' . $this->ReadAttributeString('ConsumerAddress')  .$Uri . ">\r\n" .
+            $SID = 'CALLBACK: <' . $this->ReadAttributeString('ConsumerAddress') . $Uri . ">\r\n" .
                         "NT: upnp:event\r\n";
         } else {
             $SID = 'SID: ' . $SID . "\r\n";

@@ -39,7 +39,7 @@ class FritzBoxWebDavStorage extends FritzBoxModulBase
             $this->SetStatus(IS_INACTIVE);
         } else {
             $this->UpdateWebDAVClient();
-            $this->SetTimerInterval('RefreshInfo', $this->ReadPropertyInteger('RefreshInterval')*1000);
+            $this->SetTimerInterval('RefreshInfo', $this->ReadPropertyInteger('RefreshInterval') * 1000);
             $this->SetStatus(IS_ACTIVE);
         }
     }
@@ -52,27 +52,11 @@ class FritzBoxWebDavStorage extends FritzBoxModulBase
             case 'RefreshInfo':
                 return $this->UpdateWebDAVClient();
             case 'Enable':
-                return $this->UpdateWebDAVClient((bool)$Value);
+                return $this->UpdateWebDAVClient((bool) $Value);
          }
         trigger_error($this->Translate('Invalid Ident.'), E_USER_NOTICE);
-        
+
         return false;
-    }
-    private function UpdateWebDAVClient(bool $NewEnabled = null)
-    {
-        $result = $this->GetInfo();
-        if ($result === false) {
-            return false;
-        }
-        if ($NewEnabled !== null) {
-            $changeResult = $this->EnableWebDAVClient($NewEnabled, $result['NewHostURL'], $result['NewMountpointName']);
-            if ($changeResult) {
-                $result['NewEnable']=$NewEnabled;
-            }
-        }
-        $this->setIPSVariable('Enable', 'WebDav client active', (bool)$result['NewEnable'], VARIABLETYPE_BOOLEAN, '~Switch', true);
-        
-        return true;
     }
     public function GetInfo()
     {
@@ -85,15 +69,31 @@ class FritzBoxWebDavStorage extends FritzBoxModulBase
     public function EnableWebDAVClient(bool $Enable, string $HostURL, string $NewMountpointName)
     {
         $result = $this->Send('SetConfig', [
-            'NewEnable'=> $Enable,
-            'NewHostURL'=> $HostURL,
-            'NewUsername'=> $this->ReadPropertyString('Username'),
-            'NewPassword' =>$this->ReadPropertyString('Password'),
-            'NewMountpointName'=>$NewMountpointName
+            'NewEnable'        => $Enable,
+            'NewHostURL'       => $HostURL,
+            'NewUsername'      => $this->ReadPropertyString('Username'),
+            'NewPassword'      => $this->ReadPropertyString('Password'),
+            'NewMountpointName'=> $NewMountpointName
         ]);
         if ($result === null) {
             return true;
         }
         return false;
+    }
+    private function UpdateWebDAVClient(bool $NewEnabled = null)
+    {
+        $result = $this->GetInfo();
+        if ($result === false) {
+            return false;
+        }
+        if ($NewEnabled !== null) {
+            $changeResult = $this->EnableWebDAVClient($NewEnabled, $result['NewHostURL'], $result['NewMountpointName']);
+            if ($changeResult) {
+                $result['NewEnable'] = $NewEnabled;
+            }
+        }
+        $this->setIPSVariable('Enable', 'WebDav client active', (bool) $result['NewEnable'], VARIABLETYPE_BOOLEAN, '~Switch', true);
+
+        return true;
     }
 }

@@ -1,25 +1,52 @@
 <?php
 
 declare(strict_types=1);
+
 namespace FritzBoxModul;
 
 trait TelHelper
 {
+    protected function ArrayWithCurlyBracketsKey($Source)
+    {
+        $Target = [];
+        foreach ($Source as $key=>$value) {
+            $Target['{' . strtoupper($key) . '}'] = $value;
+        }
+        return $Target;
+    }
+    protected function ArrayKeyToUpper($Source)
+    {
+        $Target = [];
+        foreach ($Source as $key=>$value) {
+            $Target[strtoupper($key)] = $value;
+        }
+        return $Target;
+    }
+    protected function GetIconsList()
+    {
+        $id = IPS_GetInstanceListByModuleID('{B69010EA-96D5-46DF-B885-24821B8C8DBD}')[0];
+        $Icons = [];
+        $Icons[] = ['caption' => '<none>', 'value' => ''];
+        foreach (UC_GetIconList($id) as $Icon) {
+            $Icons[] = ['caption' => $Icon, 'value' => $Icon];
+        }
+        return $Icons;
+    }
     private function DoReverseSearch(int $ReverseSearchInstanceID, int $CustomSearchScriptID, string $Number, string $UnknownName, string $SearchMarker, int $MaxNameSize)
     {
-        if ($CustomSearchScriptID !=0) {
-            return IPS_RunScriptWaitEx($CustomSearchScriptID, ['SENDER'=>'FritzBox','NUMBER'=>$Number]);
+        if ($CustomSearchScriptID != 0) {
+            return IPS_RunScriptWaitEx($CustomSearchScriptID, ['SENDER'=>'FritzBox', 'NUMBER'=>$Number]);
         }
 
-        if ($ReverseSearchInstanceID !=0) {
+        if ($ReverseSearchInstanceID != 0) {
             $Name = CIRS_GetName($ReverseSearchInstanceID, $Number);
             if ($Name === false) {
                 return $UnknownName;
             }
-            if (strlen($Name)>$MaxNameSize) {
-                $Name=substr($Name, 0, $MaxNameSize);
+            if (strlen($Name) > $MaxNameSize) {
+                $Name = substr($Name, 0, $MaxNameSize);
             }
-            return $SearchMarker.$Name;
+            return $SearchMarker . $Name;
         }
         return $UnknownName;
     }
@@ -39,10 +66,10 @@ trait TelHelper
                 $this->SendDebug('XML decode error', $XMLData, 0);
                 continue;
             }
-            $Contact = $XMLPhoneBook->xpath("//contact[telephony/number ='".$Number."']");
-            if (sizeof($Contact) > 0) {
+            $Contact = $XMLPhoneBook->xpath("//contact[telephony/number ='" . $Number . "']");
+            if (count($Contact) > 0) {
                 try {
-                    $Name = (string)$Contact[0]->person->realName;
+                    $Name = (string) $Contact[0]->person->realName;
                     break;
                 } catch (\Exception $exc) {
                     continue;
@@ -80,11 +107,11 @@ trait TelHelper
         }
         $this->SendDebug('Function', 'GetPhoneDevices', 0);
         $Ret = $this->SendDataToParent(json_encode(
-        [
-            'DataID'     => '{D62D4515-7689-D1DB-EE97-F555AD9433F0}',
-            'Function'   => 'GETPHONEDEVICE',
-            'DeviceID'   => $DeviceID
-        ]
+            [
+                'DataID'     => '{D62D4515-7689-D1DB-EE97-F555AD9433F0}',
+                'Function'   => 'GETPHONEDEVICE',
+                'DeviceID'   => $DeviceID
+            ]
         ));
         if ($Ret === false) {
             return '';
@@ -112,7 +139,7 @@ trait TelHelper
         $this->SendDebug('Result', $Result, 0);
         return $Result;
     }
-    private function GetPhoneBookFiles() : array
+    private function GetPhoneBookFiles(): array
     {
         if (!$this->HasActiveParent()) {
             return [];
@@ -130,31 +157,5 @@ trait TelHelper
         $Result = unserialize($Ret);
         $this->SendDebug('Result', $Result, 0);
         return $Result;
-    }
-    protected function ArrayWithCurlyBracketsKey($Source)
-    {
-        $Target = [];
-        foreach ($Source as $key=>$value) {
-            $Target['{'. strtoupper($key).'}'] = $value;
-        }
-        return $Target;
-    }
-    protected function ArrayKeyToUpper($Source)
-    {
-        $Target = [];
-        foreach ($Source as $key=>$value) {
-            $Target[strtoupper($key)]= $value;
-        }
-        return $Target;
-    }
-    protected function GetIconsList()
-    {
-        $id = IPS_GetInstanceListByModuleID('{B69010EA-96D5-46DF-B885-24821B8C8DBD}')[0];
-        $Icons = array();
-        $Icons[] = ['caption' => '<none>', 'value' => ''];
-        foreach (UC_GetIconList($id) as $Icon) {
-            $Icons[] = ['caption' => $Icon, 'value' => $Icon];
-        }
-        return $Icons;
     }
 }

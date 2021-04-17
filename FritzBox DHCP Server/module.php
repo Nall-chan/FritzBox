@@ -27,7 +27,7 @@ class FritzBoxDHCPServer extends FritzBoxModulBase
     {
         //Never delete this line!
         parent::ApplyChanges();
-        $this->SetTimerInterval('RefreshState', $this->ReadPropertyInteger('RefreshInterval')*1000);
+        $this->SetTimerInterval('RefreshState', $this->ReadPropertyInteger('RefreshInterval') * 1000);
         if (IPS_GetKernelRunlevel() != KR_READY) {
             return;
         }
@@ -56,22 +56,6 @@ class FritzBoxDHCPServer extends FritzBoxModulBase
         trigger_error($this->Translate('Invalid Ident.'), E_USER_NOTICE);
 
         return false;
-    }
-
-    private function UpdateInfo()
-    {
-        $result = $this->GetInfo();
-        if ($result === false) {
-            return false;
-        }
-        $this->setIPSVariable('DHCPServerEnable', 'DHCP active', (bool)$result['NewDHCPServerEnable'], VARIABLETYPE_BOOLEAN, '~Switch', true, 1);
-        $this->setIPSVariable('MinAddress', 'IP-Adresse Start', $result['NewMinAddress'], VARIABLETYPE_STRING, '', true, 2);
-        $this->setIPSVariable('MaxAddress', 'IP-Adresse End', $result['NewMaxAddress'], VARIABLETYPE_STRING, '', true, 3);
-        $this->setIPSVariable('SubnetMask', 'Subnet Mask', $result['NewSubnetMask'], VARIABLETYPE_STRING, '', true, 4);
-        $this->setIPSVariable('IPRouters', 'Gateway', $result['NewIPRouters'], VARIABLETYPE_STRING, '', true, 5);
-        $this->setIPSVariable('DNSServers', 'DNS-Server', $result['NewDNSServers'], VARIABLETYPE_STRING, '', false, 6);
-        $this->setIPSVariable('DomainName', 'Domain', $result['NewDomainName'], VARIABLETYPE_STRING, '', false, 7);
-        return true;
     }
     public function GetInfo()
     {
@@ -181,6 +165,22 @@ class FritzBoxDHCPServer extends FritzBoxModulBase
             return false;
         }
 
+        return true;
+    }
+
+    private function UpdateInfo()
+    {
+        $result = $this->GetInfo();
+        if ($result === false) {
+            return false;
+        }
+        $this->setIPSVariable('DHCPServerEnable', 'DHCP active', (bool) $result['NewDHCPServerEnable'], VARIABLETYPE_BOOLEAN, '~Switch', true, 1);
+        $this->setIPSVariable('MinAddress', 'IP-Adresse Start', $result['NewMinAddress'], VARIABLETYPE_STRING, '', true, 2);
+        $this->setIPSVariable('MaxAddress', 'IP-Adresse End', $result['NewMaxAddress'], VARIABLETYPE_STRING, '', true, 3);
+        $this->setIPSVariable('SubnetMask', 'Subnet Mask', $result['NewSubnetMask'], VARIABLETYPE_STRING, '', true, 4);
+        $this->setIPSVariable('IPRouters', 'Gateway', $result['NewIPRouters'], VARIABLETYPE_STRING, '', true, 5);
+        $this->setIPSVariable('DNSServers', 'DNS-Server', $result['NewDNSServers'], VARIABLETYPE_STRING, '', false, 6);
+        $this->setIPSVariable('DomainName', 'Domain', $result['NewDomainName'], VARIABLETYPE_STRING, '', false, 7);
         return true;
     }
 }

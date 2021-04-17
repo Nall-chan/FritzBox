@@ -29,7 +29,7 @@ class FritzBoxModulBase extends IPSModule
         //Never delete this line!
         parent::Create();
         $this->SID = '';
-        $this->ParentID=0;
+        $this->ParentID = 0;
         $this->ConnectParent('{6FF9A05D-4E49-4371-23F1-7F58283FB1D9}');
         if (count(static::$EventSubURLArray) > 0) {
             $this->RegisterTimer('RenewSubscription', 0, 'IPS_RequestAction(' . $this->InstanceID . ',"Subscribe",true);');
@@ -66,13 +66,13 @@ class FritzBoxModulBase extends IPSModule
         if ($Index > -1) {
             $Filter = preg_quote(substr(json_encode(static::$EventSubURLArray[$Index]), 1, -1));
             if (property_exists($this, 'SecondEventGUID')) {
-                $Filter.= '.*|.*"DataID":"'.preg_quote(static::$SecondEventGUID).'"';
+                $Filter .= '.*|.*"DataID":"' . preg_quote(static::$SecondEventGUID) . '"';
             }
             $this->SetReceiveDataFilter('.*"EventSubURL":"' . $Filter . '".*');
             $this->SendDebug('Filter', '.*"EventSubURL":"' . $Filter . '".*', 0);
         } else {
             if (property_exists($this, 'SecondEventGUID')) {
-                $Filter= '.*"DataID":"'.preg_quote(static::$SecondEventGUID).'".*';
+                $Filter = '.*"DataID":"' . preg_quote(static::$SecondEventGUID) . '".*';
                 $this->SetReceiveDataFilter($Filter);
                 $this->SendDebug('FilterSecondEventGUID', $Filter, 0);
             } else {
@@ -124,8 +124,8 @@ class FritzBoxModulBase extends IPSModule
         foreach ($Event as $Ident => $EventData) {
             $vid = @$this->GetIDForIdent($Ident);
             if ($vid > 0) {
-                if (IPS_GetVariable($vid)['VariableType']==VARIABLETYPE_BOOLEAN) {
-                    $EventData = (string)$EventData !== '0';
+                if (IPS_GetVariable($vid)['VariableType'] == VARIABLETYPE_BOOLEAN) {
+                    $EventData = (string) $EventData !== '0';
                 }
                 $this->SetValue($Ident, $EventData);
             }
@@ -254,10 +254,10 @@ class FritzBoxModulBase extends IPSModule
         $this->SendDebug('Uri', $Uri, 0);
         $Ret = $this->SendDataToParent(json_encode(
             [
-                    'DataID'     => '{D62D4515-7689-D1DB-EE97-F555AD9433F0}',
-                    'Function'   => 'GETFILE',
-                    'Uri'=> $Uri
-                ]
+                'DataID'     => '{D62D4515-7689-D1DB-EE97-F555AD9433F0}',
+                'Function'   => 'GETFILE',
+                'Uri'        => $Uri
+            ]
         ));
         if ($Ret === false) {
             return false;
@@ -277,8 +277,8 @@ class FritzBoxModulBase extends IPSModule
             [
                 'DataID'     => '{D62D4515-7689-D1DB-EE97-F555AD9433F0}',
                 'Function'   => 'LOADFILE',
-                'Uri'=> $Uri,
-                'Filename'=> $Filename
+                'Uri'        => $Uri,
+                'Filename'   => $Filename
             ]
         ));
         if ($Ret === false) {
@@ -293,7 +293,7 @@ class FritzBoxModulBase extends IPSModule
         if ($this->ParentID == 0) {
             return false;
         }
-        return @file_get_contents(IPS_GetKernelDir() . 'FritzBoxTemp/' . $this->ParentID . '/'.$Filename);
+        return @file_get_contents(IPS_GetKernelDir() . 'FritzBoxTemp/' . $this->ParentID . '/' . $Filename);
     }
 
     protected function Send($Function, array $Parameter = [])
@@ -312,12 +312,12 @@ class FritzBoxModulBase extends IPSModule
         $this->SendDebug('Params', $Parameter, 0);
         $Ret = $this->SendDataToParent(json_encode(
             [
-                    'DataID'    => '{D62D4515-7689-D1DB-EE97-F555AD9433F0}',
-                    'ServiceTyp'=> static::$ServiceTypeArray[$Index],
-                    'ControlUrl'=> static::$ControlUrlArray[$Index],
-                    'Function'  => $Function,
-                    'Parameter' => $Parameter
-                ]
+                'DataID'    => '{D62D4515-7689-D1DB-EE97-F555AD9433F0}',
+                'ServiceTyp'=> static::$ServiceTypeArray[$Index],
+                'ControlUrl'=> static::$ControlUrlArray[$Index],
+                'Function'  => $Function,
+                'Parameter' => $Parameter
+            ]
         ));
         if ($Ret === false) {
             return false;
@@ -326,9 +326,9 @@ class FritzBoxModulBase extends IPSModule
         if (is_a($Result, 'SoapFault')) {
             if (property_exists($Result, 'detail')) {
                 $Details = $Result->detail->{$Result->faultstring};
-                $Detail = $Result->faultstring . '('.$Details->errorCode.')';
+                $Detail = $Result->faultstring . '(' . $Details->errorCode . ')';
                 $this->SendDebug($Detail, $Details->errorDescription, 0);
-                trigger_error($Detail."\r\n".$Details->errorDescription, E_USER_WARNING);
+                trigger_error($Detail . "\r\n" . $Details->errorDescription, E_USER_WARNING);
                 return false;
             }
             $this->SendDebug('SoapFault', $Result->getMessage(), 0);
@@ -435,53 +435,53 @@ class FritzBoxModulBase extends IPSModule
     {
         $extension = pathinfo($path, PATHINFO_EXTENSION);
         $mimeType = $this->GetMimeType($extension);
-        header("Content-Type: " . $mimeType);
+        header('Content-Type: ' . $mimeType);
 
         //Add caching support
         $etag = md5_file($path);
-        header("ETag: " . $etag);
+        header('ETag: ' . $etag);
         if (isset($_SERVER['HTTP_IF_NONE_MATCH']) && (trim($_SERVER['HTTP_IF_NONE_MATCH']) == $etag)) {
             http_response_code(304);
             return;
         }
-                
+
         //Add gzip compression
         if (strstr($_SERVER['HTTP_ACCEPT_ENCODING'], 'gzip') && $this->IsCompressionAllowed($mimeType)) {
             $compressed = gzencode(file_get_contents($path));
-            header("Content-Encoding: gzip");
-            header("Content-Length: " . strlen($compressed));
+            header('Content-Encoding: gzip');
+            header('Content-Length: ' . strlen($compressed));
             echo $compressed;
         } else {
-            header("Content-Length: " . filesize($path));
+            header('Content-Length: ' . filesize($path));
             readfile($path);
         }
     }
     protected function IsCompressionAllowed($mimeType)
     {
         return in_array($mimeType, [
-            "text/plain",
-            "text/html",
-            "text/xml",
-            "text/css",
-            "text/javascript",
-            "application/xml",
-            "application/xhtml+xml",
-            "application/rss+xml",
-            "application/json",
-            "application/json; charset=utf-8",
-            "application/javascript",
-            "application/x-javascript",
-            "image/svg+xml"
+            'text/plain',
+            'text/html',
+            'text/xml',
+            'text/css',
+            'text/javascript',
+            'application/xml',
+            'application/xhtml+xml',
+            'application/rss+xml',
+            'application/json',
+            'application/json; charset=utf-8',
+            'application/javascript',
+            'application/x-javascript',
+            'image/svg+xml'
         ]);
     }
-    
+
     protected function GetMimeType($extension)
     {
-        $lines = file(IPS_GetKernelDirEx()."mime.types");
+        $lines = file(IPS_GetKernelDirEx() . 'mime.types');
         foreach ($lines as $line) {
             $type = explode("\t", $line, 2);
-            if (sizeof($type) == 2) {
-                $types = explode(" ", trim($type[1]));
+            if (count($type) == 2) {
+                $types = explode(' ', trim($type[1]));
                 foreach ($types as $ext) {
                     if ($ext == $extension) {
                         return $type[0];
@@ -489,6 +489,6 @@ class FritzBoxModulBase extends IPSModule
                 }
             }
         }
-        return "text/plain";
+        return 'text/plain';
     }
 }

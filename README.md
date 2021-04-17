@@ -12,7 +12,7 @@ Folgende Module beinhaltet das FritzBox Repository:
 	Kurze Beschreibung des Moduls.
 
 
-- __FritzBox Anrufliste__ ([Dokumentation](FritzBox%20Caller%20List/))  
+- __FritzBox Anrufliste__ ([Dokumentation](FritzBox%20Call%20List/))  
 	Kurze Beschreibung des Moduls.
 
 - __FritzBox Anruf-Monitor__ ([Dokumentation](FritzBox%20Callmonitor/))  

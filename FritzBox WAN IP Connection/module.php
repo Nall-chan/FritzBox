@@ -35,7 +35,7 @@ require_once __DIR__ . '/../libs/FritzBoxBase.php';
             //Never delete this line!
             parent::Destroy();
         }
-    
+
         public function ApplyChanges()
         {
             $this->SetTimerInterval('RefreshInfo', 0);
@@ -46,7 +46,7 @@ require_once __DIR__ . '/../libs/FritzBoxBase.php';
                 '',
                 '',
                 [
-                    [0,$this->Translate('Reconnect'),'',0xff0000]
+                    [0, $this->Translate('Reconnect'), '', 0xff0000]
                 ]
             );
             //TODO String Asso
@@ -74,51 +74,9 @@ require_once __DIR__ . '/../libs/FritzBoxBase.php';
             $this->RegisterVariableInteger('ConnectionAction', $this->Translate('Control connection'), 'FB.Connect', 0);
             $this->EnableAction('ConnectionAction');
 
-            $this->SetTimerInterval('RefreshInfo', $this->ReadPropertyInteger('RefreshInterval')*1000);
+            $this->SetTimerInterval('RefreshInfo', $this->ReadPropertyInteger('RefreshInterval') * 1000);
         }
-        private function UpdateInfo()
-        {
-            $result = $this->GetStatusInfo();
-            if ($result === false) {
-                return false;
-            }
-            $this->setIPSVariable('ConnectionStatus', 'IP connection status', ($result['NewConnectionStatus'] == 'Connected'), VARIABLETYPE_BOOLEAN, 'FB.ConnectionStatus', false, 1);
-            $this->setIPSVariable('UptimeRAW', 'Connection duration in seconds', (int) $result['NewUptime'], VARIABLETYPE_INTEGER, '', false, 2);
-            $this->setIPSVariable('Uptime', 'Connection duration', $this->ConvertRunTime((int) $result['NewUptime']), VARIABLETYPE_STRING, '', false, 3);
 
-            $result = $this->GetExternalIPAddress();
-            if ($result === false) {
-                return false;
-            }
-            $this->setIPSVariable('ExternalIPAddress', 'External IPv4 Address', $result, VARIABLETYPE_STRING, '', false, 4);
-
-            $result = $this->GetDNSServer();
-            if ($result === false) {
-                return false;
-            }
-            $this->setIPSVariable('IPv4DNSServer1', 'IPv4 DNS-Server 1', $result['NewIPv4DNSServer1'], VARIABLETYPE_STRING, '', false, 5);
-            $this->setIPSVariable('IPv4DNSServer2', 'IPv4 DNS-Server 2', $result['NewIPv4DNSServer2'], VARIABLETYPE_STRING, '', false, 6);
-
-            $result = $this->GetExternalIPv6Address();
-            if ($result === false) {
-                return false;
-            }
-            $this->setIPSVariable('ExternalIPv6Address', 'External IPv6 Address', $result['NewExternalIPv6Address'], VARIABLETYPE_STRING, '', false, 10);
-
-            $result = $this->GetIPv6Prefix();
-            if ($result === false) {
-                return false;
-            }
-            $this->setIPSVariable('IPv6Prefix', 'IPv6 Prefix', $result['NewIPv6Prefix'], VARIABLETYPE_STRING, '', false, 16);
-            
-            $result = $this->GetIPv6DNSServer();
-            if ($result === false) {
-                return false;
-            }
-            $this->setIPSVariable('IPv6DNSServer1', 'IPv6 DNS-Server 1', $result['NewIPv6DNSServer1'], VARIABLETYPE_STRING, '', false, 14);
-            $this->setIPSVariable('IPv6DNSServer2', 'IPv6 DNS-Server 2', $result['NewIPv6DNSServer2'], VARIABLETYPE_STRING, '', false, 15);
-        }
-        
         public function GetConnectionTypeInfo()
         {
             return $this->Send(__FUNCTION__);
@@ -210,7 +168,7 @@ require_once __DIR__ . '/../libs/FritzBoxBase.php';
                 {
                     return $this->Send('GetGenericPortMappingEntry', ['NewPortMappingIndex'=>$Index]);
                 }
-        */
+         */
         public function RequestAction($Ident, $Value)
         {
             if (parent::RequestAction($Ident, $Value)) {
@@ -261,5 +219,47 @@ require_once __DIR__ . '/../libs/FritzBoxBase.php';
                 $this->UpdateInfo();
             }
             parent::DecodeEvent($Event);
+        }
+        private function UpdateInfo()
+        {
+            $result = $this->GetStatusInfo();
+            if ($result === false) {
+                return false;
+            }
+            $this->setIPSVariable('ConnectionStatus', 'IP connection status', ($result['NewConnectionStatus'] == 'Connected'), VARIABLETYPE_BOOLEAN, 'FB.ConnectionStatus', false, 1);
+            $this->setIPSVariable('UptimeRAW', 'Connection duration in seconds', (int) $result['NewUptime'], VARIABLETYPE_INTEGER, '', false, 2);
+            $this->setIPSVariable('Uptime', 'Connection duration', $this->ConvertRunTime((int) $result['NewUptime']), VARIABLETYPE_STRING, '', false, 3);
+
+            $result = $this->GetExternalIPAddress();
+            if ($result === false) {
+                return false;
+            }
+            $this->setIPSVariable('ExternalIPAddress', 'External IPv4 Address', $result, VARIABLETYPE_STRING, '', false, 4);
+
+            $result = $this->GetDNSServer();
+            if ($result === false) {
+                return false;
+            }
+            $this->setIPSVariable('IPv4DNSServer1', 'IPv4 DNS-Server 1', $result['NewIPv4DNSServer1'], VARIABLETYPE_STRING, '', false, 5);
+            $this->setIPSVariable('IPv4DNSServer2', 'IPv4 DNS-Server 2', $result['NewIPv4DNSServer2'], VARIABLETYPE_STRING, '', false, 6);
+
+            $result = $this->GetExternalIPv6Address();
+            if ($result === false) {
+                return false;
+            }
+            $this->setIPSVariable('ExternalIPv6Address', 'External IPv6 Address', $result['NewExternalIPv6Address'], VARIABLETYPE_STRING, '', false, 10);
+
+            $result = $this->GetIPv6Prefix();
+            if ($result === false) {
+                return false;
+            }
+            $this->setIPSVariable('IPv6Prefix', 'IPv6 Prefix', $result['NewIPv6Prefix'], VARIABLETYPE_STRING, '', false, 16);
+
+            $result = $this->GetIPv6DNSServer();
+            if ($result === false) {
+                return false;
+            }
+            $this->setIPSVariable('IPv6DNSServer1', 'IPv6 DNS-Server 1', $result['NewIPv6DNSServer1'], VARIABLETYPE_STRING, '', false, 14);
+            $this->setIPSVariable('IPv6DNSServer2', 'IPv6 DNS-Server 2', $result['NewIPv6DNSServer2'], VARIABLETYPE_STRING, '', false, 15);
         }
     }

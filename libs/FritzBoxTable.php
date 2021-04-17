@@ -1,6 +1,7 @@
 <?php
 
 declare(strict_types=1);
+
 namespace FritzBoxModul;
 
 /**
@@ -60,7 +61,7 @@ sleep(10).then(() => {
 
 </script>';
         }
-        $Style='';
+        $Style = '';
         if (isset($Config_Table['active'])) {
             $Style .= '.isactive {' . $Config_Table['active'] . '}' . PHP_EOL;
         }
@@ -68,7 +69,7 @@ sleep(10).then(() => {
             $Style .= '.isinactive {' . $Config_Table['inactive'] . '}' . PHP_EOL;
         }
         if ($Style != '') {
-            $table .= '<style>'.$Style. '</style>' . PHP_EOL;
+            $table .= '<style>' . $Style . '</style>' . PHP_EOL;
         }
         // Kopf der Tabelle erzeugen
         $table .= '<table style="' . $Config_Table['<table>'] . '">' . PHP_EOL;
@@ -123,7 +124,7 @@ sleep(10).then(() => {
         $Config_Rows_BgColor = array_column($Config_Rows, 'bgcolor', 'row');
         $Config_Rows_Color = array_column($Config_Rows, 'color', 'row');
         $Config_Rows_Style = array_column($Config_Rows, 'style', 'row');
-        if ($HookId !='') {
+        if ($HookId != '') {
             $NewSecret = base64_encode(openssl_random_pseudo_bytes(12));
             $this->{'WebHookSecret' . $HookType} = $NewSecret;
         }
@@ -140,7 +141,7 @@ sleep(10).then(() => {
                                 }
 
                                 $Line['Play'] = ($Line['Position'] == $CurrentLine ? '<div class="iconMediumSpinner ipsIconArrowRight" style="width: 100%; background-position: center center;"></div>' : '');
-                */
+                 */
                 //$LineIndex = ($Line['Position'] == $CurrentLine ? 'active' : ($pos % 2 ? 'odd' : 'even'));
                 $LineIndex = ($pos % 2 ? 'odd' : 'even');
                 $TrStyle = [];
@@ -153,10 +154,10 @@ sleep(10).then(() => {
                 $TdStyle[] = $Config_Rows_Style[$LineIndex];
                 $HTMLData .= '<tr style="' . implode(';', $TrStyle) . '"';
                 if ($HookId != '') {
-                    $LineSecret = '&Secret=' .rawurlencode(base64_encode(sha1($NewSecret . '0' . $Line[$HookId], true)));
-                    $HTMLData.=' onclick="eval(document.getElementById(\'script' . $this->InstanceID . '\').innerHTML.toString()); window.xhrGet' . $this->InstanceID . '({ url: \'hook/' . $HookPrefix . $this->InstanceID . '?Type=' . $HookType . '&ID=' . ($HookId == 'Url' ? rawurlencode($Line[$HookId]) : $Line[$HookId]) . $LineSecret . '\' });"';
+                    $LineSecret = '&Secret=' . rawurlencode(base64_encode(sha1($NewSecret . '0' . $Line[$HookId], true)));
+                    $HTMLData .= ' onclick="eval(document.getElementById(\'script' . $this->InstanceID . '\').innerHTML.toString()); window.xhrGet' . $this->InstanceID . '({ url: \'hook/' . $HookPrefix . $this->InstanceID . '?Type=' . $HookType . '&ID=' . ($HookId == 'Url' ? rawurlencode($Line[$HookId]) : $Line[$HookId]) . $LineSecret . '\' });"';
                 }
-                $HTMLData.='>';
+                $HTMLData .= '>';
                 $td = [];
                 foreach ($Config_Columns as $Column) {
                     if ($Column['show'] !== true) {

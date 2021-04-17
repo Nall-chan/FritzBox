@@ -31,7 +31,7 @@ class FritzBoxTime extends FritzBoxModulBase
     {
         $this->SetTimerInterval('RefreshInfo', 0);
         parent::ApplyChanges();
-        $this->SetTimerInterval('RefreshInfo', $this->ReadPropertyInteger('RefreshInterval')*1000);
+        $this->SetTimerInterval('RefreshInfo', $this->ReadPropertyInteger('RefreshInterval') * 1000);
         if (IPS_GetKernelRunlevel() != KR_READY) {
             return;
         }
@@ -51,26 +51,8 @@ class FritzBoxTime extends FritzBoxModulBase
                 return $this->SetNTPServers($this->GetValue('NTPServer'), $Value);
          }
         trigger_error($this->Translate('Invalid Ident.'), E_USER_NOTICE);
-        
+
         return false;
-    }
-    private function UpdateInfo()
-    {
-        $result = $this->GetInfo();
-        if ($result === false) {
-            return false;
-        }
-        $VarTime = new DateTime((string) $result['NewCurrentLocalTime']);
-        $this->setIPSVariable('CurrentLocalTime', 'Current system clock', $VarTime->getTimestamp(), VARIABLETYPE_INTEGER, '~UnixTimestamp');
-        $this->setIPSVariable('NTPServer', 'NTP-Server 1', $result['NewNTPServer1'], VARIABLETYPE_STRING, '', true);
-        $this->setIPSVariable('NTPServer2', 'NTP-Server 2', $result['NewNTPServer2'], VARIABLETYPE_STRING, '', true);
-        //todo
-        /*
-        NewDaylightSavingsUsed
-        NewDaylightSavingsStart
-        NewDaylightSavingsEnd
-        */
-        return true;
     }
     public function GetInfo()
     {
@@ -90,6 +72,24 @@ class FritzBoxTime extends FritzBoxModulBase
             return false;
         }
 
+        return true;
+    }
+    private function UpdateInfo()
+    {
+        $result = $this->GetInfo();
+        if ($result === false) {
+            return false;
+        }
+        $VarTime = new DateTime((string) $result['NewCurrentLocalTime']);
+        $this->setIPSVariable('CurrentLocalTime', 'Current system clock', $VarTime->getTimestamp(), VARIABLETYPE_INTEGER, '~UnixTimestamp');
+        $this->setIPSVariable('NTPServer', 'NTP-Server 1', $result['NewNTPServer1'], VARIABLETYPE_STRING, '', true);
+        $this->setIPSVariable('NTPServer2', 'NTP-Server 2', $result['NewNTPServer2'], VARIABLETYPE_STRING, '', true);
+        //todo
+        /*
+        NewDaylightSavingsUsed
+        NewDaylightSavingsStart
+        NewDaylightSavingsEnd
+         */
         return true;
     }
 }

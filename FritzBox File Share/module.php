@@ -21,7 +21,7 @@ require_once __DIR__ . '/../libs/FritzBoxBase.php';
             //TODO
             $this->RegisterPropertyBoolean('SharesAsTable', false);
             $this->RegisterPropertyInteger('RefreshInterval', 3600);
-    
+
             $this->RegisterTimer('RefreshState', 0, 'IPS_RequestAction(' . $this->InstanceID . ',"RefreshState",true);');
         }
 
@@ -38,7 +38,7 @@ require_once __DIR__ . '/../libs/FritzBoxBase.php';
                 return;
             }
             $this->RefreshHTMLTable();
-            $this->SetTimerInterval('RefreshState', $this->ReadPropertyInteger('RefreshInterval')*1000);
+            $this->SetTimerInterval('RefreshState', $this->ReadPropertyInteger('RefreshInterval') * 1000);
         }
 
         public function RequestAction($Ident, $Value)
@@ -60,13 +60,13 @@ require_once __DIR__ . '/../libs/FritzBoxBase.php';
             if ($this->ParentID == 0) {
                 return false;
             }
-                
+
             $File = $this->GetFilelinkListPath();
             if ($File === false) {
                 return false;
             }
             //TODO
-            $Data=[];
+            $Data = [];
             /*
             $Url = IPS_GetProperty($this->ParentID, 'Host'). $File;
             $XMLData = @Sys_GetURLContentEx($Url, ['Timeout'=>3000]);
@@ -98,10 +98,6 @@ require_once __DIR__ . '/../libs/FritzBoxBase.php';
             }
             return $this->CreateHostHTMLTable($Data);
         }
-        private function CreateHostHTMLTable(array $TableData)
-        {
-            //todo
-        }
         public function GetNumberOfFilelinkEntries()
         {
             $result = $this->Send(__FUNCTION__);
@@ -130,8 +126,8 @@ require_once __DIR__ . '/../libs/FritzBoxBase.php';
         ) {
             $result = $this->Send(__FUNCTION__, [
                 'NewID'                    => $ID,
-                'NewAccessCountLimit'   => $AccessCountLimit,
-                'NewExpire'             => $Expire
+                'NewAccessCountLimit'      => $AccessCountLimit,
+                'NewExpire'                => $Expire
             ]);
             return true;
         }
@@ -172,5 +168,9 @@ require_once __DIR__ . '/../libs/FritzBoxBase.php';
                 return false;
             }
             return $result;
+        }
+        private function CreateHostHTMLTable(array $TableData)
+        {
+            //todo
         }
     }

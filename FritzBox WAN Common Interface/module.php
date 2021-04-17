@@ -46,7 +46,7 @@ require_once __DIR__ . '/../libs/FritzBoxBase.php';
             //Never delete this line!
             parent::Destroy();
         }
-    
+
         public function ApplyChanges()
         {
             $this->SetTimerInterval('RefreshInfo', 0);
@@ -56,11 +56,11 @@ require_once __DIR__ . '/../libs/FritzBoxBase.php';
                 '',
                 '',
                 [
-                [0, $this->Translate('Up'), '', 0x00ff00],
-                [1, $this->Translate('Down'), '', 0xff0000],
-                [2, $this->Translate('Initializing'), '', 0xff00ff],
-                [3, $this->Translate('Unavailable'), '', 0xff0000],
-            ]
+                    [0, $this->Translate('Up'), '', 0x00ff00],
+                    [1, $this->Translate('Down'), '', 0xff0000],
+                    [2, $this->Translate('Initializing'), '', 0xff00ff],
+                    [3, $this->Translate('Unavailable'), '', 0xff0000],
+                ]
             );
             $this->RegisterProfileInteger('FB.kBit', '', '', ' kBit/s', 0, 0, 0);
             $this->RegisterProfileFloat('FB.Speed', '', '', '%', 0, 100, 0, 2);
@@ -77,7 +77,7 @@ require_once __DIR__ . '/../libs/FritzBoxBase.php';
                 return;
             }
             $this->UpdateAddonInfos();
-            $this->SetTimerInterval('RefreshInfo', $this->ReadPropertyInteger('RefreshInterval')*1000);
+            $this->SetTimerInterval('RefreshInfo', $this->ReadPropertyInteger('RefreshInterval') * 1000);
         }
         public function RequestAction($Ident, $Value)
         {
@@ -93,24 +93,6 @@ require_once __DIR__ . '/../libs/FritzBoxBase.php';
             }
             trigger_error($this->Translate('Invalid Ident.'), E_USER_NOTICE);
             return false;
-        }
-
-        private function UpdateCommonLinkProperties()
-        {
-            $result = $this->GetCommonLinkProperties();
-            if ($result === false) {
-                return false;
-            }
-
-            $this->setIPSVariable('WANAccessType', 'WAN Access type', (string) $result['NewWANAccessType'], VARIABLETYPE_STRING);
-            $this->setIPSVariable('PhysicalLinkStatus', 'Physical Link Status', $this->LinkStateToInt((string) $result['NewPhysicalLinkStatus']), VARIABLETYPE_INTEGER, 'FB.LinkState');
-            $Downstream = (int) ((int) $result['NewLayer1DownstreamMaxBitRate'] / 1000);
-            $Upstream = (int) ((int) $result['NewLayer1UpstreamMaxBitRate'] / 1000);
-            $this->Downstream = $Downstream;
-            $this->Upstream = $Upstream;
-            $this->setIPSVariable('UpstreamMaxBitRate', 'Upstream Max kBitrate', $Upstream, VARIABLETYPE_INTEGER, 'FB.kBit');
-            $this->setIPSVariable('DownstreamMaxBitRate', 'Downstream Max kBitrate', $Downstream, VARIABLETYPE_INTEGER, 'FB.kBit');
-            return true;
         }
         public function GetCommonLinkProperties()
         {
@@ -135,53 +117,6 @@ require_once __DIR__ . '/../libs/FritzBoxBase.php';
         public function GetTotalPacketsReceived()
         {
             return $this->Send(__FUNCTION__);
-        }
-
-        private function UpdateAddonInfos()
-        {
-            $result = $this->GetAddonInfos();
-            if ($result === false) {
-                return false;
-            }
-            $this->setIPSVariable('KByteSendRate', 'Sending rate', $result['NewByteSendRate'] / 1024, VARIABLETYPE_FLOAT, 'FB.kbs');
-            $this->setIPSVariable('KByteReceiveRate', 'Receive rate', $result['NewByteReceiveRate'] / 1024, VARIABLETYPE_FLOAT, 'FB.kbs');
-            $Downstream = $this->Downstream;
-            if ($Downstream > 0) {
-                $this->setIPSVariable('LevelReceiveRate', 'Load download', (100 / ($Downstream / 8) * ($result['NewByteReceiveRate'] / 1024)), VARIABLETYPE_FLOAT, 'FB.Speed');
-            }
-            $Upstream = $this->Upstream;
-            if ($Upstream > 0) {
-                $this->setIPSVariable('LevelSendRate', 'Load upload', (100 / ($Upstream / 8) * ($result['NewByteSendRate'] / 1024)), VARIABLETYPE_FLOAT, 'FB.Speed');
-            }
-            if (array_key_exists('NewX_AVM_DE_TotalBytesReceived64', $result)) {
-                $send = $result['NewX_AVM_DE_TotalBytesSent64'];
-                $recv = $result['NewX_AVM_DE_TotalBytesReceived64'];
-            } else {
-                $send = $result['NewTotalBytesSent'];
-                $recv = $result['NewTotalBytesReceived'];
-            }
-            $this->setIPSVariable('TotalMBytesSent', 'Sent since connected', $send / 1024 / 1024, VARIABLETYPE_FLOAT, 'FB.MByte');
-            $this->setIPSVariable('TotalMBytesReceived', 'Received since connected', $recv / 1024 / 1024, VARIABLETYPE_FLOAT, 'FB.MByte');
-
-            if (array_key_exists('NewDNSServer1', $result)) {
-                $this->setIPSVariable('UpnpControlEnabled', 'Allow automatic port forwarding via UPnP', $result['NewUpnpControlEnabled'], VARIABLETYPE_BOOLEAN, '~Switch');
-            }
-            if (array_key_exists('NewDNSServer1', $result)) {
-                $this->setIPSVariable('DNSServer1', 'DNS-Server 1', (string) $result['NewDNSServer1'], VARIABLETYPE_STRING);
-            }
-            if (array_key_exists('NewDNSServer2', $result)) {
-                $this->setIPSVariable('DNSServer2', 'DNS-Server 2', (string) $result['NewDNSServer2'], VARIABLETYPE_STRING);
-            }
-            if (array_key_exists('NewX_AVM_DE_WANAccessType', $result)) {
-                $this->setIPSVariable('WANAccessType', 'WAN Access type', (string) $result['NewX_AVM_DE_WANAccessType'], VARIABLETYPE_STRING);
-            }
-            if (array_key_exists('NewVoipDNSServer1', $result)) {
-                $this->setIPSVariable('VoipDNSServer1', 'VoIP DNS-Server 1', (string) $result['NewVoipDNSServer1'], VARIABLETYPE_STRING);
-            }
-            if (array_key_exists('NewVoipDNSServer2', $result)) {
-                $this->setIPSVariable('VoipDNSServer2', 'VoIP DNS-Server 2', (string) $result['NewVoipDNSServer2'], VARIABLETYPE_STRING);
-            }
-            return true;
         }
         public function GetAddonInfos()
         {
@@ -232,6 +167,71 @@ require_once __DIR__ . '/../libs/FritzBoxBase.php';
             }
 
             parent::DecodeEvent($Event);
+        }
+
+        private function UpdateCommonLinkProperties()
+        {
+            $result = $this->GetCommonLinkProperties();
+            if ($result === false) {
+                return false;
+            }
+
+            $this->setIPSVariable('WANAccessType', 'WAN Access type', (string) $result['NewWANAccessType'], VARIABLETYPE_STRING);
+            $this->setIPSVariable('PhysicalLinkStatus', 'Physical Link Status', $this->LinkStateToInt((string) $result['NewPhysicalLinkStatus']), VARIABLETYPE_INTEGER, 'FB.LinkState');
+            $Downstream = (int) ((int) $result['NewLayer1DownstreamMaxBitRate'] / 1000);
+            $Upstream = (int) ((int) $result['NewLayer1UpstreamMaxBitRate'] / 1000);
+            $this->Downstream = $Downstream;
+            $this->Upstream = $Upstream;
+            $this->setIPSVariable('UpstreamMaxBitRate', 'Upstream Max kBitrate', $Upstream, VARIABLETYPE_INTEGER, 'FB.kBit');
+            $this->setIPSVariable('DownstreamMaxBitRate', 'Downstream Max kBitrate', $Downstream, VARIABLETYPE_INTEGER, 'FB.kBit');
+            return true;
+        }
+
+        private function UpdateAddonInfos()
+        {
+            $result = $this->GetAddonInfos();
+            if ($result === false) {
+                return false;
+            }
+            $this->setIPSVariable('KByteSendRate', 'Sending rate', $result['NewByteSendRate'] / 1024, VARIABLETYPE_FLOAT, 'FB.kbs');
+            $this->setIPSVariable('KByteReceiveRate', 'Receive rate', $result['NewByteReceiveRate'] / 1024, VARIABLETYPE_FLOAT, 'FB.kbs');
+            $Downstream = $this->Downstream;
+            if ($Downstream > 0) {
+                $this->setIPSVariable('LevelReceiveRate', 'Load download', (100 / ($Downstream / 8) * ($result['NewByteReceiveRate'] / 1024)), VARIABLETYPE_FLOAT, 'FB.Speed');
+            }
+            $Upstream = $this->Upstream;
+            if ($Upstream > 0) {
+                $this->setIPSVariable('LevelSendRate', 'Load upload', (100 / ($Upstream / 8) * ($result['NewByteSendRate'] / 1024)), VARIABLETYPE_FLOAT, 'FB.Speed');
+            }
+            if (array_key_exists('NewX_AVM_DE_TotalBytesReceived64', $result)) {
+                $send = $result['NewX_AVM_DE_TotalBytesSent64'];
+                $recv = $result['NewX_AVM_DE_TotalBytesReceived64'];
+            } else {
+                $send = $result['NewTotalBytesSent'];
+                $recv = $result['NewTotalBytesReceived'];
+            }
+            $this->setIPSVariable('TotalMBytesSent', 'Sent since connected', $send / 1024 / 1024, VARIABLETYPE_FLOAT, 'FB.MByte');
+            $this->setIPSVariable('TotalMBytesReceived', 'Received since connected', $recv / 1024 / 1024, VARIABLETYPE_FLOAT, 'FB.MByte');
+
+            if (array_key_exists('NewDNSServer1', $result)) {
+                $this->setIPSVariable('UpnpControlEnabled', 'Allow automatic port forwarding via UPnP', $result['NewUpnpControlEnabled'], VARIABLETYPE_BOOLEAN, '~Switch');
+            }
+            if (array_key_exists('NewDNSServer1', $result)) {
+                $this->setIPSVariable('DNSServer1', 'DNS-Server 1', (string) $result['NewDNSServer1'], VARIABLETYPE_STRING);
+            }
+            if (array_key_exists('NewDNSServer2', $result)) {
+                $this->setIPSVariable('DNSServer2', 'DNS-Server 2', (string) $result['NewDNSServer2'], VARIABLETYPE_STRING);
+            }
+            if (array_key_exists('NewX_AVM_DE_WANAccessType', $result)) {
+                $this->setIPSVariable('WANAccessType', 'WAN Access type', (string) $result['NewX_AVM_DE_WANAccessType'], VARIABLETYPE_STRING);
+            }
+            if (array_key_exists('NewVoipDNSServer1', $result)) {
+                $this->setIPSVariable('VoipDNSServer1', 'VoIP DNS-Server 1', (string) $result['NewVoipDNSServer1'], VARIABLETYPE_STRING);
+            }
+            if (array_key_exists('NewVoipDNSServer2', $result)) {
+                $this->setIPSVariable('VoipDNSServer2', 'VoIP DNS-Server 2', (string) $result['NewVoipDNSServer2'], VARIABLETYPE_STRING);
+            }
+            return true;
         }
         //todo String Asso
         private function LinkStateToInt(string $LinkState): int

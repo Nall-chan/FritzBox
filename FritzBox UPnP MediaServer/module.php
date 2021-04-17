@@ -30,7 +30,7 @@ class FritzBoxUPnPMediaServer extends FritzBoxModulBase
     {
         $this->SetTimerInterval('RefreshInfo', 0);
         parent::ApplyChanges();
-        $this->SetTimerInterval('RefreshInfo', $this->ReadPropertyInteger('RefreshInterval')*1000);
+        $this->SetTimerInterval('RefreshInfo', $this->ReadPropertyInteger('RefreshInterval') * 1000);
         if (IPS_GetKernelRunlevel() != KR_READY) {
             return;
         }
@@ -45,23 +45,13 @@ class FritzBoxUPnPMediaServer extends FritzBoxModulBase
             case 'RefreshInfo':
                 return $this->UpdateInfo();
             case 'Enable':
-                return $this->EnableUPnPServer((bool)$Value, $this->GetValue('UPnPMediaServer'));
+                return $this->EnableUPnPServer((bool) $Value, $this->GetValue('UPnPMediaServer'));
             case 'UPnPMediaServer':
-                return $this->EnableUPnPServer($this->GetValue('Enable'), (bool)$Value);
+                return $this->EnableUPnPServer($this->GetValue('Enable'), (bool) $Value);
          }
         trigger_error($this->Translate('Invalid Ident.'), E_USER_NOTICE);
-        
+
         return false;
-    }
-    private function UpdateInfo()
-    {
-        $result = $this->GetInfo();
-        if ($result === false) {
-            return false;
-        }
-        $this->setIPSVariable('Enable', 'UPnP protocol active', (bool)$result['NewEnable'], VARIABLETYPE_BOOLEAN, '~Switch', true);
-        $this->setIPSVariable('UPnPMediaServer', 'UPnP Mediaserver active', (bool)$result['NewUPnPMediaServer'], VARIABLETYPE_BOOLEAN, '~Switch', true);
-        return true;
     }
     public function GetInfo()
     {
@@ -74,12 +64,22 @@ class FritzBoxUPnPMediaServer extends FritzBoxModulBase
     public function EnableUPnPServer(bool $Enable, bool $UPnPMediaServer)
     {
         $result = $this->Send('SetConfig', [
-            'NewEnable'=> $Enable,
+            'NewEnable'         => $Enable,
             'NewUPnPMediaServer'=> $UPnPMediaServer
         ]);
         if ($result === false) {
             return false;
         }
+        return true;
+    }
+    private function UpdateInfo()
+    {
+        $result = $this->GetInfo();
+        if ($result === false) {
+            return false;
+        }
+        $this->setIPSVariable('Enable', 'UPnP protocol active', (bool) $result['NewEnable'], VARIABLETYPE_BOOLEAN, '~Switch', true);
+        $this->setIPSVariable('UPnPMediaServer', 'UPnP Mediaserver active', (bool) $result['NewUPnPMediaServer'], VARIABLETYPE_BOOLEAN, '~Switch', true);
         return true;
     }
 }

@@ -11,13 +11,13 @@ require_once __DIR__ . '/../libs/FritzBoxModule.php';
     {
         use \FritzBoxModulBase\BufferHelper;
         use \FritzBoxModulBase\DebugHelper;
-    
+
         public function Create()
         {
             //Never delete this line!
             parent::Create();
-            $this->ParentID=0;
-            $this->HasCallMonitor=false;
+            $this->ParentID = 0;
+            $this->HasCallMonitor = false;
             $this->ConnectParent('{6FF9A05D-4E49-4371-23F1-7F58283FB1D9}');
         }
 
@@ -34,7 +34,7 @@ require_once __DIR__ . '/../libs/FritzBoxModule.php';
             $this->SetReceiveDataFilter('.*NOTHINGTORECEIVE.*');
             //todo
             //prüfen ob Anrufmonitor aktiv ist
-            $this->HasCallMonitor=true;
+            $this->HasCallMonitor = true;
         }
 
         public function GetConfigurationForm()
@@ -45,11 +45,11 @@ require_once __DIR__ . '/../libs/FritzBoxModule.php';
             }
             $Splitter = IPS_GetInstance($this->InstanceID)['ConnectionID'];
             if (($Splitter == 0) || !$this->HasActiveParent()) {
-                $Form['actions'][1]['visible']=true;
-                $Form['actions'][1]['popup']['items'][0]['caption']='Not connected!';
-                $Form['actions'][1]['popup']['items'][1]['caption']='The \'FritzBox IO\' instance is not connected or missing.';
-                $Form['actions'][1]['popup']['items'][1]['width']='200px';
-    
+                $Form['actions'][1]['visible'] = true;
+                $Form['actions'][1]['popup']['items'][0]['caption'] = 'Not connected!';
+                $Form['actions'][1]['popup']['items'][1]['caption'] = 'The \'FritzBox IO\' instance is not connected or missing.';
+                $Form['actions'][1]['popup']['items'][1]['width'] = '200px';
+
                 return json_encode($Form);
             }
             $Ret = $this->SendDataToParent(json_encode(
@@ -122,22 +122,22 @@ require_once __DIR__ . '/../libs/FritzBoxModule.php';
                         $guid = key(\FritzBox\Services::$Data[$serviceType]);
                         if ($guid !== null) {
                             $index = \FritzBox\Services::$Data[$serviceType][$guid];
-                            $AddService['type']= $AddService['type']. ' (' . $this->Translate(IPS_GetModule($guid)['ModuleName']). ')';
+                            $AddService['type'] = $AddService['type'] . ' (' . $this->Translate(IPS_GetModule($guid)['ModuleName']) . ')';
                             $AddService['create'] = [
                                 'moduleID'      => $guid,
                                 'configuration' => ['Index' => $index],
-                                'location' => [IPS_GetName($this->InstanceID)]
+                                'location'      => [IPS_GetName($this->InstanceID)]
                             ];
                             $Key = array_search(\FritzBox\Services::$Data[$serviceType], $KnownInstances);
                             if ($Key === false) {
                                 if (is_numeric($AddService['url'][-1])) {
-                                    $AddService['name']= $this->Translate(IPS_GetModule($guid)['ModuleName']).' '.$AddService['url'][-1];
+                                    $AddService['name'] = $this->Translate(IPS_GetModule($guid)['ModuleName']) . ' ' . $AddService['url'][-1];
                                 } else {
-                                    $AddService['name']= $this->Translate(IPS_GetModule($guid)['ModuleName']);
+                                    $AddService['name'] = $this->Translate(IPS_GetModule($guid)['ModuleName']);
                                 }
                             } else {
-                                $AddService['name']= IPS_GetName($Key);
-                                $AddService['instanceID']= $Key;
+                                $AddService['name'] = IPS_GetName($Key);
+                                $AddService['instanceID'] = $Key;
                                 unset($KnownInstances[$Key]);
                             }
                             //test mit filter nur auf bekannte
@@ -154,7 +154,7 @@ require_once __DIR__ . '/../libs/FritzBoxModule.php';
             if ($this->HasCallMonitor) {
                 //todo reinpatchen
                 //und aus KnownInstances entfernen
-                $serviceType='callmonitor';
+                $serviceType = 'callmonitor';
                 $guid = key(\FritzBox\Services::$Data[$serviceType]);
                 $AddService = [
                     'instanceID'      => 0,
@@ -162,36 +162,36 @@ require_once __DIR__ . '/../libs/FritzBoxModule.php';
                     'name'            => 'currently not available',
                     'event'           => ''
                 ];
-                $AddService['type']= $this->Translate(IPS_GetModule($guid)['ModuleName']);
+                $AddService['type'] = $this->Translate(IPS_GetModule($guid)['ModuleName']);
                 $AddService['create'] = [
                     'moduleID'      => $guid,
                     'configuration' => ['Index' => 0],
-                    'location' => [IPS_GetName($this->InstanceID)]
+                    'location'      => [IPS_GetName($this->InstanceID)]
                 ];
                 $Key = array_search(\FritzBox\Services::$Data[$serviceType], $KnownInstances);
                 if ($Key === false) {
-                    $AddService['name']= $this->Translate(IPS_GetModule($guid)['ModuleName']);
+                    $AddService['name'] = $this->Translate(IPS_GetModule($guid)['ModuleName']);
                 } else {
-                    $AddService['name']= IPS_GetName($Key);
-                    $AddService['instanceID']= $Key;
+                    $AddService['name'] = IPS_GetName($Key);
+                    $AddService['instanceID'] = $Key;
                     unset($KnownInstances[$Key]);
                 }
-                $ServiceValues[] =$AddService;
+                $ServiceValues[] = $AddService;
             }
             foreach ($KnownInstances as $InstanceId => $KnownInstance) {
-                $ServiceValues[] =[
-                'instanceID'      => $InstanceId,
-                'url'             => 'invalid',
-                'name'            => IPS_GetName($InstanceId),
-                'event'           => '',
-                'type'            => 'unknown'];
+                $ServiceValues[] = [
+                    'instanceID'      => $InstanceId,
+                    'url'             => 'invalid',
+                    'name'            => IPS_GetName($InstanceId),
+                    'event'           => '',
+                    'type'            => 'unknown'];
             }
             $Form['actions'][0]['values'] = array_merge($DeviceValues, $ServiceValues);
             $this->SendDebug('FORM', json_encode($Form), 0);
             $this->SendDebug('FORM', json_last_error_msg(), 0);
             return json_encode($Form);
         }
-        
+
         private function FilterInstances(int $InstanceID)
         {
             return IPS_GetInstance($InstanceID)['ConnectionID'] == $this->ParentID;
@@ -201,7 +201,7 @@ require_once __DIR__ . '/../libs/FritzBoxModule.php';
         {
             $AllInstancesOfParent = array_flip(array_filter(IPS_GetInstanceListByModuleType(MODULETYPE_DEVICE), [$this, 'FilterInstances']));
             foreach ($AllInstancesOfParent as $key => &$value) {
-                $value=[IPS_GetInstance($key)['ModuleInfo']['ModuleID'] => IPS_GetProperty($key, 'Index')];
+                $value = [IPS_GetInstance($key)['ModuleInfo']['ModuleID'] => IPS_GetProperty($key, 'Index')];
             }
             return $AllInstancesOfParent;
         }

@@ -11,6 +11,18 @@ class FritzBoxCallList extends FritzBoxModulBase
 {
     use \FritzBoxModul\HTMLTable;
     use \FritzBoxModul\TelHelper;
+
+    const Call_Incoming = 1;
+    const Call_Missed = 2;
+    const Call_Outgoing = 3;
+    //const Call_Tam_New=4;
+    //const Call_Tam_Old = 5;
+    //const Call_Tam_Deleted = 6;
+    const Call_Fax = 7;
+    const Call_Active_Incoming = 9;
+    const Call_Rejected_Incoming = 10;
+    const Call_Active_Outgoing = 11;
+    const FoundMarker = 20;
     //use \WebhookHelper;
 
     protected static $ControlUrlArray = [
@@ -23,20 +35,8 @@ class FritzBoxCallList extends FritzBoxModulBase
         'urn:dslforum-org:service:X_AVM-DE_OnTel:1'
     ];
 
-    protected static $SecondEventGUID='{FE5B2BCA-CA0F-25DC-8E79-BDFD242CB06E}';
+    protected static $SecondEventGUID = '{FE5B2BCA-CA0F-25DC-8E79-BDFD242CB06E}';
 
-    const Call_Incoming = 1;
-    const Call_Missed=2;
-    const Call_Outgoing = 3;
-    //const Call_Tam_New=4;
-    //const Call_Tam_Old = 5;
-    //const Call_Tam_Deleted = 6;
-    const Call_Fax = 7;
-    const Call_Active_Incoming = 9;
-    const Call_Rejected_Incoming = 10;
-    const Call_Active_Outgoing= 11;
-    const FoundMarker= 20;
-    
     public function Create()
     {
         //Never delete this line!
@@ -51,13 +51,13 @@ class FritzBoxCallList extends FritzBoxModulBase
         $this->RegisterPropertyString('Columns', json_encode($Style['Columns']));
         $this->RegisterPropertyString('Rows', json_encode($Style['Rows']));
         $this->RegisterPropertyString('Icons', json_encode($Style['Icons']));
-        
+
         $this->RegisterPropertyInteger('ReverseSearchInstanceID', 0);
         $this->RegisterPropertyInteger('CustomSearchScriptID', 0);
 
         $this->RegisterPropertyInteger('LoadListType', 2);
         $this->RegisterPropertyInteger('LastEntries', 20);
-        
+
         $this->RegisterPropertyInteger('MaxNameSize', 30);
         $this->RegisterPropertyString('SearchMarker', '{ICON}');
         $this->RegisterPropertyString('UnknownNumberName', $this->Translate('(unknown)'));
@@ -87,8 +87,8 @@ class FritzBoxCallList extends FritzBoxModulBase
         if (IPS_GetKernelRunlevel() != KR_READY) {
             return;
         }
-        $this->SetTimerInterval('RefreshPhonebook', $this->ReadPropertyInteger('RefreshIntervalPhonebook')*60000);
-        $this->SetTimerInterval('RefreshCallList', $this->ReadPropertyInteger('RefreshIntervalCallList')*60000);
+        $this->SetTimerInterval('RefreshPhonebook', $this->ReadPropertyInteger('RefreshIntervalPhonebook') * 60000);
+        $this->SetTimerInterval('RefreshCallList', $this->ReadPropertyInteger('RefreshIntervalCallList') * 60000);
         /*$this->GetDECTHandsetList();
         $this->GetDECTHandsetInfo(1);
         $this->GetDECTHandsetInfo(2);*/
@@ -113,14 +113,14 @@ class FritzBoxCallList extends FritzBoxModulBase
                 return $this->RefreshCallList();
             case 'PreviewIcon':
                 $Data = unserialize($Value);
-                $ImageData =  @getimagesize('data://text/plain;base64,'.$Data['Icon']);
+                $ImageData = @getimagesize('data://text/plain;base64,' . $Data['Icon']);
                     if ($ImageData === false) {
                         $this->UpdateFormField('IconName', 'caption', 'No valid image');
                         $this->UpdateFormField('IconPreview', 'visible', true);
                         return;
                     }
                 $this->UpdateFormField('IconName', 'caption', $Data['DisplayName']);
-                $this->UpdateFormField('IconImage', 'image', 'data://'.$ImageData['mime'].';base64,'.$Data['Icon']);
+                $this->UpdateFormField('IconImage', 'image', 'data://' . $ImageData['mime'] . ';base64,' . $Data['Icon']);
                 $this->UpdateFormField('IconPreview', 'visible', true);
                 return;
             case 'ReverseSearchInstanceID':
@@ -146,7 +146,7 @@ class FritzBoxCallList extends FritzBoxModulBase
                 }
                 return;
         }
-        
+
         trigger_error($this->Translate('Invalid Ident.'), E_USER_NOTICE);
         return false;
     }
@@ -155,176 +155,30 @@ class FritzBoxCallList extends FritzBoxModulBase
         $Form = json_decode(file_get_contents(__DIR__ . '/form.json'), true);
         if (!IPS_LibraryExists('{D0E8905A-F00C-EA84-D607-3D27000348D8}')) {
             if (!$this->ReadPropertyBoolean('NotShowWarning')) {
-                $Form['elements'][4]['visible']=true;
+                $Form['elements'][4]['visible'] = true;
             }
         }
-        if ($this->ReadPropertyInteger('CustomSearchScriptID')>0) {
-            $Form['elements'][0]['items'][1]['expanded']=false;
-            $Form['elements'][0]['items'][1]['items'][0]['items'][0]['enabled']=false;
-            $Form['elements'][0]['items'][1]['items'][0]['items'][1]['enabled']=false;
-            $Form['elements'][0]['items'][1]['items'][1]['items'][0]['enabled']=false;
-            $Form['elements'][0]['items'][1]['items'][1]['items'][1]['enabled']=false;
+        if ($this->ReadPropertyInteger('CustomSearchScriptID') > 0) {
+            $Form['elements'][0]['items'][1]['expanded'] = false;
+            $Form['elements'][0]['items'][1]['items'][0]['items'][0]['enabled'] = false;
+            $Form['elements'][0]['items'][1]['items'][0]['items'][1]['enabled'] = false;
+            $Form['elements'][0]['items'][1]['items'][1]['items'][0]['enabled'] = false;
+            $Form['elements'][0]['items'][1]['items'][1]['items'][1]['enabled'] = false;
         }
-        if ($this->ReadPropertyInteger('ReverseSearchInstanceID')>0) {
-            $Form['elements'][1]['items'][1]['enabled']=false;
+        if ($this->ReadPropertyInteger('ReverseSearchInstanceID') > 0) {
+            $Form['elements'][1]['items'][1]['enabled'] = false;
         }
         $this->SendDebug('FORM', json_encode($Form), 0);
         $this->SendDebug('FORM', json_last_error_msg(), 0);
         return json_encode($Form);
-    }
-    private function RefreshCallList()
-    {
-        $this->SendDebug('RefreshCallList', 'start', 0);
-        $result = $this->GetCallList();
-        if ($result === false) {
-            return false;
-        }
-        $entries = $this->ReadPropertyInteger('LastEntries');
-        switch ($this->ReadPropertyInteger('LoadListType')) {
-            case 1:
-                $result.='&days='.$entries;
-                break;
-            case 2:
-                $result.='&max='.$entries;
-                break;
-        }
-        $XMLData = $this->LoadAndGetData($result);
-        if ($XMLData === false) {
-            return false;
-        }
-        $CallList = new simpleXMLElement($XMLData);
-        if ($CallList === false) {
-            $this->SendDebug('XML decode error', $XMLData, 0);
-            return false;
-        }
-        $PhoneDevices = $this->GetPhoneDevices();
-        $Data=[];
-        $UnknownName=$this->ReadPropertyString('UnknownNumberName');
-        $ReverseSearchInstanceID= $this->ReadPropertyInteger('ReverseSearchInstanceID');
-        $CustomSearchScriptID = $this->ReadPropertyInteger('CustomSearchScriptID');
-        $MaxNameSize=$this->ReadPropertyInteger('MaxNameSize');
-        $SearchMarker = $this->ReadPropertyString('SearchMarker');
-        for ($i=0;$i<count($CallList->Call);$i++) {
-            $Data[$i]['Name']=(string)$CallList->Call[$i]->Name;
-            if ((int)$CallList->Call[$i]->Type == self::Call_Outgoing) {
-                $Data[$i]['Caller'] = str_replace(strtoupper((string)$CallList->Call[$i]->Numbertype).": ", "", (string)$CallList->Call[$i]->Caller);
-                $Data[$i]['Called'] = (string)$CallList->Call[$i]->Called;
-                $Data[$i]['Number'] =  (string)$CallList->Call[$i]->Called;
-                if ($Data[$i]['Name']=='') {
-                    $Data[$i]['Name']= $this->DoReverseSearch($ReverseSearchInstanceID, $CustomSearchScriptID, $Data[$i]['Called'], $UnknownName, $SearchMarker, $MaxNameSize);
-                } else {
-                    if (strlen($Data[$i]['Name'])>$MaxNameSize) {
-                        $Data[$i]['Name']=substr($Data[$i]['Name'], 0, $MaxNameSize);
-                    }
-                }
-            } else {
-                $Data[$i]['Caller'] = (string)$CallList->Call[$i]->Caller;
-                $Data[$i]['Called'] = str_replace(strtoupper((string)$CallList->Call[$i]->Numbertype).": ", "", (string)$CallList->Call[$i]->Called);
-                if ($Data[$i]['Caller'] =='') {
-                    $Data[$i]['Name']=$UnknownName;
-                } else {
-                    if ($Data[$i]['Name']=='') {
-                        $Data[$i]['Name']= $this->DoReverseSearch($ReverseSearchInstanceID, $CustomSearchScriptID, $Data[$i]['Called'], $UnknownName, $SearchMarker, $MaxNameSize);
-                    } else {
-                        if (strlen($Data[$i]['Name'])>$MaxNameSize) {
-                            $Data[$i]['Name']=substr($Data[$i]['Name'], 0, $MaxNameSize);
-                        }
-                    }
-                }
-                $Data[$i]['Number'] =  (string)$CallList->Call[$i]->Caller;
-            }
-            $Data[$i]['Name']  = str_replace('{ICON}', '<div class="Icon'.$this->InstanceID.self::FoundMarker.'"></div>', $Data[$i]['Name']);
-            //$CallList->Call[$i]->addChild("Fax"); // leeren FAX Eintrag erzeugen.
-            $Data[$i]['Fax']='';
-            // Fax-Anruf ?
-            if ((int)$CallList->Call[$i]->Port == 5) {
-                $Data[$i]['Type']= self::Call_Fax; //self::Call_Tam_Deleted; // vorbelegen mit Fax schon gelöscht
-                //$Data[$i]['Called'] = (string)$CallList->Call[$i]->Device;
-                //$Data[$i]['Duration'] = "---";  // Warum auch immer ist die Dauer immer 0:01 auch bei FAX
-
-                /*if (strlen((string)$CallList->Call[$i]->Path) <> 0) {
-                    $Data[$i]['Fax'] = "1"; // FAX-Eintrag ist vorhanden !
-                    //$CallList->Call[$i]->Path =  $AB_URL."?fax=".urlencode((string)$CallList->Call[$i]->Path);// URL-Anpassen
-                    $Data[$i]['Type'] = self::Call_Fax;
-                }*/
-            } else {
-                $Data[$i]['Type'] =(int)$CallList->Call[$i]->Type;
-                $Data[$i]['Duration'] =(string)$CallList->Call[$i]->Duration;
-            }
-            $Data[$i]['Icon']='<div class="Icon'.$this->InstanceID.$Data[$i]['Type'].'"></div>';
-            $Data[$i]['Date']=(string)$CallList->Call[$i]->Date;
-            $Data[$i]['Device']=(string)$CallList->Call[$i]->Device;
-            $PhoneDevices[(int)$CallList->Call[$i]->Port]=(string)$CallList->Call[$i]->Device;
-        }
-        $this->SetPhoneDevices($PhoneDevices);
-        $Config_Icons = json_decode($this->ReadPropertyString('Icons'), true);
-        $Icon_CSS = '<div id="scoped-content"><style type="text/css" scoped>'."\r\n";
-        foreach ($Config_Icons as $Config_Icon) {
-            $ImageData =  @getimagesize('data://text/plain;base64,'.$Config_Icon['icon']);
-            if ($ImageData === false) {
-                continue;
-            }
-            if ($Config_Icon['type'] == self::FoundMarker) {
-                $width = $ImageData[0].'px';
-            } else {
-                $width = '100%';
-            }
-            $Icon_CSS .= '.Icon'.$this->InstanceID.$Config_Icon['type'].' {width:'.$width.';height:'.$ImageData[1].'px;background:url('.'data://'.$ImageData['mime'].';base64,'.$Config_Icon['icon'].') no-repeat '.$Config_Icon['align'].' center;'.$Config_Icon['style'].'}'."\r\n";
-        }
-        $Icon_CSS .= '</style>';
-        //$JS ='<script type="text/javascript" src="hook/FritzBoxCallList'.$this->InstanceID.'/tooltips.js"></script>';
-        $JS='';
-        $HTML = $this->GetTable($Data).'</div>';
-        $this->SetValue('CallerList', $Icon_CSS .$JS.$HTML);
-        $this->SendDebug('RefreshCallList', 'done', 0);
-        return true;
-    }
-
-    private function RefreshPhonebook()
-    {
-        $result = $this->GetPhonebookList();
-        if ($result === false) {
-            return false;
-        }
-        $PhonebookIDs = explode(',', $result);
-        $LoadedFiles=[];
-        foreach ($PhonebookIDs as $PhonebookID) {
-            $PhonebookData = $this->GetPhonebook((int)$PhonebookID);
-            if ($PhonebookData === false) {
-                continue;
-            }
-            $FileName = 'Phonebook_'.$PhonebookData['NewPhonebookName'].'.xml';
-            if (!$this->LoadAndSaveFile($PhonebookData['NewPhonebookURL'], $FileName)) {
-                continue;
-            }
-            $LoadedFiles[]=$FileName;
-        }
-        // $LoadedFiles im IO ablegen, damit andere es lesen können.
-        $this->SetPhonebookFiles($LoadedFiles);
-        return true;
-    }
-    private function SetPhonebookFiles(array $Files)
-    {
-        if (!$this->HasActiveParent()) {
-            return false;
-        }
-        $this->SendDebug('Function', 'SetPhonebookFiles', 0);
-        $this->SendDebug('Files', $Files, 0);
-        $this->SendDataToParent(json_encode(
-            [
-                'DataID'     => '{D62D4515-7689-D1DB-EE97-F555AD9433F0}',
-                'Function'   => 'SETPHONEBOOKS',
-                'Files'=> $Files
-            ]
-        ));
     }
     public function GetInfoByIndex(int $Index)
     {
         $result = $this->Send(
             __FUNCTION__,
             [
-            'NewIndex'=> $Index
-        ]
+                'NewIndex'=> $Index
+            ]
         );
         if ($result === false) {
             return false;
@@ -336,9 +190,9 @@ class FritzBoxCallList extends FritzBoxModulBase
         $result = $this->Send(
             __FUNCTION__,
             [
-            'NewIndex' => $Index,
-            'NewEnable'=> $Enable
-        ]
+                'NewIndex' => $Index,
+                'NewEnable'=> $Enable
+            ]
         );
         if ($result === null) {
             return true;
@@ -374,8 +228,8 @@ class FritzBoxCallList extends FritzBoxModulBase
         $result = $this->Send(
             __FUNCTION__,
             [
-            'NewPhonebookID'=> $PhonebookID
-        ]
+                'NewPhonebookID'=> $PhonebookID
+            ]
         );
         if ($result === false) {
             return false;
@@ -387,9 +241,9 @@ class FritzBoxCallList extends FritzBoxModulBase
         $result = $this->Send(
             __FUNCTION__,
             [
-            'NewPhonebookID'     => $PhonebookID,
-            'NewPhonebookEntryID'=> $PhonebookEntryID
-        ]
+                'NewPhonebookID'     => $PhonebookID,
+                'NewPhonebookEntryID'=> $PhonebookEntryID
+            ]
         );
         if ($result === false) {
             return false;
@@ -401,9 +255,9 @@ class FritzBoxCallList extends FritzBoxModulBase
         $result = $this->Send(
             __FUNCTION__,
             [
-            'NewPhonebookID'           => $PhonebookID,
-            'NewPhonebookEntryUniqueID'=> $PhonebookEntryUniqueID
-        ]
+                'NewPhonebookID'           => $PhonebookID,
+                'NewPhonebookEntryUniqueID'=> $PhonebookEntryUniqueID
+            ]
         );
         if ($result === false) {
             return false;
@@ -423,8 +277,8 @@ class FritzBoxCallList extends FritzBoxModulBase
         $result = $this->Send(
             __FUNCTION__,
             [
-            'NewDectID'=> $DectID
-        ]
+                'NewDectID'=> $DectID
+            ]
         );
         if ($result === false) {
             return false;
@@ -452,8 +306,8 @@ class FritzBoxCallList extends FritzBoxModulBase
         $result = $this->Send(
             __FUNCTION__,
             [
-            'NewDeflectionId'=> $Index
-        ]
+                'NewDeflectionId'=> $Index
+            ]
         );
         if ($result === false) {
             return false;
@@ -465,16 +319,216 @@ class FritzBoxCallList extends FritzBoxModulBase
         $result = $this->Send(
             __FUNCTION__,
             [
-            'NewDeflectionId' => $DeflectionId,
-            'NewEnable'       => $Enable
-        ]
+                'NewDeflectionId' => $DeflectionId,
+                'NewEnable'       => $Enable
+            ]
         );
         if ($result === false) {
             return false;
         }
         return true;
     }
-            
+    public function ReceiveData($JSONString)
+    {
+        $data = json_decode($JSONString, true);
+        unset($data['DataID']);
+        $this->SendDebug('ReceiveCallMonitorData', $data, 0);
+        $CallEvent = explode(';', utf8_decode($data['Buffer']));
+        switch ($CallEvent[1]) {
+            case 'CONNECT': // Verbunden
+            case 'DISCONNECT': // Getrennt
+                IPS_RunScriptText('IPS_RequestAction(' . $this->InstanceID . ',"RefreshCallList",true);');
+            break;
+        }
+        return true;
+    }
+    /**
+     * Verarbeitet Daten aus dem Webhook.
+     *
+     * @global array $_GET
+     */
+    protected function ProcessHookdata()
+    {
+        $this->SendDebug('Server', $_SERVER['HOOK'], 0);
+        if ($_SERVER['SCRIPT_NAME'] == '/hook/FritzBoxCallList' . $this->InstanceID . '/tooltip.js') {
+            $this->ServeFile(__DIR__ . '/../libs/wz_tooltip.js');
+            return;
+        }
+        $this->SendDebug('GET', $_GET, 0);
+        $this->SendDebug('Server', $_SERVER['HOOK'], 0);
+        $this->SendDebug('Request', $_REQUEST, 0);
+        $this->SendDebug('Files', $_FILES, 0);
+        return;
+        /*
+        //Todo
+        if ((!isset($_GET['Type'])) || (!isset($_GET['Secret']))) {
+            echo $this->Translate('Bad Request');
+
+            return;
+        }
+
+        $CalcSecret = base64_encode(sha1($this->WebHookSecret . '0' . (string) $_GET['ID'], true));
+        if ($CalcSecret != rawurldecode($_GET['Secret'])) {
+            echo $this->Translate('Access denied');
+            return;
+        }
+        if ($_GET['Type'] != 'Index') {
+            echo $this->Translate('Bad Request');
+
+            return;
+        }
+
+        if ($this->SelectInfoListItem((int) $_GET['ID'])) {
+            echo 'OK';
+        }*/
+    }
+    private function RefreshCallList()
+    {
+        $this->SendDebug('RefreshCallList', 'start', 0);
+        $result = $this->GetCallList();
+        if ($result === false) {
+            return false;
+        }
+        $entries = $this->ReadPropertyInteger('LastEntries');
+        switch ($this->ReadPropertyInteger('LoadListType')) {
+            case 1:
+                $result .= '&days=' . $entries;
+                break;
+            case 2:
+                $result .= '&max=' . $entries;
+                break;
+        }
+        $XMLData = $this->LoadAndGetData($result);
+        if ($XMLData === false) {
+            return false;
+        }
+        $CallList = new simpleXMLElement($XMLData);
+        if ($CallList === false) {
+            $this->SendDebug('XML decode error', $XMLData, 0);
+            return false;
+        }
+        $PhoneDevices = $this->GetPhoneDevices();
+        $Data = [];
+        $UnknownName = $this->ReadPropertyString('UnknownNumberName');
+        $ReverseSearchInstanceID = $this->ReadPropertyInteger('ReverseSearchInstanceID');
+        $CustomSearchScriptID = $this->ReadPropertyInteger('CustomSearchScriptID');
+        $MaxNameSize = $this->ReadPropertyInteger('MaxNameSize');
+        $SearchMarker = $this->ReadPropertyString('SearchMarker');
+        for ($i = 0; $i < count($CallList->Call); $i++) {
+            $Data[$i]['Name'] = (string) $CallList->Call[$i]->Name;
+            if ((int) $CallList->Call[$i]->Type == self::Call_Outgoing) {
+                $Data[$i]['Caller'] = str_replace(strtoupper((string) $CallList->Call[$i]->Numbertype) . ': ', '', (string) $CallList->Call[$i]->Caller);
+                $Data[$i]['Called'] = (string) $CallList->Call[$i]->Called;
+                $Data[$i]['Number'] = (string) $CallList->Call[$i]->Called;
+                if ($Data[$i]['Name'] == '') {
+                    $Data[$i]['Name'] = $this->DoReverseSearch($ReverseSearchInstanceID, $CustomSearchScriptID, $Data[$i]['Called'], $UnknownName, $SearchMarker, $MaxNameSize);
+                } else {
+                    if (strlen($Data[$i]['Name']) > $MaxNameSize) {
+                        $Data[$i]['Name'] = substr($Data[$i]['Name'], 0, $MaxNameSize);
+                    }
+                }
+            } else {
+                $Data[$i]['Caller'] = (string) $CallList->Call[$i]->Caller;
+                $Data[$i]['Called'] = str_replace(strtoupper((string) $CallList->Call[$i]->Numbertype) . ': ', '', (string) $CallList->Call[$i]->Called);
+                if ($Data[$i]['Caller'] == '') {
+                    $Data[$i]['Name'] = $UnknownName;
+                } else {
+                    if ($Data[$i]['Name'] == '') {
+                        $Data[$i]['Name'] = $this->DoReverseSearch($ReverseSearchInstanceID, $CustomSearchScriptID, $Data[$i]['Called'], $UnknownName, $SearchMarker, $MaxNameSize);
+                    } else {
+                        if (strlen($Data[$i]['Name']) > $MaxNameSize) {
+                            $Data[$i]['Name'] = substr($Data[$i]['Name'], 0, $MaxNameSize);
+                        }
+                    }
+                }
+                $Data[$i]['Number'] = (string) $CallList->Call[$i]->Caller;
+            }
+            $Data[$i]['Name'] = str_replace('{ICON}', '<div class="Icon' . $this->InstanceID . self::FoundMarker . '"></div>', $Data[$i]['Name']);
+            //$CallList->Call[$i]->addChild("Fax"); // leeren FAX Eintrag erzeugen.
+            $Data[$i]['Fax'] = '';
+            // Fax-Anruf ?
+            if ((int) $CallList->Call[$i]->Port == 5) {
+                $Data[$i]['Type'] = self::Call_Fax; //self::Call_Tam_Deleted; // vorbelegen mit Fax schon gelöscht
+                //$Data[$i]['Called'] = (string)$CallList->Call[$i]->Device;
+                //$Data[$i]['Duration'] = "---";  // Warum auch immer ist die Dauer immer 0:01 auch bei FAX
+
+                /*if (strlen((string)$CallList->Call[$i]->Path) <> 0) {
+                    $Data[$i]['Fax'] = "1"; // FAX-Eintrag ist vorhanden !
+                    //$CallList->Call[$i]->Path =  $AB_URL."?fax=".urlencode((string)$CallList->Call[$i]->Path);// URL-Anpassen
+                    $Data[$i]['Type'] = self::Call_Fax;
+                }*/
+            } else {
+                $Data[$i]['Type'] = (int) $CallList->Call[$i]->Type;
+                $Data[$i]['Duration'] = (string) $CallList->Call[$i]->Duration;
+            }
+            $Data[$i]['Icon'] = '<div class="Icon' . $this->InstanceID . $Data[$i]['Type'] . '"></div>';
+            $Data[$i]['Date'] = (string) $CallList->Call[$i]->Date;
+            $Data[$i]['Device'] = (string) $CallList->Call[$i]->Device;
+            $PhoneDevices[(int) $CallList->Call[$i]->Port] = (string) $CallList->Call[$i]->Device;
+        }
+        $this->SetPhoneDevices($PhoneDevices);
+        $Config_Icons = json_decode($this->ReadPropertyString('Icons'), true);
+        $Icon_CSS = '<div id="scoped-content"><style type="text/css" scoped>' . "\r\n";
+        foreach ($Config_Icons as $Config_Icon) {
+            $ImageData = @getimagesize('data://text/plain;base64,' . $Config_Icon['icon']);
+            if ($ImageData === false) {
+                continue;
+            }
+            if ($Config_Icon['type'] == self::FoundMarker) {
+                $width = $ImageData[0] . 'px';
+            } else {
+                $width = '100%';
+            }
+            $Icon_CSS .= '.Icon' . $this->InstanceID . $Config_Icon['type'] . ' {width:' . $width . ';height:' . $ImageData[1] . 'px;background:url(' . 'data://' . $ImageData['mime'] . ';base64,' . $Config_Icon['icon'] . ') no-repeat ' . $Config_Icon['align'] . ' center;' . $Config_Icon['style'] . '}' . "\r\n";
+        }
+        $Icon_CSS .= '</style>';
+        //$JS ='<script type="text/javascript" src="hook/FritzBoxCallList'.$this->InstanceID.'/tooltips.js"></script>';
+        $JS = '';
+        $HTML = $this->GetTable($Data) . '</div>';
+        $this->SetValue('CallerList', $Icon_CSS . $JS . $HTML);
+        $this->SendDebug('RefreshCallList', 'done', 0);
+        return true;
+    }
+
+    private function RefreshPhonebook()
+    {
+        $result = $this->GetPhonebookList();
+        if ($result === false) {
+            return false;
+        }
+        $PhonebookIDs = explode(',', $result);
+        $LoadedFiles = [];
+        foreach ($PhonebookIDs as $PhonebookID) {
+            $PhonebookData = $this->GetPhonebook((int) $PhonebookID);
+            if ($PhonebookData === false) {
+                continue;
+            }
+            $FileName = 'Phonebook_' . $PhonebookData['NewPhonebookName'] . '.xml';
+            if (!$this->LoadAndSaveFile($PhonebookData['NewPhonebookURL'], $FileName)) {
+                continue;
+            }
+            $LoadedFiles[] = $FileName;
+        }
+        // $LoadedFiles im IO ablegen, damit andere es lesen können.
+        $this->SetPhonebookFiles($LoadedFiles);
+        return true;
+    }
+    private function SetPhonebookFiles(array $Files)
+    {
+        if (!$this->HasActiveParent()) {
+            return false;
+        }
+        $this->SendDebug('Function', 'SetPhonebookFiles', 0);
+        $this->SendDebug('Files', $Files, 0);
+        $this->SendDataToParent(json_encode(
+            [
+                'DataID'     => '{D62D4515-7689-D1DB-EE97-F555AD9433F0}',
+                'Function'   => 'SETPHONEBOOKS',
+                'Files'      => $Files
+            ]
+        ));
+    }
+
     private function GenerateHTMLStyleProperty()
     {
         $NewTableConfig = [
@@ -493,11 +547,11 @@ class FritzBoxCallList extends FritzBoxModulBase
         ];
         $NewColumnsConfig = [
             [
-                'index' => 0,
-                'key'   => 'Icon',
-                'name'  => '',
-                'show'  => true,
-                'width' => 35,
+                'index'   => 0,
+                'key'     => 'Icon',
+                'name'    => '',
+                'show'    => true,
+                'width'   => 35,
                 'hrcolor' => -1,
                 'hralign' => 'left',
                 'hrstyle' => '',
@@ -505,11 +559,11 @@ class FritzBoxCallList extends FritzBoxModulBase
                 'tdstyle' => ''
 
             ],           [
-                'index' => 1,
-                'key'   => 'Type',
-                'name'  => $this->Translate('Type'),
-                'show'  => false,
-                'width' => 35,
+                'index'   => 1,
+                'key'     => 'Type',
+                'name'    => $this->Translate('Type'),
+                'show'    => false,
+                'width'   => 35,
                 'hrcolor' => -1,
                 'hralign' => 'left',
                 'hrstyle' => '',
@@ -518,11 +572,11 @@ class FritzBoxCallList extends FritzBoxModulBase
 
             ],
             [
-                'index' => 2,
-                'key'   => 'Date',
-                'name'  => $this->Translate('Time'),
-                'show'  => true,
-                'width' => 110,
+                'index'   => 2,
+                'key'     => 'Date',
+                'name'    => $this->Translate('Time'),
+                'show'    => true,
+                'width'   => 110,
                 'hrcolor' => -1,
                 'hralign' => 'left',
                 'hrstyle' => '',
@@ -530,11 +584,11 @@ class FritzBoxCallList extends FritzBoxModulBase
                 'tdstyle' => ''
             ],
             [
-                'index' => 3,
-                'key'   => 'Name',
-                'name'  => $this->Translate('Name'),
-                'show'  => true,
-                'width' => 200,
+                'index'   => 3,
+                'key'     => 'Name',
+                'name'    => $this->Translate('Name'),
+                'show'    => true,
+                'width'   => 200,
                 'hrcolor' => -1,
                 'hralign' => 'left',
                 'hrstyle' => '',
@@ -542,11 +596,11 @@ class FritzBoxCallList extends FritzBoxModulBase
                 'tdstyle' => ''
             ],
             [
-                'index' => 4,
-                'key'   => 'Caller',
-                'name'  => $this->Translate('Caller'),
-                'show'  => false,
-                'width' => 150,
+                'index'   => 4,
+                'key'     => 'Caller',
+                'name'    => $this->Translate('Caller'),
+                'show'    => false,
+                'width'   => 150,
                 'hrcolor' => -1,
                 'hralign' => 'left',
                 'hrstyle' => '',
@@ -554,11 +608,11 @@ class FritzBoxCallList extends FritzBoxModulBase
                 'tdstyle' => ''
             ],
             [
-                'index' => 5,
-                'key'   => 'Called',
-                'name'  => $this->Translate('Called'),
-                'show'  => false,
-                'width' => 150,
+                'index'   => 5,
+                'key'     => 'Called',
+                'name'    => $this->Translate('Called'),
+                'show'    => false,
+                'width'   => 150,
                 'hrcolor' => -1,
                 'hralign' => 'left',
                 'hrstyle' => '',
@@ -566,11 +620,11 @@ class FritzBoxCallList extends FritzBoxModulBase
                 'tdstyle' => ''
             ],
             [
-                'index' => 6,
-                'key'   => 'Number',
-                'name'  => $this->Translate('Number'),
-                'show'  => true,
-                'width' => 150,
+                'index'   => 6,
+                'key'     => 'Number',
+                'name'    => $this->Translate('Number'),
+                'show'    => true,
+                'width'   => 150,
                 'hrcolor' => -1,
                 'hralign' => 'left',
                 'hrstyle' => '',
@@ -578,11 +632,11 @@ class FritzBoxCallList extends FritzBoxModulBase
                 'tdstyle' => ''
             ],
             [
-                'index' => 7,
-                'key'   => 'Device',
-                'name'  => $this->Translate('Device'),
-                'show'  => true,
-                'width' => 150,
+                'index'   => 7,
+                'key'     => 'Device',
+                'name'    => $this->Translate('Device'),
+                'show'    => true,
+                'width'   => 150,
                 'hrcolor' => -1,
                 'hralign' => 'left',
                 'hrstyle' => '',
@@ -591,11 +645,11 @@ class FritzBoxCallList extends FritzBoxModulBase
             ],
 
             [
-                'index' => 8,
-                'key'   => 'Duration',
-                'name'  => $this->Translate('Duration'),
-                'show'  => true,
-                'width' => 80,
+                'index'   => 8,
+                'key'     => 'Duration',
+                'name'    => $this->Translate('Duration'),
+                'show'    => true,
+                'width'   => 80,
                 'hrcolor' => -1,
                 'hralign' => 'left',
                 'hrstyle' => '',
@@ -631,25 +685,25 @@ class FritzBoxCallList extends FritzBoxModulBase
                 'style'   => ''
             ]
         ];
-        $NewIcons=[
+        $NewIcons = [
             [
                 'type'          => self::Call_Incoming,
                 'DisplayName'   => $this->Translate('Incoming'),
-                'icon'          => base64_encode(file_get_contents(__DIR__.'/../imgs/callin.png')),
+                'icon'          => base64_encode(file_get_contents(__DIR__ . '/../imgs/callin.png')),
                 'align'         => 'center',
                 'style'         => ''
             ],
             [
                 'type'          => self::Call_Missed,
                 'DisplayName'   => $this->Translate('Missed call'),
-                'icon'          => base64_encode(file_get_contents(__DIR__.'/../imgs/callinfailed.png')),
+                'icon'          => base64_encode(file_get_contents(__DIR__ . '/../imgs/callinfailed.png')),
                 'align'         => 'center',
                 'style'         => ''
             ],
             [
                 'type'          => self::Call_Outgoing,
                 'DisplayName'   => $this->Translate('Outgoing'),
-                'icon'          => base64_encode(file_get_contents(__DIR__.'/../imgs/callout.png')),
+                'icon'          => base64_encode(file_get_contents(__DIR__ . '/../imgs/callout.png')),
                 'align'         => 'center',
                 'style'         => ''
             ],
@@ -677,28 +731,28 @@ class FritzBoxCallList extends FritzBoxModulBase
             [
                 'type'          => self::Call_Active_Incoming,
                 'DisplayName'   => $this->Translate('Incoming (active)'),
-                'icon'          => base64_encode(file_get_contents(__DIR__.'/../imgs/callin.png')),
+                'icon'          => base64_encode(file_get_contents(__DIR__ . '/../imgs/callin.png')),
                 'align'         => 'center',
                 'style'         => ''
             ],
             [
                 'type'          => self::Call_Rejected_Incoming,
                 'DisplayName'   => $this->Translate('Rejected call'),
-                'icon'          => base64_encode(file_get_contents(__DIR__.'/../imgs/callinfailed.png')),
+                'icon'          => base64_encode(file_get_contents(__DIR__ . '/../imgs/callinfailed.png')),
                 'align'         => 'center',
                 'style'         => ''
             ],
             [
                 'type'          => self::Call_Active_Outgoing,
                 'DisplayName'   => $this->Translate('Outgoing (active)'),
-                'icon'          => base64_encode(file_get_contents(__DIR__.'/../imgs/callout.png')),
+                'icon'          => base64_encode(file_get_contents(__DIR__ . '/../imgs/callout.png')),
                 'align'         => 'center',
                 'style'         => ''
             ],
             [
                 'type'          => self::Call_Fax,
                 'DisplayName'   => $this->Translate('Fax'),
-                'icon'          => base64_encode(file_get_contents(__DIR__.'/../imgs/msgfax.png')),
+                'icon'          => base64_encode(file_get_contents(__DIR__ . '/../imgs/msgfax.png')),
                 'align'         => 'center',
                 'style'         => ''
             ],
@@ -711,59 +765,5 @@ class FritzBoxCallList extends FritzBoxModulBase
             ]
         ];
         return ['Table' => $NewTableConfig, 'Columns' => $NewColumnsConfig, 'Rows' => $NewRowsConfig, 'Icons'=> $NewIcons];
-    }
-    /**
-     * Verarbeitet Daten aus dem Webhook.
-     *
-     * @global array $_GET
-     */
-    protected function ProcessHookdata()
-    {
-        $this->SendDebug('Server', $_SERVER['HOOK'], 0);
-        if ($_SERVER['SCRIPT_NAME'] == '/hook/FritzBoxCallList' . $this->InstanceID.'/tooltip.js') {
-            $this->ServeFile(__DIR__ . '/../libs/wz_tooltip.js');
-            return;
-        }
-        $this->SendDebug('GET', $_GET, 0);
-        $this->SendDebug('Server', $_SERVER['HOOK'], 0);
-        $this->SendDebug('Request', $_REQUEST, 0);
-        $this->SendDebug('Files', $_FILES, 0);
-        return;
-        /*
-        //Todo
-        if ((!isset($_GET['Type'])) || (!isset($_GET['Secret']))) {
-            echo $this->Translate('Bad Request');
-
-            return;
-        }
-
-        $CalcSecret = base64_encode(sha1($this->WebHookSecret . '0' . (string) $_GET['ID'], true));
-        if ($CalcSecret != rawurldecode($_GET['Secret'])) {
-            echo $this->Translate('Access denied');
-            return;
-        }
-        if ($_GET['Type'] != 'Index') {
-            echo $this->Translate('Bad Request');
-
-            return;
-        }
-
-        if ($this->SelectInfoListItem((int) $_GET['ID'])) {
-            echo 'OK';
-        }*/
-    }
-    public function ReceiveData($JSONString)
-    {
-        $data = json_decode($JSONString, true);
-        unset($data['DataID']);
-        $this->SendDebug('ReceiveCallMonitorData', $data, 0);
-        $CallEvent = explode(";", utf8_decode($data['Buffer']));
-        switch ($CallEvent[1]) {
-            case "CONNECT": // Verbunden
-            case "DISCONNECT": // Getrennt
-                IPS_RunScriptText('IPS_RequestAction(' . $this->InstanceID . ',"RefreshCallList",true);');
-            break;
-        }
-        return true;
     }
 }

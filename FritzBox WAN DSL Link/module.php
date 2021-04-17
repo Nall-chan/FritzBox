@@ -47,14 +47,7 @@ class FritzBoxWANDSLLink extends FritzBoxModulBase
         if (IPS_GetKernelRunlevel() != KR_READY) {
             return;
         }
-        $this->SetTimerInterval('RefreshInfo', $this->ReadPropertyInteger('RefreshInterval')*1000);
-    }
-    private function UpdateInfo()
-    {
-        @$this->GetDSLLinkInfo();
-        @$this->GetModulationType();
-        @$this->GetATMEncapsulation();
-        @$this->GetFCSPreserved();
+        $this->SetTimerInterval('RefreshInfo', $this->ReadPropertyInteger('RefreshInterval') * 1000);
     }
     public function RequestAction($Ident, $Value)
     {
@@ -117,5 +110,12 @@ class FritzBoxWANDSLLink extends FritzBoxModulBase
             $this->UpdateInfo();
         }
         parent::DecodeEvent($Event);
+    }
+    private function UpdateInfo()
+    {
+        @$this->GetDSLLinkInfo();
+        @$this->GetModulationType();
+        @$this->GetATMEncapsulation();
+        @$this->GetFCSPreserved();
     }
 }
