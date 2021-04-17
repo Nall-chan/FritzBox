@@ -425,7 +425,7 @@ class FritzBoxIO extends IPSModule
             if ($Xml == 'igd2desc.xml') {
                 $this->SendDebug('Use IGD2', 'true', 0);
                 $this->WriteAttributeBoolean('HasIGD2', true);
-                break 1;
+                break;
             }
         }
         $this->WriteAttributeArray('Events', $Events);

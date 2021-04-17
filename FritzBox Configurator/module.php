@@ -148,7 +148,7 @@ require_once __DIR__ . '/../libs/FritzBoxModule.php';
                     //$ServiceValues[] = $AddService;
                 }
                 if ($Xml == 'igd2desc.xml') {
-                    break 1;
+                    break;
                 }
             }
             if ($this->HasCallMonitor) {
