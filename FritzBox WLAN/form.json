@@ -72,13 +72,13 @@
                 {
                     "name": "HostAsVariable",
                     "type": "CheckBox",
-                    "caption": "Create variable per host",
+                    "caption": "Create variable per WLAN device",
                     "width": "400px"
                 },
                 {
                     "name": "RenameHostVariables",
                     "type": "CheckBox",
-                    "caption": "Rename Host-variables automatically",
+                    "caption": "Rename WLAN device variables automatically",
                     "width": "400px"
                 }
             ]
@@ -86,7 +86,7 @@
         {
             "name": "HostAsTable",
             "type": "CheckBox",
-            "caption": "Show all hosts as HTML-Table"
+            "caption": "Show all WLAN devices as HTML-Table"
         },
         {
             "type": "ExpansionPanel",
@@ -120,7 +120,7 @@
                 {
                     "type": "List",
                     "name": "Columns",
-                    "caption": "Hostlist columns",
+                    "caption": "Columns",
                     "rowCount": 6,
                     "add": false,
                     "delete": false,
@@ -249,7 +249,7 @@
                 {
                     "type": "List",
                     "name": "Rows",
-                    "caption": "Hostlist rows",
+                    "caption": "Rows",
                     "rowCount": 3,
                     "add": false,
                     "delete": false,

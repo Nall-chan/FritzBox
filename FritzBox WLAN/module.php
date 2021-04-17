@@ -91,7 +91,7 @@ class FritzBoxWLAN extends FritzBoxModulBase
         }
         usleep(5);
         $this->RegisterMessage($this->APEnabledId, VM_UPDATE);
-        $this->HostNumberOfEntriesId = $this->RegisterVariableInteger('HostNumberOfEntries', $this->Translate('Number of active hosts'), '', -2);
+        $this->HostNumberOfEntriesId = $this->RegisterVariableInteger('HostNumberOfEntries', $this->Translate('Number of active WLAN devices'), '', -2);
         $this->RegisterMessage($this->HostNumberOfEntriesId, VM_UPDATE);
         parent::ApplyChanges();
         $this->SetTimerInterval('RefreshState', $this->ReadPropertyInteger('RefreshInterval')*1000);
@@ -600,7 +600,7 @@ class FritzBoxWLAN extends FritzBoxModulBase
         if ($result === false) {
             return false;
         }
-        $this->setIPSVariable('HostNumberOfEntries', 'Number of active hosts', (int)$result, VARIABLETYPE_INTEGER, '', false, -2);
+        $this->setIPSVariable('HostNumberOfEntries', 'Number of active WLAN devices', (int)$result, VARIABLETYPE_INTEGER, '', false, -2);
         return (int)$result;
     }
     public function GetGenericAssociatedDeviceInfo(int $Index)
