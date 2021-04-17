@@ -49,7 +49,7 @@ class FritzBoxHosts extends FritzBoxModulBase
     public function ApplyChanges()
     {
         $this->SetTimerInterval('RefreshHosts', 0);
-        $this->HostNumberOfEntriesId = $this->RegisterVariableInteger('HostNumberOfEntries', $this->Translate('Number of hosts'), '', -2);
+        $this->HostNumberOfEntriesId = $this->RegisterVariableInteger('HostNumberOfEntries', $this->Translate('Number of network devices'), '', -2);
         $this->SetTimerInterval('RefreshHosts', 0);
         $Table = $this->ReadPropertyBoolean('HostAsTable');
         $Variable = $this->ReadPropertyBoolean('HostAsVariable');
@@ -175,7 +175,7 @@ class FritzBoxHosts extends FritzBoxModulBase
 
             $TableData[] = (array)$xmlItem;
         }
-        $this->setIPSVariable('HostNumberActive', 'Number of active hosts', $OnlineCounter, VARIABLETYPE_INTEGER, '', false, -1);
+        $this->setIPSVariable('HostNumberActive', 'Number of active network devices', $OnlineCounter, VARIABLETYPE_INTEGER, '', false, -1);
         $this->CreateHostHTMLTable($TableData);
         return true;
     }
@@ -191,7 +191,7 @@ class FritzBoxHosts extends FritzBoxModulBase
         if ($result === false) {
             return false;
         }
-        $this->setIPSVariable('HostNumberOfEntries', 'Number of hosts', (int)$result, VARIABLETYPE_INTEGER, '', false, -2);
+        $this->setIPSVariable('HostNumberOfEntries', 'Number of network devices', (int)$result, VARIABLETYPE_INTEGER, '', false, -2);
         return true;
     }
     public function GetHostNumberOfEntries()

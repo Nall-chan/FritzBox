@@ -23,9 +23,9 @@ class LibraryValidationTest extends TestCaseSymconValidation
     {
         $this->validateModule(__DIR__ . '/../FritzBox Configurator');
     }
-    public function testValidateCallerList(): void
+    public function testValidateCallList(): void
     {
-        $this->validateModule(__DIR__ . '/../FritzBox Caller List');
+        $this->validateModule(__DIR__ . '/../FritzBox Call List');
     }
     public function testValidateCallMonitor(): void
     {

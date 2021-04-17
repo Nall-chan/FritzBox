@@ -205,7 +205,7 @@
                         },
                         {
                             "caption": "Header CSS",
-                            "name": "thstyle",
+                            "name": "hrstyle",
                             "width": "200px",
                             "edit": {
                                 "caption": "CSS:",

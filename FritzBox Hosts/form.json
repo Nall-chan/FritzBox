@@ -13,13 +13,13 @@
                 {
                     "name": "HostAsVariable",
                     "type": "CheckBox",
-                    "caption": "Create variable per host",
+                    "caption": "Create variable per network device",
                     "width": "400px"
                 },
                 {
                     "name": "RenameHostVariables",
                     "type": "CheckBox",
-                    "caption": "Rename Host-variables automatically",
+                    "caption": "Rename network device variables automatically",
                     "width": "400px"
                 }
             ]
@@ -146,7 +146,7 @@
                         },
                         {
                             "caption": "Header CSS",
-                            "name": "thstyle",
+                            "name": "hrstyle",
                             "width": "200px",
                             "edit": {
                                 "caption": "CSS:",
@@ -243,7 +243,7 @@
     "actions": [
         {
             "type": "Button",
-            "caption": "Read hosts",
+            "caption": "Read network devices",
             "onClick": "IPS_RequestAction($id,'RefreshHosts',true);"
         },
         {

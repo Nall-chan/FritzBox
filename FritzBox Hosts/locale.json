@@ -1,15 +1,15 @@
 {
     "translations": {
         "de": {
-            "Create variable per host": "Erzeuge Variable pro Host",
-            "Rename Host-variables automatically": "Host-Variablen automatisch umbenennen",
+            "Create variable per network device": "Erzeuge Variable pro Netzwerkgerät",
+            "Rename network device variables automatically": "Netzwerkgeräte-Variablen automatisch umbenennen",
             "Refresh Interval": "Aktualisierungsintervall",
             "seconds": "Sekunden",
-            "Read hosts": "Lese Hosts",
+            "Read network devices": "Lese Netzwerkgeräte",
             "Event subscribe error": "Ereignisabonnementfehler",
             "Invalid Ident.": "Ungültiger Ident.",
-            "Number of hosts": "Anzahl der Hosts",
-            "Number of active hosts": "Anzahl der aktiven Hosts",
+            "Number of network devices": "Anzahl der Netzwerkgeräte",
+            "Number of active network devices": "Anzahl der aktiven Netzwerkgeräte",
             "Hostname": "Hostname",
             "IP-Address": "IP-Adresse",
             "MAC-Address": "MAC-Adresse",
