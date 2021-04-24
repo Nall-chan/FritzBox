@@ -14,7 +14,7 @@
         "   }",
         "}",
         "usort($Form['options'], function($a,$b){",
-        "   return $a['caption']>$b['caption'];",
+        "   return strtolower($a['caption'])>strtolower($b['caption']);",
         "});",
         "return [$Form];"
     ],

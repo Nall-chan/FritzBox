@@ -341,7 +341,7 @@ class FritzBoxIO extends IPSModule
         if ($Filename != '') {
             @array_map('unlink', glob(IPS_GetKernelDir() . 'FritzBoxTemp/' . $this->InstanceID . '/' . $Filename));
         }
-        $Data = Sys_GetURLContentEx($Url, ['Timeout'=>10000]);
+        $Data = Sys_GetURLContentEx($Url, ['Timeout'=>10000, 'VerifyPeer' => false]);
         if ($Data === false) {
             $this->SendDebug('File not found', $Uri, 0);
             return false;
@@ -384,7 +384,7 @@ class FritzBoxIO extends IPSModule
                 continue;
             }*/
             $Result = true;
-            $XMLData = @Sys_GetURLContentEx($Url . '/' . $Xml, ['Timeout'=>3000]);
+            $XMLData = @Sys_GetURLContentEx($Url . '/' . $Xml, ['Timeout'=>5000, 'VerifyPeer' => false]);
 
             if ($XMLData === false) {
                 $this->SendDebug('XML not found', $Xml, 0);
@@ -412,7 +412,7 @@ class FritzBoxIO extends IPSModule
             $SCPDURLs = $SCPD_Data->xpath('//fritzbox:SCPDURL');
             $this->WriteAttributeBoolean('HasIGD2', false);
             foreach ($SCPDURLs as $SCPDURL) {
-                $XMLSCPDData = @Sys_GetURLContentEx($Url . (string) $SCPDURL, ['Timeout'=>3000]);
+                $XMLSCPDData = @Sys_GetURLContentEx($Url . (string) $SCPDURL, ['Timeout'=>5000, 'VerifyPeer' => false]);
                 $SCPD = substr((string) $SCPDURL, 1);
                 if ($XMLSCPDData === false) {
                     $this->SendDebug('SCPD not found', $SCPD, 0);
@@ -612,8 +612,8 @@ class FritzBoxIO extends IPSModule
             'exceptions'             => true,
             'ssl_method'             => SOAP_SSL_METHOD_TLS,
             'soap_version'           => SOAP_1_1,
-            'connection_timeout'     => 5,
-            'default_socket_timeout' => 5,
+            'connection_timeout'     => 10,
+            'default_socket_timeout' => 10,
             'keep_alive'             => false,
             'login'                  => $this->Username,
             'password'               => $this->ReadPropertyString('Password'),
@@ -628,7 +628,7 @@ class FritzBoxIO extends IPSModule
                     ],
                     'http' => [
                         'protocol_version' => 1.1,
-                        'timeout'          => 4,
+                        'timeout'          => 10,
                         'header'           => [
                             'Connection: close',
                         ]

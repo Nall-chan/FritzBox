@@ -172,41 +172,6 @@ class FritzBoxCallList extends FritzBoxModulBase
         $this->SendDebug('FORM', json_last_error_msg(), 0);
         return json_encode($Form);
     }
-    public function GetInfoByIndex(int $Index)
-    {
-        $result = $this->Send(
-            __FUNCTION__,
-            [
-                'NewIndex'=> $Index
-            ]
-        );
-        if ($result === false) {
-            return false;
-        }
-        return $result;
-    }
-    public function SetEnableByIndex(int $Index, bool $Enable)
-    {
-        $result = $this->Send(
-            __FUNCTION__,
-            [
-                'NewIndex' => $Index,
-                'NewEnable'=> $Enable
-            ]
-        );
-        if ($result === null) {
-            return true;
-        }
-        return false;
-    }
-    public function GetNumberOfEntries()
-    {
-        $result = $this->Send(__FUNCTION__);
-        if ($result === false) {
-            return false;
-        }
-        return $result;
-    }
     public function GetCallList()
     {
         $result = $this->Send(__FUNCTION__);
@@ -301,12 +266,12 @@ class FritzBoxCallList extends FritzBoxModulBase
         }
         return $result;
     }
-    public function GetDeflection(int $Index)
+    public function GetDeflection(int $DeflectionId)
     {
         $result = $this->Send(
             __FUNCTION__,
             [
-                'NewDeflectionId'=> $Index
+                'NewDeflectionId'=> $DeflectionId
             ]
         );
         if ($result === false) {
@@ -327,6 +292,66 @@ class FritzBoxCallList extends FritzBoxModulBase
             return false;
         }
         return true;
+    }
+    public function GetCallBarringList()
+    {
+        $result = $this->Send(__FUNCTION__);
+        if ($result === false) {
+            return false;
+        }
+        return $result;
+    }
+    public function GetCallBarringEntry(int $PhonebookEntryID)
+    {
+        $result = $this->Send(
+            __FUNCTION__,
+            [
+                'NewPhonebookEntryID'=> $PhonebookEntryID
+            ]
+            );
+        if ($result === false) {
+            return false;
+        }
+        return $result;
+    }
+    public function GetCallBarringEntryByNum(int $Number)
+    {
+        $result = $this->Send(
+            __FUNCTION__,
+            [
+                'NewNumber'=> $Number
+            ]
+            );
+        if ($result === false) {
+            return false;
+        }
+        return $result;
+    }
+    public function SetCallBarringEntry(string $PhonebookEntryData)
+    {
+        $result = $this->Send(
+            __FUNCTION__,
+            [
+                'NewPhonebookEntryData'=> $PhonebookEntryData
+            ]
+            );
+        if ($result === false) {
+            return false;
+        }
+        return $result;
+    }
+    public function DeleteCallBarringEntryUID(string $PhonebookEntryData)
+    {
+        $result = $this->Send(
+            __FUNCTION__,
+            [
+                'NewPhonebookEntryData'=> $PhonebookEntryData
+            ]
+            );
+        if ($result === false) {
+            return false;
+        }
+        return $result;
     }
     public function ReceiveData($JSONString)
     {
@@ -485,7 +510,7 @@ class FritzBoxCallList extends FritzBoxModulBase
         //$JS ='<script type="text/javascript" src="hook/FritzBoxCallList'.$this->InstanceID.'/tooltips.js"></script>';
         $JS = '';
         $HTML = $this->GetTable($Data) . '</div>';
-        $this->SetValue('CallerList', $Icon_CSS . $JS . $HTML);
+        $this->SetValue('CallList', $Icon_CSS . $JS . $HTML);
         $this->SendDebug('RefreshCallList', 'done', 0);
         return true;
     }
