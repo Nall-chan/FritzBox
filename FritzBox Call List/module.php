@@ -285,7 +285,7 @@ class FritzBoxCallList extends FritzBoxModulBase
             __FUNCTION__,
             [
                 'NewDeflectionId' => $DeflectionId,
-                'NewEnable'       => $Enable
+                'NewEnable'       => (int) $Enable
             ]
         );
         if ($result === false) {
@@ -299,7 +299,8 @@ class FritzBoxCallList extends FritzBoxModulBase
         if ($result === false) {
             return false;
         }
-        return $result;
+        return $this->LoadAndGetData($result);
+        //return $result;
     }
     public function GetCallBarringEntry(int $PhonebookEntryID)
     {
@@ -314,7 +315,7 @@ class FritzBoxCallList extends FritzBoxModulBase
         }
         return $result;
     }
-    public function GetCallBarringEntryByNum(int $Number)
+    public function GetCallBarringEntryByNum(string $Number)
     {
         $result = $this->Send(
             __FUNCTION__,

@@ -9,7 +9,7 @@
                         {
                             "name": "RefreshIntervalPhonebook",
                             "type": "NumberSpinner",
-                            "caption": "Reload Phonebook",
+                            "caption": "Reload phonebook",
                             "suffix": "minutes",
                             "minimum": 0,
                             "width": "300px"
