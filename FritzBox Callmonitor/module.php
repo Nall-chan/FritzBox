@@ -37,6 +37,7 @@ class FritzBoxCallmonitor extends FritzBoxModulBase
         parent::Create();
         $this->RegisterPropertyInteger('Index', 0);
 
+        $this->RegisterPropertyString('AreaCode', '');
         $this->RegisterPropertyInteger('ReverseSearchInstanceID', 0);
         $this->RegisterPropertyInteger('CustomSearchScriptID', 0);
         $this->RegisterPropertyInteger('MaxNameSize', 30);
@@ -494,7 +495,12 @@ class FritzBoxCallmonitor extends FritzBoxModulBase
         if ($Number == '') {
             return $this->ReadPropertyString('UnknownNumberName');
         }
-        $Name = $this->DoPhonebookSearch($Number);
+        if ($Number[0] !== '+') {
+            if ($Number[0] !== '0') {
+                $Number = $this->ReadPropertyString('AreaCode') . $Number;
+            }
+        }
+        $Name = $this->DoPhonebookSearch($Number, $this->ReadPropertyInteger('MaxNameSize'));
         if ($Name === false) {
             $UnknownName = '(' . $Number . ')';
             $ReverseSearchInstanceID = $this->ReadPropertyInteger('ReverseSearchInstanceID');

@@ -51,7 +51,7 @@ trait TelHelper
         return $UnknownName;
     }
 
-    private function DoPhonebookSearch(string $Number)
+    private function DoPhonebookSearch(string $Number, int $MaxNameSize)
     {
         $Name = false;
         $Files = $this->GetPhoneBookFiles();
@@ -70,6 +70,9 @@ trait TelHelper
             if (count($Contact) > 0) {
                 try {
                     $Name = (string) $Contact[0]->person->realName;
+                    if (strlen($Name) > $MaxNameSize) {
+                        $Name = substr($Name, 0, $MaxNameSize);
+                    }
                     break;
                 } catch (\Exception $exc) {
                     continue;

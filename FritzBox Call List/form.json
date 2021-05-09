@@ -15,6 +15,14 @@
                             "width": "300px"
                         },
                         {
+                            "name": "RefreshIntervalDeflectionList",
+                            "type": "NumberSpinner",
+                            "caption": "Reload deflection list",
+                            "suffix": "minutes",
+                            "minimum": 0,
+                            "width": "300px"
+                        },
+                        {
                             "name": "RefreshIntervalCallList",
                             "type": "NumberSpinner",
                             "caption": "Reload call list intervall",
@@ -80,10 +88,21 @@
             "type": "RowLayout",
             "items": [
                 {
-                    "name": "",
-                    "type": "Label",
-                    "caption": "",
-                    "width": "300px"
+                    "type": "ColumnLayout",
+                    "items": [
+                        {
+                            "name": "DeflectionAsVariable",
+                            "caption": "Create variable per deflection rule",
+                            "type": "CheckBox",
+                            "width": "300px"
+                        },
+                        {
+                            "name": "CallBarringAsVariable",
+                            "caption": "Create variable per call barring rule",
+                            "type": "CheckBox",
+                            "width": "300px"
+                        }
+                    ]
                 },
                 {
                     "type": "SelectScript",
@@ -442,7 +461,11 @@
         },
         {
             "type": "Button",
-            "caption": "Reload Phonebook",
+            "caption": "Reload deflection list",
+            "onClick": "IPS_RequestAction($id,'RefreshDeflectionList',true);"
+        },        {
+            "type": "Button",
+            "caption": "Reload phonebook",
             "onClick": "IPS_RequestAction($id,'RefreshPhonebook',true);"
         },
         {

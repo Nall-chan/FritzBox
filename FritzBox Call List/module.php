@@ -43,9 +43,13 @@ class FritzBoxCallList extends FritzBoxModulBase
         parent::Create();
         $this->RegisterPropertyInteger('Index', 0);
         $this->RegisterPropertyInteger('RefreshIntervalPhonebook', 60);
+        $this->RegisterPropertyInteger('RefreshIntervalDeflectionList', 60);
         $this->RegisterPropertyInteger('RefreshIntervalCallList', 10);
+        $this->RegisterPropertyBoolean('DeflectionAsVariable', false);
+        $this->RegisterPropertyBoolean('CallBarringAsVariable', false);
         $this->RegisterTimer('RefreshPhonebook', 0, 'IPS_RequestAction(' . $this->InstanceID . ',"RefreshPhonebook",true);');
         $this->RegisterTimer('RefreshCallList', 0, 'IPS_RequestAction(' . $this->InstanceID . ',"RefreshCallList",true);');
+        $this->RegisterTimer('RefreshDeflectionList', 0, 'IPS_RequestAction(' . $this->InstanceID . ',"RefreshDeflectionList",true);');
         $Style = $this->GenerateHTMLStyleProperty();
         $this->RegisterPropertyString('Table', json_encode($Style['Table']));
         $this->RegisterPropertyString('Columns', json_encode($Style['Columns']));
@@ -89,6 +93,7 @@ class FritzBoxCallList extends FritzBoxModulBase
         }
         $this->SetTimerInterval('RefreshPhonebook', $this->ReadPropertyInteger('RefreshIntervalPhonebook') * 60000);
         $this->SetTimerInterval('RefreshCallList', $this->ReadPropertyInteger('RefreshIntervalCallList') * 60000);
+        $this->SetTimerInterval('RefreshDeflectionList', $this->ReadPropertyInteger('RefreshIntervalDeflectionList') * 60000);
         /*$this->GetDECTHandsetList();
         $this->GetDECTHandsetInfo(1);
         $this->GetDECTHandsetInfo(2);*/
@@ -111,6 +116,8 @@ class FritzBoxCallList extends FritzBoxModulBase
                 return $this->RefreshPhonebook();
             case 'RefreshCallList':
                 return $this->RefreshCallList();
+            case 'RefreshDeflectionList':
+                return $this->RefreshDeflectionList();
             case 'PreviewIcon':
                 $Data = unserialize($Value);
                 $ImageData = @getimagesize('data://text/plain;base64,' . $Data['Icon']);
@@ -538,6 +545,24 @@ class FritzBoxCallList extends FritzBoxModulBase
         // $LoadedFiles im IO ablegen, damit andere es lesen können.
         $this->SetPhonebookFiles($LoadedFiles);
         return true;
+    }
+    private function RefreshDeflectionList()
+    {
+        $Result = $this->GetDeflections();
+        if ($Result === false) {
+            return false;
+        }
+        $DeflectionList = new \simpleXMLElement($Result);
+        $CallBarringItems = $DeflectionList->xpath("//Item[Mode='eNoSignal' and DeflectionToNumber='']");
+        foreach ($CallBarringItems as $Index => $CallBarringItem) {
+            $this->SendDebug('CallBarring:' . $Index, (array) $CallBarringItem, 0);
+            //var_dump($CallBarringItems);
+        }
+        $DeflectionItems = $DeflectionList->xpath("//Item[DeflectionToNumber !='']");
+        foreach ($DeflectionItems as $Index => $DeflectionItem) {
+            $this->SendDebug('Deflection:' . $Index, (array) $DeflectionItem, 0);
+            //var_dump($DeflectionItem);
+        }
     }
     private function SetPhonebookFiles(array $Files)
     {

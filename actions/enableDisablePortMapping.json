@@ -23,6 +23,7 @@
         "objectType": [
             1
         ],
+        "hasActionStatusVariables": true,
         "moduleID": [
             "{9396D756-40EA-46C7-AA06-623B8DCB789B}"
         ],

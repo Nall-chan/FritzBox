@@ -4,10 +4,15 @@
             "type": "RowLayout",
             "items": [
                 {
-                    "name": "",
-                    "type": "Label",
-                    "caption": "",
-                    "width": "300px"
+                    "type": "ColumnLayout",
+                    "items": [
+                        {
+                            "name": "AreaCode",
+                            "type": "ValidationTextBox",
+                            "caption": "Area code",
+                            "width": "300px"
+                        }
+                    ]
                 },
                 {
                     "type": "ExpansionPanel",

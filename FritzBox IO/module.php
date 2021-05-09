@@ -599,7 +599,7 @@ class FritzBoxIO extends IPSModule
                 return $FunctionList;
             }
      */
-    private function CallSoapAction(&$HttpCode, $serviceTyp, $controlURL, $function, $params = [])
+    private function CallSoapAction(&$HttpCode, $serviceTyp, $controlURL, $function, $params = [], $retry = true)
     {
         $this->SendDebug('URL', $this->Url . $controlURL, 0);
         $this->SendDebug('Service', $serviceTyp, 0);
@@ -677,7 +677,10 @@ class FritzBoxIO extends IPSModule
                 $HttpCode = (int) explode(' ', explode("\r\n", $ResponseHeaders)[0])[1];
             }
             $this->SendDebug('Soap Response Code (' . $HttpCode . ')', $e->faultstring, 0);
-
+            if ($retry) {
+                $this->SendDebug('RETRY', '', 0);
+                return $this->CallSoapAction($HttpCode, $serviceTyp, $controlURL, $function, $params, false);
+            }
             return $e;
         }
         $this->SendDebug('Result', $Result, 0);

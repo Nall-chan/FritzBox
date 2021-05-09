@@ -111,7 +111,6 @@
                             "name": "style",
                             "width": "auto",
                             "edit": {
-                                "caption": "CSS:",
                                 "type": "ValidationTextBox"
                             }
                         }
@@ -140,7 +139,6 @@
                             "name": "show",
                             "width": "75px",
                             "edit": {
-                                "caption": "Visible as column ?",
                                 "type": "CheckBox"
                             }
                         },
@@ -149,7 +147,6 @@
                             "name": "index",
                             "width": "50px",
                             "edit": {
-                                "caption": "Index of this column:",
                                 "type": "NumberSpinner"
                             }
                         },
@@ -158,7 +155,6 @@
                             "name": "name",
                             "width": "150px",
                             "edit": {
-                                "caption": "Display-Name:",
                                 "type": "ValidationTextBox"
                             }
                         },
@@ -167,7 +163,6 @@
                             "name": "width",
                             "width": "50px",
                             "edit": {
-                                "caption": "Width of this column:",
                                 "type": "NumberSpinner"
                             }
                         },
@@ -177,7 +172,6 @@
                             "width": "150px",
                             "edit": {
                                 "type": "Select",
-                                "caption": "Text alignment",
                                 "options": [
                                     {
                                         "caption": "Left",
@@ -199,7 +193,6 @@
                             "name": "hrcolor",
                             "width": "150px",
                             "edit": {
-                                "caption": "Color of Text:",
                                 "type": "SelectColor"
                             }
                         },
@@ -208,7 +201,6 @@
                             "name": "hrstyle",
                             "width": "200px",
                             "edit": {
-                                "caption": "CSS:",
                                 "type": "ValidationTextBox"
                             }
                         },
@@ -218,7 +210,6 @@
                             "width": "150px",
                             "edit": {
                                 "type": "Select",
-                                "caption": "Text alignment",
                                 "options": [
                                     {
                                         "caption": "Left",
@@ -240,7 +231,6 @@
                             "name": "tdstyle",
                             "width": "200px",
                             "edit": {
-                                "caption": "CSS:",
                                 "type": "ValidationTextBox"
                             }
                         }
@@ -272,7 +262,6 @@
                             "name": "bgcolor",
                             "width": "150px",
                             "edit": {
-                                "caption": "Color of background:",
                                 "type": "SelectColor"
                             }
                         },
@@ -281,7 +270,6 @@
                             "name": "color",
                             "width": "100px",
                             "edit": {
-                                "caption": "Color of Text:",
                                 "type": "SelectColor"
                             }
                         },
@@ -290,7 +278,6 @@
                             "name": "style",
                             "width": "auto",
                             "edit": {
-                                "caption": "CSS:",
                                 "type": "ValidationTextBox"
                             }
                         }

@@ -2,6 +2,7 @@
     "translations": {
         "de": {
             "Reload phonebook": "Telefonbuch neu laden",
+            "Reload deflection list": "Rufumleitungen und Sperren neu laden",
             "Instance for reverse Search": "Instanz für Rückwärtsuche",
             "Reverse Search": "Rückwärtsuche",
             "Script for custom reverse Search": "Skript für eigene Rückwärtsuche",
@@ -18,6 +19,8 @@
             "minutes": "Minuten",
             "Suffix for reverse-search hit": "Suffix für Treffer Rückwärtssuche",
             "Display name for unknown numbers": "Anzeigename für unbekannte Nummern",
+            "Create variable per deflection rule": "Variable pro Ablenkungsregel erstellen",
+            "Create variable per call barring rule": "Variable pro Anrufsperrregel erstellen",
             "Event subscribe error": "Ereignisabonnementfehler",
             "Invalid Ident.": "Ungültiger Ident.",
             "HTML-Table design": "HTML-Tabellen Darstellung",

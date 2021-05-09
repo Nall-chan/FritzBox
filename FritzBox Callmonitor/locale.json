@@ -1,6 +1,7 @@
 {
     "translations": {
         "de": {
+            "Area code": "Vorwahl",
             "Reverse Search": "Rückwärtsuche",
             "Instance for reverse Search": "Instanz für Rückwärtsuche",
             "Script for custom reverse Search": "Skript für eigene Rückwärtsuche",
