@@ -295,7 +295,6 @@ class FritzBoxIO extends IPSModule
             $Propertys[str_replace('-', '_', $property->Children()->GetName())] = (string) $property->Children();
         }
         $this->SendDebug('EVENT XML', $Propertys, 0);
-        //todo Send to Childs
         $this->SendDataToChildren(
             json_encode(
                 [
@@ -723,8 +722,8 @@ class FritzBoxIO extends IPSModule
             $this->SendDebug('Could not connect to eventSubURL', $Uri, 0);
             return false;
         } else {
-            $fwrite = 0;
-            for ($written = 0; $written < strlen($content); $written += $fwrite) {
+            
+            for ($fwrite = 0, $written = 0, $max = strlen($content); $written < $max; $written += $fwrite) {
                 $fwrite = @fwrite($fp, substr($content, $written));
                 if ($fwrite === false) {
                     $this->SendDebug('Error on write to eventSubURL', $Uri, 0);

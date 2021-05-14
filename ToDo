@@ -7,8 +7,8 @@ Fertige Instanzen:
  - FTP / Samba-Freigaben
  - MyFritz
  - DDNS
- - Anrufmonitor (Inverssuche + suche im Telefonbuch fehlt)
- - Anrufliste (Inverssuche + suche im Telefonbuch fehlt)
+ - Anrufmonitor
+ - Anrufliste (übersetzungen verbessern, instanz umbenennen)
 
 Feldtest nötig:
  - WAN DSL Link
@@ -22,19 +22,16 @@ Feldtest nötig:
  - IO (+ Device Config für Reboot)
  - WebDav Client
  
-Übersetzungen fehlen:
- - Konfigurator
- 
+  
 Unfertig / Fehlen:
-- Tel-Devices
 - Anrufbeantworter
+- Wählhilfe
 
 Später/Sonstiges:
+- Fehler beim schalten Zeitserver
 - Rufumleitungen und Rufblockaden (beides mit in Anrufliste Instanz?, als Liste? Als Variablen?)
 - IO oder Konfigurator sollte prüfen ob der Anrufmonitor der FB aktiv ist, sonst hinweis an User ausgeben
-- Alle HTML-Konfig auf unnötige caption in EDIT prüfen
-- local.json ausmisten:
-    Fertig: Callmonitor
 - Bei Host auto-löschen der Variablen?! Zuschaltbar?
 - Hinweis in der Anrufliste, das kein Intervall benötigt wird, wenn der Anrufmonitor aktiv ist.
 - Instanz-Funktionen für Zugriff auf die gecachden Daten des Telefonbuchs
+- Host.xml cachen?

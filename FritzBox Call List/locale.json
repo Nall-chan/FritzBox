@@ -19,7 +19,7 @@
             "minutes": "Minuten",
             "Suffix for reverse-search hit": "Suffix für Treffer Rückwärtssuche",
             "Display name for unknown numbers": "Anzeigename für unbekannte Nummern",
-            "Create variable per deflection rule": "Variable pro Ablenkungsregel erstellen",
+            "Create variable per deflection rule": "Variable pro Rufumleitung erstellen",
             "Create variable per call barring rule": "Variable pro Anrufsperrregel erstellen",
             "Event subscribe error": "Ereignisabonnementfehler",
             "Invalid Ident.": "Ungültiger Ident.",
@@ -73,7 +73,19 @@
             "The reverse search library is not installed.": "Die Bibliothek für die Rückwärtssuche ist nicht installiert.",
             "Please open the 'Module-Store' and install the 'Caller ID Reverse Search'-library.": "Bitte den 'Module-Store' öffnen und die 'Anrufer Rückwärtssuche'-Bibliothek installieren.",
             "Do not display the message again": "Meldung nicht erneut anzeigen",
-            "Call list": "Anrufliste"
+            "Call list": "Anrufliste",
+            "Block all incoming calls": "Alle eingehenden Anrufe blockieren",
+            "Block anonymous incoming calls": "Anonyme eingehende Anrufe blockieren",
+            "Block incoming call not from a VIP": "Blockieren eingehende Anrufe außer von einem VIP",
+            "Block incoming call from number": "Blockiere eingehenden Anruf von Nummer",
+            "Block incoming call from phonebook": "Blockiere eingehenden Anruf aus dem Telefonbuch",
+            "Block incoming calls from a VIP number": "Blockiere eingehende Anrufe von VIP-Nummer",
+            "Deflect all incoming calls to": "Alle eingehenden Anrufe umleiten an",
+            "Deflect anonymous incoming calls to": "Anonyme eingehende Anrufe umleiten an",
+            "Deflect incoming call not from a VIP to": "Eingehende Anrufe außer von einem VIP umleiten an",
+            "Deflect incoming call from number %s to %s": "Eingehende Anrufe von Nummer %s an %s umleiten",
+            "Deflect incoming call from phonebook (%s) to %s": "Eingehenden Anruf aus dem Telefonbuch (%s) umleiten an %s",
+            "Deflect incoming calls from a VIP number to": "Eingehenden Anrufe von einer VIP-Nummer umleiten an"
         }
     }
 }

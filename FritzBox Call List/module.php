@@ -93,7 +93,13 @@ class FritzBoxCallList extends FritzBoxModulBase
         }
         $this->SetTimerInterval('RefreshPhonebook', $this->ReadPropertyInteger('RefreshIntervalPhonebook') * 60000);
         $this->SetTimerInterval('RefreshCallList', $this->ReadPropertyInteger('RefreshIntervalCallList') * 60000);
-        $this->SetTimerInterval('RefreshDeflectionList', $this->ReadPropertyInteger('RefreshIntervalDeflectionList') * 60000);
+
+        if ($this->ReadPropertyBoolean('DeflectionAsVariable') || $this->ReadPropertyBoolean('CallBarringAsVariable')) {
+            $this->SetTimerInterval('RefreshDeflectionList', $this->ReadPropertyInteger('RefreshIntervalDeflectionList') * 60000);
+        } else {
+            $this->SetTimerInterval('RefreshDeflectionList', 0);
+        }
+
         /*$this->GetDECTHandsetList();
         $this->GetDECTHandsetInfo(1);
         $this->GetDECTHandsetInfo(2);*/
@@ -102,7 +108,7 @@ class FritzBoxCallList extends FritzBoxModulBase
         //$this->GetDeflections();
         // SetDeflectionEnable
         //$this->RegisterHook('/hook/FritzBoxCallList' . $this->InstanceID);
-        $this->RegisterVariableString('CallList', $this->Translate('Call list'), '~HTMLBox', 0);
+        $this->RegisterVariableString('CallList', $this->Translate('Call list'), '~HTMLBox', -1);
         $this->RefreshCallList();
     }
 
@@ -152,6 +158,11 @@ class FritzBoxCallList extends FritzBoxModulBase
                     $this->UpdateFormField('UnknownNumberName', 'enabled', true);
                 }
                 return;
+        }
+
+        $IdentData = explode('_', $Ident);
+        if ((count($IdentData) == 4) && (($IdentData[0] == 'D') || ($IdentData[0] == 'C'))) {
+            return $this->RefreshDeflectionList($Ident, $Value);
         }
 
         trigger_error($this->Translate('Invalid Ident.'), E_USER_NOTICE);
@@ -546,23 +557,121 @@ class FritzBoxCallList extends FritzBoxModulBase
         $this->SetPhonebookFiles($LoadedFiles);
         return true;
     }
-    private function RefreshDeflectionList()
+    private function RefreshDeflectionList($ActionIdent = null, $ActionValue = false)
     {
-        $Result = $this->GetDeflections();
-        if ($Result === false) {
+        if (!$this->ReadPropertyBoolean('DeflectionAsVariable') && !$this->ReadPropertyBoolean('CallBarringAsVariable') && is_null($ActionIdent)) {
             return false;
         }
-        $DeflectionList = new \simpleXMLElement($Result);
+        if (is_null($ActionIdent)) {
+            $Result = true;
+        } else {
+            $Result = false;
+        }
+        $Deflections = $this->GetDeflections();
+        if ($Deflections === false) {
+            return false;
+        }
+        $PhoneBooks = $this->GetPhoneBookFiles();
+        $DeflectionList = new \simpleXMLElement($Deflections);
         $CallBarringItems = $DeflectionList->xpath("//Item[Mode='eNoSignal' and DeflectionToNumber='']");
         foreach ($CallBarringItems as $Index => $CallBarringItem) {
             $this->SendDebug('CallBarring:' . $Index, (array) $CallBarringItem, 0);
-            //var_dump($CallBarringItems);
+            $Ident = 'C_' . $CallBarringItem->Type . '_' . $CallBarringItem->Number . '_' . $CallBarringItem->PhonebookID;
+            $Value = (int) $CallBarringItem->Enable === 1;
+            if ($ActionIdent == $Ident) {
+                if ($this->SetDeflectionEnable((int) $CallBarringItem->DeflectionId, $ActionValue)) {
+                    $Result = true;
+                    $Value = $ActionValue;
+                }
+            }
+            switch ($CallBarringItem->Type) {
+                case 'fromAll':
+                    $Name = $this->Translate('Block all incoming calls');
+                break;
+                case 'fromAnonymous':
+                    $Name = $this->Translate('Block anonymous incoming calls');
+                break;
+                case 'fromNotVIP':
+                    $Name = $this->Translate('Block incoming call not from a VIP');
+                break;
+                case 'fromNumber':
+                    $Name = $this->Translate('Block incoming call from number') . ' ' . $CallBarringItem->Number;
+                break;
+                case 'fromPB':
+                    $Name = $this->Translate('Block incoming call from phonebook');
+                    if (array_key_exists((int) $CallBarringItem->PhonebookID, $PhoneBooks)) {
+                        $Name .= ' ' . substr($PhoneBooks[(int) $CallBarringItem->PhonebookID], 10, -4);
+                    } else {
+                        $Name .= ' ' . $CallBarringItem->PhonebookID;
+                    }
+                break;
+                case 'fromVIP':
+                    $Name = $this->Translate('Block incoming calls from a VIP number') . ' ' . $CallBarringItem->Number;
+                break;
+                default:
+                    $Name = 'Block ' . $CallBarringItem->Type . ' ' . $CallBarringItem->Number;
+                break;
+            }
+            $this->SendDebug('CallBarringIdent:' . $Index, $Ident, 0);
+            $this->SendDebug('CallBarringName:' . $Index, $Name, 0);
+            if ($this->ReadPropertyBoolean('CallBarringAsVariable')) {
+                $this->setIPSVariable($Ident, $Name, $Value, VARIABLETYPE_BOOLEAN, '~Switch', true);
+            }
         }
+
         $DeflectionItems = $DeflectionList->xpath("//Item[DeflectionToNumber !='']");
         foreach ($DeflectionItems as $Index => $DeflectionItem) {
             $this->SendDebug('Deflection:' . $Index, (array) $DeflectionItem, 0);
-            //var_dump($DeflectionItem);
+            $Ident = 'D_' . $DeflectionItem->Type . '_' . $DeflectionItem->Number . '_' . $DeflectionItem->DeflectionToNumber;
+            $Value = (int) $DeflectionItem->Enable === 1;
+            if ($ActionIdent == $Ident) {
+                if ($this->SetDeflectionEnable((int) $DeflectionItem->DeflectionId, $ActionValue)) {
+                    $Result = true;
+                    $Value = $ActionValue;
+                }
+            }
+            $DeviceName = $this->DoPhonebookSearch('**' . (string) $DeflectionItem->DeflectionToNumber, 50);
+            if ($DeviceName == '') {
+                $DeviceName = (string) $DeflectionItem->DeflectionToNumber;
+            }
+            switch ($DeflectionItem->Type) {
+                case 'fromAll':
+                    $Name = $this->Translate('Deflect all incoming calls to') . ' ' . $DeviceName;
+                break;
+                case 'fromAnonymous':
+                    $Name = $this->Translate('Deflect anonymous incoming calls to') . ' ' . $DeviceName;
+                break;
+                case 'fromNotVIP':
+                    $Name = $this->Translate('Deflect incoming call not from a VIP to') . ' ' . $DeviceName;
+                break;
+                case 'fromNumber':
+                    $Name = sprintf($this->Translate('Deflect incoming call from number %s to %s'), (string) $DeflectionItem->Number, $DeviceName);
+                break;
+                case 'fromPB':
+                    $PhonebookName = (string) $DeflectionItem->PhonebookID;
+                    if (array_key_exists((int) $DeflectionItem->PhonebookID, $PhoneBooks)) {
+                        $PhonebookName = substr($PhoneBooks[(int) $DeflectionItem->PhonebookID], 10, -4);
+                    }
+                    $Name = sprintf($this->Translate('Deflect incoming call from phonebook (%s) to %s'), $PhonebookName, $DeviceName);
+
+                break;
+                case 'fromVIP':
+                    $Name = $this->Translate('Deflect incoming calls from a VIP number to') . ' ' . $DeviceName;
+                break;
+                //toMSN ' ' . $DeflectionItem->Number . ' to ' . $DeviceName;
+                //toPOTS ' to ' . $DeviceName;
+                //toVoIP ' ' . $DeflectionItem->Number . ' to ' . $DeviceName;
+                default:
+                    $Name = 'Deflect ' . $DeflectionItem->Type . ' ' . $DeflectionItem->Number . ' to ' . $DeviceName;
+                break;
+            }
+            $this->SendDebug('DeflectionIdent:' . $Index, $Ident, 0);
+            $this->SendDebug('DeflectionName:' . $Index, $Name, 0);
+            if ($this->ReadPropertyBoolean('DeflectionAsVariable')) {
+                $this->setIPSVariable($Ident, $Name, $Value, VARIABLETYPE_BOOLEAN, '~Switch', true);
+            }
         }
+        return $Result;
     }
     private function SetPhonebookFiles(array $Files)
     {

@@ -495,12 +495,18 @@ class FritzBoxCallmonitor extends FritzBoxModulBase
         if ($Number == '') {
             return $this->ReadPropertyString('UnknownNumberName');
         }
-        if ($Number[0] !== '+') {
-            if ($Number[0] !== '0') {
-                $Number = $this->ReadPropertyString('AreaCode') . $Number;
+
+        $Name = $this->DoPhonebookSearch($Number, $this->ReadPropertyInteger('MaxNameSize'));
+        if ($Name === false) {
+            if (strpos($Number, $this->ReadPropertyString('AreaCode')) === 0) {
+                $Name = $this->DoPhonebookSearch(substr($Number, strlen($this->ReadPropertyString('AreaCode'))), $this->ReadPropertyInteger('MaxNameSize'));
+            } else {
+                if ($Number[0] != '0') {
+                    $Name = $this->DoPhonebookSearch($this->ReadPropertyString('AreaCode') . $Number, $this->ReadPropertyInteger('MaxNameSize'));
+                }
             }
         }
-        $Name = $this->DoPhonebookSearch($Number, $this->ReadPropertyInteger('MaxNameSize'));
+        
         if ($Name === false) {
             $UnknownName = '(' . $Number . ')';
             $ReverseSearchInstanceID = $this->ReadPropertyInteger('ReverseSearchInstanceID');
