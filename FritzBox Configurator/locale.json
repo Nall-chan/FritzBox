@@ -3,7 +3,7 @@
         "de": {
             "Not connected!": "Nicht verbunden!",
             "The 'FritzBox IO' instance is not connected or missing.": "Die 'FritzBox IO' Instanz ist nicht verbunden oder fehlt.",
-            "FritzBox Call List": "FritzBox Anrufliste",
+            "FritzBox Telephony": "FritzBox Telefonie",
             "FritzBox Callmonitor": "FritzBox Anrufmonitor",
             "FritzBox Device Info": "FritzBox Geräteinformationen",
             "FritzBox DHCP Server": "FritzBox DHCP Server",

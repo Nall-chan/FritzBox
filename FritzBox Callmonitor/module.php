@@ -506,7 +506,7 @@ class FritzBoxCallmonitor extends FritzBoxModulBase
                 }
             }
         }
-        
+
         if ($Name === false) {
             $UnknownName = '(' . $Number . ')';
             $ReverseSearchInstanceID = $this->ReadPropertyInteger('ReverseSearchInstanceID');

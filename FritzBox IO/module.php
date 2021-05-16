@@ -722,7 +722,6 @@ class FritzBoxIO extends IPSModule
             $this->SendDebug('Could not connect to eventSubURL', $Uri, 0);
             return false;
         } else {
-            
             for ($fwrite = 0, $written = 0, $max = strlen($content); $written < $max; $written += $fwrite) {
                 $fwrite = @fwrite($fp, substr($content, $written));
                 if ($fwrite === false) {

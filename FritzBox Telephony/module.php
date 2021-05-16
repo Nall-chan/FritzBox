@@ -7,7 +7,7 @@ require_once __DIR__ . '/../libs/FritzBoxTelHelper.php';
 require_once __DIR__ . '/../libs/FritzBoxTable.php';
 //require_once __DIR__ . '/../libs/helper/WebhookHelper.php';
 
-class FritzBoxCallList extends FritzBoxModulBase
+class FritzBoxTelephony extends FritzBoxModulBase
 {
     use \FritzBoxModul\HTMLTable;
     use \FritzBoxModul\TelHelper;
@@ -435,6 +435,8 @@ class FritzBoxCallList extends FritzBoxModulBase
         }
         $entries = $this->ReadPropertyInteger('LastEntries');
         switch ($this->ReadPropertyInteger('LoadListType')) {
+            case -1:
+                return true;
             case 1:
                 $result .= '&days=' . $entries;
                 break;
@@ -577,6 +579,7 @@ class FritzBoxCallList extends FritzBoxModulBase
         foreach ($CallBarringItems as $Index => $CallBarringItem) {
             $this->SendDebug('CallBarring:' . $Index, (array) $CallBarringItem, 0);
             $Ident = 'C_' . $CallBarringItem->Type . '_' . $CallBarringItem->Number . '_' . $CallBarringItem->PhonebookID;
+            $this->SendDebug('CallBarringIdent:' . $Index, $Ident, 0);
             $Value = (int) $CallBarringItem->Enable === 1;
             if ($ActionIdent == $Ident) {
                 if ($this->SetDeflectionEnable((int) $CallBarringItem->DeflectionId, $ActionValue)) {
@@ -584,38 +587,41 @@ class FritzBoxCallList extends FritzBoxModulBase
                     $Value = $ActionValue;
                 }
             }
-            switch ($CallBarringItem->Type) {
-                case 'fromAll':
-                    $Name = $this->Translate('Block all incoming calls');
-                break;
-                case 'fromAnonymous':
-                    $Name = $this->Translate('Block anonymous incoming calls');
-                break;
-                case 'fromNotVIP':
-                    $Name = $this->Translate('Block incoming call not from a VIP');
-                break;
-                case 'fromNumber':
-                    $Name = $this->Translate('Block incoming call from number') . ' ' . $CallBarringItem->Number;
-                break;
-                case 'fromPB':
-                    $Name = $this->Translate('Block incoming call from phonebook');
-                    if (array_key_exists((int) $CallBarringItem->PhonebookID, $PhoneBooks)) {
-                        $Name .= ' ' . substr($PhoneBooks[(int) $CallBarringItem->PhonebookID], 10, -4);
-                    } else {
-                        $Name .= ' ' . $CallBarringItem->PhonebookID;
-                    }
-                break;
-                case 'fromVIP':
-                    $Name = $this->Translate('Block incoming calls from a VIP number') . ' ' . $CallBarringItem->Number;
-                break;
-                default:
-                    $Name = 'Block ' . $CallBarringItem->Type . ' ' . $CallBarringItem->Number;
-                break;
-            }
-            $this->SendDebug('CallBarringIdent:' . $Index, $Ident, 0);
-            $this->SendDebug('CallBarringName:' . $Index, $Name, 0);
             if ($this->ReadPropertyBoolean('CallBarringAsVariable')) {
-                $this->setIPSVariable($Ident, $Name, $Value, VARIABLETYPE_BOOLEAN, '~Switch', true);
+                if (@$this->GetIDForIdent($Ident)) {
+                    $this->SetValue($Ident, $Value);
+                } else {
+                    switch ($CallBarringItem->Type) {
+                    case 'fromAll':
+                        $Name = $this->Translate('Block all incoming calls');
+                    break;
+                    case 'fromAnonymous':
+                        $Name = $this->Translate('Block anonymous incoming calls');
+                    break;
+                    case 'fromNotVIP':
+                        $Name = $this->Translate('Block incoming call not from a VIP');
+                    break;
+                    case 'fromNumber':
+                        $Name = $this->Translate('Block incoming call from number') . ' ' . $CallBarringItem->Number;
+                    break;
+                    case 'fromPB':
+                        $Name = $this->Translate('Block incoming call from phonebook');
+                        if (array_key_exists((int) $CallBarringItem->PhonebookID, $PhoneBooks)) {
+                            $Name .= ' ' . substr($PhoneBooks[(int) $CallBarringItem->PhonebookID], 10, -4);
+                        } else {
+                            $Name .= ' ' . $CallBarringItem->PhonebookID;
+                        }
+                    break;
+                    case 'fromVIP':
+                        $Name = $this->Translate('Block incoming calls from a VIP number') . ' ' . $CallBarringItem->Number;
+                    break;
+                    default:
+                        $Name = 'Block ' . $CallBarringItem->Type . ' ' . $CallBarringItem->Number;
+                    break;
+                    }
+                    $this->SendDebug('CallBarringName:' . $Index, $Name, 0);
+                    $this->setIPSVariable($Ident, $Name, $Value, VARIABLETYPE_BOOLEAN, '~Switch', true);
+                }
             }
         }
 
@@ -623,6 +629,7 @@ class FritzBoxCallList extends FritzBoxModulBase
         foreach ($DeflectionItems as $Index => $DeflectionItem) {
             $this->SendDebug('Deflection:' . $Index, (array) $DeflectionItem, 0);
             $Ident = 'D_' . $DeflectionItem->Type . '_' . $DeflectionItem->Number . '_' . $DeflectionItem->DeflectionToNumber;
+            $this->SendDebug('DeflectionIdent:' . $Index, $Ident, 0);
             $Value = (int) $DeflectionItem->Enable === 1;
             if ($ActionIdent == $Ident) {
                 if ($this->SetDeflectionEnable((int) $DeflectionItem->DeflectionId, $ActionValue)) {
@@ -630,45 +637,48 @@ class FritzBoxCallList extends FritzBoxModulBase
                     $Value = $ActionValue;
                 }
             }
-            $DeviceName = $this->DoPhonebookSearch('**' . (string) $DeflectionItem->DeflectionToNumber, 50);
-            if ($DeviceName == '') {
-                $DeviceName = (string) $DeflectionItem->DeflectionToNumber;
-            }
-            switch ($DeflectionItem->Type) {
-                case 'fromAll':
-                    $Name = $this->Translate('Deflect all incoming calls to') . ' ' . $DeviceName;
-                break;
-                case 'fromAnonymous':
-                    $Name = $this->Translate('Deflect anonymous incoming calls to') . ' ' . $DeviceName;
-                break;
-                case 'fromNotVIP':
-                    $Name = $this->Translate('Deflect incoming call not from a VIP to') . ' ' . $DeviceName;
-                break;
-                case 'fromNumber':
-                    $Name = sprintf($this->Translate('Deflect incoming call from number %s to %s'), (string) $DeflectionItem->Number, $DeviceName);
-                break;
-                case 'fromPB':
-                    $PhonebookName = (string) $DeflectionItem->PhonebookID;
-                    if (array_key_exists((int) $DeflectionItem->PhonebookID, $PhoneBooks)) {
-                        $PhonebookName = substr($PhoneBooks[(int) $DeflectionItem->PhonebookID], 10, -4);
-                    }
-                    $Name = sprintf($this->Translate('Deflect incoming call from phonebook (%s) to %s'), $PhonebookName, $DeviceName);
-
-                break;
-                case 'fromVIP':
-                    $Name = $this->Translate('Deflect incoming calls from a VIP number to') . ' ' . $DeviceName;
-                break;
-                //toMSN ' ' . $DeflectionItem->Number . ' to ' . $DeviceName;
-                //toPOTS ' to ' . $DeviceName;
-                //toVoIP ' ' . $DeflectionItem->Number . ' to ' . $DeviceName;
-                default:
-                    $Name = 'Deflect ' . $DeflectionItem->Type . ' ' . $DeflectionItem->Number . ' to ' . $DeviceName;
-                break;
-            }
-            $this->SendDebug('DeflectionIdent:' . $Index, $Ident, 0);
-            $this->SendDebug('DeflectionName:' . $Index, $Name, 0);
             if ($this->ReadPropertyBoolean('DeflectionAsVariable')) {
-                $this->setIPSVariable($Ident, $Name, $Value, VARIABLETYPE_BOOLEAN, '~Switch', true);
+                if (@$this->GetIDForIdent($Ident)) {
+                    $this->SetValue($Ident, $Value);
+                } else {
+                    $DeviceName = $this->DoPhonebookSearch('**' . (string) $DeflectionItem->DeflectionToNumber, 50);
+                    if ($DeviceName == '') {
+                        $DeviceName = (string) $DeflectionItem->DeflectionToNumber;
+                    }
+                    switch ($DeflectionItem->Type) {
+                        case 'fromAll':
+                            $Name = $this->Translate('Deflect all incoming calls to') . ' ' . $DeviceName;
+                        break;
+                        case 'fromAnonymous':
+                            $Name = $this->Translate('Deflect anonymous incoming calls to') . ' ' . $DeviceName;
+                        break;
+                        case 'fromNotVIP':
+                            $Name = $this->Translate('Deflect incoming call not from a VIP to') . ' ' . $DeviceName;
+                        break;
+                        case 'fromNumber':
+                            $Name = sprintf($this->Translate('Deflect incoming call from number %s to %s'), (string) $DeflectionItem->Number, $DeviceName);
+                        break;
+                        case 'fromPB':
+                            $PhonebookName = (string) $DeflectionItem->PhonebookID;
+                            if (array_key_exists((int) $DeflectionItem->PhonebookID, $PhoneBooks)) {
+                                $PhonebookName = substr($PhoneBooks[(int) $DeflectionItem->PhonebookID], 10, -4);
+                            }
+                            $Name = sprintf($this->Translate('Deflect incoming call from phonebook (%s) to %s'), $PhonebookName, $DeviceName);
+
+                        break;
+                        case 'fromVIP':
+                            $Name = $this->Translate('Deflect incoming calls from a VIP number to') . ' ' . $DeviceName;
+                        break;
+                        //toMSN ' ' . $DeflectionItem->Number . ' to ' . $DeviceName;
+                        //toPOTS ' to ' . $DeviceName;
+                        //toVoIP ' ' . $DeflectionItem->Number . ' to ' . $DeviceName;
+                        default:
+                            $Name = 'Deflect ' . $DeflectionItem->Type . ' ' . $DeflectionItem->Number . ' to ' . $DeviceName;
+                        break;
+                    }
+                    $this->SendDebug('DeflectionName:' . $Index, $Name, 0);
+                    $this->setIPSVariable($Ident, $Name, $Value, VARIABLETYPE_BOOLEAN, '~Switch', true);
+                }
             }
         }
         return $Result;
