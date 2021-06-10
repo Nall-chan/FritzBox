@@ -6,6 +6,49 @@ namespace FritzBoxModul;
 
 trait TelHelper
 {
+    protected static $NumberToID = [
+        50  => 50,
+        51  => 51,
+        52  => 52,
+        53  => 53,
+        54  => 54,
+        55  => 55,
+        56  => 56,
+        57  => 57,
+        58  => 58,
+        329 => 5,
+        610 => 10,
+        611 => 11,
+        612 => 12,
+        613 => 13,
+        614 => 14,
+        615 => 15,
+        616 => 16,
+        617 => 17,
+        618 => 18,
+        619 => 19,
+        620 => 20,
+        621 => 21,
+        622 => 22,
+        623 => 23,
+        624 => 24,
+        625 => 25,
+        626 => 26,
+        627 => 27,
+        628 => 28,
+        629 => 29,
+        600 => 40,
+        601 => 41,
+        602 => 42,
+        603 => 43,
+        604 => 44,
+        605 => 45,
+        606 => 46,
+        607 => 47,
+        608 => 48,
+        609 => 49
+    ];
+
     protected function ArrayWithCurlyBracketsKey($Source)
     {
         $Target = [];
@@ -81,8 +124,11 @@ trait TelHelper
         }
         return $Name;
     }
-
-    private function SetPhoneDevices(array $PhoneDevices)
+    private function GetPhoneDeviceNumberByID(int $ID)
+    {
+        return array_search($ID, self::$NumberToID, false);
+    }
+     private function SetPhoneDevices(array $PhoneDevices)
     {
         if (!$this->HasActiveParent()) {
             return [];
@@ -117,10 +163,16 @@ trait TelHelper
             ]
         ));
         if ($Ret === false) {
-            return '';
+            $Number = $this->GetPhoneDeviceNumberByID($DeviceID);
+            $Result = $this->DoPhonebookSearch('**' . $Number, 50);
+            $this->SendDebug('Result', $Result, 0);
+            if ($Result === false) {
+                $Result = '';
+            }
+        } else {
+            $Result = unserialize($Ret);
+            $this->SendDebug('Result', $Result, 0);
         }
-        $Result = unserialize($Ret);
-        $this->SendDebug('Result', $Result, 0);
         return $Result;
     }
     private function GetPhoneDevices()

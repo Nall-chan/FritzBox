@@ -8,7 +8,7 @@ Fertige Instanzen:
  - MyFritz
  - DDNS
  - Anrufmonitor
- - Anrufliste (übersetzungen verbessern, instanz umbenennen)
+ - Telefonie  (Anrufliste gesterm/heute, De/Reflection übersetzungen verbessern)
 
 Feldtest nötig:
  - WAN DSL Link
@@ -24,14 +24,16 @@ Feldtest nötig:
  
   
 Unfertig / Fehlen:
-- Anrufbeantworter
-- Wählhilfe
+- Anrufbeantworter (komplett)
+- Wählhilfe (mit in Telephony ?)
 
 Später/Sonstiges:
 - Fehler beim schalten Zeitserver
 - Rufumleitungen und Rufblockaden (beides mit in Anrufliste Instanz?, als Liste? Als Variablen?)
+    - Instanz-Konfig Form prüfen / Anpassung fertigstellen
 - IO oder Konfigurator sollte prüfen ob der Anrufmonitor der FB aktiv ist, sonst hinweis an User ausgeben
 - Bei Host auto-löschen der Variablen?! Zuschaltbar?
 - Hinweis in der Anrufliste, das kein Intervall benötigt wird, wenn der Anrufmonitor aktiv ist.
 - Instanz-Funktionen für Zugriff auf die gecachden Daten des Telefonbuchs
 - Host.xml cachen?
+- Host Variablen einzeln per Liste konfigurierbar

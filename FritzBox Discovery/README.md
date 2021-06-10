@@ -1,7 +1,7 @@
-# FritzBox Discovery
+# FritzBox Discovery <!-- omit in toc -->
 Beschreibung des Moduls.
 
-### Inhaltsverzeichnis
+### Inhaltsverzeichnis <!-- omit in toc -->
 
 1. [Funktionsumfang](#1-funktionsumfang)
 2. [Voraussetzungen](#2-voraussetzungen)
@@ -17,7 +17,7 @@ Beschreibung des Moduls.
 
 ### 2. Vorraussetzungen
 
-- IP-Symcon ab Version 5.6
+- IP-Symcon ab Version 6.0
 
 ### 3. Software-Installation
 

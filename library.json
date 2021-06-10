@@ -4,7 +4,7 @@
     "name": "FritzBox",
     "url": "https://github.com/Nall-chan/FritzBox/README.md",
     "compatibility": {
-        "version": "5.6"
+        "version": "6.0"
     },
     "version": "0.1",
     "build": 1,

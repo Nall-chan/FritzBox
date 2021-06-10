@@ -602,7 +602,11 @@ class FritzBoxTelephony extends FritzBoxModulBase
                         $Name = $this->Translate('Block incoming call not from a VIP');
                     break;
                     case 'fromNumber':
-                        $Name = $this->Translate('Block incoming call from number') . ' ' . $CallBarringItem->Number;
+                        $CallBarringNumberName = $this->DoPhonebookSearch((string) $CallBarringItem->Number, 50);
+                        if ($CallBarringNumberName == '') {
+                            $CallBarringNumberName = (string) $CallBarringItem->Number;
+                        }
+                        $Name = $this->Translate('Block incoming call from number') . ' ' . $CallBarringNumberName;
                     break;
                     case 'fromPB':
                         $Name = $this->Translate('Block incoming call from phonebook');
@@ -643,6 +647,9 @@ class FritzBoxTelephony extends FritzBoxModulBase
                 } else {
                     $DeviceName = $this->DoPhonebookSearch('**' . (string) $DeflectionItem->DeflectionToNumber, 50);
                     if ($DeviceName == '') {
+                        $DeviceName = $this->DoPhonebookSearch((string) $DeflectionItem->DeflectionToNumber, 50);
+                    }
+                    if ($DeviceName == '') {
                         $DeviceName = (string) $DeflectionItem->DeflectionToNumber;
                     }
                     switch ($DeflectionItem->Type) {
@@ -656,7 +663,11 @@ class FritzBoxTelephony extends FritzBoxModulBase
                             $Name = $this->Translate('Deflect incoming call not from a VIP to') . ' ' . $DeviceName;
                         break;
                         case 'fromNumber':
-                            $Name = sprintf($this->Translate('Deflect incoming call from number %s to %s'), (string) $DeflectionItem->Number, $DeviceName);
+                            $DeflectionNumberName = $this->DoPhonebookSearch((string) $DeflectionItem->Number, 50);
+                            if ($DeflectionNumberName == '') {
+                                $DeflectionNumberName = (string) $DeflectionItem->Number;
+                            }                            
+                            $Name = sprintf($this->Translate('Deflect incoming call from %s to %s'), $DeflectionNumberName, $DeviceName);
                         break;
                         case 'fromPB':
                             $PhonebookName = (string) $DeflectionItem->PhonebookID;

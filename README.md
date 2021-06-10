@@ -11,8 +11,7 @@ Folgende Module beinhaltet das FritzBox Repository:
 - __FritzBox IO__ ([Dokumentation](FritzBox%20IO/))  
 	Kurze Beschreibung des Moduls.
 
-
-- __FritzBox Anrufliste__ ([Dokumentation](FritzBox%20Call%20List/))  
+- __FritzBox Telefonie__ ([Dokumentation](FritzBox%20Telephony/))  
 	Kurze Beschreibung des Moduls.
 
 - __FritzBox Anruf-Monitor__ ([Dokumentation](FritzBox%20Callmonitor/))  
