@@ -666,7 +666,7 @@ class FritzBoxTelephony extends FritzBoxModulBase
                             $DeflectionNumberName = $this->DoPhonebookSearch((string) $DeflectionItem->Number, 50);
                             if ($DeflectionNumberName == '') {
                                 $DeflectionNumberName = (string) $DeflectionItem->Number;
-                            }                            
+                            }
                             $Name = sprintf($this->Translate('Deflect incoming call from %s to %s'), $DeflectionNumberName, $DeviceName);
                         break;
                         case 'fromPB':
