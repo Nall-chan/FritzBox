@@ -78,7 +78,7 @@ class FritzBoxCallmonitor extends FritzBoxModulBase
             $this->RegisterReference($Target['target']);
         }
         foreach (json_decode($this->ReadPropertyString('Actions'), true) as $Action) {
-            $this->RegisterReference(json_decode($Action['action'], true)['targetID']);
+            $this->RegisterReference(json_decode($Action['action'], true)['parameters']['TARGET']);
         }
         if ($this->ReadPropertyBoolean('CallsAsTable')) {
             $this->RegisterVariableString('CallList', $this->Translate('Active calls'), '~HTMLBox', 0);
@@ -86,6 +86,8 @@ class FritzBoxCallmonitor extends FritzBoxModulBase
         } else {
             $this->UnregisterVariable('CallList');
         }
+        $ActionData = json_decode($Action['action'], true);
+        $this->SendDebug('ActionData', $ActionData, 0);
     }
     public function RequestAction($Ident, $Value)
     {
@@ -297,7 +299,7 @@ class FritzBoxCallmonitor extends FritzBoxModulBase
             $ActionData['parameters'] = array_merge($ActionData['parameters'], $NotifyData);
             $ActionData['parameters']['SENDER'] = 'FritzBox';
             $this->SendDebug('ActionData', $ActionData, 0);
-            IPS_RunAction($ActionData['actionID'], $ActionData['targetID'], $ActionData['parameters']);
+            IPS_RunAction($ActionData['actionID'], $ActionData['parameters']);
         }
     }
     private function RebuildTable()

@@ -1,6 +1,6 @@
 {
     "id": "{FEE9B3A7-1853-6914-EE2E-4A11D79A57A8}",
-    "caption": "Enable or disable FTP service",
+    "caption": "Control FTP service",
     "form": [
         {
             "type": "CheckBox",
@@ -9,6 +9,8 @@
         }
     ],
     "action": "FB_SetFTPServer($_IPS['TARGET'],$_IPS['ACTIVE']);",
+    "readable": "echo 'FB_SetFTPServer(' . $_IPS['TARGET'] . ',' . ($_IPS['ACTIVE'] ? 'true' : 'false') . ');';",
+    "category": "target",
     "restrictions": {
         "objectType": [
             1
@@ -23,8 +25,10 @@
     },
     "locale": {
         "de": {
-            "Enable or disable FTP service": "Aktivieren oder deaktivieren des FTP Dienst",
+            "Control FTP service": "FTP-Dienst steuern",
+            "Enable or disable the FritzBox's FTP service": "Aktiviert oder deaktiviert den FTP Dienst der FritzBox",
             "FTP service active?": "FTP Dienst aktiv?"
         }
-    }
+    },
+    "description": "Enable or disable the FritzBox's FTP service"
 }

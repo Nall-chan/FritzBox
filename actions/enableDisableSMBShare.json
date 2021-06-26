@@ -1,6 +1,6 @@
 {
     "id": "{A686F0FC-12D3-D82B-7237-04718B5CDAAF}",
-    "caption": "Enable or disable SMB service",
+    "caption": "Control SMB sharing service",
     "form": [
         {
             "type": "CheckBox",
@@ -9,6 +9,8 @@
         }
     ],
     "action": "FB_SetSMBServer($_IPS['TARGET'],$_IPS['ACTIVE']);",
+    "readable": "echo 'FB_SetSMBServer(' . $_IPS['TARGET'] . ',' . ($_IPS['ACTIVE'] ? 'true' : 'false') . ');';",
+    "category": "target",
     "restrictions": {
         "objectType": [
             1
@@ -23,8 +25,10 @@
     },
     "locale": {
         "de": {
-            "Enable or disable SMB service": "Aktivieren oder deaktivieren der SMB Freigabe",
+            "Control SMB sharing service": "SMB Freigabe steuern",
+            "Activates or deactivates the SMB sharing of the FritzBox": "Aktiviert oder deaktiviert die SMB Freigabe der FritzBox",
             "SMB service active?": "SMB Freigabe aktiv?"
         }
-    }
+    },
+    "description": "Activates or deactivates the SMB sharing of the FritzBox"
 }

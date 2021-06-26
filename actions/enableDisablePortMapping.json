@@ -1,6 +1,6 @@
 {
     "id": "{51C841AF-A6FA-3EBC-EE13-C0323E213BB2}",
-    "caption": "Enable or disable port forwarding",
+    "caption": "Control port forwarding",
     "form": [
         "$Childs = IPS_GetChildrenIDs($_IPS['TARGET']);",
         "$Form[] = ['type' => 'CheckBox', 'name' => 'ACTIVE', 'caption' => 'Rule active?'];",
@@ -19,6 +19,8 @@
         "return $Form;"
     ],
     "action": "FB_EnablePortMapping($_IPS['TARGET'],$_IPS['IDENT'],$_IPS['ACTIVE']);",
+    "readable": "echo 'FB_EnablePortMapping(' . $_IPS['TARGET'] . ',\\'' . $_IPS['IDENT'] . '\\',' . ($_IPS['ACTIVE'] ? 'true' : 'false') . ');';",
+    "category": "target",
     "restrictions": {
         "objectType": [
             1
@@ -34,10 +36,12 @@
     },
     "locale": {
         "de": {
-            "Enable or disable port forwarding": "Aktivieren oder deaktivieren einer Portweiterleitung",
+            "Control port forwarding": "Portweiterleitung steuern",
+            "Activates or deactivates a port forwarding of the FritzBox": "Aktiviert oder deaktiviert eine Portweiterleitung der FritzBox",
             "Rule active?": "Regel aktiv?",
             "Caution: You can only switch rules for this Symcon-Host.": "Achtung: Sie können nur die Regeln für diesen Symcon-Host schalten.",
             "Rule": "Regel"
         }
-    }
+    },
+    "description": "Activates or deactivates a port forwarding of the FritzBox"
 }

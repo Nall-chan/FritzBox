@@ -677,6 +677,7 @@ class FritzBoxIO extends IPSModule
             }
             $this->SendDebug('Soap Response Code (' . $HttpCode . ')', $e->faultstring, 0);
             if ($retry) {
+                usleep(100000);
                 $this->SendDebug('RETRY', '', 0);
                 return $this->CallSoapAction($HttpCode, $serviceTyp, $controlURL, $function, $params, false);
             }

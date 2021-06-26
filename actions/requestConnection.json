@@ -3,6 +3,8 @@
     "caption": "Request connection",
     "form": [],
     "action": "FB_RequestConnection($_IPS['TARGET']);",
+    "readable": "echo 'FB_RequestConnection(' . $_IPS['TARGET'] . ');';",
+    "category": "target",
     "restrictions": {
         "objectType": [
             1
@@ -17,7 +19,9 @@
     },
     "locale": {
         "de": {
-            "Request connection": "Verbindung anfordern"
+            "Request connection": "Verbindung anfordern",
+            "Starts the connection between the FritzBox and the Internet": "Startet einen Verbindungsaufbau der FritzBox zum Internet"
         }
-    }
+    },
+    "description": "Starts the connection between the FritzBox and the Internet"
 }

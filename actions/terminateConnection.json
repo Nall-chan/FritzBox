@@ -3,6 +3,8 @@
     "caption": "Terminate connection",
     "form": [],
     "action": "FB_ForceTermination($_IPS['TARGET']);",
+    "readable": "echo 'FB_ForceTermination(' . $_IPS['TARGET'] . ');';",
+    "category": "target",
     "restrictions": {
         "objectType": [
             1
@@ -17,7 +19,9 @@
     },
     "locale": {
         "de": {
-            "Terminate connection": "Trenne Verbindung"
+            "Terminate connection": "Trenne Verbindung",
+            "Disconnects the FritzBox from the Internet": "Trennt die Verbindung der FritzBox zum Internet"
         }
-    }
+    },
+    "description": "Disconnects the FritzBox from the Internet"
 }

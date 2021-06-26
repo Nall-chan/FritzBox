@@ -1,6 +1,6 @@
 {
     "id": "{E37995FB-95E8-33CC-7F44-64ABDC5046E2}",
-    "caption": "Enable od disable remote access",
+    "caption": "Control remote access",
     "form": [
         {
             "type": "CheckBox",
@@ -9,6 +9,8 @@
         }
     ],
     "action": "FB_EnableRemoteAccess($_IPS['TARGET'],$_IPS['ACTIVE']);",
+    "readable": "echo 'FB_EnableRemoteAccess(' . $_IPS['TARGET'] . ',' . ($_IPS['ACTIVE'] ? 'true' : 'false') . ');';",
+    "category": "target",
     "restrictions": {
         "objectType": [
             1
@@ -23,8 +25,10 @@
     },
     "locale": {
         "de": {
-            "Enable od disable remote access": "Aktiviere oder Deaktiviere den Fernzugang",
+            "Control remote access": "Fernzugang steuern",
+            "Activates or deactivates the remote access of the FritzBox": "Aktiviert oder Deaktiviert den Fernzugang der FritzBox",
             "Remote access active?": "Fernzugang aktiv?"
         }
-    }
+    },
+    "description": "Activates or deactivates the remote access of the FritzBox"
 }

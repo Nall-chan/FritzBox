@@ -1,6 +1,6 @@
 {
     "id": "{84136A92-5C4B-AF6D-ECB0-D18E7FB4DE2C}",
-    "caption": "Enable or disable DHCP-Server",
+    "caption": "Control DHCP server",
     "form": [
         {
             "type": "CheckBox",
@@ -9,6 +9,8 @@
         }
     ],
     "action": "FB_SetDHCPServerEnable($_IPS['TARGET'],$_IPS['ACTIVE']);",
+    "readable": "echo 'FB_SetDHCPServerEnable(' . $_IPS['TARGET'] . ',' . ($_IPS['ACTIVE'] ? 'true' : 'false') . ');';",
+    "category": "target",
     "restrictions": {
         "objectType": [
             1
@@ -23,8 +25,10 @@
     },
     "locale": {
         "de": {
-            "Enable or disable DHCP-Server": "Aktivieren oder deaktivieren des DHCP-Servers",
+            "Control DHCP server": "DHCP-Server steuern",
+            "Activates or deactivates the FritzBox's DHCP server": "Aktiviert oder deaktiviert den DHCP-Server der FritzBox",
             "DHCP-Server active?": "DHCP-Server aktiv?"
         }
-    }
+    },
+    "description": "Activates or deactivates the FritzBox's DHCP server"
 }
