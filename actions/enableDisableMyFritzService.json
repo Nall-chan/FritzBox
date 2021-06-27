@@ -37,8 +37,10 @@
             "Enable or disable a MyFritz service": "Aktiviert oder deaktiviert einen MyFritz Dienst",
             "Service active?": "Dienst aktiv?",
             "Caution: You can only switch services for this Symcon-Host.": "Achtung: Sie können nur die Dienste für diesen Symcon-Host schalten.",
-            "Service": "Dienst"
+            "Service": "Dienst",
+            "Set {TARGET, object, ident IDENT} to {ACTIVE, select, true {active} false {inactive}}": "Setze {TARGET, object, ident IDENT} auf {ACTIVE, select, true {aktiv} false {inaktiv}}"
         }
     },
+    "format": "Set {TARGET, object, ident IDENT} to {ACTIVE, select, true {active} false {inactive}}",
     "description": "Enable or disable a MyFritz service"
 }

@@ -27,8 +27,10 @@
         "de": {
             "Control FTP service": "FTP-Dienst steuern",
             "Enable or disable the FritzBox's FTP service": "Aktiviert oder deaktiviert den FTP Dienst der FritzBox",
+            "Set FTP service to {ACTIVE, select, true {active} false {inactive}}": "FTP Service {ACTIVE, select, true {aktivieren} false {deaktivieren}}",
             "FTP service active?": "FTP Dienst aktiv?"
         }
     },
+    "format": "Set FTP service to {ACTIVE, select, true {active} false {inactive}}",
     "description": "Enable or disable the FritzBox's FTP service"
 }

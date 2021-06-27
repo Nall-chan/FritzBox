@@ -40,8 +40,10 @@
             "Activates or deactivates a port forwarding of the FritzBox": "Aktiviert oder deaktiviert eine Portweiterleitung der FritzBox",
             "Rule active?": "Regel aktiv?",
             "Caution: You can only switch rules for this Symcon-Host.": "Achtung: Sie können nur die Regeln für diesen Symcon-Host schalten.",
-            "Rule": "Regel"
+            "Rule": "Regel",
+            "Set {TARGET, object, ident IDENT} to {ACTIVE, select, true {active} false {inactive}}": "Setze {TARGET, object, ident IDENT} auf {ACTIVE, select, true {aktiv} false {inaktiv}}"
         }
     },
+    "format": "Set {TARGET, object, ident IDENT} to {ACTIVE, select, true {active} false {inactive}}",
     "description": "Activates or deactivates a port forwarding of the FritzBox"
 }

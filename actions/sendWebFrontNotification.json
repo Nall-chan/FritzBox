@@ -19,6 +19,15 @@
         "return $Form;"
     ],
     "action": "WFC_SendNotification($_IPS['TARGET'], $_IPS['TITLE'], $_IPS['TEXT'], $_IPS['ICON'], $_IPS['TIMEOUT']);",
+    "readable": [
+        "echo 'WFC_SendNotification(' . $_IPS['TARGET'] .','",
+        ". '\\'' . $_IPS['TITLE'] . '\\','",
+        ". '\\'' . $_IPS['TEXT'] . '\\','",
+        ". '\\'' . $_IPS['ICON'] . '\\','",
+        ". $_IPS['TIMEOUT'] . ",
+        "');';"
+    ],
+    "category": "target",
     "restrictions": {
         "objectType": [
             1
@@ -39,8 +48,10 @@
             "Text": "Text",
             "Icon": "Icon",
             "Target of Push Notification": "Ziel der Push Nachricht",
+            "Send a Notification to all devices showing the the target WebFront": "Senden Sie eine Benachrichtigung an alle Geräte, die das Ziel-WebFront anzeigen",
             "Send Webfront Notification \"{TITLE} - {TEXT}\" with the icon {ICON} {TIMEOUT, select, 0 {} other {and timeout of {TIMEOUT, number} seconds}}": "Verschicke WebFront Nachricht \"{TITLE} - {TEXT}\" mit dem Icon {ICON} {TIMEOUT, select, 0 {} other {und einem Timeout von {TIMEOUT, number} Sekunden}}"
         }
     },
-    "format": "Send Webfront Notification \"{TITLE} - {TEXT}\" with the icon {ICON} {TIMEOUT, select, 0 {} other {and timeout of {TIMEOUT, number} seconds}}"
+    "format": "Send Webfront Notification \"{TITLE} - {TEXT}\" with the icon {ICON} {TIMEOUT, select, 0 {} other {and timeout of {TIMEOUT, number} seconds}}",
+    "description": "Send a Notification to all devices showing the the target WebFront"
 }

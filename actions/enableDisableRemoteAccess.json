@@ -27,8 +27,10 @@
         "de": {
             "Control remote access": "Fernzugang steuern",
             "Activates or deactivates the remote access of the FritzBox": "Aktiviert oder Deaktiviert den Fernzugang der FritzBox",
-            "Remote access active?": "Fernzugang aktiv?"
+            "Remote access active?": "Fernzugang aktiv?",
+            "Set remote access to {ACTIVE, select, true {active} false {inactive}}": "Setze Fernzugriff auf {ACTIVE, select, true {aktiv} false {inaktiv}}"
         }
     },
+    "format": "Set remote access to {ACTIVE, select, true {active} false {inactive}}",
     "description": "Activates or deactivates the remote access of the FritzBox"
 }

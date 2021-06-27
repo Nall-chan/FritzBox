@@ -27,8 +27,10 @@
         "de": {
             "Switches a certain WLAN of the FritzBox on or off": "Schaltet eine bestimmtes WLAN der FritzBox ein oder aus",
             "Switch WLAN on or off": "Schalte WLAN ein oder aus",
+            "Switch {TARGET, object} {ACTIVE, select, true {on} false {off}}": "Schalte {TARGET, object} {ACTIVE, select, true {an} false {aus}}",
             "WLAN active?": "WLAN aktiv?"
         }
     },
+    "format": "Switch {TARGET, object} {ACTIVE, select, true {on} false {off}}",
     "description": "Switches a certain WLAN of the FritzBox on or off"
 }

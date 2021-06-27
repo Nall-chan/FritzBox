@@ -27,8 +27,10 @@
         "de": {
             "Control SMB sharing service": "SMB Freigabe steuern",
             "Activates or deactivates the SMB sharing of the FritzBox": "Aktiviert oder deaktiviert die SMB Freigabe der FritzBox",
-            "SMB service active?": "SMB Freigabe aktiv?"
+            "SMB service active?": "SMB Freigabe aktiv?",
+            "Set SMB sharing service to {ACTIVE, select, true {active} false {inactive}}": "SMB Freigaben {ACTIVE, select, true {aktivieren} false {deaktivieren}}"
         }
     },
+    "format": "Set SMB sharing service to {ACTIVE, select, true {active} false {inactive}}",
     "description": "Activates or deactivates the SMB sharing of the FritzBox"
 }

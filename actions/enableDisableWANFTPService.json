@@ -14,8 +14,8 @@
         }
     ],
     "action": "FB_SetFTPServerWAN($_IPS['TARGET'],$_IPS['ACTIVE'],$_IPS['SSLONLY']);",
-    "readable":"echo 'FB_SetFTPServerWAN(' . $_IPS['TARGET'] . ',' . ($_IPS['ACTIVE'] ? 'true' : 'false') . ','. ($_IPS['SSLONLY'] ? 'true' : 'false') . ');';",
-    "category":"target",
+    "readable": "echo 'FB_SetFTPServerWAN(' . $_IPS['TARGET'] . ',' . ($_IPS['ACTIVE'] ? 'true' : 'false') . ','. ($_IPS['SSLONLY'] ? 'true' : 'false') . ');';",
+    "category": "target",
     "restrictions": {
         "objectType": [
             1
@@ -33,8 +33,10 @@
             "Control WAN FTP service": "WAN FTP-Dienst steuern",
             "Enable or disable the FritzBox's WAN FTP service": "Aktiviert oder deaktiviert den WAN FTP Dienst der FritzBox",
             "FTP service active?": "FTP Dienst aktiv?",
+            "Set WAN FTP service to {ACTIVE, select, true {active} false {inactive}}": "WAN FTP Service {ACTIVE, select, true {aktivieren} false {deaktivieren}}",
             "Only SSL allowed?": "Nur SSL erlaubt?"
         }
     },
+    "format": "Set WAN FTP service to {ACTIVE, select, true {active} false {inactive}}",
     "description": "Enable or disable the FritzBox's WAN FTP service"
 }

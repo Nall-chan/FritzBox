@@ -27,8 +27,10 @@
         "de": {
             "Control DHCP server": "DHCP-Server steuern",
             "Activates or deactivates the FritzBox's DHCP server": "Aktiviert oder deaktiviert den DHCP-Server der FritzBox",
+            "Set DHCP-Server to {ACTIVE, select, true {active} false {inactive}}": "DHCP-Server {ACTIVE, select, true {aktivieren} false {deaktivieren}}",
             "DHCP-Server active?": "DHCP-Server aktiv?"
         }
     },
+    "format": "Set DHCP-Server to {ACTIVE, select, true {active} false {inactive}}",
     "description": "Activates or deactivates the FritzBox's DHCP server"
 }

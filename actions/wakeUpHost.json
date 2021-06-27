@@ -19,11 +19,15 @@
         "return [$Form];"
     ],
     "action": "FB_WakeOnLANByMACAddress($_IPS['TARGET'],$_IPS['MACADRESS']);",
+    "readable": [
+        "echo 'FB_WakeOnLANByMACAddress(' . $_IPS['TARGET']. ','",
+        ". '\\'' . $_IPS['MACADRESS'] . '\\');';"
+    ],
+    "category": "target",
     "restrictions": {
         "objectType": [
             1
         ],
-        "hasActionStatusVariables": true,
         "moduleID": [
             "{66495783-EAEF-7A90-B13C-399045E4790B}"
         ],
@@ -34,7 +38,11 @@
     },
     "locale": {
         "de": {
-            "Wake up host with WOL": "Host mit WOL aufwecken"
+            "Wake up host with WOL": "Host mit WOL aufwecken",
+            "Wakes up a host with a WOL packet sent by the specific FritzBox": "Weckt einen Host mit einem WOL-Paket auf, das von der spezifischen FritzBox gesendet wird",
+            "Wake up Host with MAC {MACADRESS}": "Wecke den Host mit MAC {MACADRESS} auf"
         }
-    }
+    },
+    "format": "Wake up Host with MAC {MACADRESS}",
+    "description": "Wakes up a host with a WOL packet sent by the specific FritzBox"
 }
