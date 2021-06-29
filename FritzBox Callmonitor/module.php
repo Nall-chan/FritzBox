@@ -500,12 +500,13 @@ class FritzBoxCallmonitor extends FritzBoxModulBase
         }
 
         $Name = $this->DoPhonebookSearch($Number, $this->ReadPropertyInteger('MaxNameSize'));
-        if ($Name === false) {
-            if (strpos($Number, $this->ReadPropertyString('AreaCode')) === 0) {
-                $Name = $this->DoPhonebookSearch(substr($Number, strlen($this->ReadPropertyString('AreaCode'))), $this->ReadPropertyInteger('MaxNameSize'));
+        $AreaCode = $this->ReadPropertyString('AreaCode');
+        if (($Name === false) && ($AreaCode != '')) {
+            if (strpos($Number, $AreaCode) === 0) {
+                $Name = $this->DoPhonebookSearch(substr($Number, strlen($AreaCode)), $this->ReadPropertyInteger('MaxNameSize'));
             } else {
                 if ($Number[0] != '0') {
-                    $Name = $this->DoPhonebookSearch($this->ReadPropertyString('AreaCode') . $Number, $this->ReadPropertyInteger('MaxNameSize'));
+                    $Name = $this->DoPhonebookSearch($AreaCode . $Number, $this->ReadPropertyInteger('MaxNameSize'));
                 }
             }
         }

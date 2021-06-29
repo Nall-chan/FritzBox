@@ -75,18 +75,30 @@ require_once __DIR__ . '/../libs/FritzBoxModule.php';
                 if (!@$xml->load($Pfad . $Xml)) {
                     continue;
                 }
-                $this->SendDebug('LoadOk', '', 0);
                 // todo error handling
                 $xpath = new DOMXPath($xml);
-
                 $xpath->registerNamespace('xmlns', $xml->firstChild->namespaceURI);
                 $xmlDevices = $xpath->query('//xmlns:service', null, false);
+                $xmlmodelName = $xpath->query('//xmlns:modelName', null, false);
+                $IsCable = false;
+                if (count($xmlmodelName) > 1) {
+                    $IsCable = (strpos(strtoupper($xmlmodelName[0]->nodeValue), 'CABLE') !== false);
+                }
+                $this->SendDebug('isCable', $IsCable, 0);
                 foreach ($xmlDevices as $xmlDevice) {
                     $serviceType = $xmlDevice->getElementsByTagName('serviceType')[0]->nodeValue;
                     if (in_array($serviceType, \FritzBox\Services::$Data)) {
                         continue;
                     }
-
+                    if (($serviceType == 'urn:dslforum-org:service:WANIPConnection:1') && !$IsCable) {
+                        continue;
+                    }
+                    if (($serviceType == 'urn:dslforum-org:service:WANPPPConnection:1') && $IsCable) {
+                        continue;
+                    }
+                    if (($serviceType == 'urn:schemas-upnp-org:service:WANDSLLinkConfig:1') && $IsCable) {
+                        continue;
+                    }
                     $deviceType = $xmlDevice->parentNode->parentNode->getElementsByTagName('deviceType')[0]->nodeValue;
                     $friendlyName = $xmlDevice->parentNode->parentNode->getElementsByTagName('friendlyName')[0]->nodeValue;
                     if (!in_array($deviceType, $DevicesTypes)) {
