@@ -208,11 +208,11 @@ class FritzBoxIO extends IPSModule
     public function ReceiveData($JSONString)
     {
         $data = json_decode($JSONString);
-        IPS_LogMessage('Splitter RECV', utf8_decode($data->Buffer));
         $data->DataID = '{FE5B2BCA-CA0F-25DC-8E79-BDFD242CB06E}';
         $this->SendDebug('Forward', json_encode($data), 0);
         $this->SendDataToChildren(json_encode($data));
     }
+
     public function GetConfigurationForm()
     {
         //prüfung ob Username in config leer.
@@ -613,7 +613,7 @@ class FritzBoxIO extends IPSModule
             'soap_version'           => SOAP_1_1,
             'connection_timeout'     => 10,
             'default_socket_timeout' => 10,
-            'keep_alive'             => false,
+            'keep_alive'             => true,
             'login'                  => $this->Username,
             'password'               => $this->ReadPropertyString('Password'),
             'authentication'         => SOAP_AUTHENTICATION_DIGEST,
@@ -627,10 +627,7 @@ class FritzBoxIO extends IPSModule
                     ],
                     'http' => [
                         'protocol_version' => 1.1,
-                        'timeout'          => 10,
-                        'header'           => [
-                            'Connection: close',
-                        ]
+                        'timeout'          => 10
                     ]
                 ]
             )

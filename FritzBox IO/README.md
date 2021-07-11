@@ -1,3 +1,10 @@
+[![Version](https://img.shields.io/badge/Symcon-PHPModul-red.svg)](https://www.symcon.de/service/dokumentation/entwicklerbereich/sdk-tools/sdk-php/)
+[![Version](https://img.shields.io/badge/Modul%20Version-0.50-blue.svg)]()
+[![Version](https://img.shields.io/badge/Symcon%20Version-6.0%20%3E-green.svg)](https://community.symcon.de/t/ip-symcon-6-0-testing/44478)  
+[![License](https://img.shields.io/badge/License-CC%20BY--NC--SA%204.0-green.svg)](https://creativecommons.org/licenses/by-nc-sa/4.0/)
+[![Check Style](https://github.com/Nall-chan/FritzBox/workflows/Check%20Style/badge.svg)](https://github.com/Nall-chan/FritzBox/actions) [![Run Tests](https://github.com/Nall-chan/FritzBox/workflows/Run%20Tests/badge.svg)](https://github.com/Nall-chan/FritzBox/actions)  
+[![Spenden](https://www.paypalobjects.com/de_DE/DE/i/btn/btn_donate_SM.gif)](#spenden)  
+
 # FritzBox IO <!-- omit in toc -->
 Beschreibung des Moduls.
 
@@ -23,12 +30,13 @@ Beschreibung des Moduls.
 
 ### 3. Software-Installation
 
-* Über den Module Store das 'FritzBox IO'-Modul installieren.
-* Alternativ über das Module Control folgende URL hinzufügen
+* Über den Module Store das 'FritzBox'-Modul installieren.
 
 ### 4. Einrichten der Instanzen in IP-Symcon
 
- Unter 'Instanz hinzufügen' ist das 'FritzBox IO'-Modul unter dem Hersteller 'AVM' aufgeführt.
+ Wenn ein Instanz von dem 'FritzBox Konfigurator' über die 'FritzBox Discovery'-Instanz erstellt wird, wo wird automatisch eine 'FritzBox-IO'-Instanz erzeugt.  
+
+ Sollte der Bedarf bestehen eine Instanz manuel zu erzeigen, so ist unter 'Instanz hinzufügen' ist das 'FritzBox IO'-Modul unter dem Hersteller 'AVM' aufgeführt.  
 
 __Konfigurationsseite__:
 
@@ -39,7 +47,7 @@ Name     | Beschreibung
 
 ### 5. Statusvariablen und Profile
 
-Die Statusvariablen/Kategorien werden automatisch angelegt. Das Löschen einzelner kann zu Fehlfunktionen führen.
+Die Statusvariablen werden automatisch angelegt. Das Löschen einzelner kann zu Fehlfunktionen führen.
 
 #### Statusvariablen
 
