@@ -115,6 +115,10 @@ Für das Discovery werden Pakete über die Multicast-Adresse `239.255.255.250` a
 
 Version 0.50:  
 - Beta Release für Symcon 6.0  
+- Readme erweitert
+- `FritzBox-IO` nutzt HTTP Keep-Alive
+- Unnötige Debug-Ausgabe in IO bei aktiven Anrufmonitor entfernt  
+- 
 
 ----------
 ## Spenden  
