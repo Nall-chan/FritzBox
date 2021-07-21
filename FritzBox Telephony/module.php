@@ -480,7 +480,7 @@ class FritzBoxTelephony extends FritzBoxModulBase
                     $Data[$i]['Name'] = $UnknownName;
                 } else {
                     if ($Data[$i]['Name'] == '') {
-                        $Data[$i]['Name'] = $this->DoReverseSearch($ReverseSearchInstanceID, $CustomSearchScriptID, $Data[$i]['Called'], $UnknownName, $SearchMarker, $MaxNameSize);
+                        $Data[$i]['Name'] = $this->DoReverseSearch($ReverseSearchInstanceID, $CustomSearchScriptID, $Data[$i]['Caller'], $UnknownName, $SearchMarker, $MaxNameSize);
                     } else {
                         if (strlen($Data[$i]['Name']) > $MaxNameSize) {
                             $Data[$i]['Name'] = substr($Data[$i]['Name'], 0, $MaxNameSize);
