@@ -11,7 +11,6 @@ class Services
         'urn:schemas-upnp-org:service:WANCommonInterfaceConfig:1'=> ['{FD564AAF-E00A-4CF8-A60D-7F60B4CDFC1B}'=>1],
         'urn:schemas-upnp-org:service:WANIPConnection:1'         => ['{61C9DC95-5A0F-7B9A-4427-82EDB57AA1B9}'=>0],
         'urn:schemas-upnp-org:service:WANIPConnection:2'         => ['{61C9DC95-5A0F-7B9A-4427-82EDB57AA1B9}'=>1],
-
         'urn:dslforum-org:service:WLANConfiguration:1'           => ['{B3D72623-556E-B6C6-25E0-B3DEFE41F031}'=>0],
         'urn:dslforum-org:service:WLANConfiguration:2'           => ['{B3D72623-556E-B6C6-25E0-B3DEFE41F031}'=>1],
         'urn:dslforum-org:service:WLANConfiguration:3'           => ['{B3D72623-556E-B6C6-25E0-B3DEFE41F031}'=>2],
@@ -32,6 +31,7 @@ class Services
         //'urn:dslforum-org:service:WANDSLInterfaceConfig:1'       => [], // anstatt     WANDSLLinkConfig
         'urn:dslforum-org:service:WANPPPConnection:1'            => ['{9396D756-40EA-46C7-AA06-623B8DCB789B}'=>0], // bei DSL (prüfen im Feldtest)
         //Todo
+        'urn:dslforum-org:service:WANCommonInterfaceConfig:1'    => ['{C1A97F94-EE83-0553-5F42-FA242F406B1E}'], // TODO
         'callmonitor'                                            => ['{5B5C7F75-E7FE-AE5C-6A51-8252688CBF4D}'=>0],
         'urn:dslforum-org:service:X_AVM-DE_OnTel:1'              => ['{AD0B22A7-C71C-71DD-A40B-B70334C5AB3C}'=>0],
         'urn:dslforum-org:service:Layer3Forwarding:1'            => [],
@@ -46,11 +46,9 @@ class Services
         //'urn:dslforum-org:service:X_AVM-DE_Homeauto:1'           => [], // AHA ?
         //'urn:dslforum-org:service:X_AVM-DE_Homeplug:1'           => [], // AHA ?
         //'urn:dslforum-org:service:LANEthernetInterfaceConfig:1'  => [], // statistik. unnötig?
-
         //'urn:dslforum-org:service:WANEthernetLinkConfig:1'       => [], // unnötig?
         //'urn:dslforum-org:service:WANDSLLinkConfig:1'            => [], // unnötig? DSL Daten?
         // unnötig
-        //'urn:dslforum-org:service:WANCommonInterfaceConfig:1'    => [], // unnötig
         //'urn:dslforum-org:service:X_AVM-DE_Speedtest:1'          => [], // unnötig
         //'urn:dslforum-org:service:X_AVM-DE_Auth:1'               => [], // unnötig
         //'urn:dslforum-org:service:ManagementServer:1'            => [], // unnötig

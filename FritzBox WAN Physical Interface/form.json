@@ -1,0 +1,21 @@
+{
+    "elements": [
+        {
+            "name": "RefreshInterval",
+            "type": "NumberSpinner",
+            "caption": "Refresh Interval",
+            "suffix": "seconds",
+            "minimum": 0
+        }
+    ],
+    "actions": [
+        {
+            "type": "Button",
+            "caption": "Update Values",
+            "onClick": "IPS_RequestAction($id,'RefreshInfo',true);"
+        },
+        {
+            "type": "TestCenter"
+        }
+    ]
+}
