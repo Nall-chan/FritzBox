@@ -706,10 +706,10 @@ class FritzBoxIO extends IPSModule
         } else {
             $SID = 'SID: ' . $SID . "\r\n";
         }
-        $content = 'SUBSCRIBE ' . $Uri . " HTTP/1.0\r\n" .
+        $content = 'SUBSCRIBE ' . $Uri . " HTTP/1.1\r\n" .
                       'HOST: ' . parse_url($this->Url, PHP_URL_HOST) . ':' . parse_url($this->Url, PHP_URL_PORT) . "\r\n" .
                       $SID .
-                      'USER-AGENT: PHP/' . PHP_VERSION . ' UPnP/1.1 Symcon/' . IPS_GetKernelVersion() . "\r\n" .
+                      'USER-AGENT: PHP/' . PHP_VERSION . ' UPnP/2.0 Symcon/' . IPS_GetKernelVersion() . "\r\n" .
                       "TIMEOUT: Second-3600\r\n" .
                       "Connection: Close\r\n" .
                       "Content-Length: 0\r\n\r\n";
