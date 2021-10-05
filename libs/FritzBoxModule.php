@@ -31,7 +31,7 @@ class Services
         //'urn:dslforum-org:service:WANDSLInterfaceConfig:1'       => [], // anstatt     WANDSLLinkConfig
         'urn:dslforum-org:service:WANPPPConnection:1'            => ['{9396D756-40EA-46C7-AA06-623B8DCB789B}'=>0], // bei DSL (prüfen im Feldtest)
         //Todo
-        'urn:dslforum-org:service:WANCommonInterfaceConfig:1'    => ['{C1A97F94-EE83-0553-5F42-FA242F406B1E}'], // TODO
+        'urn:dslforum-org:service:WANCommonInterfaceConfig:1'    => ['{C1A97F94-EE83-0553-5F42-FA242F406B1E}'=>0], // TODO
         'callmonitor'                                            => ['{5B5C7F75-E7FE-AE5C-6A51-8252688CBF4D}'=>0],
         'urn:dslforum-org:service:X_AVM-DE_OnTel:1'              => ['{AD0B22A7-C71C-71DD-A40B-B70334C5AB3C}'=>0],
         'urn:dslforum-org:service:Layer3Forwarding:1'            => [],
