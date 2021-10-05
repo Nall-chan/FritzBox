@@ -159,7 +159,7 @@ require_once __DIR__ . '/../libs/FritzBoxBase.php';
                 return false;
             }
             $this->setIPSVariable('Enabled', 'MyFritz enabled', (bool) $result['NewEnabled'], VARIABLETYPE_BOOLEAN, '~Switch', false, -5);
-            $this->setIPSVariable('DeviceRegistered', 'FritBox registered', (bool) $result['NewDeviceRegistered'], VARIABLETYPE_BOOLEAN, '~Switch', false, -4);
+            $this->setIPSVariable('DeviceRegistered', 'FritzBox registered', (bool) $result['NewDeviceRegistered'], VARIABLETYPE_BOOLEAN, '~Switch', false, -4);
             $this->setIPSVariable('DynDNSName', 'MyFritz address', (string) $result['NewDynDNSName'], VARIABLETYPE_STRING, '', false, -3);
             $this->setIPSVariable('DynDNSURL', 'FritzBox URL', (string) $result['NewDynDNSName'] . ':' . (string) $result['NewPort'], VARIABLETYPE_STRING, '', false, -2);
             $result = $this->UpdateService();

@@ -711,7 +711,6 @@ class FritzBoxIO extends IPSModule
                       $SID .
                       'USER-AGENT: PHP/' . PHP_VERSION . ' UPnP/2.0 Symcon/' . IPS_GetKernelVersion() . "\r\n" .
                       "TIMEOUT: Second-3600\r\n" .
-                      "Connection: Close\r\n" .
                       "Content-Length: 0\r\n\r\n";
         $this->SendDebug('Send SUBSCRIBE', $content, 0);
         $Prefix = (parse_url($this->Url, PHP_URL_SCHEME) == 'https') ? 'ssl://' : 'tcp://';
