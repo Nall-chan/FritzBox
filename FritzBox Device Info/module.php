@@ -9,11 +9,12 @@ class FritzBoxDeviceInfo extends FritzBoxModulBase
     protected static $ControlUrlArray = ['/upnp/control/deviceinfo'];
     protected static $EventSubURLArray = [];
     protected static $ServiceTypeArray = ['urn:dslforum-org:service:DeviceInfo:1'];
+    protected static $DefaultIndex = 0;
     public function Create()
     {
         //Never delete this line!
         parent::Create();
-        $this->RegisterPropertyInteger('Index', 0);
+
         $this->RegisterPropertyInteger('RefreshInterval', 60);
         $this->RegisterTimer('RefreshState', 0, 'IPS_RequestAction(' . $this->InstanceID . ',"RefreshState",true);');
     }

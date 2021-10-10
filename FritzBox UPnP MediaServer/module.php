@@ -15,7 +15,7 @@ class FritzBoxUPnPMediaServer extends FritzBoxModulBase
     {
         //Never delete this line!
         parent::Create();
-        $this->RegisterPropertyInteger('Index', -1);
+
         $this->RegisterPropertyInteger('RefreshInterval', 60);
         $this->RegisterTimer('RefreshInfo', 0, 'IPS_RequestAction(' . $this->InstanceID . ',"RefreshInfo",true);');
     }

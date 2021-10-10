@@ -27,7 +27,7 @@ require_once __DIR__ . '/../libs/FritzBoxBase.php';
         {
             //Never delete this line!
             parent::Create();
-            $this->RegisterPropertyInteger('Index', -1);
+            $this->UnregisterProfile('FB.MByte');
             $this->RegisterPropertyInteger('RefreshInterval', 5);
             $this->RegisterTimer('RefreshInfo', 0, 'IPS_RequestAction(' . $this->InstanceID . ',"RefreshInfo",true);');
             $this->Downstream = 0;
@@ -68,12 +68,12 @@ require_once __DIR__ . '/../libs/FritzBoxBase.php';
             $this->RegisterProfileFloat('FB.MByte', '', '', ' MB', 0, 0, 0, 2);
             $this->RegisterProfileFloat('FB.kbs', '', '', ' kb/s', 0, 0, 0, 2);
             parent::ApplyChanges();
+
             $Index = $this->ReadPropertyInteger('Index');
             if ($Index == -1) {
                 $this->SetStatus(IS_INACTIVE);
                 return;
             }
-            $this->SetStatus(IS_ACTIVE);
             if (IPS_GetKernelRunlevel() != KR_READY) {
                 return;
             }
@@ -231,19 +231,5 @@ require_once __DIR__ . '/../libs/FritzBoxBase.php';
                 $this->setIPSVariable('VoipDNSServer2', 'VoIP DNS-Server 2', (string) $result['NewVoipDNSServer2'], VARIABLETYPE_STRING);
             }
             return true;
-        }
-        //todo String Asso
-        private function LinkStateToInt(string $LinkState): int
-        {
-            switch ($LinkState) {
-
-                case 'Up':
-                    return 0;
-                        case 'Down':
-                            return 1;
-                        case 'Initializing':
-                            return 2;
-            }
-            return 3;
         }
     }

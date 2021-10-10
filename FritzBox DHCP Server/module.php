@@ -8,11 +8,11 @@ class FritzBoxDHCPServer extends FritzBoxModulBase
     protected static $ControlUrlArray = ['/upnp/control/lanhostconfigmgm'];
     protected static $EventSubURLArray = [];
     protected static $ServiceTypeArray = ['urn:dslforum-org:service:LANHostConfigManagement:1'];
+    protected static $DefaultIndex = 0;
     public function Create()
     {
         //Never delete this line!
         parent::Create();
-        $this->RegisterPropertyInteger('Index', 0);
         $this->RegisterPropertyInteger('RefreshInterval', 3600);
         $this->RegisterTimer('RefreshState', 0, 'IPS_RequestAction(' . $this->InstanceID . ',"RefreshState",true);');
     }

@@ -22,7 +22,7 @@ require_once __DIR__ . '/../libs/FritzBoxBase.php';
         {
             //Never delete this line!
             parent::Create();
-            $this->RegisterPropertyInteger('Index', -1);
+
             $this->RegisterPropertyInteger('RefreshInterval', 60);
             $this->RegisterTimer('RefreshInfo', 0, 'IPS_RequestAction(' . $this->InstanceID . ',"RefreshInfo",true);');
         }
@@ -66,7 +66,6 @@ require_once __DIR__ . '/../libs/FritzBoxBase.php';
                 $this->SetStatus(IS_INACTIVE);
                 return;
             }
-            $this->SetStatus(IS_ACTIVE);
             if (IPS_GetKernelRunlevel() != KR_READY) {
                 return;
             }

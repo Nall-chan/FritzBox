@@ -12,12 +12,11 @@ require_once __DIR__ . '/../libs/FritzBoxBase.php';
         protected static $ServiceTypeArray = [
             'urn:dslforum-org:service:X_AVM-DE_Filelinks:1'
         ];
-
+        protected static $DefaultIndex = 0;
         public function Create()
         {
             //Never delete this line!
             parent::Create();
-            $this->RegisterPropertyInteger('Index', 0);
             //TODO
             $this->RegisterPropertyBoolean('SharesAsTable', false);
             $this->RegisterPropertyInteger('RefreshInterval', 3600);

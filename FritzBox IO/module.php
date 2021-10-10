@@ -118,7 +118,11 @@ class FritzBoxIO extends IPSModule
         $this->SetStatus(IS_INACTIVE);
         if ($this->CheckHost()) {
             $this->SetSummary($this->Url);
-            $this->GetConsumerAddress(); // todo prüfen
+            if (!$this->GetConsumerAddress()) {
+                $this->SetStatus(self::$http_error[500][1]);
+                $this->ShowLastError(self::$http_error[500][0]);
+                return;
+            }
             if (($this->Url != $OldUrl) && !$this->doNotLoadXML) {
                 $this->doNotLoadXML = false;
                 if (!$this->LoadXMLs()) {
@@ -340,7 +344,7 @@ class FritzBoxIO extends IPSModule
         if ($Filename != '') {
             @array_map('unlink', glob(IPS_GetKernelDir() . 'FritzBoxTemp/' . $this->InstanceID . '/' . $Filename));
         }
-        $Data = Sys_GetURLContentEx($Url, ['Timeout'=>10000, 'VerifyPeer' => false]);
+        $Data = Sys_GetURLContentEx($Url, ['Timeout'=>10000, 'VerifyHost' => false, 'VerifyPeer' => false]);
         if ($Data === false) {
             $this->SendDebug('File not found', $Uri, 0);
             return false;
@@ -383,7 +387,7 @@ class FritzBoxIO extends IPSModule
                 continue;
             }*/
             $Result = true;
-            $XMLData = @Sys_GetURLContentEx($Url . '/' . $Xml, ['Timeout'=>5000, 'VerifyPeer' => false]);
+            $XMLData = @Sys_GetURLContentEx($Url . '/' . $Xml, ['Timeout'=>5000, 'VerifyHost' => false, 'VerifyPeer' => false]);
 
             if ($XMLData === false) {
                 $this->SendDebug('XML not found', $Xml, 0);
@@ -411,7 +415,7 @@ class FritzBoxIO extends IPSModule
             $SCPDURLs = $SCPD_Data->xpath('//fritzbox:SCPDURL');
             $this->WriteAttributeBoolean('HasIGD2', false);
             foreach ($SCPDURLs as $SCPDURL) {
-                $XMLSCPDData = @Sys_GetURLContentEx($Url . (string) $SCPDURL, ['Timeout'=>5000, 'VerifyPeer' => false]);
+                $XMLSCPDData = @Sys_GetURLContentEx($Url . (string) $SCPDURL, ['Timeout'=>5000, 'VerifyHost' => false, 'VerifyPeer' => false]);
                 $SCPD = substr((string) $SCPDURL, 1);
                 if ($XMLSCPDData === false) {
                     $this->SendDebug('SCPD not found', $SCPD, 0);
@@ -618,7 +622,7 @@ class FritzBoxIO extends IPSModule
             'password'               => $this->ReadPropertyString('Password'),
             'authentication'         => SOAP_AUTHENTICATION_DIGEST,
             'compression'            => SOAP_COMPRESSION_ACCEPT | SOAP_COMPRESSION_GZIP,
-            'stream_context'         => $stream = stream_context_create(
+            'stream_context'         => stream_context_create(
                 [
                     'ssl'  => [
                         'verify_peer'       => false,
@@ -666,6 +670,8 @@ class FritzBoxIO extends IPSModule
                 $Details = $e->detail->{$e->faultstring};
                 $Detail = $e->faultstring . '(' . $Details->errorCode . ')';
                 $this->SendDebug($Detail, $Details->errorDescription, 0);
+            } else {
+                $this->SendDebug('Error', $e, 0);
             }
             if ($ResponseHeaders == null) {
                 $HttpCode = 418;
@@ -711,6 +717,7 @@ class FritzBoxIO extends IPSModule
                       $SID .
                       'USER-AGENT: PHP/' . PHP_VERSION . ' UPnP/2.0 Symcon/' . IPS_GetKernelVersion() . "\r\n" .
                       "TIMEOUT: Second-3600\r\n" .
+                      "Connection: Close\r\n" .
                       "Content-Length: 0\r\n\r\n";
         $this->SendDebug('Send SUBSCRIBE', $content, 0);
         $Prefix = (parse_url($this->Url, PHP_URL_SCHEME) == 'https') ? 'ssl://' : 'tcp://';
@@ -726,10 +733,7 @@ class FritzBoxIO extends IPSModule
                     return false;
                 }
             }
-            $ret = '';
-            while (!feof($fp)) {
-                $ret .= fgets($fp, 128);
-            }
+            $ret = stream_get_contents($fp);
             fclose($fp);
             $headers = $this->http_parse_headers($ret);
             if ($headers[0] != 'HTTP/1.1 200 OK') {
@@ -738,7 +742,7 @@ class FritzBoxIO extends IPSModule
             } else {
                 $this->SendDebug('Subscribe successfully', $Uri, 0);
                 $data['SID'] = $headers['SID'];
-                $data['TIMEOUT'] = substr($headers['TIMEOUT'], strpos($headers['TIMEOUT'], '-') + 1);
+                $data['TIMEOUT'] = (int) substr($headers['TIMEOUT'], strpos($headers['TIMEOUT'], '-') + 1);
                 return $data;
             }
         }

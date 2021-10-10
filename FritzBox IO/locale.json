@@ -14,7 +14,6 @@
             "Password": "Passwort",
             "Use Symcon-Connect as callback. Needed for WAN connections to FritzBox.": "Verwende Symcon-Connect als Rückkanal. Wird für WAN-Verbindungen zur FritzBox benötigt.",
             "Event hook:": "Ereignis-WebHook",
-            "Couldn't determine webhook": "Konnte Webhook nicht ermitteln",
             "Invalid": "Ungültig"
         }
     }

@@ -24,6 +24,7 @@ class FritzBoxModulBase extends IPSModule
     protected static $ControlUrlArray = [];
     protected static $ServiceTypeArray = [];
     protected static $EventSubURLArray = [];
+    protected static $DefaultIndex = -1;
     public function Create()
     {
         //Never delete this line!
@@ -34,6 +35,7 @@ class FritzBoxModulBase extends IPSModule
         if (count(static::$EventSubURLArray) > 0) {
             $this->RegisterTimer('RenewSubscription', 0, 'IPS_RequestAction(' . $this->InstanceID . ',"Subscribe",true);');
         }
+        $this->RegisterPropertyInteger('Index', static::$DefaultIndex);
     }
 
     public function Destroy()
@@ -176,6 +178,7 @@ class FritzBoxModulBase extends IPSModule
             return true;
         }
         $this->GotEvent = false;
+
         $this->SendDebug('Subscribe', $this->SID, 0);
         $Ret = $this->SendDataToParent(json_encode(
             [
@@ -347,7 +350,20 @@ class FritzBoxModulBase extends IPSModule
         }
         $this->SetValue($ident, $value);
     }
+    //todo String Asso
+    protected function LinkStateToInt(string $LinkState): int
+    {
+        switch ($LinkState) {
 
+                case 'Up':
+                    return 0;
+                        case 'Down':
+                            return 1;
+                        case 'Initializing':
+                            return 2;
+            }
+        return 3;
+    }
     //todo
     // Aktuell nur de Zeit
     protected function ConvertRuntime(int $Time)

@@ -134,6 +134,9 @@ require_once __DIR__ . '/../libs/FritzBoxModule.php';
                         $guid = key(\FritzBox\Services::$Data[$serviceType]);
                         if ($guid !== null) {
                             $index = \FritzBox\Services::$Data[$serviceType][$guid];
+                            if (($serviceType == 'urn:schemas-upnp-org:service:WANDSLLinkConfig:1') && ($Xml == 'igd2desc.xml')) {
+                                $index++;
+                            }
                             $AddService['type'] = $AddService['type'] . ' (' . $this->Translate(IPS_GetModule($guid)['ModuleName']) . ')';
                             $AddService['create'] = [
                                 'moduleID'      => $guid,

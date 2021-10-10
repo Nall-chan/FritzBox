@@ -15,7 +15,7 @@ class FritzBoxWebDavStorage extends FritzBoxModulBase
     {
         //Never delete this line!
         parent::Create();
-        $this->RegisterPropertyInteger('Index', -1);
+
         $this->RegisterPropertyInteger('RefreshInterval', 3600);
         $this->RegisterPropertyString('Username', '');
         $this->RegisterPropertyString('Password', '');

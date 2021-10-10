@@ -11,10 +11,10 @@ Fertige Instanzen:
  - Telefonie  (Anrufliste gestern/heute in Zeitpunkt-Spalte fehlt, Rufumleitungen und Anrufblockaden übersetzungen verbessern)
 
  - Fehler:
-   WLAN Update / AB / Deflection Update fehlt nach dem ein/Ausschalten
+   AB / (Portweiterleitung auch?) Update fehlt nach dem ein/Ausschalten
    https://community.symcon.de/t/beta-modul-fritzbox-ersatz-fuer-fritzbox-project/125451/202?u=nall-chan
 
-2-Netze -> Keine Events
+2-Netze -> Keine Events (AVM Support?)
 https://community.symcon.de/t/beta-modul-fritzbox-ersatz-fuer-fritzbox-project/125451/209?u=nall-chan
 
 IP-Adresse fehlte -> Eventuell durch falsche Profile?
@@ -37,6 +37,8 @@ Feldtest nötig:
  
   
 Unfertig / Fehlen:
+- unsubscribe
+- Datenaustausch gibt sollte nur Pfad und nicht Daten liefern
 - Anrufbeantworter (fehlt komplett)
 - Wählhilfe (fehlt in Telephony, realisierbarkeit noch nicht getestet)
 

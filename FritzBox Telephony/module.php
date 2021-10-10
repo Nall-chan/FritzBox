@@ -36,12 +36,12 @@ class FritzBoxTelephony extends FritzBoxModulBase
     ];
 
     protected static $SecondEventGUID = '{FE5B2BCA-CA0F-25DC-8E79-BDFD242CB06E}';
-
+    protected static $DefaultIndex = 0;
     public function Create()
     {
         //Never delete this line!
         parent::Create();
-        $this->RegisterPropertyInteger('Index', 0);
+
         $this->RegisterPropertyInteger('RefreshIntervalPhonebook', 60);
         $this->RegisterPropertyInteger('RefreshIntervalDeflectionList', 60);
         $this->RegisterPropertyInteger('RefreshIntervalCallList', 10);
@@ -308,6 +308,23 @@ class FritzBoxTelephony extends FritzBoxModulBase
         );
         if ($result === false) {
             return false;
+        }
+        $result = $this->GetDeflection($DeflectionId);
+        if ($result === false) {
+            return false;
+        }
+        $Ident = false;
+        if ($result['NewDeflectionToNumber'] == '') {
+            if ($this->ReadPropertyBoolean('CallBarringAsVariable')) {
+                $Ident = 'C_' . $result['NewType'] . '_' . $result['NewNumber'] . '_' . $result['NewPhonebookID'];
+            }
+        } else {
+            if ($this->ReadPropertyBoolean('DeflectionAsVariable')) {
+                $Ident = 'D_' . $result['NewType'] . '_' . $result['NewNumber'] . '_' . $result['NewDeflectionToNumber'];
+            }
+        }
+        if ($Ident) {
+            $this->SetValue($Ident, (int) $result['NewEnable'] === 1);
         }
         return true;
     }

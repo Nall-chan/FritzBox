@@ -27,7 +27,7 @@ class Services
         'urn:dslforum-org:service:X_AVM-DE_Filelinks:1'          => ['{E9B51A32-A87F-8E47-34E8-594535C7D42A}'=>0],
         //TODO
         //prüfen / Fertig bauen
-        'urn:schemas-upnp-org:service:WANDSLLinkConfig:1'        => ['{061AEAF5-ADCD-AD9E-9BF9-AD40DF364EB6}'=>0], // ohne funktion (laut Feldtest)
+        'urn:schemas-upnp-org:service:WANDSLLinkConfig:1'        => ['{061AEAF5-ADCD-AD9E-9BF9-AD40DF364EB6}'=>0],
         //'urn:dslforum-org:service:WANDSLInterfaceConfig:1'       => [], // anstatt     WANDSLLinkConfig
         'urn:dslforum-org:service:WANPPPConnection:1'            => ['{9396D756-40EA-46C7-AA06-623B8DCB789B}'=>0], // bei DSL (prüfen im Feldtest)
         //Todo

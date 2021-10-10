@@ -21,13 +21,12 @@ class FritzBoxHosts extends FritzBoxModulBase
         'urn:dslforum-org:service:Hosts:1'
     ];
     protected static $SecondEventGUID = '{FE6C73CB-028B-F569-46AC-3C02FF1F8F2F}';
-
+    protected static $DefaultIndex = 0;
     public function Create()
     {
         //Never delete this line!
         parent::Create();
         $this->HostNumberOfEntriesId = 0;
-        $this->RegisterPropertyInteger('Index', 0);
         $this->RegisterPropertyBoolean('HostAsVariable', false);
         $this->RegisterPropertyBoolean('RenameHostVariables', true);
         $this->RegisterPropertyInteger('RefreshInterval', 60);

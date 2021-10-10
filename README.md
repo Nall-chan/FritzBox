@@ -1,5 +1,5 @@
 [![Version](https://img.shields.io/badge/Symcon-PHPModul-red.svg)](https://www.symcon.de/service/dokumentation/entwicklerbereich/sdk-tools/sdk-php/)
-[![Version](https://img.shields.io/badge/Modul%20Version-0.50-blue.svg)]()
+[![Version](https://img.shields.io/badge/Modul%20Version-0.60-blue.svg)]()
 [![Version](https://img.shields.io/badge/Symcon%20Version-6.0%20%3E-green.svg)](https://community.symcon.de/t/ip-symcon-6-0-testing/44478)  
 [![License](https://img.shields.io/badge/License-CC%20BY--NC--SA%204.0-green.svg)](https://creativecommons.org/licenses/by-nc-sa/4.0/)
 [![Check Style](https://github.com/Nall-chan/FritzBox/workflows/Check%20Style/badge.svg)](https://github.com/Nall-chan/FritzBox/actions) [![Run Tests](https://github.com/Nall-chan/FritzBox/workflows/Run%20Tests/badge.svg)](https://github.com/Nall-chan/FritzBox/actions)  
@@ -112,6 +112,20 @@ Für das Discovery werden Pakete über die Multicast-Adresse `239.255.255.250` a
 
 ----------
 ## Changelog
+
+Version 0.60:  
+ - Neues Modul: FritzBox WAN Physical Interface (FritzBox physikalische WAN-Schnittstelle)  
+ - Modul FritzBox WAN DSL Link (FritzBox WAN DSL-Verbindung) war fehlerhaft  
+ - https-Verbindungen zur FritzBox waren defekt  
+ - Konnte der EventWebhook (Ereignis-WebHook) nicht ermittelt werden, z.B. weil die FritzBox die Verbindung ablehnte, wird jetzt der Status korrekt zurückgemeldet  
+ - Discovery-Instanz setzt den TTL auf 4, damit die Multicast-Pakete geroutet werden können  
+ - Allgemeines Fehlerhandling verbessert  
+ - UPnP Subscribe benutzt UPnP/2.0 und HTTP/1.1  
+ - Schreibfehler vom Statusvariable 'FritzBox registriert' im MyFritz-Modul korrigiert  
+ - WLAN-Zustand wird nach dem Schalten automatisch abgefragt, wenn Events nicht unterstützt werden  
+ - FB_SetDeflectionEnable hat die Statusvariablen nicht nachgeführt  
+ - Ein eventuell vorhandenes altes Variablenprofil 'FB.MByte' wird automatisch gelöscht und neu erzeugt
+  
 
 Version 0.50:  
 - Beta Release für Symcon 6.0  

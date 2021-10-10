@@ -10,16 +10,16 @@ require_once __DIR__ . '/../libs/FritzBoxBase.php';
             '/upnp/control/wancommonifconfig1'
         ];
         protected static $EventSubURLArray = [
-            '/upnp/control/wancommonifconfig1'
+            //'/upnp/control/wancommonifconfig1'
         ];
         protected static $ServiceTypeArray = [
             'urn:dslforum-org:service:WANCommonInterfaceConfig:1'
         ];
+        protected static $DefaultIndex = 0;
         public function Create()
         {
             //Never delete this line!
             parent::Create();
-            $this->RegisterPropertyInteger('Index', 0);
             $this->RegisterPropertyInteger('RefreshInterval', 60);
             $this->RegisterTimer('RefreshLinkProperties', 0, 'IPS_RequestAction(' . $this->InstanceID . ',"RefreshLinkProperties",true);');
         }
@@ -36,7 +36,7 @@ require_once __DIR__ . '/../libs/FritzBoxBase.php';
 
         public function ApplyChanges()
         {
-            $this->SetTimerInterval('RefreshInfo', 0);
+            $this->SetTimerInterval('RefreshLinkProperties', 0);
             //todo String Asso
             $this->RegisterProfileIntegerEx(
                 'FB.LinkState',
@@ -52,11 +52,10 @@ require_once __DIR__ . '/../libs/FritzBoxBase.php';
             );
             $this->RegisterProfileInteger('FB.kBit', '', '', ' kBit/s', 0, 0, 0);
             parent::ApplyChanges();
-            $this->SetStatus(IS_ACTIVE);
             if (IPS_GetKernelRunlevel() != KR_READY) {
                 return;
             }
-            $this->GetCommonLinkProperties();
+            $this->UpdateCommonLinkProperties();
             $this->SetTimerInterval('RefreshLinkProperties', $this->ReadPropertyInteger('RefreshInterval') * 1000);
         }
         public function RequestAction($Ident, $Value)
@@ -110,20 +109,5 @@ require_once __DIR__ . '/../libs/FritzBoxBase.php';
             $this->setIPSVariable('UpstreamMaxBitRate', 'Upstream Max kBitrate', $Upstream, VARIABLETYPE_INTEGER, 'FB.kBit');
             $this->setIPSVariable('DownstreamMaxBitRate', 'Downstream Max kBitrate', $Downstream, VARIABLETYPE_INTEGER, 'FB.kBit');
             return true;
-        }
-
-        //todo String Asso
-        private function LinkStateToInt(string $LinkState): int
-        {
-            switch ($LinkState) {
-
-                case 'Up':
-                    return 0;
-                        case 'Down':
-                            return 1;
-                        case 'Initializing':
-                            return 2;
-            }
-            return 3;
         }
     }

@@ -8,6 +8,7 @@ require_once __DIR__ . '/../libs/FritzBoxTable.php';
 /**
  * @property int $APEnabledId
  * @property int $HostNumberOfEntriesId
+ * @property bool $APisGuest
  */
 class FritzBoxWLAN extends FritzBoxModulBase
 {
@@ -36,7 +37,8 @@ class FritzBoxWLAN extends FritzBoxModulBase
         parent::Create();
         $this->APEnabledId = 0;
         $this->HostNumberOfEntriesId = 0;
-        $this->RegisterPropertyInteger('Index', -1);
+        $this->APisGuest = false;
+
         $this->RegisterPropertyBoolean('HostAsVariable', false);
         $this->RegisterPropertyBoolean('InfoVariables', false);
         $this->RegisterPropertyBoolean('RenameHostVariables', true);
@@ -84,9 +86,14 @@ class FritzBoxWLAN extends FritzBoxModulBase
             $this->SetStatus(IS_INACTIVE);
             return;
         }
-        $this->SetStatus(IS_ACTIVE);
         if (IPS_GetKernelRunlevel() == KR_READY) {
             @$this->UpdateInfo();
+            if (!$this->ReadPropertyBoolean('InfoVariables')) {
+                $result = $this->GetWLANExtInfo();
+                if ($result !== false) {
+                    $this->APisGuest = ((string) $result['NewX_AVM-DE_APType'] == 'guest');
+                }
+            }
         }
         usleep(5);
         $this->RegisterMessage($this->APEnabledId, VM_UPDATE);
@@ -304,6 +311,9 @@ class FritzBoxWLAN extends FritzBoxModulBase
         ]);
         if ($result === false) {
             return false;
+        }
+        if (!$this->APisGuest) {
+            $this->UpdateInfo();
         }
         return true;
     }
@@ -632,6 +642,7 @@ class FritzBoxWLAN extends FritzBoxModulBase
             if ($result === false) {
                 return false;
             }
+            $this->APisGuest = ((string) $result['NewX_AVM-DE_APType'] == 'guest');
             if ((string) $result['NewX_AVM-DE_APType'] == 'guest') {
                 $this->setIPSVariable('TimeoutActive', 'Timeout active', $result['NewX_AVM-DE_TimeoutActive'], VARIABLETYPE_BOOLEAN, '~Switch', false, -7);
                 $this->setIPSVariable('TimeRemainRaw', 'Remain time in minutes', (int) $result['NewX_AVM-DE_TimeRemain'], VARIABLETYPE_INTEGER, '', false, -6);

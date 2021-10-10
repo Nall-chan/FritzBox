@@ -15,15 +15,15 @@ class FritzBoxWANDSLLink extends FritzBoxModulBase
         '/igd2upnp/control/WANDSLLinkC1'
     ];
     protected static $ServiceTypeArray = [
-        'urn:upnp-org:serviceId:WANDSLLinkC1',
-        'urn:upnp-org:serviceId:WANDSLLinkC1'
+        'urn:schemas-upnp-org:service:WANDSLLinkConfig:1',
+        'urn:schemas-upnp-org:service:WANDSLLinkConfig:1'
 
     ];
     public function Create()
     {
         //Never delete this line!
         parent::Create();
-        $this->RegisterPropertyInteger('Index', -1);
+
         $this->RegisterPropertyInteger('RefreshInterval', 60);
         $this->RegisterTimer('RefreshInfo', 0, 'IPS_RequestAction(' . $this->InstanceID . ',"RefreshInfo",true);');
     }
@@ -37,13 +37,25 @@ class FritzBoxWANDSLLink extends FritzBoxModulBase
     public function ApplyChanges()
     {
         $this->SetTimerInterval('RefreshInfo', 0);
+        //todo String Asso
+        $this->RegisterProfileIntegerEx(
+            'FB.LinkState',
+            '',
+            '',
+            '',
+            [
+                [0, $this->Translate('Up'), '', 0x00ff00],
+                [1, $this->Translate('Down'), '', 0xff0000],
+                [2, $this->Translate('Initializing'), '', 0xff00ff],
+                [3, $this->Translate('Unavailable'), '', 0xff0000],
+            ]
+        );
         parent::ApplyChanges();
         $Index = $this->ReadPropertyInteger('Index');
         if ($Index == -1) {
             $this->SetStatus(IS_INACTIVE);
             return;
         }
-        $this->SetStatus(IS_ACTIVE);
         if (IPS_GetKernelRunlevel() != KR_READY) {
             return;
         }
@@ -64,10 +76,19 @@ class FritzBoxWANDSLLink extends FritzBoxModulBase
     {
         return $this->Send(__FUNCTION__);
     }
+    public function GetAutoConfig()
+    {
+        return $this->Send(__FUNCTION__);
+    }
     public function GetModulationType()
     {
         return $this->Send(__FUNCTION__);
     }
+    public function GetDestinationAddress()
+    {
+        return $this->Send(__FUNCTION__);
+    }
+
     public function GetATMEncapsulation()
     {
         return $this->Send(__FUNCTION__);
@@ -101,9 +122,7 @@ class FritzBoxWANDSLLink extends FritzBoxModulBase
     protected function DecodeEvent($Event)
     {
         if (array_key_exists('LinkStatus', $Event)) {
-            if (@$this->GetIDForIdent('LinkStatus')) {
-                $this->setIPSVariable('LinkStatus', 'DSL link status', $Event['LinkStatus'], VARIABLETYPE_STRING);
-            }
+            $this->setIPSVariable('LinkStatus', 'DSL Link Status', $this->LinkStateToInt((string) $Event['LinkStatus']), VARIABLETYPE_INTEGER, 'FB.LinkState');
             unset($Event['LinkStatus']);
             $this->UpdateInfo();
         }
@@ -111,9 +130,31 @@ class FritzBoxWANDSLLink extends FritzBoxModulBase
     }
     private function UpdateInfo()
     {
-        @$this->GetDSLLinkInfo();
-        @$this->GetModulationType();
-        @$this->GetATMEncapsulation();
-        @$this->GetFCSPreserved();
+        $result = $this->GetDSLLinkInfo();
+        if ($result !== false) {
+            $this->setIPSVariable('LinkType', 'DSL Link Type', $result['NewLinkType'], VARIABLETYPE_STRING, '');
+            $this->setIPSVariable('LinkStatus', 'DSL Link Status', $this->LinkStateToInt((string) $result['NewLinkStatus']), VARIABLETYPE_INTEGER, 'FB.LinkState');
+        }
+        $result = $this->GetAutoConfig();
+        if ($result !== false) {
+            $this->setIPSVariable('AutoConfig', 'DSL Auto Config', (bool) $result, VARIABLETYPE_BOOLEAN, '');
+        }
+
+        $result = $this->GetModulationType();
+        if ($result !== false) {
+            $this->setIPSVariable('ModulationType', 'ModulationType', $result, VARIABLETYPE_STRING, '');
+        }
+        $result = $this->GetDestinationAddress();
+        if ($result !== false) {
+            $this->setIPSVariable('DestinationAddress', 'DestinationAddress', $result, VARIABLETYPE_STRING, '');
+        }
+        $result = $this->GetATMEncapsulation();
+        if ($result !== false) {
+            $this->setIPSVariable('ATMEncapsulation', 'ATMEncapsulation', $result, VARIABLETYPE_STRING, '');
+        }
+        $result = $this->GetFCSPreserved();
+        if ($result !== false) {
+            $this->setIPSVariable('FCSPreserved', 'FCSPreserved', (bool) $result, VARIABLETYPE_BOOLEAN, '');
+        }
     }
 }

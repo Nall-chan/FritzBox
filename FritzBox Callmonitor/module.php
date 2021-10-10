@@ -30,12 +30,12 @@ class FritzBoxCallmonitor extends FritzBoxModulBase
     ];
 
     protected static $SecondEventGUID = '{FE5B2BCA-CA0F-25DC-8E79-BDFD242CB06E}';
+    protected static $DefaultIndex = 0;
 
     public function Create()
     {
         //Never delete this line!
         parent::Create();
-        $this->RegisterPropertyInteger('Index', 0);
 
         $this->RegisterPropertyString('AreaCode', '');
         $this->RegisterPropertyInteger('ReverseSearchInstanceID', 0);

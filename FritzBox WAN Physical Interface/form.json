@@ -12,7 +12,7 @@
         {
             "type": "Button",
             "caption": "Update Values",
-            "onClick": "IPS_RequestAction($id,'RefreshInfo',true);"
+            "onClick": "IPS_RequestAction($id,'RefreshLinkProperties',true);"
         },
         {
             "type": "TestCenter"
