@@ -49,7 +49,7 @@ class FritzBoxDiscovery extends IPSModule
         foreach ($InstanceIDListConfigurators as $InstanceIDConfigurator) {
             $Splitter = IPS_GetInstance($InstanceIDConfigurator)['ConnectionID'];
             if ($Splitter > 0) {
-                $DevicesAddress[$InstanceIDConfigurator] = IPS_GetProperty($Splitter, 'Host');
+                $DevicesAddress[$InstanceIDConfigurator] = parse_url(IPS_GetProperty($Splitter, 'Host'), PHP_URL_HOST);
             }
         }
         /*array(1) {
@@ -57,35 +57,48 @@ class FritzBoxDiscovery extends IPSModule
             string(76) "FRITZ!Box 6591 Cable (kdg) UPnP/1.0 AVM FRITZ!Box 6591 Cable (kdg) 161.07.03"
           }*/
 
-        foreach ($Devices as $Url => $Device) {
+        foreach ($Devices as $IPAddress => $Data) {
             $AddDevice = [
                 'instanceID'      => 0,
-                'url'             => $Url,
-                'name'            => $Device
+                'url'             => $IPAddress,
+                'name'            => $Data['SERVER']
             ];
 
-            $Config = [
-                'Host'     => $Url
-            ];
-            $InstanceIDConfigurator = array_search($Url, $DevicesAddress);
+            $InstanceIDConfigurator = array_search($IPAddress, $DevicesAddress);
 
             if ($InstanceIDConfigurator !== false) {
                 $AddDevice['name'] = IPS_GetLocation($InstanceIDConfigurator);
                 $AddDevice['instanceID'] = $InstanceIDConfigurator;
                 unset($DevicesAddress[$InstanceIDConfigurator]);
             }
-            $AddDevice['create'] = [
-
+            $AddDevice['create'][$Data['SERVER'] . '(https)'] = [
                 [
                     'moduleID'      => '{32CF40DC-51DA-6C63-8BD7-55E82F64B9E7}',
                     'configuration' => new stdClass()
                 ],
                 [
                     'moduleID'      => '{6FF9A05D-4E49-4371-23F1-7F58283FB1D9}',
-                    'configuration' => $Config
+                    'configuration' => [
+                        'Host'     => 'https://' .
+                        $Data['URL']['host']
+                    ]
+                ]
+            ];
+            $AddDevice['create'][$Data['SERVER'] . '(http)'] = [
+                [
+                    'moduleID'      => '{32CF40DC-51DA-6C63-8BD7-55E82F64B9E7}',
+                    'configuration' => new stdClass()
+                ],
+                [
+                    'moduleID'      => '{6FF9A05D-4E49-4371-23F1-7F58283FB1D9}',
+                    'configuration' => [
+                        'Host'     => $Data['URL']['scheme'] . '://' .
+                        $Data['URL']['host']
+                    ]
                 ]
 
             ];
+
             $DeviceValues[] = $AddDevice;
         }
         foreach ($DevicesAddress as $id => $Url) {
@@ -110,7 +123,7 @@ class FritzBoxDiscovery extends IPSModule
         }
         socket_set_option($socket, SOL_SOCKET, SO_RCVTIMEO, ['sec' => 2, 'usec' => 100000]);
         socket_set_option($socket, SOL_SOCKET, SO_REUSEADDR, 1);
-        socket_set_option($socket, SOL_SOCKET, IP_MULTICAST_TTL, 4);
+        socket_set_option($socket, IPPROTO_IP, IP_MULTICAST_TTL, 4);
         socket_bind($socket, '0.0.0.0', 0);
         $discoveryTimeout = time() + self::WS_DISCOVERY_TIMEOUT;
         $message = [
@@ -147,7 +160,7 @@ class FritzBoxDiscovery extends IPSModule
             if (0 == @socket_recvfrom($socket, $response, 2048, 0, $IPAddress, $Port)) {
                 continue;
             }
-            $this->SendDebug('Receive', $response, 0);
+            $this->SendDebug('Receive (' . $IPAddress . ')', $response, 0);
             $Data = $this->parseHeader($response);
             if (!array_key_exists('SERVER', $Data)) {
                 continue;
@@ -159,12 +172,9 @@ class FritzBoxDiscovery extends IPSModule
             if (!in_array(parse_url($Data['LOCATION'], PHP_URL_PATH), ['/igddesc.xml', '/igd2desc.xml', '/tr64desc.xml'])) {
                 continue;
             }
-
-            $Url = parse_url($Data['LOCATION'], PHP_URL_SCHEME) . '://' .
-                    parse_url($Data['LOCATION'], PHP_URL_HOST) . ':' .
-                    parse_url($Data['LOCATION'], PHP_URL_PORT);
-            if (!array_key_exists($Data['SERVER'], $DevicesData)) {
-                $DevicesData[$Url] = $Data['SERVER'];
+            $Url = parse_url($Data['LOCATION']);
+            if (!array_key_exists($IPAddress, $DevicesData)) {
+                $DevicesData[$IPAddress] = ['SERVER' => $Data['SERVER'], 'URL' => $Url];
             }
         } while (time() < $discoveryTimeout);
         socket_close($socket);

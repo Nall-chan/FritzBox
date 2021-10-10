@@ -5,8 +5,6 @@ declare(strict_types=1);
 require_once __DIR__ . '/../libs/FritzBoxBase.php';
 
 /**
- * @property int $Downstream
- * @property int $Upstream
  * @todo Timer für allgemeine Infos und timer für Datenrate
  */
     class FritzBoxWANCommonInterface extends FritzBoxModulBase
@@ -29,9 +27,11 @@ require_once __DIR__ . '/../libs/FritzBoxBase.php';
             parent::Create();
             $this->UnregisterProfile('FB.MByte');
             $this->RegisterPropertyInteger('RefreshInterval', 5);
+            $this->RegisterPropertyInteger('RefreshLinkPropertiesInterval', 60);
             $this->RegisterTimer('RefreshInfo', 0, 'IPS_RequestAction(' . $this->InstanceID . ',"RefreshInfo",true);');
-            $this->Downstream = 0;
-            $this->Upstream = 0;
+            $this->RegisterTimer('RefreshLinkProperties', 0, 'IPS_RequestAction(' . $this->InstanceID . ',"RefreshLinkProperties",true);');
+            $this->RegisterAttributeInteger('Upstream', 0);
+            $this->RegisterAttributeInteger('Downstream', 0);
         }
 
         public function Destroy()
@@ -79,6 +79,7 @@ require_once __DIR__ . '/../libs/FritzBoxBase.php';
             }
             $this->UpdateAddonInfos();
             $this->SetTimerInterval('RefreshInfo', $this->ReadPropertyInteger('RefreshInterval') * 1000);
+            $this->SetTimerInterval('RefreshLinkProperties', $this->ReadPropertyInteger('RefreshLinkPropertiesInterval') * 1000);
         }
         public function RequestAction($Ident, $Value)
         {
@@ -179,8 +180,8 @@ require_once __DIR__ . '/../libs/FritzBoxBase.php';
             $this->setIPSVariable('PhysicalLinkStatus', 'Physical Link Status', $this->LinkStateToInt((string) $result['NewPhysicalLinkStatus']), VARIABLETYPE_INTEGER, 'FB.LinkState');
             $Downstream = (int) ((int) $result['NewLayer1DownstreamMaxBitRate'] / 1000);
             $Upstream = (int) ((int) $result['NewLayer1UpstreamMaxBitRate'] / 1000);
-            $this->Downstream = $Downstream;
-            $this->Upstream = $Upstream;
+            $this->WriteAttributeInteger('Upstream', $Upstream);
+            $this->WriteAttributeInteger('Downstream', $Downstream);
             $this->setIPSVariable('UpstreamMaxBitRate', 'Upstream Max kBitrate', $Upstream, VARIABLETYPE_INTEGER, 'FB.kBit');
             $this->setIPSVariable('DownstreamMaxBitRate', 'Downstream Max kBitrate', $Downstream, VARIABLETYPE_INTEGER, 'FB.kBit');
             return true;
@@ -194,11 +195,11 @@ require_once __DIR__ . '/../libs/FritzBoxBase.php';
             }
             $this->setIPSVariable('KByteSendRate', 'Sending rate', $result['NewByteSendRate'] / 1024, VARIABLETYPE_FLOAT, 'FB.kbs');
             $this->setIPSVariable('KByteReceiveRate', 'Receive rate', $result['NewByteReceiveRate'] / 1024, VARIABLETYPE_FLOAT, 'FB.kbs');
-            $Downstream = $this->Downstream;
+            $Downstream = $this->ReadAttributeInteger('Downstream');
             if ($Downstream > 0) {
                 $this->setIPSVariable('LevelReceiveRate', 'Load download', (100 / ($Downstream / 8) * ($result['NewByteReceiveRate'] / 1024)), VARIABLETYPE_FLOAT, 'FB.Speed');
             }
-            $Upstream = $this->Upstream;
+            $Upstream = $this->ReadAttributeInteger('Upstream');
             if ($Upstream > 0) {
                 $this->setIPSVariable('LevelSendRate', 'Load upload', (100 / ($Upstream / 8) * ($result['NewByteSendRate'] / 1024)), VARIABLETYPE_FLOAT, 'FB.Speed');
             }

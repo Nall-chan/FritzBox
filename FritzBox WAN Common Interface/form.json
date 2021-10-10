@@ -25,6 +25,13 @@
             "caption": "Refresh Interval",
             "suffix": "seconds",
             "minimum": 0
+        },
+        {
+            "name": "RefreshLinkPropertiesInterval",
+            "type": "NumberSpinner",
+            "caption": "Refresh Interval Link Properties",
+            "suffix": "seconds",
+            "minimum": 60
         }
     ],
     "actions": [
@@ -32,6 +39,11 @@
             "type": "Button",
             "caption": "Update Values",
             "onClick": "IPS_RequestAction($id,'RefreshInfo',true);"
+        },
+        {
+            "type": "Button",
+            "caption": "Update Values",
+            "onClick": "IPS_RequestAction($id,'RefreshLinkProperties',true);"
         },
         {
             "type": "TestCenter"
