@@ -75,8 +75,11 @@ trait TelHelper
         }
         return $Icons;
     }
-    private function DoReverseSearch(int $ReverseSearchInstanceID, int $CustomSearchScriptID, string $Number, string $UnknownName, string $SearchMarker, int $MaxNameSize)
+    private function DoReverseSearch(string $Number, string $SearchMarker, string $UnknownName, int $MaxNameSize)
     {
+        $ReverseSearchInstanceID = $this->ReadPropertyInteger('ReverseSearchInstanceID');
+        $CustomSearchScriptID = $this->ReadPropertyInteger('CustomSearchScriptID');
+
         if ($CustomSearchScriptID != 0) {
             return IPS_RunScriptWaitEx($CustomSearchScriptID, ['SENDER'=>'FritzBox', 'NUMBER'=>$Number]);
         }
@@ -119,6 +122,24 @@ trait TelHelper
                     break;
                 } catch (\Exception $exc) {
                     continue;
+                }
+            }
+        }
+        return $Name;
+    }
+
+    private function GetNameByNumber(string $Number, string $AreaCode)
+    {
+        if ($Number == '') {
+            return $this->ReadPropertyString('UnknownNumberName');
+        }
+        $Name = $this->DoPhonebookSearch($Number, $this->ReadPropertyInteger('MaxNameSize'));
+        if (($Name === false) && ($AreaCode != '')) {
+            if (strpos($Number, $AreaCode) === 0) {
+                $Name = $this->DoPhonebookSearch(substr($Number, strlen($AreaCode)), $this->ReadPropertyInteger('MaxNameSize'));
+            } else {
+                if ($Number[0] != '0') {
+                    $Name = $this->DoPhonebookSearch($AreaCode . $Number, $this->ReadPropertyInteger('MaxNameSize'));
                 }
             }
         }
@@ -212,5 +233,44 @@ trait TelHelper
         $Result = unserialize($Ret);
         $this->SendDebug('Result', $Result, 0);
         return $Result;
+    }
+
+    /**
+     * @param SimpleXMLElement $xml
+     * @return array
+     */
+    private function xmlToArray(\SimpleXMLElement $xml): array
+    {
+        $parser = function (\SimpleXMLElement $xml, array $collection = []) use (&$parser)
+        {
+            $nodes = $xml->children();
+            $attributes = $xml->attributes();
+
+            if (0 !== count($attributes)) {
+                foreach ($attributes as $attrName => $attrValue) {
+                    $collection['attributes'][$attrName] = strval($attrValue);
+                }
+            }
+
+            if (0 === $nodes->count()) {
+                $collection['value'] = strval($xml);
+                return $collection;
+            }
+
+            foreach ($nodes as $nodeName => $nodeValue) {
+                if (count($nodeValue->xpath('../' . $nodeName)) < 2) {
+                    $collection[$nodeName] = $parser($nodeValue);
+                    continue;
+                }
+
+                $collection[$nodeName][] = $parser($nodeValue);
+            }
+
+            return $collection;
+        };
+
+        return [
+            $xml->getName() => $parser($xml)
+        ];
     }
 }

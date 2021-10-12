@@ -29,17 +29,6 @@
                     "caption": "Password"
                 }
             ]
-        },
-        {
-            "name": "UseConnect",
-            "type": "CheckBox",
-            "caption": "Use Symcon-Connect as callback. Needed for WAN connections to FritzBox."
-        },
-        {
-            "name": "NATAddress",
-            "type": "ValidationTextBox",
-            "caption": "NAT Address",
-            "visible": false
         }
     ],
     "actions": [

@@ -1,5 +1,5 @@
 [![Version](https://img.shields.io/badge/Symcon-PHPModul-red.svg)](https://www.symcon.de/service/dokumentation/entwicklerbereich/sdk-tools/sdk-php/)
-[![Version](https://img.shields.io/badge/Modul%20version-0.62-blue.svg)]()
+[![Version](https://img.shields.io/badge/Modul%20version-0.65-blue.svg)]()
 [![Version](https://img.shields.io/badge/Symcon%20Version-6.0%20%3E-green.svg)](https://community.symcon.de/t/ip-symcon-6-0-testing/44478)  
 [![License](https://img.shields.io/badge/License-CC%20BY--NC--SA%204.0-green.svg)](https://creativecommons.org/licenses/by-nc-sa/4.0/)
 [![Check Style](https://github.com/Nall-chan/FritzBox/workflows/Check%20Style/badge.svg)](https://github.com/Nall-chan/FritzBox/actions) [![Run Tests](https://github.com/Nall-chan/FritzBox/workflows/Run%20Tests/badge.svg)](https://github.com/Nall-chan/FritzBox/actions)  
@@ -12,18 +12,20 @@
 - [Vorbemerkungen zur Library](#vorbemerkungen-zur-library)
 - [Vorbemerkungen zur Integration von Geräten](#vorbemerkungen-zur-integration-von-geräten)
 - [Hinweise zum Symcon-System / Host](#hinweise-zum-symcon-system--host)
-- [Folgende Module beinhaltet das FritzBox Repository:](#folgende-module-beinhaltet-das-fritzbox-repository)
+- [Folgende Module beinhaltet das FritzBox Repository](#folgende-module-beinhaltet-das-fritzbox-repository)
 - [Changelog](#changelog)
 - [Spenden](#spenden)
 - [Lizenz](#lizenz)
 
 ----------
+
 ## Vorbemerkungen zur Library
 
 **todo**
-Diese Library .... 
+Diese Library ....  
 
 ----------
+
 ## Vorbemerkungen zur Integration von Geräten  
 
 Es werden Instanzen zum auffinden (Discovery) und einrichten (Konfigurator) von Geräten in Symcon bereitgestellt.  
@@ -32,12 +34,13 @@ Diese Instanzen werden nur korrekt funktionieren, wenn die betreffenden Geräte 
 **todo**
 Es wird dringend empfohlen vor der Integration in IPS folgende Parameter in der FritzBox zu konfigurieren / zu prüfen:
 
-- Zugangdaten einen Benutzers  
+- Zugangsdaten einen Benutzers  
 - Berechtigung der Zugangsdaten  
 - Anrufmonitor, sofern gewünscht  
 ...
 
 ----------
+
 ## Hinweise zum Symcon-System / Host  
 
 **todo**
@@ -48,7 +51,8 @@ Damit Geräte über das [Discovery-Modul](FritzBox%20Discovery/README.md) gefund
 Für das Discovery werden Pakete über die Multicast-Adresse `239.255.255.250` auf Port `1900` gesendet und empfangen.  
 
 ----------
-## Folgende Module beinhaltet das FritzBox Repository:
+
+## Folgende Module beinhaltet das FritzBox Repository  
 
 - __FritzBox Discovery__ ([Dokumentation](FritzBox%20Discovery/))  
 	Kurze Beschreibung des Moduls.
@@ -111,35 +115,45 @@ Für das Discovery werden Pakete über die Multicast-Adresse `239.255.255.250` a
 	Kurze Beschreibung des Moduls.
 
 ----------
+
 ## Changelog
 
+Version 0.65:  
+
+- Fehlende Übersetzungen im Konfigurator ergänzt
+- Neue Instanz-Funktion für die Suche nach Kontakten in den Telefonbüchern (FB_GetPhonebookEntrysByNumber(12345 /* FritzBox Telefonie */, string $Number))  
+- Neue Instanz-Funktion für die Rückwärtssuche (FB_SearchNameByNumber(12345 /* FritzBox Telefonie */, string $Number, string $AreaCode))  
+- Ist der NATSupport von Symcon aktiviert, aber keine PublicIP konfiguriert, so wird im FritzBox-IO eine Meldung ausgegeben.  
+
 Version 0.62:  
- - Discovery-Instanz war mit TTL Änderung kaputt  
- - Discovery-Instanz priorisiert bei IO's https Verbindungen
- - FritzBox WAN Common Interface (FritzBox allgemeine WAN-Schnittstelle) hat nach einem Update nicht korrekt funktioniert  
+
+- Discovery-Instanz war mit TTL Änderung kaputt  
+- Discovery-Instanz priorisiert bei IO's https Verbindungen
+- FritzBox WAN Common Interface (FritzBox allgemeine WAN-Schnittstelle) hat nach einem Update nicht korrekt funktioniert  
 
 Version 0.60:  
- - Neues Modul: FritzBox WAN Physical Interface (FritzBox physikalische WAN-Schnittstelle)  
- - Modul FritzBox WAN DSL Link (FritzBox WAN DSL-Verbindung) war fehlerhaft  
- - https-Verbindungen zur FritzBox waren defekt  
- - Konnte der EventWebhook (Ereignis-WebHook) nicht ermittelt werden, z.B. weil die FritzBox die Verbindung ablehnte, wird jetzt der Status korrekt zurückgemeldet  
- - Discovery-Instanz setzt den TTL auf 4, damit die Multicast-Pakete geroutet werden können  
- - Allgemeines Fehlerhandling verbessert  
- - UPnP Subscribe benutzt UPnP/2.0 und HTTP/1.1  
- - Schreibfehler vom Statusvariable 'FritzBox registriert' im MyFritz-Modul korrigiert (Nur wenn Variable neu angelegt wird)  
- - WLAN-Zustand wird nach dem Schalten automatisch abgefragt, wenn Events nicht unterstützt werden  
- - FB_SetDeflectionEnable hat die Statusvariablen nicht nachgeführt  
- - Ein eventuell vorhandenes altes Variablenprofil 'FB.MByte' wird automatisch gelöscht und neu erzeugt
-  
 
+- Neues Modul: FritzBox WAN Physical Interface (FritzBox physikalische WAN-Schnittstelle)  
+- Modul FritzBox WAN DSL Link (FritzBox WAN DSL-Verbindung) war fehlerhaft  
+- https-Verbindungen zur FritzBox waren defekt  
+- Konnte der EventWebhook (Ereignis-WebHook) nicht ermittelt werden, z.B. weil die FritzBox die Verbindung ablehnte, wird jetzt der Status korrekt zurückgemeldet  
+- Discovery-Instanz setzt den TTL auf 4, damit die Multicast-Pakete geroutet werden können  
+- Allgemeines Fehlerhandling verbessert  
+- UPnP Subscribe benutzt UPnP/2.0 und HTTP/1.1  
+- Schreibfehler vom Statusvariable 'FritzBox registriert' im MyFritz-Modul korrigiert (Nur wenn Variable neu angelegt wird)  
+- WLAN-Zustand wird nach dem Schalten automatisch abgefragt, wenn Events nicht unterstützt werden  
+- FB_SetDeflectionEnable hat die Statusvariablen nicht nachgeführt  
+- Ein eventuell vorhandenes altes Variablenprofil 'FB.MByte' wird automatisch gelöscht und neu erzeugt
+  
 Version 0.50:  
+
 - Beta Release für Symcon 6.0  
 - Readme erweitert
 - `FritzBox-IO` nutzt HTTP Keep-Alive
 - Unnötige Debug-Ausgabe in IO bei aktiven Anrufmonitor entfernt  
-- 
 
 ----------
+
 ## Spenden  
   
   Die Library ist für die nicht kommerzielle Nutzung kostenlos, Schenkungen als Unterstützung für den Autor werden hier akzeptiert:  

@@ -495,30 +495,15 @@ class FritzBoxCallmonitor extends FritzBoxModulBase
     }
     private function SearchName(string $Number)
     {
-        if ($Number == '') {
-            return $this->ReadPropertyString('UnknownNumberName');
-        }
-
-        $Name = $this->DoPhonebookSearch($Number, $this->ReadPropertyInteger('MaxNameSize'));
         $AreaCode = $this->ReadPropertyString('AreaCode');
-        if (($Name === false) && ($AreaCode != '')) {
-            if (strpos($Number, $AreaCode) === 0) {
-                $Name = $this->DoPhonebookSearch(substr($Number, strlen($AreaCode)), $this->ReadPropertyInteger('MaxNameSize'));
-            } else {
-                if ($Number[0] != '0') {
-                    $Name = $this->DoPhonebookSearch($AreaCode . $Number, $this->ReadPropertyInteger('MaxNameSize'));
-                }
-            }
+        $Name = $this->GetNameByNumber($Number, $AreaCode);
+        if ($Name === false) {
+            $MaxNameSize = $this->ReadPropertyInteger('MaxNameSize');
+            $UnknownName = '(' . $Number . ')';
+            $SearchMarker = $this->ReadPropertyString('SearchMarker');
+            $Name = $this->DoReverseSearch($Number, $SearchMarker, $UnknownName, $MaxNameSize);
         }
 
-        if ($Name === false) {
-            $UnknownName = '(' . $Number . ')';
-            $ReverseSearchInstanceID = $this->ReadPropertyInteger('ReverseSearchInstanceID');
-            $CustomSearchScriptID = $this->ReadPropertyInteger('CustomSearchScriptID');
-            $MaxNameSize = $this->ReadPropertyInteger('MaxNameSize');
-            $SearchMarker = $this->ReadPropertyString('SearchMarker');
-            $Name = $this->DoReverseSearch($ReverseSearchInstanceID, $CustomSearchScriptID, $Number, $UnknownName, $SearchMarker, $MaxNameSize);
-        }
         return $Name;
     }
 

@@ -40,7 +40,6 @@ class FritzBoxIO extends IPSModule
         $this->RegisterPropertyString('Host', 'http://');
         $this->RegisterPropertyString('Username', '');
         $this->RegisterPropertyString('Password', '');
-        $this->RegisterPropertyBoolean('UseConnect', false);
         $this->RegisterAttributeString('ConsumerAddress', 'Invalid');
         $this->RegisterAttributeArray('Events', []);
         $this->RegisterAttributeArray('PhoneBooks', []);
@@ -219,22 +218,24 @@ class FritzBoxIO extends IPSModule
 
     public function GetConfigurationForm()
     {
-        //prüfung ob Username in config leer.
-        // Wenn ja dann
-        // urn:LANConfigSecurity-com:serviceId:LANConfigSecurity1
-        // den letzten user ermitteln und eintragen
         $Form = json_decode(file_get_contents(__DIR__ . '/form.json'), true);
         if ($this->ReadPropertyString('Username') == '') {
             $Form['elements'][2]['visible'] = true;
         }
         if (IPS_GetOption('NATSupport')) {
-            $Form['elements'][5]['visible'] = true;
+            if (IPS_GetOption('NATPublicIP') == '') {
+                $Form['actions'][1]['visible'] = true;
+                $Form['actions'][1]['popup']['items'][0]['caption'] = 'Error';
+                $Form['actions'][1]['popup']['items'][1]['caption'] = $this->Translate('NAT support is active, but no public address is set.');
+            }
         }
         $ConsumerAddress = $this->ReadAttributeString('ConsumerAddress');
-        if (($ConsumerAddress == 'Invalid') && ($this->ReadPropertyBoolean('Open'))) {
-            $Form['actions'][1]['visible'] = true;
-            $Form['actions'][1]['popup']['items'][0]['caption'] = 'Error';
-            $Form['actions'][1]['popup']['items'][1]['caption'] = $this->Translate('Couldn\'t determine webhook');
+        if (!$Form['actions'][1]['visible']) {
+            if (($ConsumerAddress == 'Invalid') && ($this->ReadPropertyBoolean('Open'))) {
+                $Form['actions'][1]['visible'] = true;
+                $Form['actions'][1]['popup']['items'][0]['caption'] = 'Error';
+                $Form['actions'][1]['popup']['items'][1]['caption'] = $this->Translate('Couldn\'t determine webhook');
+            }
         }
         $Form['actions'][0]['items'][1]['caption'] = $this->Translate($ConsumerAddress);
         $this->SendDebug('FORM', json_encode($Form), 0);
@@ -437,47 +438,26 @@ class FritzBoxIO extends IPSModule
 
     private function GetConsumerAddress()
     {
-        if ($this->ReadPropertyBoolean('UseConnect')) {
-            $ids = IPS_GetInstanceListByModuleID('{9486D575-BE8C-4ED8-B5B5-20930E26DE6F}');
-            $Url = '';
-            if (count($ids) > 0) {
-                $Url = CC_GetConnectURL($ids[0]);
-            }
-            if ($Url == '') {
+        if (IPS_GetOption('NATSupport')) {
+            $ip = IPS_GetOption('NATPublicIP');
+            $Url = 'http://' . $ip . ':3777/hook/FritzBoxIO' . $this->InstanceID;
+            $this->SendDebug('NAT enabled ConsumerAddress', $Url, 0);
+        } else {
+            $sock = socket_create(AF_INET, SOCK_STREAM, SOL_TCP);
+            socket_bind($sock, '0.0.0.0', 0);
+            $Host = parse_url($this->Url);
+            @socket_connect($sock, $Host['host'], $Host['port']);
+            $ip = '';
+            socket_getsockname($sock, $ip);
+            @socket_close($sock);
+            if ($ip == '0.0.0.0') {
                 $this->SendDebug('ConsumerAddress', 'Invalid', 0);
                 $this->UpdateFormField('EventHook', 'caption', 'Invalid');
                 $this->WriteAttributeString('ConsumerAddress', 'Invalid');
                 return false;
             }
-            $Url .= '/hook/FritzBoxIO' . $this->InstanceID;
-            $this->SendDebug('Symcon Connect enabled ConsumerAddress', $Url, 0);
-        } else {
-            if (IPS_GetOption('NATSupport')) {
-                /*$parsed_url = parse_url($this->ReadPropertyString('NATAddress'));
-                $scheme = isset($parsed_url['scheme']) ? $parsed_url['scheme'] . '://' : 'http://';
-                $host = isset($parsed_url['host']) ? $parsed_url['host'] : '';
-                $port = isset($parsed_url['port']) ? ':' . $parsed_url['port'] : ':3777';
-                $Url = $scheme . $host . $port . '/hook/FritzBoxIO' . $this->InstanceID;*/
-                $ip = IPS_GetOption('NATPublicIP');
-                $Url = 'http://' . $ip . ':3777/hook/FritzBoxIO' . $this->InstanceID;
-                $this->SendDebug('NAT enabled ConsumerAddress', $Url, 0);
-            } else {
-                $sock = socket_create(AF_INET, SOCK_STREAM, SOL_TCP);
-                socket_bind($sock, '0.0.0.0', 0);
-                $Host = parse_url($this->Url);
-                @socket_connect($sock, $Host['host'], $Host['port']);
-                $ip = '';
-                socket_getsockname($sock, $ip);
-                @socket_close($sock);
-                if ($ip == '0.0.0.0') {
-                    $this->SendDebug('ConsumerAddress', 'Invalid', 0);
-                    $this->UpdateFormField('EventHook', 'caption', 'Invalid');
-                    $this->WriteAttributeString('ConsumerAddress', 'Invalid');
-                    return false;
-                }
-                $Url = 'http://' . $ip . ':3777/hook/FritzBoxIO' . $this->InstanceID;
-                $this->SendDebug('ConsumerAddress', $Url, 0);
-            }
+            $Url = 'http://' . $ip . ':3777/hook/FritzBoxIO' . $this->InstanceID;
+            $this->SendDebug('ConsumerAddress', $Url, 0);
         }
         $this->UpdateFormField('EventHook', 'caption', $Url);
         $this->WriteAttributeString('ConsumerAddress', $Url);

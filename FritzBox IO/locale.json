@@ -10,9 +10,9 @@
             "Open": "Aktiv",
             "URL": "URL",
             "No username given, we will try to use fallback login.": "Kein Benutzername angegeben, wir versuchen die Fallback-Anmeldung zu verwenden.",
+            "NAT support is active, but no public address is set.": "NAT Support ist aktiv, aber es wurde keine PublicIP konfiguriert.",
             "Username": "Benutzername",
             "Password": "Passwort",
-            "Use Symcon-Connect as callback. Needed for WAN connections to FritzBox.": "Verwende Symcon-Connect als Rückkanal. Wird für WAN-Verbindungen zur FritzBox benötigt.",
             "Event hook:": "Ereignis-WebHook",
             "Invalid": "Ungültig"
         }

@@ -18,6 +18,7 @@
             "FritzBox WAN DSL Link": "FritzBox WAN DSL-Verbindung",
             "FritzBox WAN IP Connection": "FritzBox WAN IP-Verbindung",
             "FritzBox WAN Port Mapping": "FritzBox WAN Port-Weiterleitung",
+            "FritzBox WAN Physical Interface": "FritzBox physikalische WAN-Schnittstelle",
             "FritzBox WebDav Storage": "FritzBox Online-Speicher",
             "FritzBox WLAN": "FritzBox WLAN",
             "Events": "Ereignisse",

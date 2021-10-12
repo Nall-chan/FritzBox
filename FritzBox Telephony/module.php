@@ -247,6 +247,42 @@ class FritzBoxTelephony extends FritzBoxModulBase
         }
         return $result;
     }
+    public function GetPhonebookEntrysByNumber(string $Number)
+    {
+        $Files = $this->GetPhoneBookFiles();
+        foreach ($Files as $File) {
+            $XMLData = $this->GetFile($File);
+            if ($XMLData === false) {
+                $this->SendDebug('XML not found', $File, 0);
+                echo 'File ' . $File . ' not found';
+                continue;
+            }
+            $XMLPhoneBook = new \simpleXMLElement($XMLData);
+            if ($XMLPhoneBook === false) {
+                $this->SendDebug('XML decode error', $XMLData, 0);
+                echo 'XML decode error in ' . $File;
+                continue;
+            }
+            $Contacts = $XMLPhoneBook->xpath("//contact[telephony/number ='" . $Number . "']");
+            if (count($Contacts) > 0) {
+                $Results = [];
+                foreach ($Contacts as $Contact) {
+                    $Results[] = $this->xmlToArray($Contact);
+                }
+                return $Results;
+            }
+        }
+        return false;
+    }
+    public function SearchNameByNumber(string $Number, string $AreaCode)
+    {
+        $Name = $this->GetNameByNumber($Number, $AreaCode);
+        if ($Name === false) {
+            $UnknownName = '(' . $Number . ')';
+            $Name = $this->DoReverseSearch($Number, '', $UnknownName, 256);
+        }
+        return $Name;
+    }
     public function GetDECTHandsetList()
     {
         $result = $this->Send(__FUNCTION__);
@@ -472,11 +508,11 @@ class FritzBoxTelephony extends FritzBoxModulBase
         }
         $PhoneDevices = $this->GetPhoneDevices();
         $Data = [];
-        $UnknownName = $this->ReadPropertyString('UnknownNumberName');
-        $ReverseSearchInstanceID = $this->ReadPropertyInteger('ReverseSearchInstanceID');
-        $CustomSearchScriptID = $this->ReadPropertyInteger('CustomSearchScriptID');
+
         $MaxNameSize = $this->ReadPropertyInteger('MaxNameSize');
+        $UnknownName = $this->ReadPropertyString('UnknownNumberName');
         $SearchMarker = $this->ReadPropertyString('SearchMarker');
+
         for ($i = 0; $i < count($CallList->Call); $i++) {
             $Data[$i]['Name'] = (string) $CallList->Call[$i]->Name;
             if ((int) $CallList->Call[$i]->Type == self::Call_Outgoing) {
@@ -484,7 +520,7 @@ class FritzBoxTelephony extends FritzBoxModulBase
                 $Data[$i]['Called'] = (string) $CallList->Call[$i]->Called;
                 $Data[$i]['Number'] = (string) $CallList->Call[$i]->Called;
                 if ($Data[$i]['Name'] == '') {
-                    $Data[$i]['Name'] = $this->DoReverseSearch($ReverseSearchInstanceID, $CustomSearchScriptID, $Data[$i]['Called'], $UnknownName, $SearchMarker, $MaxNameSize);
+                    $Data[$i]['Name'] = $this->DoReverseSearch($Data[$i]['Called'], $SearchMarker, $UnknownName, $MaxNameSize);
                 } else {
                     if (strlen($Data[$i]['Name']) > $MaxNameSize) {
                         $Data[$i]['Name'] = substr($Data[$i]['Name'], 0, $MaxNameSize);
@@ -497,7 +533,7 @@ class FritzBoxTelephony extends FritzBoxModulBase
                     $Data[$i]['Name'] = $UnknownName;
                 } else {
                     if ($Data[$i]['Name'] == '') {
-                        $Data[$i]['Name'] = $this->DoReverseSearch($ReverseSearchInstanceID, $CustomSearchScriptID, $Data[$i]['Caller'], $UnknownName, $SearchMarker, $MaxNameSize);
+                        $Data[$i]['Name'] = $this->DoReverseSearch($Data[$i]['Caller'], $SearchMarker, $UnknownName, $MaxNameSize);
                     } else {
                         if (strlen($Data[$i]['Name']) > $MaxNameSize) {
                             $Data[$i]['Name'] = substr($Data[$i]['Name'], 0, $MaxNameSize);
