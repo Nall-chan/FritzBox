@@ -14,7 +14,9 @@
             "Username": "Benutzername",
             "Password": "Passwort",
             "Event hook:": "Ereignis-WebHook",
-            "Invalid": "Ungültig"
+            "Invalid": "Ungültig",
+            "Modify these settings only if you are sure that you need to": "Diese Einstellungen sollten nur geändert werden, wenn Sie genau wissen, was Sie tun",
+            "Select port for events:": "Port für Ereignisse auswählen"
         }
     }
 }

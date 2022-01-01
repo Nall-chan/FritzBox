@@ -29,6 +29,44 @@
                     "caption": "Password"
                 }
             ]
+        },
+        {
+            "type": "ExpansionPanel",
+            "name": "Advanced",
+            "expanded": false,
+            "caption": "Modify these settings only if you are sure that you need to",
+            "items": [
+                {
+                    "type": "RowLayout",
+                    "items": [
+                        {
+                            "type": "Label",
+                            "name": "ReturnPortText",
+                            "caption": "Select port for events:"
+                        },
+                        {
+                            "name": "ReturnProtoPort",
+                            "type": "Select",
+                            "caption": "Port & Protocol",
+                            "options": [
+                                {
+                                    "caption": "3777 (http)",
+                                    "value": [
+                                        {
+                                            "name": "ReturnPort",
+                                            "value": 3777
+                                        },
+                                        {
+                                            "name": "ReturnProtocol",
+                                            "value": "http"
+                                        }
+                                    ]
+                                }
+                            ]
+                        }
+                    ]
+                }
+            ]
         }
     ],
     "actions": [
