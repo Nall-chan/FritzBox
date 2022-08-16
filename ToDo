@@ -20,6 +20,8 @@ https://community.symcon.de/t/beta-modul-fritzbox-ersatz-fuer-fritzbox-project/1
 IP-Adresse fehlte -> Eventuell durch falsche Profile?
 https://community.symcon.de/t/beta-modul-fritzbox-ersatz-fuer-fritzbox-project/125451/213?u=nall-chan
 
+  [X] GetFile & PutFile verriegeln
+
 Übersetzung MyFritz fehlt.
 
 Feldtest nötig:
@@ -41,6 +43,7 @@ Unfertig / Fehlen:
 - Datenaustausch gibt sollte nur Pfad und nicht Daten liefern
 - Anrufbeantworter (fehlt komplett)
 - Wählhilfe (fehlt in Telephony, realisierbarkeit noch nicht getestet)
+- Aktionen und Referenzen prüfen
 
 Später/Sonstiges:
 - Fehler beim schalten der Zeitserver-Variablen.

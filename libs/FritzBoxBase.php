@@ -251,29 +251,15 @@ class FritzBoxModulBase extends IPSModule
         } */
     protected function LoadAndGetData(string $Uri)
     {
-        if (!$this->HasActiveParent()) {
-            return false;
-        }
-        $this->SendDebug('Uri', $Uri, 0);
-        $Ret = $this->SendDataToParent(json_encode(
-            [
-                'DataID'     => '{D62D4515-7689-D1DB-EE97-F555AD9433F0}',
-                'Function'   => 'GETFILE',
-                'Uri'        => $Uri
-            ]
-        ));
-        if ($Ret === false) {
-            return false;
-        }
-        $Result = unserialize($Ret);
-        $this->SendDebug('Result', $Result, 0);
-        return $Result;
+        return $this->LoadAndSaveFile($Uri, '');
     }
+
     protected function LoadAndSaveFile(string $Uri, string $Filename)
     {
         if (!$this->HasActiveParent()) {
             return false;
         }
+        $this->SendDebug('Function', 'Load', 0);
         $this->SendDebug('Uri', $Uri, 0);
         $this->SendDebug('Filename', $Filename, 0);
         $Ret = $this->SendDataToParent(json_encode(
@@ -293,10 +279,24 @@ class FritzBoxModulBase extends IPSModule
     }
     protected function GetFile(string $Filename)
     {
-        if ($this->ParentID == 0) {
+        if (!$this->HasActiveParent()) {
             return false;
         }
-        return @file_get_contents(IPS_GetKernelDir() . 'FritzBoxTemp/' . $this->ParentID . '/' . $Filename);
+        $this->SendDebug('Function', 'Get', 0);
+        $this->SendDebug('Filename', $Filename, 0);
+        $Ret = $this->SendDataToParent(json_encode(
+            [
+                'DataID'     => '{D62D4515-7689-D1DB-EE97-F555AD9433F0}',
+                'Function'   => 'GETFILE',
+                'Filename'   => $Filename
+            ]
+        ));
+        if ($Ret === false) {
+            return false;
+        }
+        $Result = unserialize($Ret);
+        $this->SendDebug('Result', $Result, 0);
+        return $Result;
     }
 
     protected function Send($Function, array $Parameter = [])

@@ -5,6 +5,7 @@ eval('declare(strict_types=1);namespace FritzBoxIO {?>' . file_get_contents(__DI
 eval('declare(strict_types=1);namespace FritzBoxIO {?>' . file_get_contents(__DIR__ . '/../libs/helper/WebhookHelper.php') . '}');
 eval('declare(strict_types=1);namespace FritzBoxIO {?>' . file_get_contents(__DIR__ . '/../libs/helper/BufferHelper.php') . '}');
 eval('declare(strict_types=1);namespace FritzBoxIO {?>' . file_get_contents(__DIR__ . '/../libs/helper/DebugHelper.php') . '}');
+eval('declare(strict_types=1);namespace FritzBoxIO {?>' . file_get_contents(__DIR__ . '/../libs/helper/SemaphoreHelper.php') . '}');
 require_once __DIR__ . '/../libs/FritzBoxModule.php';
 /**
  * @property string $Url
@@ -17,6 +18,7 @@ class FritzBoxIO extends IPSModule
     use \FritzBoxIO\BufferHelper;
     use \FritzBoxIO\DebugHelper;
     use \FritzBoxIO\WebhookHelper;
+    use \FritzBoxIO\Semaphore;
 
     const isConnected = IS_ACTIVE;
     const isInActive = IS_INACTIVE;
@@ -179,7 +181,7 @@ class FritzBoxIO extends IPSModule
                     $ret = $this->LoadFile($data['Uri'], $data['Filename']);
                     break;
                 case 'GETFILE':
-                    $ret = $this->LoadFile($data['Uri']);
+                    $ret = $this->GetFile($data['Filename']);
                     break;
                 case 'SETPHONEBOOKS':
                     $this->WriteAttributeArray('PhoneBooks', $data['Files']);
@@ -371,8 +373,21 @@ class FritzBoxIO extends IPSModule
 
         $this->SendDebug('Load File: ' . $Uri, $Data, 0);
         if ($Filename != '') {
+            $this->lock($Filename);
             file_put_contents(IPS_GetKernelDir() . 'FritzBoxTemp/' . $this->InstanceID . '/' . $Filename, $Data);
+            $this->unlock($Filename);
             return true;
+        }
+        return $Data;
+    }
+    private function GetFile(string $Filename)
+    {
+        $Data = false;
+        $this->SendDebug('Get File: ', $Filename, 0);
+        if ($Filename != '') {
+            $this->lock($Filename);
+            $Data = file_get_contents(IPS_GetKernelDir() . 'FritzBoxTemp/' . $this->InstanceID . '/' . $Filename);
+            $this->unlock($Filename);
         }
         return $Data;
     }
@@ -460,7 +475,7 @@ class FritzBoxIO extends IPSModule
         $Protocol = $this->ReadPropertyString('ReturnProtocol');
         if (IPS_GetOption('NATSupport')) {
             $ip = IPS_GetOption('NATPublicIP');
-            $Url = $Protocol.'://' . $ip . ':' . $Port . '/hook/FritzBoxIO' . $this->InstanceID;
+            $Url = $Protocol . '://' . $ip . ':' . $Port . '/hook/FritzBoxIO' . $this->InstanceID;
             $this->SendDebug('NAT enabled ConsumerAddress', $Url, 0);
         } else {
             $sock = socket_create(AF_INET, SOCK_STREAM, SOL_TCP);
@@ -476,7 +491,7 @@ class FritzBoxIO extends IPSModule
                 $this->WriteAttributeString('ConsumerAddress', 'Invalid');
                 return false;
             }
-            $Url = $Protocol.'://' . $ip . ':' . $Port . '/hook/FritzBoxIO' . $this->InstanceID;
+            $Url = $Protocol . '://' . $ip . ':' . $Port . '/hook/FritzBoxIO' . $this->InstanceID;
             $this->SendDebug('ConsumerAddress', $Url, 0);
         }
         $this->UpdateFormField('EventHook', 'caption', $Url);
