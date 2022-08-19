@@ -5,7 +5,8 @@
             "seconds": "Sekunden",
             "Update Values": "Werte aktualisieren",
             "Event subscribe error": "Ereignisabonnementfehler",
-            "Invalid Ident.": "Ungültiger Ident."
+            "Invalid Ident.": "Ungültiger Ident.",
+            "This module is free for non-commercial use,\r\nDonations in support of the author are accepted here:": "Dieses Modul ist für die nicht kommerzielle Nutzung kostenlos,\r\nSchenkungen als Unterstützung für den Autor werden hier akzeptiert:"
         }
     }
 }

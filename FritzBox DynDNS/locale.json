@@ -21,7 +21,8 @@
             "account disabled": "Zugang gesperrt",
             "internet not connected": "Internet nicht verbunden",
             "undefined": "nicht definiert",
-            "Invalid value for $Mode": "Ungültiger Wer für $Mode"
+            "Invalid value for $Mode": "Ungültiger Wer für $Mode",
+            "This module is free for non-commercial use,\r\nDonations in support of the author are accepted here:": "Dieses Modul ist für die nicht kommerzielle Nutzung kostenlos,\r\nSchenkungen als Unterstützung für den Autor werden hier akzeptiert:"
         }
     }
 }

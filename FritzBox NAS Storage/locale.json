@@ -11,7 +11,8 @@
             "FTP server state": "FTP Server Status",
             "WAN FTP server": "WAN FTP Server",
             "WAN FTP SSL only": "WAN FTP nur SSL",
-            "WAN FTP Port": "WAN FTP Port"
+            "WAN FTP Port": "WAN FTP Port",
+            "This module is free for non-commercial use,\r\nDonations in support of the author are accepted here:": "Dieses Modul ist für die nicht kommerzielle Nutzung kostenlos,\r\nSchenkungen als Unterstützung für den Autor werden hier akzeptiert:"
         }
     }
 }

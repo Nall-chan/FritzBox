@@ -15,8 +15,11 @@
             "Password": "Passwort",
             "Event hook:": "Ereignis-WebHook",
             "Invalid": "Ungültig",
-            "Modify these settings only if you are sure that you need to": "Diese Einstellungen sollten nur geändert werden, wenn Sie genau wissen, was Sie tun",
-            "Select port for events:": "Port für Ereignisse auswählen"
+            "Expert settings event hook": "Experteneinstellung Ereignis-Hook",
+            "IP of event hook": "IP für Ereignis-Hook",
+            "Port of event hook": "Port für Ereignis-Hook",
+            "use https": "https benutzen",
+            "This module is free for non-commercial use,\r\nDonations in support of the author are accepted here:": "Dieses Modul ist für die nicht kommerzielle Nutzung kostenlos,\r\nSchenkungen als Unterstützung für den Autor werden hier akzeptiert:"
         }
     }
 }

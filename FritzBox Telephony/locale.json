@@ -86,7 +86,8 @@
             "Deflect incoming call not from a VIP to": "Eingehende Anrufe außer von einem VIP umleiten an",
             "Deflect incoming call from number %s to %s": "Eingehende Anrufe von Nummer %s an %s umleiten",
             "Deflect incoming call from phonebook (%s) to %s": "Eingehenden Anruf aus dem Telefonbuch (%s) umleiten an %s",
-            "Deflect incoming calls from a VIP number to": "Eingehenden Anrufe von einer VIP-Nummer umleiten an"
+            "Deflect incoming calls from a VIP number to": "Eingehenden Anrufe von einer VIP-Nummer umleiten an",
+            "This module is free for non-commercial use,\r\nDonations in support of the author are accepted here:": "Dieses Modul ist für die nicht kommerzielle Nutzung kostenlos,\r\nSchenkungen als Unterstützung für den Autor werden hier akzeptiert:"
         }
     }
 }

@@ -3,14 +3,15 @@
         "de": {
             "Type": "Typ",
             "<none>": "<keiner>",
-            "PPP (DSL)":"PPP (DSL)",
-            "IP (Cable)":"IP (Kabel)",
+            "PPP (DSL)": "PPP (DSL)",
+            "IP (Cable)": "IP (Kabel)",
             "Refresh Interval": "Aktualisierungsintervall",
             "seconds": "Sekunden",
             "Update Values": "Werte aktualisieren",
             "Event subscribe error": "Ereignisabonnementfehler",
             "Invalid Ident.": "Ungültiger Ident.",
-            "Number of port mapping":"Anzahl der Port Mappings"
+            "Number of port mapping": "Anzahl der Port Mappings",
+            "This module is free for non-commercial use,\r\nDonations in support of the author are accepted here:": "Dieses Modul ist für die nicht kommerzielle Nutzung kostenlos,\r\nSchenkungen als Unterstützung für den Autor werden hier akzeptiert:"
         }
     }
 }

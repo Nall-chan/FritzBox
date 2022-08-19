@@ -36,19 +36,26 @@ Es wird dringend empfohlen vor der Integration in IPS folgende Parameter in der 
 
 - Zugangsdaten einen Benutzers  
 - Berechtigung der Zugangsdaten  
-- Anrufmonitor, sofern gewünscht  
+- Anrufmonitor, sofern gewünscht, per Telefon aktivieren. (#96*5* wählen)  
 ...
 
 ----------
 
 ## Hinweise zum Symcon-System / Host  
 
-**todo**
-Bei System mit aktiven NAT-Support funktioniert die automatische Erkennung der eigenen IP-Adresse nicht. Hier wird die PublicIP aus den Symcon-Spezialschaltern benutzt.  
-Auch bei Systemen mit aktiven NAT-Support wird extern nur der Port 3777 unterstützt, und muss somit korrekt weitergeleitet werden.  
+Um Ereignisse von der FritzBox in Symcon zu verarbeiten wird ein Webhook pro [IO-Modul](FritzBox%20IO/README.md) erzeugt.  
+Hier wird beim anlegen der Instanz automatisch nur der interne WebServer von Symcon auf Port 3777 eingetragen.
+Die IP-Adresse auf welchem Symcon die Daten empfängt wird automatisch ermittelt.
 
-Damit Geräte über das [Discovery-Modul](FritzBox%20Discovery/README.md) gefunden werden können, müssen bei NAT Systemen Multicast-Pakete korrekt weitergeleitet werden.  
-Für das Discovery werden Pakete über die Multicast-Adresse `239.255.255.250` auf Port `1900` gesendet und empfangen.  
+Bei System mit aktiven NAT-Support funktioniert die automatische Erkennung der eigenen IP-Adresse nicht. __Hier wird automatisch die NATPublicIP aus den [Symcon-Spezialschaltern](https://www.symcon.de/service/dokumentation/entwicklerbereich/spezialschalter/) benutzt.__  
+<span style="color:red">**Auch bei Systemen mit aktiven NAT-Support wird extern automatisch nur der Port 3777 beim anlegen von IO-Instanzen unterstützt.**</span>  
+  
+Sollte es nötig sein, so können bei Bedarf die eigene IP und der Port, sowie die Verwendung von https,  in den IO-Instanzen unter `Experteneinstellungen` geändert und fixiert werden.
+
+Damit Geräte über das [Discovery-Modul](FritzBox%20Discovery/README.md) gefunden werden können, müssen bei in gerouteten Netzen und bei NAT Systemen Multicast-Pakete korrekt weitergeleitet werden.  
+<span style="color:red">**Discovery funktioniert nicht in einem Docker Container welcher per NAT angebunden ist. Diese Konstellation wird aufgrund der fehlenden Multicast Fähigkeiten von Docker nicht unterstützt.**</span>  
+Für das Discovery werden Pakete über die Multicast-Adresse `239.255.255.250` auf Port `1900` gesendet und UDP Pakete auf Port `1901` empfangen.  
+
 
 ----------
 

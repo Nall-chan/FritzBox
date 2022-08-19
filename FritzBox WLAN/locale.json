@@ -57,7 +57,8 @@
             "even": "gerade",
             "Hostnames not available!": "Hostnamen nicht verfügbar!",
             "The 'FritzBox Host' instance is required to display hostnames.": "Die 'FritzBox Host' Instanz wird für die Darstellung der Hostnamen benötigt.",
-            "Host Table": "Host Tabelle"
+            "Host Table": "Host Tabelle",
+            "This module is free for non-commercial use,\r\nDonations in support of the author are accepted here:": "Dieses Modul ist für die nicht kommerzielle Nutzung kostenlos,\r\nSchenkungen als Unterstützung für den Autor werden hier akzeptiert:"
         }
     }
 }

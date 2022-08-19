@@ -8,8 +8,8 @@
             "Update Values": "Werte aktualisieren",
             "Event subscribe error": "Ereignisabonnementfehler",
             "Invalid Ident.": "Ungültiger Ident.",
-            "Reconnect":"Neu verbinden",
-            "Control connection":"Steuerung der Verbindung",
+            "Reconnect": "Neu verbinden",
+            "Control connection": "Steuerung der Verbindung",
             "Connected": "Verbunden",
             "Disconnected": "Getrennt",
             "IP connection status": "IP Verbindungsstatus",
@@ -21,7 +21,8 @@
             "External IPv6 Address": "Externe IPv6 Adresse",
             "IPv6 DNS-Server 1": "IPv6 DNS-Server 1",
             "IPv6 DNS-Server 2": "IPv6 DNS-Server 2",
-            "IPv6 Prefix": "IPv6 Prefix"
+            "IPv6 Prefix": "IPv6 Prefix",
+            "This module is free for non-commercial use,\r\nDonations in support of the author are accepted here:": "Dieses Modul ist für die nicht kommerzielle Nutzung kostenlos,\r\nSchenkungen als Unterstützung für den Autor werden hier akzeptiert:"
         }
     }
 }

@@ -27,6 +27,7 @@ Beschreibung des Moduls.
 ### 2. Voraussetzungen
 
 - IP-Symcon ab Version 6.0
+- Aktivierter Callmonitor in der FritzBox (per Telefon #96*5* wählen)
 
 ### 3. Software-Installation
 

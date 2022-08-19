@@ -42,8 +42,9 @@ class FritzBoxIO extends IPSModule
         $this->RegisterPropertyString('Host', 'http://');
         $this->RegisterPropertyString('Username', '');
         $this->RegisterPropertyString('Password', '');
-        $this->RegisterPropertyString('ReturnProtocol', 'http');
+        $this->RegisterPropertyString('ReturnIP', '');
         $this->RegisterPropertyInteger('ReturnPort', 3777);
+        $this->RegisterPropertyBoolean('ReturnProtocol', false);
         $this->RegisterAttributeString('ConsumerAddress', 'Invalid');
         $this->RegisterAttributeArray('Events', []);
         $this->RegisterAttributeArray('PhoneBooks', []);
@@ -154,7 +155,6 @@ class FritzBoxIO extends IPSModule
         } else {
             $this->Url = '';
             $this->SetSummary('');
-            return;
         }
     }
 
@@ -226,27 +226,14 @@ class FritzBoxIO extends IPSModule
         if ($this->ReadPropertyString('Username') == '') {
             $Form['elements'][2]['visible'] = true;
         }
-        foreach (IPS_GetInstanceListByModuleID('{D83E9CCF-9869-420F-8306-2B043E9BA180}') as $InstanceId) {
-            $Protocol = IPS_GetProperty($InstanceId, 'EnableSSL') ? 'https' : 'http';
-            $Port = IPS_GetProperty($InstanceId, 'Port');
-            $Form['elements'][4]['items'][0]['items'][1]['options'][] =
-            ['caption' => $Port . ' (' . $Protocol . ')',
-                'value'=> [
-                    [
-                        'name' => 'ReturnPort',
-                        'value'=> $Port],
-                    [
-                        'name' => 'ReturnProtocol',
-                        'value'=> $Protocol]
-                ]
-            ];
-        }
 
         if (IPS_GetOption('NATSupport')) {
             if (IPS_GetOption('NATPublicIP') == '') {
-                $Form['actions'][1]['visible'] = true;
-                $Form['actions'][1]['popup']['items'][0]['caption'] = 'Error';
-                $Form['actions'][1]['popup']['items'][1]['caption'] = $this->Translate('NAT support is active, but no public address is set.');
+                if ($this->ReadPropertyString('ReturnIP') == '') {
+                    $Form['actions'][1]['visible'] = true;
+                    $Form['actions'][1]['popup']['items'][0]['caption'] = 'Error';
+                    $Form['actions'][1]['popup']['items'][1]['caption'] = $this->Translate('NAT support is active, but no public address is set.');
+                }
             }
         }
         $ConsumerAddress = $this->ReadAttributeString('ConsumerAddress');
@@ -400,26 +387,6 @@ class FritzBoxIO extends IPSModule
         $Result = false;
         $Events = [];
         foreach ($Xmls as $Xml) {
-            /*$stream = stream_context_create(
-                [
-                    'ssl'  => [
-                        'verify_peer'       => false,
-                        'verify_peer_name'  => false,
-                        'allow_self_signed' => true
-                    ],
-                    'http' => [
-                        'protocol_version' => 1.1,
-                        'timeout'          => 3,
-                        'header'           => [
-                            'Connection: close'
-                        ]
-                    ]
-                ]
-                );
-            if (!@copy($Url . '/' . $Xml . '.xml', IPS_GetKernelDir() . 'FritzBoxTemp/' . $this->InstanceID . '/' . $Xml . '.xml', $stream)) {
-                $this->SendDebug('XML not found', $Xml, 0);
-                continue;
-            }*/
             $Result = true;
             $XMLData = @Sys_GetURLContentEx($Url . '/' . $Xml, ['Timeout'=>5000, 'VerifyHost' => false, 'VerifyPeer' => false]);
 
@@ -472,28 +439,41 @@ class FritzBoxIO extends IPSModule
     private function GetConsumerAddress()
     {
         $Port = $this->ReadPropertyInteger('ReturnPort');
-        $Protocol = $this->ReadPropertyString('ReturnProtocol');
+        $Protocol = $this->ReadPropertyBoolean('ReturnProtocol') ? 'https' : 'http';
         if (IPS_GetOption('NATSupport')) {
             $ip = IPS_GetOption('NATPublicIP');
-            $Url = $Protocol . '://' . $ip . ':' . $Port . '/hook/FritzBoxIO' . $this->InstanceID;
-            $this->SendDebug('NAT enabled ConsumerAddress', $Url, 0);
-        } else {
-            $sock = socket_create(AF_INET, SOCK_STREAM, SOL_TCP);
-            socket_bind($sock, '0.0.0.0', 0);
-            $Host = parse_url($this->Url);
-            @socket_connect($sock, $Host['host'], $Host['port']);
-            $ip = '';
-            socket_getsockname($sock, $ip);
-            @socket_close($sock);
-            if ($ip == '0.0.0.0') {
-                $this->SendDebug('ConsumerAddress', 'Invalid', 0);
-                $this->UpdateFormField('EventHook', 'caption', 'Invalid');
-                $this->WriteAttributeString('ConsumerAddress', 'Invalid');
-                return false;
+            if ($ip == '') {
+                $ip = $this->ReadPropertyString('ReturnIP');
+                if ($ip == '') {
+                    $this->SendDebug('NAT enabled ConsumerAddress', 'Invalid', 0);
+                    $this->UpdateFormField('EventHook', 'caption', $this->Translate('NATPublicIP is missing in special switches!'));
+                    $this->WriteAttributeString('ConsumerAddress', 'Invalid');
+                    $this->ShowLastError('Error', $this->Translate('NAT support is active, but no public address is set.'));
+                    return false;
+                }
             }
-            $Url = $Protocol . '://' . $ip . ':' . $Port . '/hook/FritzBoxIO' . $this->InstanceID;
-            $this->SendDebug('ConsumerAddress', $Url, 0);
+            $Debug = 'NAT enabled ConsumerAddress';
+        } else {
+            $ip = $this->ReadPropertyString('ReturnIP');
+            if ($ip == '') {
+                $sock = socket_create(AF_INET, SOCK_STREAM, SOL_TCP);
+                socket_bind($sock, '0.0.0.0', 0);
+                $Host = parse_url($this->Url);
+                @socket_connect($sock, $Host['host'], $Host['port']);
+                $ip = '';
+                socket_getsockname($sock, $ip);
+                @socket_close($sock);
+                if ($ip == '0.0.0.0') {
+                    $this->SendDebug('ConsumerAddress', 'Invalid', 0);
+                    $this->UpdateFormField('EventHook', 'caption', $this->Translate('Invalid'));
+                    $this->WriteAttributeString('ConsumerAddress', 'Invalid');
+                    return false;
+                }
+            }
+            $Debug = 'ConsumerAddress';
         }
+        $Url = $Protocol . '://' . $ip . ':' . $Port . '/hook/FritzBoxIO' . $this->InstanceID;
+        $this->SendDebug($Debug, $Url, 0);
         $this->UpdateFormField('EventHook', 'caption', $Url);
         $this->WriteAttributeString('ConsumerAddress', $Url);
         return true;
@@ -517,12 +497,10 @@ class FritzBoxIO extends IPSModule
     private function CheckHost(): bool
     {
         if (!$this->ReadPropertyBoolean('Open')) {
-            //$this->SetStatus(IS_INACTIVE);
             return false;
         }
         $URL = $this->ReadPropertyString('Host');
         if ($URL == 'http://') {
-            //$this->SetStatus(IS_INACTIVE);
             return false;
         }
         $Scheme = parse_url($URL, PHP_URL_SCHEME);

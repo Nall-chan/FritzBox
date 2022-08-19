@@ -41,8 +41,16 @@ class FritzBoxDiscovery extends IPSModule
     }
     public function GetConfigurationForm()
     {
-        $Devices = $this->Discover();
         $Form = json_decode(file_get_contents(__DIR__ . '/form.json'), true);
+        if (IPS_GetOption('NATSupport') && strpos(IPS_GetKernelPlatform(), 'Docker')) {
+            // not supported. Docker cannot forward Multicast :(
+            $Form['actions'][1]['popup']['items'][1]['caption'] = $this->Translate("The combination of Docker and NAT is not supported because Docker does not support multicast.\r\nPlease run the container in the host network.");
+            $Form['actions'][1]['visible'] = true;
+            $this->SendDebug('FORM', json_encode($Form), 0);
+            $this->SendDebug('FORM', json_last_error_msg(), 0);
+            return json_encode($Form);
+        }
+        $Devices = $this->Discover();
         $InstanceIDListConfigurators = IPS_GetInstanceListByModuleID('{32CF40DC-51DA-6C63-8BD7-55E82F64B9E7}');
         $DevicesAddress = [];
         $DeviceValues = [];
@@ -52,11 +60,6 @@ class FritzBoxDiscovery extends IPSModule
                 $DevicesAddress[$InstanceIDConfigurator] = parse_url(IPS_GetProperty($Splitter, 'Host'), PHP_URL_HOST);
             }
         }
-        /*array(1) {
-            ["http://192.168.201.1:49000"]=>
-            string(76) "FRITZ!Box 6591 Cable (kdg) UPnP/1.0 AVM FRITZ!Box 6591 Cable (kdg) 161.07.03"
-          }*/
-
         foreach ($Devices as $IPAddress => $Data) {
             $AddDevice = [
                 'instanceID'      => 0,
@@ -124,7 +127,8 @@ class FritzBoxDiscovery extends IPSModule
         socket_set_option($socket, SOL_SOCKET, SO_RCVTIMEO, ['sec' => 2, 'usec' => 100000]);
         socket_set_option($socket, SOL_SOCKET, SO_REUSEADDR, 1);
         socket_set_option($socket, IPPROTO_IP, IP_MULTICAST_TTL, 4);
-        socket_bind($socket, '0.0.0.0', 0);
+        socket_set_option($socket, SOL_SOCKET, SO_BROADCAST, 1);
+        socket_bind($socket, '0', 1901);
         $discoveryTimeout = time() + self::WS_DISCOVERY_TIMEOUT;
         $message = [
             'M-SEARCH * HTTP/1.1',
@@ -178,52 +182,6 @@ class FritzBoxDiscovery extends IPSModule
             }
         } while (time() < $discoveryTimeout);
         socket_close($socket);
-        /*
-                $Devices = [];
-                foreach ($DevicesData as $DeviceData) {
-                    $XMLData = @Sys_GetURLContent($DeviceData);
-                    if ($XMLData === false) {
-                        $this->SendDebug('Location Error', $DeviceData, 0);
-                        continue;
-                    }
-                    $this->SendDebug($DeviceData, $XMLData, 0);
-                    try {
-                        $Xml = new SimpleXMLElement($XMLData);
-                    } catch (Exception $ex) {
-                        $this->SendDebug('XML Error', $Xml->error_get_last(), 0);
-                        continue;
-                    }
-                    $URL = parse_url($DeviceData);
-                    $Devices[] = [
-                        'location'   => $DeviceData,
-                        'modelName'  => (string) $Xml->device->modelName,
-                        'devicename' => (string) $Xml->device->friendlyName,
-                        'deviceType' => implode(':', array_chunk(explode(':', (string) $Xml->device->deviceType), 3)[1])
-                    ];
-                }
-                foreach ($Devices as &$Device) {
-                    $SCPD_XML = @Sys_GetURLContent($Device['location']);
-                    if ($SCPD_XML === false) {
-                        $this->SendDebug('SCPD Error', $Device['location'], 0);
-                        continue;
-                    }
-                    $this->SendDebug($Device['location'], $SCPD_XML, 0);
-                    try {
-                        $SCPD_Data = new SimpleXMLElement($SCPD_XML);
-                    } catch (Exception $ex) {
-                        $this->SendDebug('XML Error', $Xml->error_get_last(), 0);
-                        continue;
-                    }
-                    $Services = [];
-                    // service mit xpath suchen !
-                    $SCPD_Data->registerXPathNamespace('fritzbox', $SCPD_Data->getNameSpaces(false)['']);
-                    $Services = $SCPD_Data->xpath('//fritzbox:service');
-                    foreach ($Services as $Service) {
-                        $Device['service'][] = (array) $Service;
-                    }
-                }
-                return $Devices;
-         */
         return $DevicesData;
     }
     private function parseHeader(string $Data): array
