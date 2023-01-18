@@ -14,13 +14,16 @@ Fertige Instanzen:
    AB / (Portweiterleitung auch?) Update fehlt nach dem ein/Ausschalten
    https://community.symcon.de/t/beta-modul-fritzbox-ersatz-fuer-fritzbox-project/125451/202?u=nall-chan
 
-2-Netze -> Keine Events (AVM Support?)
+2-Netze -> Keine Events DOCH
 https://community.symcon.de/t/beta-modul-fritzbox-ersatz-fuer-fritzbox-project/125451/209?u=nall-chan
 
 IP-Adresse fehlte -> Eventuell durch falsche Profile?
 https://community.symcon.de/t/beta-modul-fritzbox-ersatz-fuer-fritzbox-project/125451/213?u=nall-chan
 
   [X] GetFile & PutFile verriegeln
+
+ $SecondEventGUID in WLAN und Host war wofür???
+  - Wenn Host Instanz die Host neu ausliest? -> Nach EVENT?
 
 Übersetzung MyFritz fehlt.
 

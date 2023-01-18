@@ -1,0 +1,19 @@
+{
+    "id": "{6E830782-BB60-4E2E-B6FD-8937BEAE2B46}",
+    "name": "FritzBox Host Filter",
+    "type": 3,
+    "vendor": "AVM",
+    "aliases": [
+        "FritzBox Host Filter"
+    ],
+    "parentRequirements": [
+        "{D62D4515-7689-D1DB-EE97-F555AD9433F0}"
+    ],
+    "childRequirements": [],
+    "implemented": [
+        "{CBD869A0-869B-3D4C-7EA8-D917D935E647}",
+        "{FE6C73CB-028B-F569-46AC-3C02FF1F8F2F}"
+    ],
+    "prefix": "FB",
+    "url": "https://github.com/Nall-chan/FritzBox/FritzBox Host Filter/README.md"
+}

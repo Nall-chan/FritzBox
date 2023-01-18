@@ -441,9 +441,9 @@ class FritzBoxIO extends IPSModule
         $Port = $this->ReadPropertyInteger('ReturnPort');
         $Protocol = $this->ReadPropertyBoolean('ReturnProtocol') ? 'https' : 'http';
         if (IPS_GetOption('NATSupport')) {
-            $ip = IPS_GetOption('NATPublicIP');
+            $ip = $this->ReadPropertyString('ReturnIP');
             if ($ip == '') {
-                $ip = $this->ReadPropertyString('ReturnIP');
+                $ip = IPS_GetOption('NATPublicIP');
                 if ($ip == '') {
                     $this->SendDebug('NAT enabled ConsumerAddress', 'Invalid', 0);
                     $this->UpdateFormField('EventHook', 'caption', $this->Translate('NATPublicIP is missing in special switches!'));

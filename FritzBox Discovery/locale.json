@@ -5,7 +5,7 @@
             "Device": "Gerät",
             "No Devices found!": "Keine Geräte gefunden",
             "No devices were found.\r\nTo recognize devices, incoming multicast on port 1901 (UDP) must be forwarded to IPS.\r\nPlease configure the firewall or routing accordingly.": "Es wurden keine Geräte gefunden.\r\nUm Geräte zu erkennen muss Multicast ankommend Port 1901 (UDP) an IPS weitergeleitet werden.\r\nBitte Firewall oder Routing entsprechend konfigurieren.",
-            "The combination of Docker and NAT is not supported because Docker does not support multicast.\r\nPlease run the container in the host network.": "Die Kombination von Docker und NAT wird nicht unterstützt, da Docker keine Unterstützung für Multicast besitzt.\r\nBitte den Container im Host-Netzwerk ausführen.",
+            "The combination of Docker and NAT is not supported because Docker does not support multicast.\r\nPlease run the container in the host network.\r\nOr create and configure the required FritzBox Configurator instance manually.": "Die Kombination von Docker und NAT wird nicht unterstützt, da Docker keine Unterstützung für Multicast besitzt.\r\nBitte den Container im Host-Netzwerk ausführen.\r\nOder die benötigte FritzBox Konfigurator Instanz manuell anlegen und konfigurieren.",
             "This module is free for non-commercial use,\r\nDonations in support of the author are accepted here:": "Dieses Modul ist für die nicht kommerzielle Nutzung kostenlos,\r\nSchenkungen als Unterstützung für den Autor werden hier akzeptiert:"
         }
     }

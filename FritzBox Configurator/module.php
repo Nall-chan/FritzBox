@@ -158,6 +158,8 @@ require_once __DIR__ . '/../libs/FritzBoxModule.php';
                             //test mit filter nur auf bekannte
                             $ServiceValues[] = $AddService;
                         }
+                    } else {
+                        //$ServiceValues[] = $AddService;  
                     }
                     // test ohne Filter.
                     //$ServiceValues[] = $AddService;
