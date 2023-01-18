@@ -9,7 +9,6 @@ require_once __DIR__ . '/../libs/FritzBoxBase.php';
  */
 class FritzBoxHostFilter extends FritzBoxModulBase
 {
-
     protected static $ControlUrlArray = [
         '/upnp/control/x_hostfilter'
     ];
@@ -62,6 +61,7 @@ class FritzBoxHostFilter extends FritzBoxModulBase
     }
     public function GetConfigurationForm()
     {
+        $Form = json_decode(file_get_contents(__DIR__ . '/form.json'), true);
         if (!$this->GetFile('Hosts.xml')) {
             $Form['actions'][2]['visible'] = true;
             $Form['actions'][2]['popup']['items'][0]['caption'] = 'Hostnames not available!';
@@ -93,7 +93,7 @@ class FritzBoxHostFilter extends FritzBoxModulBase
             }
         }
         $Hosts = $this->HostNumberOfEntries;
-        
+
         $ChildsOld = IPS_GetChildrenIDs($this->InstanceID);
         $ChildsNew = [];
         /*
@@ -119,10 +119,9 @@ class FritzBoxHostFilter extends FritzBoxModulBase
                 $SignalId = $this->RegisterSubVariable($VarId, 'Signal', 'Signalstrength', VARIABLETYPE_INTEGER, '~Intensity.100');
                 SetValueInteger($SignalId, (int) $result['NewX_AVM-DE_SignalStrength']);
             }
-            
-        }
-        */
 
+        }
+         */
     }
     public function GetWLANDeviceListPath()
     {
@@ -181,13 +180,14 @@ class FritzBoxHostFilter extends FritzBoxModulBase
     {
         $result = $this->Send(__FUNCTION__, [
             'NewIPv4Address'=> $IPv4Address,
-            'NewDisallow'=> (int)$Disallow
+            'NewDisallow'   => (int) $Disallow
         ]);
         if ($result === false) {
             return false;
         }
         return $result;
-    }    public function GetWANAccessByIP(int $IPv4Address)
+    }
+    public function GetWANAccessByIP(int $IPv4Address)
     {
         $result = $this->Send(__FUNCTION__, [
             'NewIPv4Address'=> $IPv4Address
@@ -197,5 +197,4 @@ class FritzBoxHostFilter extends FritzBoxModulBase
         }
         return $result;
     }
-
 }

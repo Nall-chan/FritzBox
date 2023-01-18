@@ -4,7 +4,7 @@
             "name": "SharesAsTable",
             "type": "CheckBox",
             "caption": "Create HTMLBox-Variable",
-            "enabled":true
+            "enabled": true
         },
         {
             "name": "RefreshInterval",
@@ -21,7 +21,7 @@
             "onClick": "IPS_RequestAction($id,'RefreshState',true);"
         },
         {
-                    "type": "TestCenter"
+            "type": "TestCenter"
         },
         {
             "type": "Label",
