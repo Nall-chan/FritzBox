@@ -31,7 +31,8 @@ class FritzBoxIO extends IPSModule
             418 => ['Could not connect to host, maybe i am a teapot?', self::isDisconnected],
             404 => ['Service not Found', self::isServicenotValid],
             401 => ['Unauthorized', self::isUnauthorized],
-            500 => ['UPnPError', self::isDisconnected]
+            500 => ['UPnPError', self::isDisconnected],
+            501 => ['Webhook invalid', self::isDisconnected]
         ];
 
     public function Create()
@@ -123,8 +124,7 @@ class FritzBoxIO extends IPSModule
         if ($this->CheckHost()) {
             $this->SetSummary($this->Url);
             if (!$this->GetConsumerAddress()) {
-                $this->SetStatus(self::$http_error[500][1]);
-                $this->ShowLastError(self::$http_error[500][0]);
+                $this->SetStatus(self::$http_error[501][1]);
                 return;
             }
             if (($this->Url != $OldUrl) && !$this->doNotLoadXML) {
@@ -231,7 +231,7 @@ class FritzBoxIO extends IPSModule
             if (IPS_GetOption('NATPublicIP') == '') {
                 if ($this->ReadPropertyString('ReturnIP') == '') {
                     $Form['actions'][1]['visible'] = true;
-                    $Form['actions'][1]['popup']['items'][0]['caption'] = 'Error';
+                    $Form['actions'][1]['popup']['items'][0]['caption'] = $this->Translate('Error');
                     $Form['actions'][1]['popup']['items'][1]['caption'] = $this->Translate('NAT support is active, but no public address is set.');
                 }
             }
@@ -240,7 +240,7 @@ class FritzBoxIO extends IPSModule
         if (!$Form['actions'][1]['visible']) {
             if (($ConsumerAddress == 'Invalid') && ($this->ReadPropertyBoolean('Open'))) {
                 $Form['actions'][1]['visible'] = true;
-                $Form['actions'][1]['popup']['items'][0]['caption'] = 'Error';
+                $Form['actions'][1]['popup']['items'][0]['caption'] = $this->Translate('Error');
                 $Form['actions'][1]['popup']['items'][1]['caption'] = $this->Translate('Couldn\'t determine webhook');
             }
         }
@@ -516,7 +516,7 @@ class FritzBoxIO extends IPSModule
         if ($Port == null) {
             $Port = ($Scheme == 'https') ? 49443 : 49000;
         }
-        $Path = parse_url($URL, PHP_URL_PATH);
+        //$Path = parse_url($URL, PHP_URL_PATH);
         $this->Url = $Scheme . '://' . $Host . ':' . $Port;
         return true;
     }
