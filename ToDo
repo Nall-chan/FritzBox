@@ -24,7 +24,10 @@ https://community.symcon.de/t/beta-modul-fritzbox-ersatz-fuer-fritzbox-project/1
 
  $SecondEventGUID in WLAN und Host war wofür???
   - Wenn Host Instanz die Host neu ausliest? -> Nach EVENT?
-
+        // todo Host.xml löschen über child_Disconnect der host instanz
+        // buffer setzen das keine Host Instanz vorhanden ist.
+        // child_connect auf host instanz prüfen und dann merken. ?!
+        
 Übersetzung MyFritz fehlt.
 
 Feldtest nötig:

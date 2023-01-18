@@ -123,14 +123,6 @@ class FritzBoxHostFilter extends FritzBoxModulBase
         }
          */
     }
-    public function GetWLANDeviceListPath()
-    {
-        $result = $this->Send('X_AVM-DE_GetWLANDeviceListPath');
-        if ($result === false) {
-            return false;
-        }
-        return $result;
-    }
     public function ReceiveData($JSONString)
     {
         $Processed = parent::ReceiveData($JSONString);
@@ -141,14 +133,6 @@ class FritzBoxHostFilter extends FritzBoxModulBase
         unset($data['DataID']);
         $this->SendDebug('ReceiveHostData', $data, 0);
         return true;
-    }
-    public function GetInfo()
-    {
-        $result = $this->Send(__FUNCTION__);
-        if ($result === false) {
-            return false;
-        }
-        return $result;
     }
     public function MarkTicket()
     {
@@ -176,7 +160,7 @@ class FritzBoxHostFilter extends FritzBoxModulBase
         }
         return $result;
     }
-    public function DisallowWANAccessByIP(int $IPv4Address, bool $Disallow)
+    public function DisallowWANAccessByIP(string $IPv4Address, bool $Disallow)
     {
         $result = $this->Send(__FUNCTION__, [
             'NewIPv4Address'=> $IPv4Address,
@@ -187,7 +171,7 @@ class FritzBoxHostFilter extends FritzBoxModulBase
         }
         return $result;
     }
-    public function GetWANAccessByIP(int $IPv4Address)
+    public function GetWANAccessByIP(string $IPv4Address)
     {
         $result = $this->Send(__FUNCTION__, [
             'NewIPv4Address'=> $IPv4Address
