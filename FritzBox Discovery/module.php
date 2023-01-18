@@ -44,7 +44,7 @@ class FritzBoxDiscovery extends IPSModule
         $Form = json_decode(file_get_contents(__DIR__ . '/form.json'), true);
         if (IPS_GetOption('NATSupport') && strpos(IPS_GetKernelPlatform(), 'Docker')) {
             // not supported. Docker cannot forward Multicast :(
-            $Form['actions'][1]['popup']['items'][1]['caption'] = $this->Translate("The combination of Docker and NAT is not supported because Docker does not support multicast.\r\nPlease run the container in the host network.");
+            $Form['actions'][1]['popup']['items'][1]['caption'] = $this->Translate("The combination of Docker and NAT is not supported because Docker does not support multicast.\r\nPlease run the container in the host network.\r\nOr create and configure the required FritzBox Configurator instance manually.");
             $Form['actions'][1]['visible'] = true;
             $this->SendDebug('FORM', json_encode($Form), 0);
             $this->SendDebug('FORM', json_last_error_msg(), 0);
