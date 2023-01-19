@@ -1,16 +1,16 @@
 <?php
 
 declare(strict_types=1);
-eval('declare(strict_types=1);namespace FritzBoxModulBase {?>' . file_get_contents(__DIR__ . '/../libs/helper/BufferHelper.php') . '}');
-eval('declare(strict_types=1);namespace FritzBoxModulBase {?>' . file_get_contents(__DIR__ . '/../libs/helper/DebugHelper.php') . '}');
+eval('declare(strict_types=1);namespace FritzBoxConfigurator {?>' . file_get_contents(__DIR__ . '/../libs/helper/BufferHelper.php') . '}');
+eval('declare(strict_types=1);namespace FritzBoxConfigurator {?>' . file_get_contents(__DIR__ . '/../libs/helper/DebugHelper.php') . '}');
 require_once __DIR__ . '/../libs/FritzBoxModule.php';
 /**
  * @property bool $HasCallMonitor
  */
     class FritzBoxConfigurator extends IPSModule
     {
-        use \FritzBoxModulBase\BufferHelper;
-        use \FritzBoxModulBase\DebugHelper;
+        use \FritzBoxConfigurator\BufferHelper;
+        use \FritzBoxConfigurator\DebugHelper;
 
         public function Create()
         {

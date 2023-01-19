@@ -53,7 +53,7 @@ class LibraryValidationTest extends TestCaseSymconValidation
     }
     public function testValidateHostFilter(): void
     {
-        $this->validateModule(__DIR__ . '/../FritzBox HostFilter');
+        $this->validateModule(__DIR__ . '/../FritzBox Host Filter');
     }
     public function testValidateMyFritz(): void
     {
