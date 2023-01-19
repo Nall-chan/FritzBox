@@ -224,31 +224,7 @@ class FritzBoxModulBase extends IPSModule
         }
         return false;
     }
-    /*     protected function Send($Function, array $Parameter = [], string $ServiceType = '', string $ControlUrl = '')
-        {
-            if (!$this->HasActiveParent()) {
-                return false;
-            }
-            $Ret = $this->SendDataToParent(json_encode(
-                    [
-                        'DataID'    => '{D62D4515-7689-D1DB-EE97-F555AD9433F0}',
-                        'ServiceTyp'=> ($ServiceType != '') ? $ServiceType : static::$ServiceType,
-                        'ControlUrl'=> ($ControlUrl != '') ? $ControlUrl : static::$ControlUrl,
-                        'Function'  => $Function,
-                        'Parameter' => $Parameter
-                    ]
-                ));
-            if ($Ret === false) {
-                return false;
-            }
-            $Result = unserialize($Ret);
-            if (is_a($Result, 'SoapFault')) {
-                trigger_error($Result->getMessage(), E_USER_WARNING);
-                return false;
-            }
-            $this->SendDebug('Result', $Result, 0);
-            return $Result;
-        } */
+
     protected function LoadAndGetData(string $Uri)
     {
         return $this->LoadAndSaveFile($Uri, '');
@@ -265,7 +241,7 @@ class FritzBoxModulBase extends IPSModule
         $Ret = $this->SendDataToParent(json_encode(
             [
                 'DataID'     => '{D62D4515-7689-D1DB-EE97-F555AD9433F0}',
-                'Function'   => 'LOADFILE',
+                'Function'   => ($Filename == '' ? 'LoadAndGetData' : 'LoadAndSaveFile'),
                 'Uri'        => $Uri,
                 'Filename'   => $Filename
             ]
@@ -287,7 +263,7 @@ class FritzBoxModulBase extends IPSModule
         $Ret = $this->SendDataToParent(json_encode(
             [
                 'DataID'     => '{D62D4515-7689-D1DB-EE97-F555AD9433F0}',
-                'Function'   => 'GETFILE',
+                'Function'   => 'GetFile',
                 'Filename'   => $Filename
             ]
         ));

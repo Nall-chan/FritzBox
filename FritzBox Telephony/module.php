@@ -371,7 +371,6 @@ class FritzBoxTelephony extends FritzBoxModulBase
             return false;
         }
         return $this->LoadAndGetData($result);
-        //return $result;
     }
     public function GetCallBarringEntry(int $PhonebookEntryID)
     {

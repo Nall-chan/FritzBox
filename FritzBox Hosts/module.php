@@ -110,12 +110,6 @@ class FritzBoxHosts extends FritzBoxModulBase
     }
     public function RefreshHostList()
     {
-        $Table = $this->ReadPropertyBoolean('HostAsTable');
-        $Variable = $this->ReadPropertyBoolean('HostAsVariable');
-        $Rename = $this->ReadPropertyBoolean('RenameHostVariables');
-        if (!($Variable || ($Table))) {
-            return true;
-        }
         if ($this->ParentID == 0) {
             return false;
         }
@@ -128,7 +122,12 @@ class FritzBoxHosts extends FritzBoxModulBase
         if (!$this->LoadAndSaveFile($File, 'Hosts.xml')) {
             return false;
         }
-
+        $Table = $this->ReadPropertyBoolean('HostAsTable');
+        $Variable = $this->ReadPropertyBoolean('HostAsVariable');
+        $Rename = $this->ReadPropertyBoolean('RenameHostVariables');
+        if (!($Variable || ($Table))) {
+            return true;
+        }
         $XMLData = $this->GetFile('Hosts.xml');
         if ($XMLData === false) {
             $this->SendDebug('XML not found', 'Hosts.xml', 0);

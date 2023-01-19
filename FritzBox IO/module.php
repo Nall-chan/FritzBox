@@ -60,8 +60,8 @@ class FritzBoxIO extends IPSModule
         if (IPS_GetKernelRunlevel() == KR_READY) {
             $this->doNotLoadXML = false;
             $this->RegisterMessage($this->InstanceID, FM_CHILDADDED);
-            @mkdir(IPS_GetKernelDir() . 'FritzBoxTemp');
-            @mkdir(IPS_GetKernelDir() . 'FritzBoxTemp/' . $this->InstanceID);
+            @mkdir(sys_get_temp_dir() . '/FritzBoxTemp');
+            @mkdir(sys_get_temp_dir() . '/FritzBoxTemp/' . $this->InstanceID);
         } else {
             $this->RegisterMessage(0, IPS_KERNELMESSAGE);
             $this->doNotLoadXML = true;
@@ -72,8 +72,8 @@ class FritzBoxIO extends IPSModule
     {
         if (!IPS_InstanceExists($this->InstanceID)) {
             $this->UnregisterHook('/hook/FritzBoxIO' . $this->InstanceID);
-            @array_map('unlink', glob(IPS_GetKernelDir() . 'FritzBoxTemp/' . $this->InstanceID . '/*.*'));
-            @rmdir(IPS_GetKernelDir() . 'FritzBoxTemp/' . $this->InstanceID);
+            @array_map('unlink', glob(sys_get_temp_dir() . '/FritzBoxTemp/' . $this->InstanceID . '/*.*'));
+            @rmdir(sys_get_temp_dir() . '/FritzBoxTemp/' . $this->InstanceID);
         }
         //Never delete this line!
         parent::Destroy();
@@ -157,7 +157,6 @@ class FritzBoxIO extends IPSModule
             $this->SetSummary('');
         }
     }
-
     public function ForwardData($JSONString)
     {
         $data = json_decode($JSONString, true);
@@ -177,10 +176,13 @@ class FritzBoxIO extends IPSModule
                 case 'COUNTWLAN':
                     $ret = $this->ReadAttributeInteger('NoOfWlan');
                     break;
-                case 'LOADFILE':
-                    $ret = $this->LoadFile($data['Uri'], $data['Filename']);
+                case 'LoadAndGetData':
+                    $ret = $this->LoadAndGetData($data['Uri']);
                     break;
-                case 'GETFILE':
+                case 'LoadAndSaveFile':
+                    $ret = $this->LoadAndSaveFile($data['Uri'], $data['Filename']);
+                    break;
+                case 'GetFile':
                     $ret = $this->GetFile($data['Filename']);
                     break;
                 case 'SETPHONEBOOKS':
@@ -340,7 +342,8 @@ class FritzBoxIO extends IPSModule
         header('Cache-Control: no-cache');
         header('Content-Type: text/plain');
     }
-    private function LoadFile(string $Uri, string $Filename = '')
+
+    private function LoadAndGetData(string $Uri)
     {
         $Url = parse_url($Uri);
         if (isset($Url['scheme'])) {
@@ -349,23 +352,28 @@ class FritzBoxIO extends IPSModule
         } else {
             $Url = $this->Url . $Uri;
         }
-        if ($Filename != '') {
-            @array_map('unlink', glob(IPS_GetKernelDir() . 'FritzBoxTemp/' . $this->InstanceID . '/' . $Filename));
-        }
         $Data = Sys_GetURLContentEx($Url, ['Timeout'=>10000, 'VerifyHost' => false, 'VerifyPeer' => false]);
         if ($Data === false) {
             $this->SendDebug('File not found', $Uri, 0);
             return false;
         }
-
         $this->SendDebug('Load File: ' . $Uri, $Data, 0);
-        if ($Filename != '') {
-            $this->lock($Filename);
-            file_put_contents(IPS_GetKernelDir() . 'FritzBoxTemp/' . $this->InstanceID . '/' . $Filename, $Data);
-            $this->unlock($Filename);
-            return true;
-        }
         return $Data;
+    }
+
+    private function LoadAndSaveFile(string $Uri, string $Filename)
+    {
+        $this->lock($Filename);
+        @array_map('unlink', glob(sys_get_temp_dir() . '/FritzBoxTemp/' . $this->InstanceID . '/' . $Filename));
+        $this->unlock($Filename);
+        $Data = $this->LoadAndGetData($Uri);
+        if (!$Data) {
+            return false;
+        }
+        $this->lock($Filename);
+        file_put_contents(sys_get_temp_dir() . '/FritzBoxTemp/' . $this->InstanceID . '/' . $Filename, $Data);
+        $this->unlock($Filename);
+        return true;
     }
     private function GetFile(string $Filename)
     {
@@ -373,7 +381,7 @@ class FritzBoxIO extends IPSModule
         $this->SendDebug('Get File: ', $Filename, 0);
         if ($Filename != '') {
             $this->lock($Filename);
-            $Data = @file_get_contents(IPS_GetKernelDir() . 'FritzBoxTemp/' . $this->InstanceID . '/' . $Filename);
+            $Data = @file_get_contents(sys_get_temp_dir() . '/FritzBoxTemp/' . $this->InstanceID . '/' . $Filename);
             $this->unlock($Filename);
         }
         return $Data;
@@ -381,7 +389,7 @@ class FritzBoxIO extends IPSModule
 
     private function LoadXmls()
     {
-        @array_map('unlink', glob(IPS_GetKernelDir() . 'FritzBoxTemp/' . $this->InstanceID . '/*.xml'));
+        @array_map('unlink', glob(sys_get_temp_dir() . '/FritzBoxTemp/' . $this->InstanceID . '/*.xml'));
         $Url = $this->Url;
         $Xmls = ['tr64desc.xml', 'igd2desc.xml', 'igddesc.xml'];
         $Result = false;
@@ -396,7 +404,7 @@ class FritzBoxIO extends IPSModule
             }
 
             $this->SendDebug('Load XML: ' . $Xml, $XMLData, 0);
-            file_put_contents(IPS_GetKernelDir() . 'FritzBoxTemp/' . $this->InstanceID . '/' . $Xml, $XMLData);
+            file_put_contents(sys_get_temp_dir() . '/FritzBoxTemp/' . $this->InstanceID . '/' . $Xml, $XMLData);
             if (stripos($XMLData, 'WLANConfiguration') > 0) {
                 for ($i = 5; $i != 0; $i--) {
                     if (stripos($XMLData, 'WLANConfiguration:' . $i) > 0) {
@@ -423,7 +431,7 @@ class FritzBoxIO extends IPSModule
                     continue;
                 }
                 $this->SendDebug('Load SCPD: ' . $SCPD, $XMLSCPDData, 0);
-                file_put_contents(IPS_GetKernelDir() . 'FritzBoxTemp/' . $this->InstanceID . '/' . $SCPD, $XMLSCPDData);
+                file_put_contents(sys_get_temp_dir() . '/FritzBoxTemp/' . $this->InstanceID . '/' . $SCPD, $XMLSCPDData);
                 $Events[$SCPD] = (stripos($XMLSCPDData, '<stateVariable sendEvents="yes">') > 0);
             }
             if ($Xml == 'igd2desc.xml') {

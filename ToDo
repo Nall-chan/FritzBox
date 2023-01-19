@@ -20,14 +20,9 @@ https://community.symcon.de/t/beta-modul-fritzbox-ersatz-fuer-fritzbox-project/1
 IP-Adresse fehlte -> Eventuell durch falsche Profile?
 https://community.symcon.de/t/beta-modul-fritzbox-ersatz-fuer-fritzbox-project/125451/213?u=nall-chan
 
-  [X] GetFile & PutFile verriegeln
-
  $SecondEventGUID in WLAN und Host war wofür???
-  - Wenn Host Instanz die Host neu ausliest? -> Nach EVENT?
-        // todo Host.xml löschen über child_Disconnect der host instanz
-        // buffer setzen das keine Host Instanz vorhanden ist.
-        // child_connect auf host instanz prüfen und dann merken. ?!
-        
+  - Wenn Host Instanz die Host neu ausliest? -> DAnn EVENT zu den Childs?!
+
 Übersetzung MyFritz fehlt.
 
 Feldtest nötig:
@@ -45,8 +40,6 @@ Feldtest nötig:
  
   
 Unfertig / Fehlen:
-- unsubscribe
-- Datenaustausch gibt sollte nur Pfad und nicht Daten liefern
 - Anrufbeantworter (fehlt komplett)
 - Wählhilfe (fehlt in Telephony, realisierbarkeit noch nicht getestet)
 - Aktionen und Referenzen prüfen
@@ -58,6 +51,5 @@ Später/Sonstiges:
 - IO oder Konfigurator sollte prüfen ob der Anrufmonitor der FritzBox aktiv ist, sonst einen Hinweis an User ausgeben in der Konfig (wo? IO / Anrufmonitor Instanz) ausgeben.
 - Hinweis in der Konfig der Anrufliste fehlt, das kein Intervall benötigt wird, wenn der Anrufmonitor aktiv ist.
 - Instanz-Funktionen für Zugriff auf die cached Daten des Telefonbuchs fehlt.
-- Host.xml wird aktuell nicht im Cache gehalten, sondern immer Auf Datenträger geschrieben.
 - Host Variablen sollten einzeln per Liste konfigurierbar sein.
 - Bei Host auto-löschen der Variablen sinnvoll? Wenn ja nur manuell zuschaltbar. Oder über eine Liste (siehe oben) abbilden.
