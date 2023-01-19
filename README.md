@@ -127,12 +127,12 @@ Für das Discovery werden Pakete über die Multicast-Adresse `239.255.255.250` a
 
 Version 0.68:  
 
+- Ist der NATSupport von Symcon aktiviert, aber keine PublicIP konfiguriert, so wird im FritzBox-IO eine Meldung ausgegeben.  
+- NATSupport und FritzBox in anderen Subnetzen werden unterstützt (außer Discovery-Instanz!).  
 - Fehlende Übersetzungen im Konfigurator ergänzt
 - Neue Instanz-Funktion für die Suche nach Kontakten in den Telefonbüchern (FB_GetPhonebookEntrysByNumber(12345 /* FritzBox Telefonie */, string $Number))  
 - Neue Instanz-Funktion für die Rückwärtssuche (FB_SearchNameByNumber(12345 /* FritzBox Telefonie */, string $Number, string $AreaCode))  
-- Ist der NATSupport von Symcon aktiviert, aber keine PublicIP konfiguriert, so wird im FritzBox-IO eine Meldung ausgegeben.  
-- NATSupport und FritzBox in anderen Subnetzen werden unterstützt (außer Discovery-Instanz!).  
-- Neue Instanz Host Filter um Hosts den WAN Zugriff zu sperren.  
+- Neue Instanz 'Host Filter' um Hosts den WAN Zugriff zu sperren (noch nicht fertig).  
 
 Version 0.62:  
 

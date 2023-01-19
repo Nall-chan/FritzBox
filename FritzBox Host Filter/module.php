@@ -26,8 +26,6 @@ class FritzBoxHostFilter extends FritzBoxModulBase
         parent::Create();
         $this->HostNumberOfEntries = 0;
 
-        $this->RegisterPropertyBoolean('HostAsVariable', false);
-        $this->RegisterPropertyBoolean('RenameHostVariables', true);
         $this->RegisterPropertyInteger('RefreshInterval', 60);
         $this->RegisterTimer('RefreshState', 0, 'IPS_RequestAction(' . $this->InstanceID . ',"RefreshState",true);');
     }

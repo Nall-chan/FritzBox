@@ -382,6 +382,7 @@ class FritzBoxIO extends IPSModule
         if ($Filename != '') {
             $this->lock($Filename);
             $Data = @file_get_contents(sys_get_temp_dir() . '/FritzBoxTemp/' . $this->InstanceID . '/' . $Filename);
+            $this->SendDebug('Get File: ', sys_get_temp_dir() . '/FritzBoxTemp/' . $this->InstanceID . '/' . $Filename, 0);
             $this->unlock($Filename);
         }
         return $Data;

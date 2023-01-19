@@ -247,6 +247,16 @@ class FritzBoxTelephony extends FritzBoxModulBase
         }
         return $result;
     }
+    public function GetPhonebooks()
+    {
+        $Files = $this->GetPhoneBookFiles();
+        $Result = [];
+        foreach ($Files as $File) {
+            $XMLData = $this->GetFile($File);
+            $Result[substr($File, 10, -4)] = new \simpleXMLElement($XMLData);
+        }
+        return $Result;
+    }
     public function GetPhonebookEntrysByNumber(string $Number)
     {
         $Files = $this->GetPhoneBookFiles();

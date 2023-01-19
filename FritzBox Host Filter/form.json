@@ -6,23 +6,6 @@
             "caption": "Refresh Interval",
             "suffix": "seconds",
             "minimum": 0
-        },
-        {
-            "type": "RowLayout",
-            "items": [
-                {
-                    "name": "HostAsVariable",
-                    "type": "CheckBox",
-                    "caption": "Create variable per host",
-                    "width": "400px"
-                },
-                {
-                    "name": "RenameHostVariables",
-                    "type": "CheckBox",
-                    "caption": "Rename host variables automatically",
-                    "width": "400px"
-                }
-            ]
         }
     ],
     "actions": [

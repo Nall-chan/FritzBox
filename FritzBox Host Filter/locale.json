@@ -1,8 +1,6 @@
 {
     "translations": {
         "de": {
-            "Create variable per host": "Erzeuge Variable pro Host",
-            "Rename host variables automatically": "Host-Variablen automatisch umbenennen",
             "Refresh Interval": "Aktualisierungsintervall",
             "seconds": "Sekunden",
             "Read state": "Lese Status",
