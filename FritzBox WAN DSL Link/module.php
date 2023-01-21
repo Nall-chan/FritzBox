@@ -37,7 +37,6 @@ class FritzBoxWANDSLLink extends FritzBoxModulBase
     public function ApplyChanges()
     {
         $this->SetTimerInterval('RefreshInfo', 0);
-        //todo String Asso
         $this->RegisterProfileIntegerEx(
             'FB.LinkState',
             '',

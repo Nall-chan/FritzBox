@@ -119,7 +119,7 @@ class FritzBoxHosts extends FritzBoxModulBase
             return false;
         }
 
-        if (!$this->LoadAndSaveFile($File, 'Hosts.xml')) {
+        if (!$this->LoadAndSaveFile($File, 'Hosts')) {
             return false;
         }
         $Table = $this->ReadPropertyBoolean('HostAsTable');
@@ -128,9 +128,9 @@ class FritzBoxHosts extends FritzBoxModulBase
         if (!($Variable || ($Table))) {
             return true;
         }
-        $XMLData = $this->GetFile('Hosts.xml');
+        $XMLData = $this->GetFile('Hosts');
         if ($XMLData === false) {
-            $this->SendDebug('XML not found', 'Hosts.xml', 0);
+            $this->SendDebug('XML not found', 'Hosts', 0);
             return false;
         }
         $xml = new simpleXMLElement($XMLData);

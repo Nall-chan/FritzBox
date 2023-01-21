@@ -71,6 +71,15 @@ class FritzBoxCallmonitor extends FritzBoxModulBase
         if (IPS_GetKernelRunlevel() != KR_READY) {
             return;
         }
+        $AreaCodes = $this->GetAreaCodes();
+        if (array_key_exists('OKZ', $AreaCodes)) {
+            $AreaCode = $AreaCodes['OKZPrefix'] . $AreaCodes['OKZ'];
+            if ($AreaCode != $this->ReadPropertyString('AreaCode')) {
+                IPS_SetProperty($this->InstanceID, 'AreaCode', $AreaCode);
+                IPS_ApplyChanges($this->InstanceID);
+                return;
+            }
+        }
         foreach ($this->GetReferenceList() as $Reference) {
             $this->UnregisterReference($Reference);
         }
@@ -142,6 +151,12 @@ class FritzBoxCallmonitor extends FritzBoxModulBase
     public function GetConfigurationForm()
     {
         $Form = json_decode(file_get_contents(__DIR__ . '/form.json'), true);
+        if ($this->ReadPropertyString('AreaCode') == '') {
+            $Form['elements'][0]['items'][0]['items'][0]['enabled'] = true;
+            $Form['actions'][2]['visible'] = true;
+            $Form['actions'][2]['popup']['items'][0]['caption'] = 'Areacode not found!';
+            $Form['actions'][2]['popup']['items'][1]['caption'] = "The area code could not be determined automatically.\r\nPlease specify manually.";
+        }
         if (!IPS_LibraryExists('{D0E8905A-F00C-EA84-D607-3D27000348D8}')) {
             if (!$this->ReadPropertyBoolean('NotShowWarning')) {
                 $Form['elements'][5]['visible'] = true;
@@ -310,7 +325,7 @@ class FritzBoxCallmonitor extends FritzBoxModulBase
         }
         $Calls = $this->CallData;
         $this->SendDebug('Calls', $Calls, 0);
-        //todo
+        //todo ? Was Gestern heute morgen?
         $Config_Icons = json_decode($this->ReadPropertyString('Icons'), true);
         $Icon_CSS = '<div id="scoped-content"><style type="text/css" scoped>' . "\r\n";
         foreach ($Config_Icons as $Config_Icon) {

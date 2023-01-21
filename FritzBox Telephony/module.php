@@ -26,13 +26,15 @@ class FritzBoxTelephony extends FritzBoxModulBase
     //use \WebhookHelper;
 
     protected static $ControlUrlArray = [
-        '/upnp/control/x_contact'
+        '/upnp/control/x_contact',
+        '/upnp/control/x_voip'
     ];
     protected static $EventSubURLArray = [
 
     ];
     protected static $ServiceTypeArray = [
-        'urn:dslforum-org:service:X_AVM-DE_OnTel:1'
+        'urn:dslforum-org:service:X_AVM-DE_OnTel:1',
+        'urn:dslforum-org:service:X_VoIP:1'
     ];
 
     protected static $SecondEventGUID = '{FE5B2BCA-CA0F-25DC-8E79-BDFD242CB06E}';
@@ -100,6 +102,9 @@ class FritzBoxTelephony extends FritzBoxModulBase
             $this->SetTimerInterval('RefreshDeflectionList', 0);
         }
 
+        //Vorwahlen laden, wenn nicht vorhanden
+
+        //TODO
         /*$this->GetDECTHandsetList();
         $this->GetDECTHandsetInfo(1);
         $this->GetDECTHandsetInfo(2);*/
@@ -108,6 +113,8 @@ class FritzBoxTelephony extends FritzBoxModulBase
         //$this->GetDeflections();
         // SetDeflectionEnable
         //$this->RegisterHook('/hook/FritzBoxCallList' . $this->InstanceID);
+        $this->RefreshPhonebook();
+        $this->RefreshDeflectionList();
         $this->RegisterVariableString('CallList', $this->Translate('Call list'), '~HTMLBox', -1);
         $this->RefreshCallList();
     }
@@ -190,6 +197,7 @@ class FritzBoxTelephony extends FritzBoxModulBase
         $this->SendDebug('FORM', json_last_error_msg(), 0);
         return json_encode($Form);
     }
+
     public function GetCallList()
     {
         $result = $this->Send(__FUNCTION__);
@@ -611,7 +619,7 @@ class FritzBoxTelephony extends FritzBoxModulBase
             if ($PhonebookData === false) {
                 continue;
             }
-            $FileName = 'Phonebook_' . $PhonebookData['NewPhonebookName'] . '.xml';
+            $FileName = 'Phonebook_' . $PhonebookData['NewPhonebookName'];
             if (!$this->LoadAndSaveFile($PhonebookData['NewPhonebookURL'], $FileName)) {
                 continue;
             }
@@ -766,7 +774,7 @@ class FritzBoxTelephony extends FritzBoxModulBase
         $this->SendDataToParent(json_encode(
             [
                 'DataID'     => '{D62D4515-7689-D1DB-EE97-F555AD9433F0}',
-                'Function'   => 'SETPHONEBOOKS',
+                'Function'   => 'SetPhonebooks',
                 'Files'      => $Files
             ]
         ));

@@ -14,11 +14,6 @@ Fertige Instanzen:
    AB / (Portweiterleitung auch?) Update fehlt nach dem ein/Ausschalten
    https://community.symcon.de/t/beta-modul-fritzbox-ersatz-fuer-fritzbox-project/125451/202?u=nall-chan
 
-2-Netze -> Keine Events DOCH
-https://community.symcon.de/t/beta-modul-fritzbox-ersatz-fuer-fritzbox-project/125451/209?u=nall-chan
-
-IP-Adresse fehlte -> Eventuell durch falsche Profile?
-https://community.symcon.de/t/beta-modul-fritzbox-ersatz-fuer-fritzbox-project/125451/213?u=nall-chan
 
  $SecondEventGUID in WLAN und Host war wofür???
   - Wenn Host Instanz die Host neu ausliest? -> DAnn EVENT zu den Childs?!
@@ -38,7 +33,7 @@ Feldtest nötig:
  - IO (+ Device Config Instanz ?) für Aktion Reboot
  - WebDav Client
  
-  
+ 
 Unfertig / Fehlen:
 - Anrufbeantworter (fehlt komplett)
 - Wählhilfe (fehlt in Telephony, realisierbarkeit noch nicht getestet)
@@ -48,8 +43,8 @@ Später/Sonstiges:
 - Fehler beim schalten der Zeitserver-Variablen.
 - Rufumleitungen und Anrufblockaden sollten einzeln per Liste konfigurierbar sein.
 - Instanz-Konfig Form prüfen / Anpassung fertigstellen (welche ? -_-  Telefonie?)
-- IO oder Konfigurator sollte prüfen ob der Anrufmonitor der FritzBox aktiv ist, sonst einen Hinweis an User ausgeben in der Konfig (wo? IO / Anrufmonitor Instanz) ausgeben.
+✅ IO oder Konfigurator sollte prüfen ob der Anrufmonitor der FritzBox aktiv ist, sonst einen Hinweis an User ausgeben in der Konfig (wo? IO / Anrufmonitor Instanz) ausgeben.
 - Hinweis in der Konfig der Anrufliste fehlt, das kein Intervall benötigt wird, wenn der Anrufmonitor aktiv ist.
-- Instanz-Funktionen für Zugriff auf die cached Daten des Telefonbuchs fehlt.
+✅ Instanz-Funktionen für Zugriff auf die cached Daten des Telefonbuchs fehlt.
 - Host Variablen sollten einzeln per Liste konfigurierbar sein.
 - Bei Host auto-löschen der Variablen sinnvoll? Wenn ja nur manuell zuschaltbar. Oder über eine Liste (siehe oben) abbilden.

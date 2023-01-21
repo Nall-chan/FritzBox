@@ -49,7 +49,6 @@ require_once __DIR__ . '/../libs/FritzBoxBase.php';
                     [0, $this->Translate('Reconnect'), '', 0xff0000]
                 ]
             );
-            //TODO String Asso
             $this->RegisterProfileBooleanEx(
                 'FB.ConnectionStatus',
                 '',

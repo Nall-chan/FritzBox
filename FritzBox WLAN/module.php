@@ -152,11 +152,17 @@ class FritzBoxWLAN extends FritzBoxModulBase
             $Summary = 'WLAN ' . $Summary;
         }
         $this->SetSummary($Summary);
-        if (!$this->GetFile('Hosts.xml')) {
+        if (!$this->GetFile('Hosts')) {
             $Form['actions'][2]['visible'] = true;
             $Form['actions'][2]['popup']['items'][0]['caption'] = 'Hostnames not available!';
             $Form['actions'][2]['popup']['items'][1]['caption'] = 'The \'FritzBox Host\' instance is required to display hostnames.';
             $Form['actions'][2]['popup']['items'][1]['width'] = '200px';
+            $ConfiguratorID = $this->GetConfiguratorID();
+            if ($ConfiguratorID > 0) {
+                $Form['actions'][2]['popup']['items'][2]['caption'] = 'Open Configurator';
+                $Form['actions'][2]['popup']['items'][2]['visible'] = true;
+                $Form['actions'][2]['popup']['items'][2]['objectID'] = $ConfiguratorID;
+            }
         }
         if ($this->ReadPropertyBoolean('ShowWLanKeyAsQRCode')) {
             $QRCodeID = @IPS_GetObjectIDByIdent('QRCodeIMG', $this->InstanceID);
@@ -185,9 +191,9 @@ class FritzBoxWLAN extends FritzBoxModulBase
         if ($this->ParentID == 0) {
             return false;
         }
-        $XMLData = $this->GetFile('Hosts.xml');
+        $XMLData = $this->GetFile('Hosts');
         if ($XMLData === false) {
-            $this->SendDebug('XML not found', 'Hosts.xml', 0);
+            $this->SendDebug('XML not found', 'Hosts', 0);
         } else {
             $xml = new simpleXMLElement($XMLData);
             if ($xml === false) {
@@ -581,7 +587,7 @@ class FritzBoxWLAN extends FritzBoxModulBase
         $result = $this->SendDataToParent(json_encode(
             [
                 'DataID'     => '{D62D4515-7689-D1DB-EE97-F555AD9433F0}',
-                'Function'   => 'COUNTWLAN'
+                'Function'   => 'GetMaxWLANs'
             ]
         ));
         if ($result === false) {

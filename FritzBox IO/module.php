@@ -50,8 +50,11 @@ class FritzBoxIO extends IPSModule
         $this->RegisterAttributeArray('Events', []);
         $this->RegisterAttributeArray('PhoneBooks', []);
         $this->RegisterAttributeArray('PhoneDevices', []);
+        $this->RegisterAttributeArray('AreaCodes', []);
         $this->RegisterAttributeBoolean('usePPP', false);
         $this->RegisterAttributeBoolean('HasIGD2', false);
+        $this->RegisterAttributeBoolean('HasTel', false);
+        $this->RegisterAttributeBoolean('CallMonitorOpen', false);
         $this->RegisterAttributeInteger('NoOfWlan', 0);
 
         $this->Url = '';
@@ -60,8 +63,8 @@ class FritzBoxIO extends IPSModule
         if (IPS_GetKernelRunlevel() == KR_READY) {
             $this->doNotLoadXML = false;
             $this->RegisterMessage($this->InstanceID, FM_CHILDADDED);
-            @mkdir(sys_get_temp_dir() . '/FritzBoxTemp');
-            @mkdir(sys_get_temp_dir() . '/FritzBoxTemp/' . $this->InstanceID);
+            @mkdir(IPS_GetKernelDirEx() . 'FritzBoxTemp');
+            @mkdir(IPS_GetKernelDirEx() . 'FritzBoxTemp/' . $this->InstanceID);
         } else {
             $this->RegisterMessage(0, IPS_KERNELMESSAGE);
             $this->doNotLoadXML = true;
@@ -72,8 +75,8 @@ class FritzBoxIO extends IPSModule
     {
         if (!IPS_InstanceExists($this->InstanceID)) {
             $this->UnregisterHook('/hook/FritzBoxIO' . $this->InstanceID);
-            @array_map('unlink', glob(sys_get_temp_dir() . '/FritzBoxTemp/' . $this->InstanceID . '/*.*'));
-            @rmdir(sys_get_temp_dir() . '/FritzBoxTemp/' . $this->InstanceID);
+            @array_map('unlink', glob(IPS_GetKernelDirEx() . 'FritzBoxTemp/' . $this->InstanceID . '/*.*'));
+            @rmdir(IPS_GetKernelDirEx() . 'FritzBoxTemp/' . $this->InstanceID);
         }
         //Never delete this line!
         parent::Destroy();
@@ -81,9 +84,6 @@ class FritzBoxIO extends IPSModule
 
     public function MessageSink($TimeStamp, $SenderID, $Message, $Data)
     {
-        // todo Host.xml löschen über child_Disconnect der host instanz
-        // buffer setzen das keine Host Instanz vorhanden ist.
-        // child_connect auf host instanz prüfen und dann merken. ?!
         switch ($Message) {
                 case IPS_KERNELMESSAGE:
                     if ($Data[0] == KR_READY) {
@@ -148,6 +148,10 @@ class FritzBoxIO extends IPSModule
                 $this->ShowLastError(self::$http_error[$HttpCode][0]);
                 return;
             }
+            if ($this->ReadAttributeBoolean('HasTel')) {
+                $this->getAreaCodes();
+                $this->checkCallMonitorPort();
+            }
             //Todo
             // Eigene Events holen?
             // Prüfen ob Antwort kommt ?
@@ -173,7 +177,13 @@ class FritzBoxIO extends IPSModule
                 case 'HasIGD2':
                     $ret = $this->ReadAttributeBoolean('HasIGD2');
                     break;
-                case 'COUNTWLAN':
+                case 'HasTel':
+                    $ret = $this->ReadAttributeBoolean('HasTel');
+                    break;
+                case 'CallMonitorOpen':
+                    $ret = $this->ReadAttributeBoolean('CallMonitorOpen');
+                    break;
+                case 'GetMaxWLANs':
                     $ret = $this->ReadAttributeInteger('NoOfWlan');
                     break;
                 case 'LoadAndGetData':
@@ -185,18 +195,21 @@ class FritzBoxIO extends IPSModule
                 case 'GetFile':
                     $ret = $this->GetFile($data['Filename']);
                     break;
-                case 'SETPHONEBOOKS':
+                case 'GetAreaCodes':
+                    $ret = $this->ReadAttributeArray('AreaCodes');
+                    break;
+                case 'SetPhonebooks':
                     $this->WriteAttributeArray('PhoneBooks', $data['Files']);
                     $ret = true;
                     break;
-                case 'GETPHONEBOOKS':
+                case 'GetPhonebooks':
                     $ret = $this->ReadAttributeArray('PhoneBooks');
                     break;
-                case 'SETPHONEDEVICES':
+                case 'SetPhoneDevices':
                         $this->WriteAttributeArray('PhoneDevices', $data['Devices']);
                         $ret = true;
                     break;
-                case 'GETPHONEDEVICE':
+                case 'GetPhoneDevice':
                     $Devices = $this->ReadAttributeArray('PhoneDevices');
                     if (array_key_exists($data['DeviceID'], $Devices)) {
                         $ret = $Devices[$data['DeviceID']];
@@ -204,7 +217,7 @@ class FritzBoxIO extends IPSModule
                         $ret = '';
                     }
                 break;
-                case 'GETPHONEDEVICES':
+                case 'GetPhoneDevices':
                         $ret = $this->ReadAttributeArray('PhoneDevices');
                     break;
                 default:
@@ -363,38 +376,57 @@ class FritzBoxIO extends IPSModule
 
     private function LoadAndSaveFile(string $Uri, string $Filename)
     {
-        $this->lock($Filename);
-        @array_map('unlink', glob(sys_get_temp_dir() . '/FritzBoxTemp/' . $this->InstanceID . '/' . $Filename));
-        $this->unlock($Filename);
         $Data = $this->LoadAndGetData($Uri);
         if (!$Data) {
             return false;
         }
-        $this->lock($Filename);
-        file_put_contents(sys_get_temp_dir() . '/FritzBoxTemp/' . $this->InstanceID . '/' . $Filename, $Data);
-        $this->unlock($Filename);
+        $this->SetMediaObjectData($Filename, $Data);
         return true;
+    }
+    private function SetMediaObjectData(string $Ident, string $Data)
+    {
+        $this->SendDebug('Set MediaObject', $Ident, 0);
+        $MediaID = @IPS_GetObjectIDByIdent($Ident, $this->InstanceID);
+        if ($MediaID === false) {
+            $MediaID = IPS_CreateMedia(MEDIATYPE_DOCUMENT);
+            IPS_SetParent($MediaID, $this->InstanceID);
+            IPS_SetIdent($MediaID, $Ident);
+            IPS_SetName($MediaID, $Ident);
+            IPS_SetMediaCached($MediaID, true);
+            $filename = 'media' . DIRECTORY_SEPARATOR . $this->InstanceID . '/' . $Ident . '.xml';
+            IPS_SetMediaFile($MediaID, $filename, false);
+            $this->SendDebug('Create Media', $filename, 0);
+        }
+        IPS_SetMediaContent($MediaID, base64_encode($Data));
+    }
+    private function GetMediaObjectData(string $Ident): string
+    {
+        $this->SendDebug('Get MediaObject', $Ident, 0);
+        $MediaID = @IPS_GetObjectIDByIdent($Ident, $this->InstanceID);
+        if ($MediaID === false) {
+            return '';
+        }
+        return base64_decode(IPS_GetMediaContent($MediaID));
     }
     private function GetFile(string $Filename)
     {
         $Data = false;
         $this->SendDebug('Get File: ', $Filename, 0);
         if ($Filename != '') {
-            $this->lock($Filename);
-            $Data = @file_get_contents(sys_get_temp_dir() . '/FritzBoxTemp/' . $this->InstanceID . '/' . $Filename);
-            $this->SendDebug('Get File: ', sys_get_temp_dir() . '/FritzBoxTemp/' . $this->InstanceID . '/' . $Filename, 0);
-            $this->unlock($Filename);
+            $Data = $this->GetMediaObjectData($Filename);
         }
         return $Data;
     }
 
     private function LoadXmls()
     {
-        @array_map('unlink', glob(sys_get_temp_dir() . '/FritzBoxTemp/' . $this->InstanceID . '/*.xml'));
+        @array_map('unlink', glob(IPS_GetKernelDirEx() . 'FritzBoxTemp/' . $this->InstanceID . '/*.xml'));
         $Url = $this->Url;
         $Xmls = ['tr64desc.xml', 'igd2desc.xml', 'igddesc.xml'];
         $Result = false;
         $Events = [];
+        $this->WriteAttributeBoolean('HasTel', false);
+        $this->WriteAttributeBoolean('HasIGD2', false);
         foreach ($Xmls as $Xml) {
             $Result = true;
             $XMLData = @Sys_GetURLContentEx($Url . '/' . $Xml, ['Timeout'=>5000, 'VerifyHost' => false, 'VerifyPeer' => false]);
@@ -405,7 +437,7 @@ class FritzBoxIO extends IPSModule
             }
 
             $this->SendDebug('Load XML: ' . $Xml, $XMLData, 0);
-            file_put_contents(sys_get_temp_dir() . '/FritzBoxTemp/' . $this->InstanceID . '/' . $Xml, $XMLData);
+            file_put_contents(IPS_GetKernelDirEx() . 'FritzBoxTemp/' . $this->InstanceID . '/' . $Xml, $XMLData);
             if (stripos($XMLData, 'WLANConfiguration') > 0) {
                 for ($i = 5; $i != 0; $i--) {
                     if (stripos($XMLData, 'WLANConfiguration:' . $i) > 0) {
@@ -423,7 +455,6 @@ class FritzBoxIO extends IPSModule
             // service mit xpath suchen !
             $SCPD_Data->registerXPathNamespace('fritzbox', $SCPD_Data->getNameSpaces(false)['']);
             $SCPDURLs = $SCPD_Data->xpath('//fritzbox:SCPDURL');
-            $this->WriteAttributeBoolean('HasIGD2', false);
             foreach ($SCPDURLs as $SCPDURL) {
                 $XMLSCPDData = @Sys_GetURLContentEx($Url . (string) $SCPDURL, ['Timeout'=>5000, 'VerifyHost' => false, 'VerifyPeer' => false]);
                 $SCPD = substr((string) $SCPDURL, 1);
@@ -431,8 +462,11 @@ class FritzBoxIO extends IPSModule
                     $this->SendDebug('SCPD not found', $SCPD, 0);
                     continue;
                 }
+                if ($SCPDURL == '/x_contactSCPD.xml') {
+                    $this->WriteAttributeBoolean('HasTel', true);
+                }
                 $this->SendDebug('Load SCPD: ' . $SCPD, $XMLSCPDData, 0);
-                file_put_contents(sys_get_temp_dir() . '/FritzBoxTemp/' . $this->InstanceID . '/' . $SCPD, $XMLSCPDData);
+                file_put_contents(IPS_GetKernelDirEx() . 'FritzBoxTemp/' . $this->InstanceID . '/' . $SCPD, $XMLSCPDData);
                 $Events[$SCPD] = (stripos($XMLSCPDData, '<stateVariable sendEvents="yes">') > 0);
             }
             if ($Xml == 'igd2desc.xml') {
@@ -566,7 +600,48 @@ class FritzBoxIO extends IPSModule
         $this->setIPSVariable('ConnectionType', 'Connection Type', (string) $result, VARIABLETYPE_STRING);
         return true;
     }
+    private function getAreaCodes()
+    {
+        $Area = $this->CallSoapAction(
+            $HttpCode,
+            'urn:dslforum-org:service:X_VoIP:1',
+            '/upnp/control/x_voip',
+            'X_AVM-DE_GetVoIPCommonAreaCode'
+        );
+        if (is_a($Area, 'SoapFault')) {
+            return false;
+        }
+        $Country = $this->CallSoapAction(
+            $HttpCode,
+            'urn:dslforum-org:service:X_VoIP:1',
+            '/upnp/control/x_voip',
+            'X_AVM-DE_GetVoIPCommonCountryCode'
+        );
+        if (is_a($Country, 'SoapFault')) {
+            return false;
+        }
+        $Areas = [
+            'OKZ'       => $Area['NewX_AVM-DE_OKZ'],
+            'OKZPrefix' => $Area['NewX_AVM-DE_OKZPrefix'],
+            'LKZ'       => $Country['NewX_AVM-DE_LKZ'],
+            'LKZPrefix' => $Country['NewX_AVM-DE_LKZPrefix']
+        ];
+        $this->WriteAttributeArray('AreaCodes', $Areas);
+        return true;
+    }
+    private function checkCallMonitorPort()
+    {
+        $Host = parse_url($this->Url, PHP_URL_HOST);
+        $CallMon = @fsockopen($Host, 1012, $errno, $errstr, 0.5);
 
+        if (is_resource($CallMon)) {
+            fclose($CallMon);
+            $this->WriteAttributeBoolean('CallMonitorOpen', true);
+            return true;
+        }
+        $this->WriteAttributeBoolean('CallMonitorOpen', false);
+        return false;
+    }
     private function setIPSVariable(string $ident, string $name, $value, $type)
     {
         $this->MaintainVariable($ident, $this->Translate($name), $type, '', 0, true);

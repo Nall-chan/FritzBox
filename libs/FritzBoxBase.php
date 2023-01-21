@@ -106,6 +106,24 @@ class FritzBoxModulBase extends IPSModule
                 break;
         }
     }
+    // TESTING TODO
+    public function Test(string $Function)
+    {
+        $result = $this->SendEx($Function, 1);
+        if ($result === false) {
+            return false;
+        }
+        return $result;
+    }
+    public function TestValue(string $Function, $Value)
+    {
+        $result = $this->SendEx($Function, 1, $Value);
+        if ($result === false) {
+            return false;
+        }
+        return $result;
+    }
+
     public function ReceiveData($JSONString)
     {
         $data = json_decode($JSONString, true);
@@ -225,6 +243,17 @@ class FritzBoxModulBase extends IPSModule
         return false;
     }
 
+    protected function GetConfiguratorID()
+    {
+        $GUID = '{32CF40DC-51DA-6C63-8BD7-55E82F64B9E7}';
+        $Instances = IPS_GetInstanceListByModuleID($GUID);
+        $AllInstancesOfParent = array_filter($Instances, [$this, 'FilterInstances']);
+        if (count($AllInstancesOfParent) > 0) {
+            return $AllInstancesOfParent[0];
+        }
+        return 1;
+    }
+
     protected function LoadAndGetData(string $Uri)
     {
         return $this->LoadAndSaveFile($Uri, '');
@@ -275,16 +304,20 @@ class FritzBoxModulBase extends IPSModule
         return $Result;
     }
 
-    protected function Send($Function, array $Parameter = [])
+    protected function Send(string $Function, array $Parameter = [])
+    {
+        $Index = $this->ReadPropertyInteger('Index');
+        if ($Index < 0) {
+            return false;
+        }
+        return $this->SendEx($Function, $Index, $Parameter);
+    }
+    protected function SendEx(string $Function, int $Index, array $Parameter = [])
     {
         if (!$this->HasActiveParent()) {
             return false;
         }
         if ($this->GetStatus() != IS_ACTIVE) {
-            return false;
-        }
-        $Index = $this->ReadPropertyInteger('Index');
-        if ($Index < 0) {
             return false;
         }
         $this->SendDebug('Function', $Function, 0);
@@ -317,7 +350,6 @@ class FritzBoxModulBase extends IPSModule
         $this->SendDebug('Result', $Result, 0);
         return $Result;
     }
-
     protected function setIPSVariable(string $ident, string $name, $value, $type, string $profile = '', bool $action = false, int $pos = 0)
     {
         $this->MaintainVariable($ident, $this->Translate($name), $type, $profile, $pos, true);
@@ -326,17 +358,16 @@ class FritzBoxModulBase extends IPSModule
         }
         $this->SetValue($ident, $value);
     }
-    //todo String Asso
     protected function LinkStateToInt(string $LinkState): int
     {
         switch ($LinkState) {
 
                 case 'Up':
                     return 0;
-                        case 'Down':
-                            return 1;
-                        case 'Initializing':
-                            return 2;
+                case 'Down':
+                    return 1;
+                case 'Initializing':
+                    return 2;
             }
         return 3;
     }
@@ -482,5 +513,9 @@ class FritzBoxModulBase extends IPSModule
             }
         }
         return 'text/plain';
+    }
+    private function FilterInstances(int $InstanceID)
+    {
+        return IPS_GetInstance($InstanceID)['ConnectionID'] == $this->ParentID;
     }
 }

@@ -50,7 +50,6 @@ require_once __DIR__ . '/../libs/FritzBoxBase.php';
         public function ApplyChanges()
         {
             $this->SetTimerInterval('RefreshInfo', 0);
-            //todo String Asso
             $this->RegisterProfileIntegerEx(
                 'FB.LinkState',
                 '',

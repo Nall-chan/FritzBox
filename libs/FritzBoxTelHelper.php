@@ -158,7 +158,7 @@ trait TelHelper
         $Ret = $this->SendDataToParent(json_encode(
             [
                 'DataID'     => '{D62D4515-7689-D1DB-EE97-F555AD9433F0}',
-                'Function'   => 'SETPHONEDEVICES',
+                'Function'   => 'SetPhoneDevices',
                 'Devices'    => $PhoneDevices
             ]
         ));
@@ -179,7 +179,7 @@ trait TelHelper
         $Ret = $this->SendDataToParent(json_encode(
             [
                 'DataID'     => '{D62D4515-7689-D1DB-EE97-F555AD9433F0}',
-                'Function'   => 'GETPHONEDEVICE',
+                'Function'   => 'GetPhoneDevice',
                 'DeviceID'   => $DeviceID
             ]
         ));
@@ -205,7 +205,7 @@ trait TelHelper
         $Ret = $this->SendDataToParent(json_encode(
             [
                 'DataID'     => '{D62D4515-7689-D1DB-EE97-F555AD9433F0}',
-                'Function'   => 'GETPHONEDEVICES'
+                'Function'   => 'GetPhoneDevices'
             ]
         ));
         if ($Ret === false) {
@@ -224,7 +224,7 @@ trait TelHelper
         $Ret = $this->SendDataToParent(json_encode(
             [
                 'DataID'     => '{D62D4515-7689-D1DB-EE97-F555AD9433F0}',
-                'Function'   => 'GETPHONEBOOKS'
+                'Function'   => 'GetPhonebooks'
             ]
         ));
         if ($Ret === false) {
@@ -234,7 +234,25 @@ trait TelHelper
         $this->SendDebug('Result', $Result, 0);
         return $Result;
     }
-
+    private function GetAreaCodes(): array
+    {
+        if (!$this->HasActiveParent()) {
+            return [];
+        }
+        $this->SendDebug('Function', 'GetAreaCodes', 0);
+        $Ret = $this->SendDataToParent(json_encode(
+            [
+                'DataID'     => '{D62D4515-7689-D1DB-EE97-F555AD9433F0}',
+                'Function'   => 'GetAreaCodes'
+            ]
+        ));
+        if ($Ret === false) {
+            return false;
+        }
+        $Result = unserialize($Ret);
+        $this->SendDebug('Result', $Result, 0);
+        return $Result;
+    }
     /**
      * @param SimpleXMLElement $xml
      * @return array

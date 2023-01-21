@@ -4,9 +4,6 @@ declare(strict_types=1);
 eval('declare(strict_types=1);namespace FritzBoxConfigurator {?>' . file_get_contents(__DIR__ . '/../libs/helper/BufferHelper.php') . '}');
 eval('declare(strict_types=1);namespace FritzBoxConfigurator {?>' . file_get_contents(__DIR__ . '/../libs/helper/DebugHelper.php') . '}');
 require_once __DIR__ . '/../libs/FritzBoxModule.php';
-/**
- * @property bool $HasCallMonitor
- */
     class FritzBoxConfigurator extends IPSModule
     {
         use \FritzBoxConfigurator\BufferHelper;
@@ -17,7 +14,6 @@ require_once __DIR__ . '/../libs/FritzBoxModule.php';
             //Never delete this line!
             parent::Create();
             $this->ParentID = 0;
-            $this->HasCallMonitor = false;
             $this->ConnectParent('{6FF9A05D-4E49-4371-23F1-7F58283FB1D9}');
         }
 
@@ -32,9 +28,6 @@ require_once __DIR__ . '/../libs/FritzBoxModule.php';
             //Never delete this line!
             parent::ApplyChanges();
             $this->SetReceiveDataFilter('.*NOTHINGTORECEIVE.*');
-            //todo
-            //prüfen ob Anrufmonitor aktiv ist
-            $this->HasCallMonitor = true;
         }
 
         public function GetConfigurationForm()
@@ -67,9 +60,8 @@ require_once __DIR__ . '/../libs/FritzBoxModule.php';
             $this->ParentID = $Splitter;
             $KnownInstances = $this->GetInstanceList();
 
-            $Pfad = sys_get_temp_dir() . '/FritzBoxTemp/' . $Splitter . '/';
+            $Pfad = IPS_GetKernelDirEx() . 'FritzBoxTemp/' . $Splitter . '/';
             $Xmls = ['tr64desc.xml', 'igd2desc.xml', 'igddesc.xml'];
-
             foreach ($Xmls as $Xml) {
                 $xml = new DOMDocument();
                 if (!@$xml->load($Pfad . $Xml)) {
@@ -81,15 +73,14 @@ require_once __DIR__ . '/../libs/FritzBoxModule.php';
                 $xmlDevices = $xpath->query('//xmlns:service', null, false);
                 $xmlmodelName = $xpath->query('//xmlns:modelName', null, false);
                 $IsCable = false;
+
                 if (count($xmlmodelName) > 1) {
                     $IsCable = (strpos(strtoupper($xmlmodelName[0]->nodeValue), 'CABLE') !== false);
                 }
                 $this->SendDebug('isCable', $IsCable, 0);
+
                 foreach ($xmlDevices as $xmlDevice) {
                     $serviceType = $xmlDevice->getElementsByTagName('serviceType')[0]->nodeValue;
-                    if (in_array($serviceType, \FritzBox\Services::$Data)) {
-                        continue;
-                    }
                     if (($serviceType == 'urn:dslforum-org:service:WANIPConnection:1') && !$IsCable) {
                         continue;
                     }
@@ -168,26 +159,49 @@ require_once __DIR__ . '/../libs/FritzBoxModule.php';
                     break;
                 }
             }
-            if ($this->HasCallMonitor) {
-                //todo reinpatchen
-                //und aus KnownInstances entfernen
+            $Ret = $this->SendDataToParent(json_encode(
+                [
+                    'DataID'     => '{D62D4515-7689-D1DB-EE97-F555AD9433F0}',
+                    'Function'   => 'HasTel'
+                ]
+            ));
+            $HasTel = unserialize($Ret);
+            $this->SendDebug('HasTel', $HasTel, 0);
+            if ($HasTel) {
+                if (IPS_GetInstance($this->ParentID)['ConnectionID'] != 0) {
+                    $CallMonitorOpen = true;
+                } else {
+                    $Ret = $this->SendDataToParent(json_encode(
+                        [
+                            'DataID'     => '{D62D4515-7689-D1DB-EE97-F555AD9433F0}',
+                            'Function'   => 'CallMonitorOpen'
+                        ]
+                    ));
+                    $CallMonitorOpen = unserialize($Ret);
+                    $this->SendDebug('CallMonitorOpen', $CallMonitorOpen, 0);
+                }
+                if (!$CallMonitorOpen) {
+                    $Form['actions'][1]['visible'] = true;
+                    $Form['actions'][1]['popup']['items'][0]['caption'] = 'Callmonitor not available!';
+                    $Form['actions'][1]['popup']['items'][1]['caption'] = 'The call monitor is not activated on the FritzBox, or is blocked by something.';
+                    $Form['actions'][1]['popup']['items'][1]['width'] = '200px';
+                }
                 $serviceType = 'callmonitor';
                 $guid = key(\FritzBox\Services::$Data[$serviceType]);
                 $AddService = [
-                    'instanceID'      => 0,
                     'url'             => '',
-                    'name'            => 'currently not available',
-                    'event'           => ''
-                ];
-                $AddService['type'] = $this->Translate(IPS_GetModule($guid)['ModuleName']);
-                $AddService['create'] = [
-                    'moduleID'      => $guid,
-                    'configuration' => ['Index' => 0],
-                    'location'      => [IPS_GetName($this->InstanceID)]
+                    'event'           => '',
+                    'type'            => $this->Translate(IPS_GetModule($guid)['ModuleName']),
+                    'create'          => [
+                        'moduleID'      => $guid,
+                        'configuration' => ['Index' => 0],
+                        'location'      => [IPS_GetName($this->InstanceID)]
+                    ]
                 ];
                 $Key = array_search(\FritzBox\Services::$Data[$serviceType], $KnownInstances);
                 if ($Key === false) {
                     $AddService['name'] = $this->Translate(IPS_GetModule($guid)['ModuleName']);
+                    $AddService['instanceID'] = 0;
                 } else {
                     $AddService['name'] = IPS_GetName($Key);
                     $AddService['instanceID'] = $Key;

@@ -10,7 +10,8 @@
                             "name": "AreaCode",
                             "type": "ValidationTextBox",
                             "caption": "Area code",
-                            "width": "300px"
+                            "width": "300px",
+                            "enabled": false
                         }
                     ]
                 },
@@ -96,6 +97,7 @@
                 {
                     "type": "ExpansionPanel",
                     "caption": "WebFront Notification",
+                    "width": "auto",
                     "items": [
                         {
                             "type": "List",
@@ -138,7 +140,7 @@
                                 {
                                     "name": "event",
                                     "caption": "Event",
-                                    "width": "200px",
+                                    "width": "180px",
                                     "add": 1,
                                     "edit": {
                                         "type": "Select",
@@ -173,7 +175,7 @@
                                 {
                                     "name": "title",
                                     "caption": "Title",
-                                    "width": "300px",
+                                    "width": "190px",
                                     "add": "",
                                     "edit": {
                                         "type": "ValidationTextBox"
@@ -182,7 +184,7 @@
                                 {
                                     "name": "text",
                                     "caption": "Text",
-                                    "width": "auto",
+                                    "width": "340px",
                                     "add": "",
                                     "edit": {
                                         "type": "ValidationTextBox"
@@ -191,7 +193,7 @@
                                 {
                                     "name": "icon",
                                     "caption": "Icon",
-                                    "width": "200px",
+                                    "width": "100px",
                                     "add": "",
                                     "edit": {
                                         "type": "Select",
@@ -636,6 +638,25 @@
                                 "image": ""
                             }
                         ]
+                    }
+                ]
+            }
+        },
+        {
+            "name": "ErrorPopup",
+            "type": "PopupAlert",
+            "visible": false,
+            "popup": {
+                "items": [
+                    {
+                        "name": "ErrorTitle",
+                        "type": "Label",
+                        "caption": ""
+                    },
+                    {
+                        "name": "ErrorText",
+                        "type": "Label",
+                        "caption": ""
                     }
                 ]
             }

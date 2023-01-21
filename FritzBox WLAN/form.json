@@ -315,6 +315,12 @@
                         "name": "ErrorText",
                         "type": "Label",
                         "caption": ""
+                    },
+                    {
+                        "type": "OpenObjectButton",
+                        "caption": "",
+                        "objectID": 1,
+                        "visible": false
                     }
                 ]
             }
