@@ -3,7 +3,8 @@
         "de": {
             "Not connected!": "Nicht verbunden!",
             "The 'FritzBox IO' instance is not connected or missing.": "Die 'FritzBox IO' Instanz ist nicht verbunden oder fehlt.",
-            "The call monitor is not activated on the FritzBox, or is blocked by something.": "Der Anrufmonitor ist auf der FritzBox nicht aktiviert, oder durch irgendetwas blockiert.",
+            "Call monitor not available!": "Anrufmonitor nicht verfügbar!",
+            "The call monitor is not activated on the FritzBox, or is blocked by something.\r\nDial #96*5* from a phone to activate the feature.": "Der Anrufmonitor ist auf der FritzBox nicht aktiviert, oder durch irgendetwas blockiert.\r\nVon einem Telefon die #96*5* wählen um die Funktion zu aktivieren.",
             "FritzBox Telephony": "FritzBox Telefonie",
             "FritzBox Callmonitor": "FritzBox Anrufmonitor",
             "FritzBox Device Info": "FritzBox Geräteinformationen",

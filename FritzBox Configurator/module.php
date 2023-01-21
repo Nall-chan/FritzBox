@@ -180,11 +180,11 @@ require_once __DIR__ . '/../libs/FritzBoxModule.php';
                     $CallMonitorOpen = unserialize($Ret);
                     $this->SendDebug('CallMonitorOpen', $CallMonitorOpen, 0);
                 }
-                if (!$CallMonitorOpen) {
+                if ($CallMonitorOpen) {
                     $Form['actions'][1]['visible'] = true;
-                    $Form['actions'][1]['popup']['items'][0]['caption'] = 'Callmonitor not available!';
-                    $Form['actions'][1]['popup']['items'][1]['caption'] = 'The call monitor is not activated on the FritzBox, or is blocked by something.';
-                    $Form['actions'][1]['popup']['items'][1]['width'] = '200px';
+                    $Form['actions'][1]['popup']['items'][0]['caption'] = 'Call monitor not available!';
+                    $Form['actions'][1]['popup']['items'][1]['caption'] = "The call monitor is not activated on the FritzBox, or is blocked by something.\r\nDial #96*5* from a phone to activate the feature.";
+                    $Form['actions'][1]['popup']['items'][1]['width'] = '400px';
                 }
                 $serviceType = 'callmonitor';
                 $guid = key(\FritzBox\Services::$Data[$serviceType]);
