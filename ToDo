@@ -8,7 +8,7 @@ Fertige Instanzen:
  - MyFritz
  - DDNS
  - Anrufmonitor
- - Telefonie  (Anrufliste gestern/heute in Zeitpunkt-Spalte fehlt, Rufumleitungen und Anrufblockaden übersetzungen verbessern)
+ - Telefonie 
 
  - Fehler:
    AB / (Portweiterleitung auch?) Update fehlt nach dem ein/Ausschalten
@@ -37,14 +37,16 @@ Feldtest nötig:
 Unfertig / Fehlen:
 - Anrufbeantworter (fehlt komplett)
 - Wählhilfe (fehlt in Telephony, realisierbarkeit noch nicht getestet)
-- Aktionen und Referenzen prüfen
+- Aktionen prüfen, vervollständigen
 
 Später/Sonstiges:
+✅ Anrufliste gestern/heute in Zeitpunkt-Spalte fehlt.
+- Rufumleitungen und Anrufblockaden übersetzungen verbessern.
 - Fehler beim schalten der Zeitserver-Variablen.
 - Rufumleitungen und Anrufblockaden sollten einzeln per Liste konfigurierbar sein.
-- Instanz-Konfig Form prüfen / Anpassung fertigstellen (welche ? -_-  Telefonie?)
+✅ Instanz-Konfig Form prüfen / Anpassung fertigstellen (welche ? -_-  Telefonie?)
 ✅ IO oder Konfigurator sollte prüfen ob der Anrufmonitor der FritzBox aktiv ist, sonst einen Hinweis an User ausgeben in der Konfig (wo? IO / Anrufmonitor Instanz) ausgeben.
-- Hinweis in der Konfig der Anrufliste fehlt, das kein Intervall benötigt wird, wenn der Anrufmonitor aktiv ist.
+✅ Hinweis in der Konfig der Anrufliste fehlt, das kein Intervall benötigt wird, wenn der Anrufmonitor aktiv ist.
 ✅ Instanz-Funktionen für Zugriff auf die cached Daten des Telefonbuchs fehlt.
 - Host Variablen sollten einzeln per Liste konfigurierbar sein.
 - Bei Host auto-löschen der Variablen sinnvoll? Wenn ja nur manuell zuschaltbar. Oder über eine Liste (siehe oben) abbilden.

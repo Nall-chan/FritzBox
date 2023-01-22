@@ -66,7 +66,7 @@ class FritzBoxHostFilter extends FritzBoxModulBase
             $Form['actions'][2]['popup']['items'][1]['caption'] = 'The \'FritzBox Host\' instance is required to display hostnames.';
             $Form['actions'][2]['popup']['items'][1]['width'] = '200px';
             $ConfiguratorID = $this->GetConfiguratorID();
-            if ($ConfiguratorID > 0) {
+            if ($ConfiguratorID > 1) {
                 $Form['actions'][2]['popup']['items'][2]['caption'] = 'Open Configurator';
                 $Form['actions'][2]['popup']['items'][2]['visible'] = true;
                 $Form['actions'][2]['popup']['items'][2]['objectID'] = $ConfiguratorID;

@@ -80,11 +80,11 @@ trait TelHelper
         $ReverseSearchInstanceID = $this->ReadPropertyInteger('ReverseSearchInstanceID');
         $CustomSearchScriptID = $this->ReadPropertyInteger('CustomSearchScriptID');
 
-        if ($CustomSearchScriptID != 0) {
+        if ($CustomSearchScriptID > 1) {
             return IPS_RunScriptWaitEx($CustomSearchScriptID, ['SENDER'=>'FritzBox', 'NUMBER'=>$Number]);
         }
 
-        if ($ReverseSearchInstanceID != 0) {
+        if ($ReverseSearchInstanceID > 1) {
             $Name = CIRS_GetName($ReverseSearchInstanceID, $Number);
             if ($Name === false) {
                 return $UnknownName;

@@ -143,7 +143,7 @@ class FritzBoxWLAN extends FritzBoxModulBase
             return json_encode($Form);
         }
         $Splitter = IPS_GetInstance($this->InstanceID)['ConnectionID'];
-        if (($Splitter != 0) && $this->HasActiveParent()) {
+        if (($Splitter > 1) && $this->HasActiveParent()) {
             $this->GetWLANForm($Form['elements'][0]['options']);
         }
         $Index = $this->ReadPropertyInteger('Index');

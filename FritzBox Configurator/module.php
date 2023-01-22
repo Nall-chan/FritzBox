@@ -168,7 +168,7 @@ require_once __DIR__ . '/../libs/FritzBoxModule.php';
             $HasTel = unserialize($Ret);
             $this->SendDebug('HasTel', $HasTel, 0);
             if ($HasTel) {
-                if (IPS_GetInstance($this->ParentID)['ConnectionID'] != 0) {
+                if (IPS_GetInstance($this->ParentID)['ConnectionID'] > 1) {
                     $CallMonitorOpen = true;
                 } else {
                     $Ret = $this->SendDataToParent(json_encode(
@@ -180,7 +180,7 @@ require_once __DIR__ . '/../libs/FritzBoxModule.php';
                     $CallMonitorOpen = unserialize($Ret);
                     $this->SendDebug('CallMonitorOpen', $CallMonitorOpen, 0);
                 }
-                if ($CallMonitorOpen) {
+                if (!$CallMonitorOpen) {
                     $Form['actions'][1]['visible'] = true;
                     $Form['actions'][1]['popup']['items'][0]['caption'] = 'Call monitor not available!';
                     $Form['actions'][1]['popup']['items'][1]['caption'] = "The call monitor is not activated on the FritzBox, or is blocked by something.\r\nDial #96*5* from a phone to activate the feature.";

@@ -100,7 +100,7 @@ class FritzBoxWANDSLLink extends FritzBoxModulBase
     {
         $Form = json_decode(file_get_contents(__DIR__ . '/form.json'), true);
         $Splitter = IPS_GetInstance($this->InstanceID)['ConnectionID'];
-        if (($Splitter != 0) && $this->HasActiveParent()) {
+        if (($Splitter > 1) && $this->HasActiveParent()) {
             $Ret = $this->SendDataToParent(json_encode(
             [
                 'DataID'     => '{D62D4515-7689-D1DB-EE97-F555AD9433F0}',

@@ -9,7 +9,7 @@
                         {
                             "name": "RefreshIntervalPhonebook",
                             "type": "NumberSpinner",
-                            "caption": "Reload phonebook",
+                            "caption": "Reload phone book",
                             "suffix": "minutes",
                             "minimum": 0,
                             "width": "300px"
@@ -23,9 +23,9 @@
                             "width": "300px"
                         },
                         {
-                            "name": "RefreshIntervalCallList",
+                            "name": "RefreshIntervalCallLog",
                             "type": "NumberSpinner",
-                            "caption": "Reload call list intervall",
+                            "caption": "Reload call log intervall",
                             "suffix": "minutes",
                             "minimum": 0,
                             "width": "300px"
@@ -91,6 +91,13 @@
                     "type": "ColumnLayout",
                     "items": [
                         {
+                            "name": "CallLogAsVariable",
+                            "caption": "Display call log as HTML-Box variable",
+                            "type": "CheckBox",
+                            "onChange": "IPS_RequestAction($id,'CallLogAsVariable',$CallLogAsVariable);",
+                            "width": "300px"
+                        },
+                        {
                             "name": "DeflectionAsVariable",
                             "caption": "Create variable per deflection rule",
                             "type": "CheckBox",
@@ -125,7 +132,7 @@
                 {
                     "name": "LoadListType",
                     "type": "Select",
-                    "caption": "Load call list",
+                    "caption": "Load call log",
                     "options": [
                         {
                             "caption": "not load",
@@ -158,6 +165,7 @@
         },
         {
             "type": "ExpansionPanel",
+            "name": "HTMLExpansionPanel",
             "caption": "HTML-Table design",
             "items": [
                 {
@@ -236,26 +244,36 @@
                     ]
                 },
                 {
-                    "type": "List",
-                    "name": "Table",
-                    "caption": "Table design",
-                    "rowCount": 4,
-                    "add": false,
-                    "delete": false,
-                    "columns": [
+                    "type": "RowLayout",
+                    "items": [
                         {
-                            "name": "tag",
-                            "caption": "HTML-Tag",
-                            "width": "75px",
-                            "save": true
+                            "type": "List",
+                            "name": "Table",
+                            "caption": "Table design",
+                            "rowCount": 4,
+                            "add": false,
+                            "delete": false,
+                            "columns": [
+                                {
+                                    "name": "tag",
+                                    "caption": "HTML-Tag",
+                                    "width": "100px",
+                                    "save": true
+                                },
+                                {
+                                    "caption": "CSS",
+                                    "name": "style",
+                                    "width": "700px",
+                                    "edit": {
+                                        "type": "ValidationTextBox"
+                                    }
+                                }
+                            ]
                         },
                         {
-                            "caption": "CSS",
-                            "name": "style",
-                            "width": "auto",
-                            "edit": {
-                                "type": "ValidationTextBox"
-                            }
+                            "type": "CheckBox",
+                            "name": "UseRelativDate",
+                            "caption": "Use yesterday and today for the date"
                         }
                     ]
                 },
@@ -421,7 +439,7 @@
                         {
                             "caption": "CSS",
                             "name": "style",
-                            "width": "auto",
+                            "width": "925px",
                             "edit": {
                                 "type": "ValidationTextBox"
                             }
@@ -460,8 +478,9 @@
     "actions": [
         {
             "type": "Button",
-            "caption": "Reload call list",
-            "onClick": "IPS_RequestAction($id,'RefreshCallList',true);"
+            "name": "ReloadCallLogButton",
+            "caption": "Reload call log",
+            "onClick": "IPS_RequestAction($id,'RefreshCallLog',true);"
         },
         {
             "type": "Button",
@@ -470,7 +489,7 @@
         },
         {
             "type": "Button",
-            "caption": "Reload phonebook",
+            "caption": "Reload phone book",
             "onClick": "IPS_RequestAction($id,'RefreshPhonebook',true);"
         },
         {

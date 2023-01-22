@@ -339,7 +339,7 @@ class FritzBoxIO extends IPSModule
         }
         $this->RequireParent('{3CFF0FD9-E306-41DB-9B5A-9D06D38576C3}');
         $ParentId = IPS_GetInstance($this->InstanceID)['ConnectionID'];
-        if ($ParentId > 0) {
+        if ($ParentId > 1) {
             IPS_SetProperty($ParentId, 'Host', parse_url($this->Url, PHP_URL_HOST));
             IPS_SetProperty($ParentId, 'Port', 1012);
             IPS_SetProperty($ParentId, 'Open', true);
@@ -385,6 +385,7 @@ class FritzBoxIO extends IPSModule
     }
     private function SetMediaObjectData(string $Ident, string $Data)
     {
+        $Ident = preg_replace('/[^a-z0-9_]+/i', '_', $Ident);
         $this->SendDebug('Set MediaObject', $Ident, 0);
         $MediaID = @IPS_GetObjectIDByIdent($Ident, $this->InstanceID);
         if ($MediaID === false) {

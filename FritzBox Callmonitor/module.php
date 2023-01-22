@@ -162,14 +162,14 @@ class FritzBoxCallmonitor extends FritzBoxModulBase
                 $Form['elements'][5]['visible'] = true;
             }
         }
-        if ($this->ReadPropertyInteger('CustomSearchScriptID') > 0) {
+        if ($this->ReadPropertyInteger('CustomSearchScriptID') > 1) {
             $Form['elements'][0]['items'][1]['expanded'] = false;
             $Form['elements'][0]['items'][1]['items'][0]['items'][0]['enabled'] = false;
             $Form['elements'][0]['items'][1]['items'][0]['items'][1]['enabled'] = false;
             $Form['elements'][0]['items'][1]['items'][1]['items'][0]['enabled'] = false;
             $Form['elements'][0]['items'][1]['items'][1]['items'][1]['enabled'] = false;
         }
-        if ($this->ReadPropertyInteger('ReverseSearchInstanceID') > 0) {
+        if ($this->ReadPropertyInteger('ReverseSearchInstanceID') > 1) {
             $Form['elements'][1]['items'][1]['enabled'] = false;
         }
         $Form['elements'][2]['items'][1]['items'][1]['columns'][3]['edit']['options'] = $this->GetIconsList();
@@ -311,11 +311,27 @@ class FritzBoxCallmonitor extends FritzBoxModulBase
         $this->SendDebug('RunActions', $NotifyData, 0);
         foreach ($RunActions as $Action) {
             $ActionData = json_decode($Action['action'], true);
+            $DataForParameters = $this->ArrayWithCurlyBracketsKey($NotifyData);
+            $Pattern = array_keys($DataForParameters);
+            $Values = array_values($DataForParameters);
+            $this->InsertValuesInActionParameters($ActionData, $Pattern, $Values);
             $ActionData['parameters'] = array_merge($ActionData['parameters'], $NotifyData);
             $ActionData['parameters']['SENDER'] = 'FritzBox';
             $ActionData['parameters']['PARENT'] = $this->InstanceID;
             $this->SendDebug('ActionData', $ActionData, 0);
             IPS_RunAction($ActionData['actionID'], $ActionData['parameters']);
+        }
+    }
+    private function InsertValuesInActionParameters(array &$ActionData, array $Pattern, array $Values)
+    {
+        foreach ($ActionData['parameters'] as &$Parameters) {
+            if (is_array($Parameters)) {
+                $this->InsertValuesInActionParameters($ActionData, $Pattern, $Values);
+                continue;
+            }
+            if (is_string($Parameters)) {
+                $Parameters = str_replace($Pattern, $Values, $Parameters);
+            }
         }
     }
     private function RebuildTable()
