@@ -111,7 +111,6 @@ trait TelHelper
                 $XMLPhoneBook = new \simpleXMLElement($XMLData);
             } catch (\Throwable $th) {
                 $this->SendDebug('XML decode error', $XMLData, 0);
-                echo 'XML decode error in ' . $File;
                 continue;
             }
             $Contact = $XMLPhoneBook->xpath("//contact[telephony/number ='" . $Number . "']");

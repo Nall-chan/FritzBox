@@ -400,23 +400,20 @@ class FritzBoxIO extends IPSModule
         }
         IPS_SetMediaContent($MediaID, base64_encode($Data));
     }
-    private function GetMediaObjectData(string $Ident): string
+    private function GetMediaObjectID(string $Ident): int
     {
+        $Ident = preg_replace('/[^a-z0-9_]+/i', '_', $Ident);
         $this->SendDebug('Get MediaObject', $Ident, 0);
         $MediaID = @IPS_GetObjectIDByIdent($Ident, $this->InstanceID);
         if ($MediaID === false) {
-            return '';
+            return 0;
         }
-        return base64_decode(IPS_GetMediaContent($MediaID));
+        return $MediaID;
     }
-    private function GetFile(string $Filename)
+    private function GetFile(string $Filename): int
     {
-        $Data = false;
         $this->SendDebug('Get File: ', $Filename, 0);
-        if ($Filename != '') {
-            $Data = $this->GetMediaObjectData($Filename);
-        }
-        return $Data;
+        return  $this->GetMediaObjectID($Filename);
     }
 
     private function LoadXmls()

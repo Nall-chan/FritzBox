@@ -302,10 +302,9 @@ class FritzBoxTelephony extends FritzBoxModulBase
         foreach ($Files as $File) {
             $XMLData = $this->GetFile($File);
             try {
-                $Result[substr($File, 10, -4)] = new \simpleXMLElement($XMLData);
+                $Result[substr($File, 10)] = new \simpleXMLElement($XMLData);
             } catch (\Throwable $th) {
                 $this->SendDebug('XML decode error', $XMLData, 0);
-                echo 'XML decode error in ' . $File;
             }
         }
         return $Result;
@@ -317,14 +316,12 @@ class FritzBoxTelephony extends FritzBoxModulBase
             $XMLData = $this->GetFile($File);
             if ($XMLData === false) {
                 $this->SendDebug('XML not found', $File, 0);
-                echo 'File ' . $File . ' not found';
                 continue;
             }
             try {
                 $XMLPhoneBook = new \simpleXMLElement($XMLData);
             } catch (\Throwable $th) {
                 $this->SendDebug('XML decode error', $XMLData, 0);
-                echo 'XML decode error in ' . $File;
                 continue;
             }
             $Contacts = $XMLPhoneBook->xpath("//contact[telephony/number ='" . $Number . "']");
@@ -725,7 +722,6 @@ class FritzBoxTelephony extends FritzBoxModulBase
             $DeflectionList = new \simpleXMLElement($Deflections);
         } catch (\Throwable $th) {
             $this->SendDebug('XML decode error', $Deflections, 0);
-            echo 'XML decode error in Deflections';
             return false;
         }
 

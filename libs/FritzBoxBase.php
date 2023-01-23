@@ -299,7 +299,11 @@ class FritzBoxModulBase extends IPSModule
         if ($Ret === false) {
             return false;
         }
-        $Result = unserialize($Ret);
+        $MediaID = unserialize($Ret);
+        if ($MediaID == 0) {
+            return false;
+        }
+        $Result = base64_decode(IPS_GetMediaContent($MediaID));
         $this->SendDebug('Result', $Result, 0);
         return $Result;
     }
