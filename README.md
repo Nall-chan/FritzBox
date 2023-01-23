@@ -133,7 +133,7 @@ Version 0.73:
 - Neue Instanz 'Powerline' um den Zustand der Powerline Geräte darzustellen.  
 - Links zur Doku waren defekt.  
 - Bestimmte Rufumleitungen konnten zu Fehlern führen.
-  
+
 Version 0.72:  
 
 - Fehlermeldung beim Zugriff auf die Telefonbücher.  
