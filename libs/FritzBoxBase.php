@@ -504,7 +504,7 @@ class FritzBoxModulBase extends IPSModule
 
     protected function GetMimeType($extension)
     {
-        $lines = file(IPS_GetKernelDirEx() . 'mime.types');
+        $lines = file(IPS_GetKErnelDir() . 'mime.types');
         foreach ($lines as $line) {
             $type = explode("\t", $line, 2);
             if (count($type) == 2) {

@@ -45,7 +45,7 @@ class Services
         //'urn:dslforum-org:service:DeviceConfig:1'                => [], // im IO Enthalten
         //'urn:dslforum-org:service:UserInterface:1'               => [], //Firmware Update / Status (später?)
         //'urn:dslforum-org:service:X_AVM-DE_Homeauto:1'           => [], // AHA ?
-        //'urn:dslforum-org:service:X_AVM-DE_Homeplug:1'           => [], // AHA ?
+        'urn:dslforum-org:service:X_AVM-DE_Homeplug:1'           => ['{B1B43095-2B0A-4C85-A4DE-E962404201C7}'=>0], // Powerline
         //'urn:dslforum-org:service:LANEthernetInterfaceConfig:1'  => [], // statistik. unnötig?
         //'urn:dslforum-org:service:WANEthernetLinkConfig:1'       => [], // unnötig?
         //'urn:dslforum-org:service:WANDSLLinkConfig:1'            => [], // unnötig? DSL Daten?
