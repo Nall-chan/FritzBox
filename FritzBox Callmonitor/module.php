@@ -5,7 +5,7 @@ declare(strict_types=1);
 require_once __DIR__ . '/../libs/FritzBoxBase.php';
 require_once __DIR__ . '/../libs/FritzBoxTelHelper.php';
 require_once __DIR__ . '/../libs/FritzBoxTable.php';
-
+eval('declare(strict_types=1);namespace FritzBoxCallmonitor {?>' . file_get_contents(__DIR__ . '/../libs/helper/SemaphoreHelper.php') . '}');
 /**
  * @property array $CallData
  */
@@ -13,6 +13,7 @@ class FritzBoxCallmonitor extends FritzBoxModulBase
 {
     use \FritzBoxModul\HTMLTable;
     use \FritzBoxModul\TelHelper;
+    use \FritzBoxCallmonitor\Semaphore;
     const Call_Incoming = 1;
     const Call_Outgoing = 2;
     const Connected_Incoming = 3;
@@ -185,6 +186,7 @@ class FritzBoxCallmonitor extends FritzBoxModulBase
 
         $CallEvent = explode(';', utf8_decode($data['Buffer']));
         $CallEvent[2] = (int) $CallEvent[2];
+        $this->lock('CallData');
         $Calls = $this->CallData;
 
         $Calls[$CallEvent[2]]['Status'] = $CallEvent[1];
@@ -250,6 +252,7 @@ class FritzBoxCallmonitor extends FritzBoxModulBase
             unset($Calls[$CallEvent[2]]);
         }
         $this->CallData = $Calls;
+        $this->unlock('CallData');
         // Nur wenn WebFront Notification aktiv
         if ($this->ReadPropertyBoolean('CallsAsNotification')) {
             IPS_RunScriptText('IPS_RequestAction(' . $this->InstanceID . ',\'SendNotification\',\'' . serialize($NotifyData) . '\');');

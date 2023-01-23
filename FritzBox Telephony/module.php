@@ -538,19 +538,19 @@ class FritzBoxTelephony extends FritzBoxModulBase
     }
     private function SetNewCallLogRefreshTimer()
     {
-        $Interval = $this->ReadPropertyInteger('RefreshIntervalCallLog');
+        $Interval = $this->ReadPropertyInteger('RefreshIntervalCallLog') * 60000;
         if ($this->ParentID > 1) {
             $Splitter = IPS_GetInstance($this->ParentID);
             if ($Splitter['ConnectionID'] > 1) {
                 if (IPS_GetInstance($Splitter['ConnectionID'])['InstanceStatus'] == IS_ACTIVE) {
                     $now = gmdate('U', time());
                     $tomorrow = gmdate('U', strtotime('tomorrow'));
-                    $Interval = (($tomorrow - $now) + 10);
+                    $Interval = (($tomorrow - $now) + 10) * 1000;
                 }
             }
         }
         $this->SendDebug('NewCallLogRefreshTimer', $Interval, 0);
-        $this->SetTimerInterval('RefreshCallLog', $Interval * 60000);
+        $this->SetTimerInterval('RefreshCallLog', $Interval);
     }
     private function RefreshCallLog()
     {

@@ -18,7 +18,7 @@ class FritzBoxModulBase extends IPSModule
     use \FritzBoxModulBase\VariableProfileHelper;
     use \FritzBoxModulBase\InstanceStatus {
         \FritzBoxModulBase\InstanceStatus::MessageSink as IOMessageSink; // MessageSink gibt es sowohl hier in der Klasse, als auch im Trait InstanceStatus. Hier wird für die Methode im Trait ein Alias benannt.
-        \FritzBoxModulBase\InstanceStatus::RegisterParent as IORegisterParent;
+        //\FritzBoxModulBase\InstanceStatus::RegisterParent as IORegisterParent;
         \FritzBoxModulBase\InstanceStatus::RequestAction as IORequestAction;
     }
     protected static $ControlUrlArray = [];
@@ -157,10 +157,10 @@ class FritzBoxModulBase extends IPSModule
         $this->ApplyChanges();
     }
 
-    protected function RegisterParent()
+    /*protected function RegisterParent()
     {
         $this->IORegisterParent();
-    }
+    }*/
     /**
      * Wird ausgeführt wenn sich der Status vom Parent ändert.
      */
