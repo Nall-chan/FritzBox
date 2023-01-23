@@ -190,7 +190,6 @@ class FritzBoxCallmonitor extends FritzBoxModulBase
         $Calls = $this->CallData;
 
         $Calls[$CallEvent[2]]['Status'] = $CallEvent[1];
-        $Name = false;
         switch ($CallEvent[1]) {
             case 'RING': // Ankommend klingelt
                 $Calls[$CallEvent[2]] = [];

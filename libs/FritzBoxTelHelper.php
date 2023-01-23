@@ -107,9 +107,11 @@ trait TelHelper
                 $this->SendDebug('XML not found', $File, 0);
                 continue;
             }
-            $XMLPhoneBook = new \simpleXMLElement($XMLData);
-            if ($XMLPhoneBook === false) {
+            try {
+                $XMLPhoneBook = new \simpleXMLElement($XMLData);
+            } catch (\Throwable $th) {
                 $this->SendDebug('XML decode error', $XMLData, 0);
+                echo 'XML decode error in ' . $File;
                 continue;
             }
             $Contact = $XMLPhoneBook->xpath("//contact[telephony/number ='" . $Number . "']");

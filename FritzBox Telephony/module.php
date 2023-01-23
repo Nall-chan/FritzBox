@@ -301,7 +301,12 @@ class FritzBoxTelephony extends FritzBoxModulBase
         $Result = [];
         foreach ($Files as $File) {
             $XMLData = $this->GetFile($File);
-            $Result[substr($File, 10, -4)] = new \simpleXMLElement($XMLData);
+            try {
+                $Result[substr($File, 10, -4)] = new \simpleXMLElement($XMLData);
+            } catch (\Throwable $th) {
+                $this->SendDebug('XML decode error', $XMLData, 0);
+                echo 'XML decode error in ' . $File;
+            }
         }
         return $Result;
     }
@@ -315,8 +320,9 @@ class FritzBoxTelephony extends FritzBoxModulBase
                 echo 'File ' . $File . ' not found';
                 continue;
             }
-            $XMLPhoneBook = new \simpleXMLElement($XMLData);
-            if ($XMLPhoneBook === false) {
+            try {
+                $XMLPhoneBook = new \simpleXMLElement($XMLData);
+            } catch (\Throwable $th) {
                 $this->SendDebug('XML decode error', $XMLData, 0);
                 echo 'XML decode error in ' . $File;
                 continue;
@@ -715,7 +721,14 @@ class FritzBoxTelephony extends FritzBoxModulBase
             return false;
         }
         $PhoneBooks = $this->GetPhoneBookFiles();
-        $DeflectionList = new \simpleXMLElement($Deflections);
+        try {
+            $DeflectionList = new \simpleXMLElement($Deflections);
+        } catch (\Throwable $th) {
+            $this->SendDebug('XML decode error', $Deflections, 0);
+            echo 'XML decode error in Deflections';
+            return false;
+        }
+
         $CallBarringItems = $DeflectionList->xpath("//Item[Mode='eNoSignal' and DeflectionToNumber='']");
         foreach ($CallBarringItems as $Index => $CallBarringItem) {
             $this->SendDebug('CallBarring:' . $Index, (array) $CallBarringItem, 0);
