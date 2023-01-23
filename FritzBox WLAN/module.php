@@ -200,7 +200,6 @@ class FritzBoxWLAN extends FritzBoxModulBase
                 $this->SendDebug('XML decode error', $XMLData, 0);
             }
         }
-        $OnlineCounter = 0;
         $TableData = [];
         $pos = 0;
         $Hosts = $this->GetValue('HostNumberOfEntries');

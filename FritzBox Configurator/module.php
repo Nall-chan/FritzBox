@@ -60,7 +60,7 @@ require_once __DIR__ . '/../libs/FritzBoxModule.php';
             $this->ParentID = $Splitter;
             $KnownInstances = $this->GetInstanceList();
 
-            $Pfad = IPS_GetKernelDirEx() . 'FritzBoxTemp/' . $Splitter . '/';
+            $Pfad = IPS_GetKErnelDir() . 'FritzBoxTemp/' . $Splitter . '/';
             $Xmls = ['tr64desc.xml', 'igd2desc.xml', 'igddesc.xml'];
             foreach ($Xmls as $Xml) {
                 $xml = new DOMDocument();

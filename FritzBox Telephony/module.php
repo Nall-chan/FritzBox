@@ -413,11 +413,11 @@ class FritzBoxTelephony extends FritzBoxModulBase
         $Ident = false;
         if ($result['NewDeflectionToNumber'] == '') {
             if ($this->ReadPropertyBoolean('CallBarringAsVariable')) {
-                $Ident = 'C_' . $result['NewType'] . '_' . $result['NewNumber'] . '_' . $result['NewPhonebookID'];
+                $Ident = $this->ConvertIdent('C_' . $result['NewType'] . '_' . $result['NewNumber'] . '_' . $result['NewPhonebookID']);
             }
         } else {
             if ($this->ReadPropertyBoolean('DeflectionAsVariable')) {
-                $Ident = 'D_' . $result['NewType'] . '_' . $result['NewNumber'] . '_' . $result['NewDeflectionToNumber'];
+                $Ident = $this->ConvertIdent('D_' . $result['NewType'] . '_' . $result['NewNumber'] . '_' . $result['NewDeflectionToNumber']);
             }
         }
         if ($Ident) {
@@ -728,7 +728,8 @@ class FritzBoxTelephony extends FritzBoxModulBase
         $CallBarringItems = $DeflectionList->xpath("//Item[Mode='eNoSignal' and DeflectionToNumber='']");
         foreach ($CallBarringItems as $Index => $CallBarringItem) {
             $this->SendDebug('CallBarring:' . $Index, (array) $CallBarringItem, 0);
-            $Ident = 'C_' . $CallBarringItem->Type . '_' . $CallBarringItem->Number . '_' . $CallBarringItem->PhonebookID;
+
+            $Ident = $this->ConvertIdent('C_' . $CallBarringItem->Type . '_' . $CallBarringItem->Number . '_' . $CallBarringItem->PhonebookID);
             $this->SendDebug('CallBarringIdent:' . $Index, $Ident, 0);
             $Value = (int) $CallBarringItem->Enable === 1;
             if ($ActionIdent == $Ident) {
@@ -782,7 +783,7 @@ class FritzBoxTelephony extends FritzBoxModulBase
         $DeflectionItems = $DeflectionList->xpath("//Item[DeflectionToNumber !='']");
         foreach ($DeflectionItems as $Index => $DeflectionItem) {
             $this->SendDebug('Deflection:' . $Index, (array) $DeflectionItem, 0);
-            $Ident = 'D_' . $DeflectionItem->Type . '_' . $DeflectionItem->Number . '_' . $DeflectionItem->DeflectionToNumber;
+            $Ident = $this->ConvertIdent('D_' . $DeflectionItem->Type . '_' . $DeflectionItem->Number . '_' . $DeflectionItem->DeflectionToNumber);
             $this->SendDebug('DeflectionIdent:' . $Index, $Ident, 0);
             $Value = (int) $DeflectionItem->Enable === 1;
             if ($ActionIdent == $Ident) {
@@ -813,11 +814,22 @@ class FritzBoxTelephony extends FritzBoxModulBase
                             $Name = $this->Translate('Deflect incoming call not from a VIP to') . ' ' . $DeviceName;
                         break;
                         case 'fromNumber':
-                            $DeflectionNumberName = $this->DoPhonebookSearch((string) $DeflectionItem->Number, 50);
-                            if ($DeflectionNumberName == '') {
-                                $DeflectionNumberName = (string) $DeflectionItem->Number;
+                            if (((string) $DeflectionItem->Number) == '#') {
+                                $Name = sprintf($this->Translate('Deflect all incoming calls to %s'), $DeflectionNumberName, $DeviceName);
+                            } elseif (((string) $DeflectionItem->Number)[0] == '#') {
+                                // führende # bei eigenen Nummern!
+                                $DeflectionNumberName = $this->DoPhonebookSearch(substr((string) $DeflectionItem->Number, 1), 50);
+                                if ($DeflectionNumberName == '') {
+                                    $DeflectionNumberName = substr((string) $DeflectionItem->Number, 1);
+                                }
+                                $Name = sprintf($this->Translate('Deflect incoming call on %s to %s'), $DeflectionNumberName, $DeviceName);
+                            } else {
+                                $DeflectionNumberName = $this->DoPhonebookSearch((string) $DeflectionItem->Number, 50);
+                                if ($DeflectionNumberName == '') {
+                                    $DeflectionNumberName = (string) $DeflectionItem->Number;
+                                }
+                                $Name = sprintf($this->Translate('Deflect incoming call from %s to %s'), $DeflectionNumberName, $DeviceName);
                             }
-                            $Name = sprintf($this->Translate('Deflect incoming call from %s to %s'), $DeflectionNumberName, $DeviceName);
                         break;
                         case 'fromPB':
                             $PhonebookName = (string) $DeflectionItem->PhonebookID;
@@ -832,7 +844,11 @@ class FritzBoxTelephony extends FritzBoxModulBase
                         break;
                         //toMSN ' ' . $DeflectionItem->Number . ' to ' . $DeviceName;
                         //toPOTS ' to ' . $DeviceName;
-                        //toVoIP ' ' . $DeflectionItem->Number . ' to ' . $DeviceName;
+                        case 'toVoIP':
+                            // ->Mode : eBusy, eParallelCall,  eLongDelayed, eShortDelayed, eImmediately
+
+                            $Name = $this->Translate(' ' . $DeflectionItem->Number . ' to ' . $DeviceName);
+                            // No break. Add additional comment above this line if intentional
                         default:
                             $Name = 'Deflect ' . $DeflectionItem->Type . ' ' . $DeflectionItem->Number . ' to ' . $DeviceName;
                         break;

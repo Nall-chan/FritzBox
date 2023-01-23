@@ -1,14 +1,15 @@
 Fertige Instanzen:
  - Device Info
- - Hosts
- - WLAN
+ - Hosts (-> Variablenliste fehlt)
+ - WLAN (-> Variablenliste fehlt)
  - DHCP Server
  - WAN Common Interface
  - FTP / Samba-Freigaben
  - MyFritz
  - DDNS
  - Anrufmonitor
- - Telefonie 
+ - Telefonie
+ - Powerline
 
  - Fehler:
    AB / (Portweiterleitung auch?) Update fehlt nach dem ein/Ausschalten
@@ -16,9 +17,8 @@ Fertige Instanzen:
 
 
  $SecondEventGUID in WLAN und Host war wofür???
-  - Wenn Host Instanz die Host neu ausliest? -> DAnn EVENT zu den Childs?!
+  - Wenn Host Instanz die Host neu ausliest? -> Dann EVENT zu den anderen Childs?!
 
-Übersetzung MyFritz fehlt.
 
 Feldtest nötig:
  - WAN DSL Link
@@ -35,18 +35,19 @@ Feldtest nötig:
  
  
 Unfertig / Fehlen:
+- DVBC (fehlt komplett)
 - Anrufbeantworter (fehlt komplett)
 - Wählhilfe (fehlt in Telephony, realisierbarkeit noch nicht getestet)
 - Aktionen prüfen, vervollständigen
+- Übersetzung MyFritz fehlt.
 
 Später/Sonstiges:
-✅ Anrufliste gestern/heute in Zeitpunkt-Spalte fehlt.
-- Rufumleitungen und Anrufblockaden übersetzungen verbessern.
 - Fehler beim schalten der Zeitserver-Variablen.
-- Rufumleitungen und Anrufblockaden sollten einzeln per Liste konfigurierbar sein.
+🕜 Rufumleitungen und Anrufblockaden übersetzungen verbessern.
+- Host Variablen sollten einzeln per Liste konfigurierbar sein.
+- Bei Host auto-löschen der Variablen sinnvoll? Wenn ja nur manuell zuschaltbar. Oder über eine Liste (siehe oben) abbilden.
 ✅ Instanz-Konfig Form prüfen / Anpassung fertigstellen (welche ? -_-  Telefonie?)
 ✅ IO oder Konfigurator sollte prüfen ob der Anrufmonitor der FritzBox aktiv ist, sonst einen Hinweis an User ausgeben in der Konfig (wo? IO / Anrufmonitor Instanz) ausgeben.
 ✅ Hinweis in der Konfig der Anrufliste fehlt, das kein Intervall benötigt wird, wenn der Anrufmonitor aktiv ist.
 ✅ Instanz-Funktionen für Zugriff auf die cached Daten des Telefonbuchs fehlt.
-- Host Variablen sollten einzeln per Liste konfigurierbar sein.
-- Bei Host auto-löschen der Variablen sinnvoll? Wenn ja nur manuell zuschaltbar. Oder über eine Liste (siehe oben) abbilden.
+✅ Anrufliste gestern/heute in Zeitpunkt-Spalte fehlt.

@@ -63,8 +63,8 @@ class FritzBoxIO extends IPSModule
         if (IPS_GetKernelRunlevel() == KR_READY) {
             $this->doNotLoadXML = false;
             $this->RegisterMessage($this->InstanceID, FM_CHILDADDED);
-            @mkdir(IPS_GetKernelDirEx() . 'FritzBoxTemp');
-            @mkdir(IPS_GetKernelDirEx() . 'FritzBoxTemp/' . $this->InstanceID);
+            @mkdir(IPS_GetKErnelDir() . 'FritzBoxTemp');
+            @mkdir(IPS_GetKErnelDir() . 'FritzBoxTemp/' . $this->InstanceID);
         } else {
             $this->RegisterMessage(0, IPS_KERNELMESSAGE);
             $this->doNotLoadXML = true;
@@ -75,8 +75,8 @@ class FritzBoxIO extends IPSModule
     {
         if (!IPS_InstanceExists($this->InstanceID)) {
             $this->UnregisterHook('/hook/FritzBoxIO' . $this->InstanceID);
-            @array_map('unlink', glob(IPS_GetKernelDirEx() . 'FritzBoxTemp/' . $this->InstanceID . '/*.*'));
-            @rmdir(IPS_GetKernelDirEx() . 'FritzBoxTemp/' . $this->InstanceID);
+            @array_map('unlink', glob(IPS_GetKErnelDir() . 'FritzBoxTemp/' . $this->InstanceID . '/*.*'));
+            @rmdir(IPS_GetKErnelDir() . 'FritzBoxTemp/' . $this->InstanceID);
         }
         //Never delete this line!
         parent::Destroy();
@@ -418,7 +418,7 @@ class FritzBoxIO extends IPSModule
 
     private function LoadXmls()
     {
-        @array_map('unlink', glob(IPS_GetKernelDirEx() . 'FritzBoxTemp/' . $this->InstanceID . '/*.xml'));
+        @array_map('unlink', glob(IPS_GetKErnelDir() . 'FritzBoxTemp/' . $this->InstanceID . '/*.xml'));
         $Url = $this->Url;
         $Xmls = ['tr64desc.xml', 'igd2desc.xml', 'igddesc.xml'];
         $Result = false;
@@ -435,7 +435,7 @@ class FritzBoxIO extends IPSModule
             }
 
             $this->SendDebug('Load XML: ' . $Xml, $XMLData, 0);
-            file_put_contents(IPS_GetKernelDirEx() . 'FritzBoxTemp/' . $this->InstanceID . '/' . $Xml, $XMLData);
+            file_put_contents(IPS_GetKErnelDir() . 'FritzBoxTemp/' . $this->InstanceID . '/' . $Xml, $XMLData);
             if (stripos($XMLData, 'WLANConfiguration') > 0) {
                 for ($i = 5; $i != 0; $i--) {
                     if (stripos($XMLData, 'WLANConfiguration:' . $i) > 0) {
@@ -464,7 +464,7 @@ class FritzBoxIO extends IPSModule
                     $this->WriteAttributeBoolean('HasTel', true);
                 }
                 $this->SendDebug('Load SCPD: ' . $SCPD, $XMLSCPDData, 0);
-                file_put_contents(IPS_GetKernelDirEx() . 'FritzBoxTemp/' . $this->InstanceID . '/' . $SCPD, $XMLSCPDData);
+                file_put_contents(IPS_GetKErnelDir() . 'FritzBoxTemp/' . $this->InstanceID . '/' . $SCPD, $XMLSCPDData);
                 $Events[$SCPD] = (stripos($XMLSCPDData, '<stateVariable sendEvents="yes">') > 0);
             }
             if ($Xml == 'igd2desc.xml') {

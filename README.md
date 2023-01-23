@@ -128,7 +128,13 @@ Für das Discovery werden Pakete über die Multicast-Adresse `239.255.255.250` a
 
 ## Changelog
 
+Version 0.73:  
+
+- Neue Instanz 'Powerline' um den Zustand der Powerline Geräte darzustellen.  
+- Links zur Doku waren defekt.  
+- 
 Version 0.72:  
+
 - Fehlermeldung beim Zugriff auf die Telefonbücher.  
   
 Version 0.71:  
