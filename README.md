@@ -142,6 +142,7 @@ Version 0.73:
 - Links zur Doku waren defekt.  
 - Bestimmte Rufumleitungen konnten zu Fehlern führen.  
 - Namen und Übersetzungen der Variablen der Rufumleitungen erweitert.  
+- Bessere Fehlerbehandlung beim Auswerten der Antwort vom Event-Subscribe.    
 
 Version 0.72:  
 

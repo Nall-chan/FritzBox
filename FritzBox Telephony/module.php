@@ -849,7 +849,7 @@ class FritzBoxTelephony extends FritzBoxModulBase
                             $Name = sprintf(
                                 $this->Translate('Deflect incoming calls on %s %s to %s'),
                                 (string) $DeflectionItem->Number,
-                                $this->Translate($this->ConvertDeflectMode((string)$DeflectionItem->Mode)),
+                                $this->Translate($this->ConvertDeflectMode((string) $DeflectionItem->Mode)),
                                 $DeviceName
                             );
                             break;

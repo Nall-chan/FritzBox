@@ -61,29 +61,26 @@ class FritzBoxHomeautomation extends FritzBoxModulBase
             return false;
         }
         return $Result;
-    }
-    public function UpdateInfo()
-    {
-        $Result = $this->GetInfo();
-        if ($Result === false) {
-            return false;
-        }
-
         /*
         NewAllowedCharsAIN out String with all allowed chars for state variable AIN string
         MaxCharsAIN out ui2
         MinCharsAIN out ui2
         MaxCharsDeviceName out ui2
         MinCharsDeviceName out ui2
-
-        $this->setIPSVariable($Ident, $Name, (int) $Result['NewDVBCEnabled'] > 0, VARIABLETYPE_BOOLEAN, '~Switch', true);
-        $this->setIPSVariable($Ident, $Name, (string) $Result['NewStationSearchStatus'], VARIABLETYPE_STRING, 'FB.ActiveInactive', true);
-        $this->setIPSVariable($Ident, $Name, (int) $Result['NewSearchProgress'], VARIABLETYPE_INTEGER, 'FB.Intensity', false);
-        */
-
+         */
+    }
+    public function UpdateInfo()
+    {
+        $Index = 0;
+        do {
+            $Result = @$this->GetGenericDeviceInfos($Index);
+            if ($Result != false) {
+                $this->UpdateValues($Result);
+            }
+            return;
+        } while ($Result !== false);
         return true;
     }
-
     public function GetGenericDeviceInfos(int $Index)
     {
         $Result = $this->Send('GetGenericDeviceInfos', [
@@ -92,7 +89,7 @@ class FritzBoxHomeautomation extends FritzBoxModulBase
         if ($Result === false) {
             return false;
         }
-        return true;
+        return  $Result;
     }
 
     public function GetSpecificDeviceInfos(string $AIN)
@@ -125,7 +122,7 @@ class FritzBoxHomeautomation extends FritzBoxModulBase
         ON Switch On
         TOGGLE Toggle switch state
         UNDEFINED
-        */
+         */
         $Result = $this->Send('SetSwitch', [
             'NewAIN'         => $AIN,
             'NewSwitchState' => $State
@@ -134,5 +131,13 @@ class FritzBoxHomeautomation extends FritzBoxModulBase
             return false;
         }
         return true;
+    }
+    private function UpdateValues(array $Data)
+    {
+        /*
+        $this->setIPSVariable($Ident, $Name, (int) $Result['NewDVBCEnabled'] > 0, VARIABLETYPE_BOOLEAN, '~Switch', true);
+        $this->setIPSVariable($Ident, $Name, (string) $Result['NewStationSearchStatus'], VARIABLETYPE_STRING, 'FB.ActiveInactive', true);
+        $this->setIPSVariable($Ident, $Name, (int) $Result['NewSearchProgress'], VARIABLETYPE_INTEGER, 'FB.Intensity', false);
+         */
     }
 }

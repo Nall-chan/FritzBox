@@ -47,9 +47,9 @@ Unfertig / Fehlen:
 Später/Sonstiges:
 - LinkStateToInt weg und LinkState auf String umbauen
 - Fehler beim schalten der Zeitserver-Variablen.
-🕜 Rufumleitungen und Anrufblockaden übersetzungen verbessern.
 - Host Variablen sollten einzeln per Liste konfigurierbar sein.
 - Bei Host auto-löschen der Variablen sinnvoll? Wenn ja nur manuell zuschaltbar. Oder über eine Liste (siehe oben) abbilden.
+✅ Rufumleitungen und Anrufblockaden übersetzungen verbessern.
 ✅ Instanz-Konfig Form prüfen / Anpassung fertigstellen
 ✅ IO oder Konfigurator sollte prüfen ob der Anrufmonitor der FritzBox aktiv ist, sonst einen Hinweis an User ausgeben in der Konfig (wo? IO / Anrufmonitor Instanz) ausgeben.
 ✅ Hinweis in der Konfig der Anrufliste fehlt, das kein Intervall benötigt wird, wenn der Anrufmonitor aktiv ist.

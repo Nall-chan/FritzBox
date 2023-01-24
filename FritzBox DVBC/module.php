@@ -54,7 +54,7 @@ class FritzBoxDVBC extends FritzBoxModulBase
             case 'RefreshInfo':
                 return $this->UpdateInfo();
             case 'NewDVBCEnabled':
-                return $this->SetDVBCEnable((bool)$Value);
+                return $this->SetDVBCEnable((bool) $Value);
             case 'NewStationSearchStatus':
                 return $this->StationSearch(($State == 'active' ? true : false));
         }
@@ -84,7 +84,7 @@ class FritzBoxDVBC extends FritzBoxModulBase
     public function SetDVBCEnable(bool $State)
     {
         $Result = $this->Send('SetDVBCEnable', [
-            'NewDVBCEnabled'         => (int)$State
+            'NewDVBCEnabled'         => (int) $State
         ]);
         if ($Result === false) {
             return false;

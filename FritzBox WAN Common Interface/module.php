@@ -198,13 +198,13 @@ class FritzBoxWANCommonInterface extends FritzBoxModulBase
 NewX_AVM-DE_UpstreamCurrentUtilization out X_AVM-DE_UpstreamCurrentUtilization
 NewX_AVM-DE_DownstreamCurrentMaxSpeed out X_AVM-DE_DownstreamCurrentMaxSpeed
 NewX_AVM-DE_UpstreamCurrentMaxSpeed out X_AVM-DE_UpstreamCurrentMaxSpeed
-*/
+         */
         return true;
     }
-/* TODO
-function AVM-DE_SetWANAccessType
-function X_AVM-DE_GetActiveProvider
-*/
+    /* TODO
+    function AVM-DE_SetWANAccessType
+    function X_AVM-DE_GetActiveProvider
+     */
     private function UpdateAddonInfos()
     {
         $result = $this->GetAddonInfos();

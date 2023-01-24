@@ -394,7 +394,7 @@ class FritzBoxIO extends IPSModule
             IPS_SetIdent($MediaID, $Ident);
             IPS_SetName($MediaID, $Ident);
             IPS_SetMediaCached($MediaID, true);
-            $filename = 'media' . DIRECTORY_SEPARATOR . $this->InstanceID . '/' . $Ident . '.xml';
+            $filename = 'media' . DIRECTORY_SEPARATOR . 'FRITZBOX_' . $MediaID . '.xml';
             IPS_SetMediaFile($MediaID, $filename, false);
             $this->SendDebug('Create Media', $filename, 0);
         }
@@ -814,12 +814,15 @@ class FritzBoxIO extends IPSModule
             if ($headers[0] != 'HTTP/1.1 200 OK') {
                 $this->SendDebug('Error on subscribe', $headers[0], 0);
                 return false;
-            } else {
-                $this->SendDebug('Subscribe successfully', $Uri, 0);
-                $data['SID'] = $headers['SID'];
-                $data['TIMEOUT'] = (int) substr($headers['TIMEOUT'], strpos($headers['TIMEOUT'], '-') + 1);
-                return $data;
             }
+            if (!array_key_exists('SID', $headers)) {
+                $this->SendDebug('Error on subscribe', $ret, 0);
+                return false;
+            }
+            $this->SendDebug('Subscribe successfully', $Uri, 0);
+            $data['SID'] = $headers['SID'];
+            $data['TIMEOUT'] = (int) substr($headers['TIMEOUT'], strpos($headers['TIMEOUT'], '-') + 1);
+            return $data;
         }
     }
 

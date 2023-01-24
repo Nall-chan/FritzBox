@@ -395,9 +395,9 @@ class FritzBoxModulBase extends IPSModule
         }
         return $strtime;
     }
+
     protected function ConvertIdent(string $Ident)
     {
-        //return str_replace([':','.','[',']'], ['','','',''], $Ident);
         return preg_replace('/[^a-zA-Z0-9_]/', '', $Ident);
     }
     /**
