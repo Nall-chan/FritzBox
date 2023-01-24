@@ -12,17 +12,17 @@ class FritzBoxTelephony extends FritzBoxModulBase
     use \FritzBoxModul\HTMLTable;
     use \FritzBoxModul\TelHelper;
 
-    const Call_Incoming = 1;
-    const Call_Missed = 2;
-    const Call_Outgoing = 3;
+    public const Call_Incoming = 1;
+    public const Call_Missed = 2;
+    public const Call_Outgoing = 3;
     //const Call_Tam_New=4;
     //const Call_Tam_Old = 5;
     //const Call_Tam_Deleted = 6;
-    const Call_Fax = 7;
-    const Call_Active_Incoming = 9;
-    const Call_Rejected_Incoming = 10;
-    const Call_Active_Outgoing = 11;
-    const FoundMarker = 20;
+    public const Call_Fax = 7;
+    public const Call_Active_Incoming = 9;
+    public const Call_Rejected_Incoming = 10;
+    public const Call_Active_Outgoing = 11;
+    public const FoundMarker = 20;
     //use \WebhookHelper;
 
     protected static $ControlUrlArray = [
@@ -140,11 +140,11 @@ class FritzBoxTelephony extends FritzBoxModulBase
             case 'PreviewIcon':
                 $Data = unserialize($Value);
                 $ImageData = @getimagesize('data://text/plain;base64,' . $Data['Icon']);
-                    if ($ImageData === false) {
-                        $this->UpdateFormField('IconName', 'caption', 'No valid image');
-                        $this->UpdateFormField('IconPreview', 'visible', true);
-                        return;
-                    }
+                if ($ImageData === false) {
+                    $this->UpdateFormField('IconName', 'caption', 'No valid image');
+                    $this->UpdateFormField('IconPreview', 'visible', true);
+                    return;
+                }
                 $this->UpdateFormField('IconName', 'caption', $Data['DisplayName']);
                 $this->UpdateFormField('IconImage', 'image', 'data://' . $ImageData['mime'] . ';base64,' . $Data['Icon']);
                 $this->UpdateFormField('IconPreview', 'visible', true);
@@ -440,7 +440,7 @@ class FritzBoxTelephony extends FritzBoxModulBase
             [
                 'NewPhonebookEntryID'=> $PhonebookEntryID
             ]
-            );
+        );
         if ($result === false) {
             return false;
         }
@@ -453,7 +453,7 @@ class FritzBoxTelephony extends FritzBoxModulBase
             [
                 'NewNumber'=> $Number
             ]
-            );
+        );
         if ($result === false) {
             return false;
         }
@@ -466,7 +466,7 @@ class FritzBoxTelephony extends FritzBoxModulBase
             [
                 'NewPhonebookEntryData'=> $PhonebookEntryData
             ]
-            );
+        );
         if ($result === false) {
             return false;
         }
@@ -479,7 +479,7 @@ class FritzBoxTelephony extends FritzBoxModulBase
             [
                 'NewPhonebookEntryData'=> $PhonebookEntryData
             ]
-            );
+        );
         if ($result === false) {
             return false;
         }
@@ -495,7 +495,7 @@ class FritzBoxTelephony extends FritzBoxModulBase
             case 'CONNECT': // Verbunden
             case 'DISCONNECT': // Getrennt
                 IPS_RunScriptText('IPS_RequestAction(' . $this->InstanceID . ',"RefreshCallLog",true);');
-            break;
+                break;
         }
         return true;
     }
@@ -627,8 +627,8 @@ class FritzBoxTelephony extends FritzBoxModulBase
             // Fax-Anruf ?
             if ((int) $CallLog->Call[$i]->Port == 5) {
                 $Data[$i]['Type'] = self::Call_Fax; //self::Call_Tam_Deleted; // vorbelegen mit Fax schon gelöscht
-                //$Data[$i]['Called'] = (string)$CallLog->Call[$i]->Device;
-                //$Data[$i]['Duration'] = "---";  // Warum auch immer ist die Dauer immer 0:01 auch bei FAX
+            //$Data[$i]['Called'] = (string)$CallLog->Call[$i]->Device;
+            //$Data[$i]['Duration'] = "---";  // Warum auch immer ist die Dauer immer 0:01 auch bei FAX
 
                 /*if (strlen((string)$CallLog->Call[$i]->Path) <> 0) {
                     $Data[$i]['Fax'] = "1"; // FAX-Eintrag ist vorhanden !
@@ -743,36 +743,36 @@ class FritzBoxTelephony extends FritzBoxModulBase
                     $this->SetValue($Ident, $Value);
                 } else {
                     switch ($CallBarringItem->Type) {
-                    case 'fromAll':
-                        $Name = $this->Translate('Block all incoming calls');
-                    break;
-                    case 'fromAnonymous':
-                        $Name = $this->Translate('Block anonymous incoming calls');
-                    break;
-                    case 'fromNotVIP':
-                        $Name = $this->Translate('Block incoming call not from a VIP');
-                    break;
-                    case 'fromNumber':
-                        $CallBarringNumberName = $this->DoPhonebookSearch((string) $CallBarringItem->Number, 50);
-                        if ($CallBarringNumberName == '') {
-                            $CallBarringNumberName = (string) $CallBarringItem->Number;
-                        }
-                        $Name = $this->Translate('Block incoming call from number') . ' ' . $CallBarringNumberName;
-                    break;
-                    case 'fromPB':
-                        $Name = $this->Translate('Block incoming call from phone book');
-                        if (array_key_exists((int) $CallBarringItem->PhonebookID, $PhoneBooks)) {
-                            $Name .= ' ' . substr($PhoneBooks[(int) $CallBarringItem->PhonebookID], 10, -4);
-                        } else {
-                            $Name .= ' ' . $CallBarringItem->PhonebookID;
-                        }
-                    break;
-                    case 'fromVIP':
-                        $Name = $this->Translate('Block incoming calls from a VIP number') . ' ' . $CallBarringItem->Number;
-                    break;
-                    default:
-                        $Name = 'Block ' . $CallBarringItem->Type . ' ' . $CallBarringItem->Number;
-                    break;
+                        case 'fromAll':
+                            $Name = $this->Translate('Block all incoming calls');
+                            break;
+                        case 'fromAnonymous':
+                            $Name = $this->Translate('Block anonymous incoming calls');
+                            break;
+                        case 'fromNotVIP':
+                            $Name = $this->Translate('Block incoming call not from a VIP');
+                            break;
+                        case 'fromNumber':
+                            $CallBarringNumberName = $this->DoPhonebookSearch((string) $CallBarringItem->Number, 50);
+                            if ($CallBarringNumberName == '') {
+                                $CallBarringNumberName = (string) $CallBarringItem->Number;
+                            }
+                            $Name = $this->Translate('Block incoming call from number') . ' ' . $CallBarringNumberName;
+                            break;
+                        case 'fromPB':
+                            $Name = $this->Translate('Block incoming call from phone book');
+                            if (array_key_exists((int) $CallBarringItem->PhonebookID, $PhoneBooks)) {
+                                $Name .= ' ' . substr($PhoneBooks[(int) $CallBarringItem->PhonebookID], 10, -4);
+                            } else {
+                                $Name .= ' ' . $CallBarringItem->PhonebookID;
+                            }
+                            break;
+                        case 'fromVIP':
+                            $Name = $this->Translate('Block incoming calls from a VIP number') . ' ' . $CallBarringItem->Number;
+                            break;
+                        default:
+                            $Name = 'Block ' . $CallBarringItem->Type . ' ' . $CallBarringItem->Number;
+                            break;
                     }
                     $this->SendDebug('CallBarringName:' . $Index, $Name, 0);
                     $this->setIPSVariable($Ident, $Name, $Value, VARIABLETYPE_BOOLEAN, '~Switch', true);
@@ -806,13 +806,13 @@ class FritzBoxTelephony extends FritzBoxModulBase
                     switch ($DeflectionItem->Type) {
                         case 'fromAll':
                             $Name = $this->Translate('Deflect all incoming calls to') . ' ' . $DeviceName;
-                        break;
+                            break;
                         case 'fromAnonymous':
                             $Name = $this->Translate('Deflect anonymous incoming calls to') . ' ' . $DeviceName;
-                        break;
+                            break;
                         case 'fromNotVIP':
                             $Name = $this->Translate('Deflect incoming call not from a VIP to') . ' ' . $DeviceName;
-                        break;
+                            break;
                         case 'fromNumber':
                             if (((string) $DeflectionItem->Number) == '#') {
                                 $Name = sprintf($this->Translate('Deflect all incoming calls to %s'), $DeflectionNumberName, $DeviceName);
@@ -830,7 +830,7 @@ class FritzBoxTelephony extends FritzBoxModulBase
                                 }
                                 $Name = sprintf($this->Translate('Deflect incoming call from %s to %s'), $DeflectionNumberName, $DeviceName);
                             }
-                        break;
+                            break;
                         case 'fromPB':
                             $PhonebookName = (string) $DeflectionItem->PhonebookID;
                             if (array_key_exists((int) $DeflectionItem->PhonebookID, $PhoneBooks)) {
@@ -838,20 +838,24 @@ class FritzBoxTelephony extends FritzBoxModulBase
                             }
                             $Name = sprintf($this->Translate('Deflect incoming call from phone book (%s) to %s'), $PhonebookName, $DeviceName);
 
-                        break;
+                            break;
                         case 'fromVIP':
                             $Name = $this->Translate('Deflect incoming calls from a VIP number to') . ' ' . $DeviceName;
-                        break;
-                        //toMSN ' ' . $DeflectionItem->Number . ' to ' . $DeviceName;
-                        //toPOTS ' to ' . $DeviceName;
+                            break;
+                        case 'toMSN':
+                        case 'toPOTS':
                         case 'toVoIP':
-                            // ->Mode : eBusy, eParallelCall,  eLongDelayed, eShortDelayed, eImmediately
-
-                            $Name = $this->Translate(' ' . $DeflectionItem->Number . ' to ' . $DeviceName);
-                            // No break. Add additional comment above this line if intentional
+                            // todo: auch # vor $DeflectionItem->Number?
+                            $Name = sprintf(
+                                $this->Translate('Deflect incoming calls on %s %s to %s'),
+                                (string) $DeflectionItem->Number,
+                                $this->Translate($this->ConvertDeflectMode((string)$DeflectionItem->Mode)),
+                                $DeviceName
+                            );
+                            break;
                         default:
                             $Name = 'Deflect ' . $DeflectionItem->Type . ' ' . $DeflectionItem->Number . ' to ' . $DeviceName;
-                        break;
+                            break;
                     }
                     $this->SendDebug('DeflectionName:' . $Index, $Name, 0);
                     $this->setIPSVariable($Ident, $Name, $Value, VARIABLETYPE_BOOLEAN, '~Switch', true);
@@ -859,6 +863,21 @@ class FritzBoxTelephony extends FritzBoxModulBase
             }
         }
         return $Result;
+    }
+    private function ConvertDeflectMode(string $Mode): string
+    {
+        switch ($Mode) {
+            case 'eBusy':
+                return 'when busy';
+            case 'eParallelCall':
+                return 'parallel';
+            case 'eLongDelayed':
+                return 'after long delay';
+            case 'eShortDelayed':
+                return 'after short delay';
+            case 'eImmediately':
+                return 'immediately';
+        }
     }
     private function SetPhonebookFiles(array $Files)
     {
