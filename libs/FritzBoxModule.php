@@ -26,6 +26,9 @@ class Services
         'urn:dslforum-org:service:X_AVM-DE_RemoteAccess:1'       => ['{A3828BD1-B487-1860-2812-36E8DA0D358E}'=>0],
         'urn:dslforum-org:service:X_AVM-DE_Filelinks:1'          => ['{E9B51A32-A87F-8E47-34E8-594535C7D42A}'=>0],
         'urn:dslforum-org:service:X_AVM-DE_HostFilter:1'         => ['{6E830782-BB60-4E2E-B6FD-8937BEAE2B46}'=>0],
+        'urn:dslforum-org:service:X_AVM-DE_Homeplug:1'           => ['{B1B43095-2B0A-4C85-A4DE-E962404201C7}'=>0], // Powerline
+        'urn:dslforum-org:service:X_AVM-DE_Media:1'              => ['{DF0D838F-C5B4-43D4-A95B-CBCF2A05138E}'=>0], // DVBC
+        'urn:dslforum-org:service:X_AVM-DE_Homeauto1:1'          => ['{822E981D-9195-4AA7-821A-36BB1E63F993}'=>0], //Homeautomation
         //TODO
         //prüfen / Fertig bauen
         'urn:schemas-upnp-org:service:WANDSLLinkConfig:1'        => ['{061AEAF5-ADCD-AD9E-9BF9-AD40DF364EB6}'=>0],
@@ -45,7 +48,6 @@ class Services
         //'urn:dslforum-org:service:DeviceConfig:1'                => [], // im IO Enthalten
         //'urn:dslforum-org:service:UserInterface:1'               => [], //Firmware Update / Status (später?)
         //'urn:dslforum-org:service:X_AVM-DE_Homeauto:1'           => [], // AHA ?
-        'urn:dslforum-org:service:X_AVM-DE_Homeplug:1'           => ['{B1B43095-2B0A-4C85-A4DE-E962404201C7}'=>0], // Powerline
         //'urn:dslforum-org:service:LANEthernetInterfaceConfig:1'  => [], // statistik. unnötig?
         //'urn:dslforum-org:service:WANEthernetLinkConfig:1'       => [], // unnötig?
         //'urn:dslforum-org:service:WANDSLLinkConfig:1'            => [], // unnötig? DSL Daten?

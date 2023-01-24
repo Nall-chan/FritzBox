@@ -70,10 +70,13 @@ Für das Discovery werden Pakete über die Multicast-Adresse `239.255.255.250` a
 - __FritzBox IO__ ([Dokumentation](FritzBox%20IO/))  
 	Kurze Beschreibung des Moduls.
 
+- __FritzBox Anruf-Monitor__ ([Dokumentation](FritzBox%20Callmonitor/))  
+	Kurze Beschreibung des Moduls.
+
 - __FritzBox Telefonie__ ([Dokumentation](FritzBox%20Telephony/))  
 	Kurze Beschreibung des Moduls.
 
-- __FritzBox Anruf-Monitor__ ([Dokumentation](FritzBox%20Callmonitor/))  
+- __FritzBox DVBC__ ([Dokumentation](FritzBox%20DVBC/))  
 	Kurze Beschreibung des Moduls.
 
 - __FritzBox DynDNS__ ([Dokumentation](FritzBox%20DDNS/))  
@@ -92,6 +95,9 @@ Für das Discovery werden Pakete über die Multicast-Adresse `239.255.255.250` a
 	Kurze Beschreibung des Moduls.
 
 - __FritzBox Host Filter__ ([Dokumentation](FritzBox%20Host%20Filter/))  
+	Kurze Beschreibung des Moduls.
+
+- __FritzBox Powerline__ ([Dokumentation](FritzBox%20Powerline/))  
 	Kurze Beschreibung des Moduls.
 
 - __FritzBox MyFritz__ ([Dokumentation](FritzBox%20MyFritz/))  
@@ -131,6 +137,8 @@ Für das Discovery werden Pakete über die Multicast-Adresse `239.255.255.250` a
 Version 0.73:  
 
 - Neue Instanz 'Powerline' um den Zustand der Powerline Geräte darzustellen.  
+- Neue Instanz 'DVBC' um den Zustand des DBV-S Empfängers darzustellen und zu steuern.
+- Neue Instanz 'Homeautomation' (noch in Arbeit)
 - Links zur Doku waren defekt.  
 - Bestimmte Rufumleitungen konnten zu Fehlern führen.
 

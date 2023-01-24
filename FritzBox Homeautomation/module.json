@@ -1,0 +1,18 @@
+{
+    "id": "{822E981D-9195-4AA7-821A-36BB1E63F993}",
+    "name": "FritzBox Homeautomation",
+    "type": 3,
+    "vendor": "AVM",
+    "aliases": [
+        "FritzBox Homeautomation"
+    ],
+    "parentRequirements": [
+        "{D62D4515-7689-D1DB-EE97-F555AD9433F0}"
+    ],
+    "childRequirements": [],
+    "implemented": [
+        "{CBD869A0-869B-3D4C-7EA8-D917D935E647}"
+    ],
+    "prefix": "FB",
+    "url": "https://github.com/Nall-chan/FritzBox/blob/master/FritzBox%20Homeautomation/README.md"
+}

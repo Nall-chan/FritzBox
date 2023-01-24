@@ -22,7 +22,6 @@ Beschreibung des Moduls.
 
 ### 1. Funktionsumfang
 
-* Alte Variablen vom FB-Project **sind** kompatibel.
 
 ### 2. Voraussetzungen
 
@@ -34,7 +33,7 @@ Beschreibung des Moduls.
 
 ### 4. Einrichten der Instanzen in IP-Symcon
 
- Es wird empfohlen Geräte-Instanzen über die entsprechenden 'FritzBox Konfigurator'-Instanz zu erzeugen.  
+ Es wird empfohlen Geräte-Instanzen über die entsprechenden 'FritzBox Powerline'-Instanz zu erzeugen.  
  
  Unter 'Instanz hinzufügen' ist das 'FritzBox Powerline'-Modul unter dem Hersteller 'AVM' aufgeführt.
 

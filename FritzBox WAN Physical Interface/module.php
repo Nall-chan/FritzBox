@@ -43,10 +43,10 @@ require_once __DIR__ . '/../libs/FritzBoxBase.php';
                 '',
                 '',
                 [
-                    [0, $this->Translate('Up'), '', 0x00ff00],
-                    [1, $this->Translate('Down'), '', 0xff0000],
-                    [2, $this->Translate('Initializing'), '', 0xff00ff],
-                    [3, $this->Translate('Unavailable'), '', 0xff0000],
+                    [0, 'Up', '', 0x00ff00],
+                    [1, 'Down', '', 0xff0000],
+                    [2, 'Initializing', '', 0xff00ff],
+                    [3, 'Unavailable', '', 0xff0000],
                 ]
             );
             $this->RegisterProfileInteger('FB.kBit', '', '', ' kBit/s', 0, 0, 0);

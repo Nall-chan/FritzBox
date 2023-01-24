@@ -5,7 +5,7 @@
 [![Check Style](https://github.com/Nall-chan/FritzBox/workflows/Check%20Style/badge.svg)](https://github.com/Nall-chan/FritzBox/actions) [![Run Tests](https://github.com/Nall-chan/FritzBox/workflows/Run%20Tests/badge.svg)](https://github.com/Nall-chan/FritzBox/actions)  
 [![Spenden](https://www.paypalobjects.com/de_DE/DE/i/btn/btn_donate_SM.gif)](#spenden)  
 
-# FritzBox Host Filter <!-- omit in toc -->
+# FritzBox Homeautomation <!-- omit in toc -->
 Beschreibung des Moduls.
 
 ### Inhaltsverzeichnis <!-- omit in toc -->
@@ -23,6 +23,7 @@ Beschreibung des Moduls.
 ### 1. Funktionsumfang
 
 
+
 ### 2. Voraussetzungen
 
 - IP-Symcon ab Version 6.0
@@ -33,16 +34,16 @@ Beschreibung des Moduls.
 
 ### 4. Einrichten der Instanzen in IP-Symcon
 
- Es wird empfohlen Geräte-Instanzen über die entsprechenden 'FritzBox Host Filter'-Instanz zu erzeugen.  
+ Es wird empfohlen Geräte-Instanzen über die entsprechenden 'FritzBox Homeautomation'-Instanz zu erzeugen.  
  
- Unter 'Instanz hinzufügen' ist das 'FritzBox WLAN'-Modul unter dem Hersteller 'AVM' aufgeführt.
+ Unter 'Instanz hinzufügen' ist das 'FritzBox Powerline'-Modul unter dem Hersteller 'AVM' aufgeführt.
 
 __Konfigurationsseite__:
 
-Name     | Beschreibung
--------- | ------------------
-         |
-         |
+| Name | Beschreibung |
+| ---- | ------------ |
+|      |
+|      |
 
 ### 5. Statusvariablen und Profile
 
@@ -50,17 +51,17 @@ Die Statusvariablen werden automatisch angelegt. Das Löschen einzelner kann zu 
 
 #### Statusvariablen
 
-Name   | Typ     | Beschreibung
------- | ------- | ------------
-       |         |
-       |         |
+| Name | Typ | Beschreibung |
+| ---- | --- | ------------ |
+|      |
+|      |
 
 #### Profile
 
-Name   | Typ
------- | -------
-       |
-       |
+| Name | Typ |
+| ---- | --- |
+|      |
+|      |
 
 ### 6. WebFront
 

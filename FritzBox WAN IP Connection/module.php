@@ -46,7 +46,7 @@ require_once __DIR__ . '/../libs/FritzBoxBase.php';
                 '',
                 '',
                 [
-                    [0, $this->Translate('Reconnect'), '', 0xff0000]
+                    [0, 'Reconnect', '', 0xff0000]
                 ]
             );
             $this->RegisterProfileBooleanEx(
@@ -55,8 +55,8 @@ require_once __DIR__ . '/../libs/FritzBoxBase.php';
                 '',
                 '',
                 [
-                    [false, $this->Translate('Disconnected'), '', 0xff0000],
-                    [true, $this->Translate('Connected'), '', 0x00ff00]
+                    [false, 'Disconnected', '', 0xff0000],
+                    [true, 'Connected', '', 0x00ff00]
                 ]
             );
             parent::ApplyChanges();
