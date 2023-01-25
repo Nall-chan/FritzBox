@@ -174,7 +174,9 @@ class FritzBoxHosts extends FritzBoxModulBase
             $TableData[] = (array) $xmlItem;
         }
         $this->setIPSVariable('HostNumberActive', 'Number of active network devices', $OnlineCounter, VARIABLETYPE_INTEGER, '', false, -1);
-        $this->CreateHostHTMLTable($TableData);
+        if ($Table) {
+            $this->CreateHostHTMLTable($TableData);
+        }
         return true;
     }
     public function GetHostNumberOfEntries()
