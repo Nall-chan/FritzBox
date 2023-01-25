@@ -209,7 +209,7 @@ class FritzBoxModulBase extends IPSModule
         if ($Ret === false) {
             $this->SID = '';
             $this->SendDebug('Error on subscribe (parse)', static::$EventSubURLArray[$Index], 0);
-            trigger_error('Error on subscribe (parse)'."\r\n" . static::$EventSubURLArray[$Index], E_USER_WARNING);
+            trigger_error('Error on subscribe (parse)' . "\r\n" . static::$EventSubURLArray[$Index], E_USER_WARNING);
             $this->SetTimerInterval('RenewSubscription', 60000);
             return false;
         }
@@ -217,7 +217,7 @@ class FritzBoxModulBase extends IPSModule
         if ($Result === false) {
             $this->SID = '';
             $this->SendDebug('Error on subscribe (Result)', static::$EventSubURLArray[$Index], 0);
-            trigger_error('Error on subscribe (Result)'."\r\n"  . static::$EventSubURLArray[$Index], E_USER_WARNING);
+            trigger_error('Error on subscribe (Result)' . "\r\n" . static::$EventSubURLArray[$Index], E_USER_WARNING);
             $this->SetTimerInterval('RenewSubscription', 60000);
             return false;
         }
@@ -227,14 +227,14 @@ class FritzBoxModulBase extends IPSModule
                 $this->SID = '';
                 $this->SendDebug('No event after subscribe', static::$EventSubURLArray[$Index], 0);
                 //trigger_error('No event after subscribe ' . static::$EventSubURLArray[$Index], E_USER_WARNING);
-                $this->LogMessage('No event after subscribe', KL_ERROR);    
+                $this->LogMessage('No event after subscribe', KL_ERROR);
                 $this->SetTimerInterval('RenewSubscription', 60000);
                 return false;
             }
             $this->LogMessage('Event received', KL_NOTIFY);
             $this->SID = $Result['SID'];
         }
-        $this->SetTimerInterval('RenewSubscription', ($Result['TIMEOUT'] - 300) * 1000);
+        $this->SetTimerInterval('RenewSubscription', ((int) $Result['TIMEOUT'] - 300) * 1000);
         return true;
     }
     protected function WaitForEvent()

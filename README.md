@@ -1,5 +1,5 @@
 [![SDK](https://img.shields.io/badge/Symcon-PHPModul-red.svg)](https://www.symcon.de/service/dokumentation/entwicklerbereich/sdk-tools/sdk-php/)
-[![Version](https://img.shields.io/badge/Modul%20version-0.73-blue.svg)]()
+[![Version](https://img.shields.io/badge/Modul%20version-0.74-blue.svg)]()
 [![Version](https://img.shields.io/badge/Symcon%20Version-6.0%20%3E-green.svg)](https://community.symcon.de/t/ip-symcon-6-0-testing/44478)  
 [![License](https://img.shields.io/badge/License-CC%20BY--NC--SA%204.0-green.svg)](https://creativecommons.org/licenses/by-nc-sa/4.0/)
 [![Check Style](https://github.com/Nall-chan/FritzBox/workflows/Check%20Style/badge.svg)](https://github.com/Nall-chan/FritzBox/actions) [![Run Tests](https://github.com/Nall-chan/FritzBox/workflows/Run%20Tests/badge.svg)](https://github.com/Nall-chan/FritzBox/actions)  
@@ -134,15 +134,22 @@ Für das Discovery werden Pakete über die Multicast-Adresse `239.255.255.250` a
 
 ## Changelog
 
+Version 0.74:  
+
+ - Fehlermeldungen wenn die Host-Tabelle deaktiviert wurde.  
+ - Neues Modul 'Homeautomation Configurator' / 'SmartHome Konfigurator'.  
+ - 'Homeautomation' / 'SmartHome' Modul legt Variablen an.  
+ 
 Version 0.73:  
 
-- Neue Instanz 'Powerline' um den Zustand der Powerline Geräte darzustellen.  
-- Neue Instanz 'DVBC' um den Zustand des DBV-S Empfängers darzustellen und zu steuern.  
-- Neue Instanz 'Homeautomation' (noch in Arbeit)  
+- Neues Modul 'Powerline' um den Zustand der Powerline Geräte darzustellen.  
+- Neues Modul 'DVBC' um den Zustand des DBV-S Empfängers darzustellen und zu steuern.  
+- Neues Modul 'Homeautomation' / 'SmartHome'
 - Links zur Doku waren defekt.  
 - Bestimmte Rufumleitungen konnten zu Fehlern führen.  
 - Namen und Übersetzungen der Variablen der Rufumleitungen erweitert.  
-- Bessere Fehlerbehandlung beim Auswerten der Antwort vom Event-Subscribe.    
+- Bessere Fehlerbehandlung beim Auswerten der Antwort vom Event-Subscribe.  
+- Fehlermeldung beim Zugriff auf die Telefonbücher und Host-Datei, wenn Symcon startet.  
 
 Version 0.72:  
 
@@ -184,7 +191,7 @@ Version 0.68:
 - Fehlende Übersetzungen im Konfigurator ergänzt
 - Neue Instanz-Funktion für die Suche nach Kontakten in den Telefonbüchern (FB_GetPhonebookEntrysByNumber(12345 /* FritzBox Telefonie */, string $Number))  
 - Neue Instanz-Funktion für die Rückwärtssuche (FB_SearchNameByNumber(12345 /* FritzBox Telefonie */, string $Number, string $AreaCode))  
-- Neue Instanz 'Host Filter' um Hosts den WAN Zugriff zu sperren (noch nicht fertig).  
+- Neues Modul 'Host Filter' um Hosts den WAN Zugriff zu sperren (noch nicht fertig).  
 
 Version 0.62:  
 

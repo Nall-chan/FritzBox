@@ -811,19 +811,18 @@ class FritzBoxIO extends IPSModule
             $ret = stream_get_contents($fp);
             fclose($fp);
             $headers = $this->http_parse_headers($ret);
-            if (!isset($headers[0])){
-                $this->LogMessage('Error on subscribe (parse headers)'."\r\n".$ret, KL_ERROR);
+            if (!isset($headers[0])) {
+                $this->LogMessage('Error on subscribe (parse headers)' . "\r\n" . $ret, KL_ERROR);
                 $this->SendDebug('Error on subscribe (parse headers)', $headers[0], 0);
                 return false;
-
             }
             if ($headers[0] != 'HTTP/1.1 200 OK') {
-                $this->LogMessage('Error on subscribe ('.$headers[0].')'."\r\n".$ret, KL_ERROR);
+                $this->LogMessage('Error on subscribe (' . $headers[0] . ')' . "\r\n" . $ret, KL_ERROR);
                 $this->SendDebug('Error on subscribe', $headers[0], 0);
                 return false;
             }
             if (!array_key_exists('SID', $headers)) {
-                $this->LogMessage('Error on subscribe ('.$headers[0].') No SID'."\r\n".$ret, KL_ERROR);
+                $this->LogMessage('Error on subscribe (' . $headers[0] . ') No SID' . "\r\n" . $ret, KL_ERROR);
                 $this->SendDebug('Error on subscribe', $ret, 0);
                 return false;
             }

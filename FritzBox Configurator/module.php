@@ -212,10 +212,10 @@ require_once __DIR__ . '/../libs/FritzBoxModule.php';
             foreach ($KnownInstances as $InstanceId => $KnownInstance) {
                 $ServiceValues[] = [
                     'instanceID'      => $InstanceId,
-                    'url'             => 'invalid',
+                    'url'             => $this->Translate('invalid'),
                     'name'            => IPS_GetName($InstanceId),
                     'event'           => '',
-                    'type'            => 'unknown'];
+                    'type'            => $this->Translate('unknown')];
             }
             $Form['actions'][0]['values'] = array_merge($DeviceValues, $ServiceValues);
             $this->SendDebug('FORM', json_encode($Form), 0);
@@ -225,7 +225,11 @@ require_once __DIR__ . '/../libs/FritzBoxModule.php';
 
         private function FilterInstances(int $InstanceID)
         {
-            return IPS_GetInstance($InstanceID)['ConnectionID'] == $this->ParentID;
+            $Instance = IPS_GetInstance($InstanceID);
+            if ($Instance['ModuleInfo']['ModuleID'] == '{822E981D-9195-4AA7-821A-36BB1E63F993}') {
+                return false;
+            }
+            return $Instance['ConnectionID'] == $this->ParentID;
         }
 
         private function GetInstanceList()
@@ -236,12 +240,4 @@ require_once __DIR__ . '/../libs/FritzBoxModule.php';
             }
             return $AllInstancesOfParent;
         }
-        // Die drei XMLs holen aus dem IO
-        // Als Tree darstellen, mit Device und Co&
-        // Filter für bestimmte Instanzen, wie
-        // Nur wenn ConnectionType DSL ist DSL anbieten
-        //  Nur wenn Telefon vorhanden, den Anrufmonitor anbieten
-        // StandardDevices für serviceType
-        // diese Instanzen habe static $Statevars für Profile, Funktionen, VarTyp etc...
-        // Speziallinstanzen für Host, WLANs und Anrufliste
     }

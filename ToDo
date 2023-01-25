@@ -16,6 +16,13 @@ Fertige Instanzen:
    AB / (Portweiterleitung auch?) Update fehlt nach dem ein/Ausschalten
    https://community.symcon.de/t/beta-modul-fritzbox-ersatz-fuer-fritzbox-project/125451/202?u=nall-chan
 
+allgemeine WAN-Schnittstelleninstanz?
+Wenn ja, passen bei dir noch die Werte für „Empfangen/Gesendet seit verbunden“?
+https://community.symcon.de/t/beta-modul-fritzbox-ersatz-fuer-fritzbox-project/125451/435?u=nall-chan
+
+DSL-Fehler abfragen?!
+https://community.symcon.de/t/beta-modul-fritzbox-ersatz-fuer-fritzbox-project/125451/356?u=nall-chan
+
 
  $SecondEventGUID in WLAN und Host war wofür???
   - Wenn Host Instanz die Host neu ausliest? -> Dann EVENT zu den anderen Childs?!
@@ -37,7 +44,7 @@ Feldtest nötig:
  
 Unfertig / Fehlen:
 - 2F Authentication ?  (fehlt komplett)
-🕜 Homeauto (im Arbeit)
+🕜 Homeauto (zum testen)
 - Dect (fehlt komplett)
 - Anrufbeantworter (fehlt komplett)
 - Wählhilfe (fehlt in Telephony, realisierbarkeit noch nicht getestet)
@@ -49,9 +56,10 @@ Später/Sonstiges:
 - Fehler beim schalten der Zeitserver-Variablen.
 - Host Variablen sollten einzeln per Liste konfigurierbar sein.
 - Bei Host auto-löschen der Variablen sinnvoll? Wenn ja nur manuell zuschaltbar. Oder über eine Liste (siehe oben) abbilden.
-✅ Rufumleitungen und Anrufblockaden übersetzungen verbessern.
-✅ Instanz-Konfig Form prüfen / Anpassung fertigstellen
-✅ IO oder Konfigurator sollte prüfen ob der Anrufmonitor der FritzBox aktiv ist, sonst einen Hinweis an User ausgeben in der Konfig (wo? IO / Anrufmonitor Instanz) ausgeben.
-✅ Hinweis in der Konfig der Anrufliste fehlt, das kein Intervall benötigt wird, wenn der Anrufmonitor aktiv ist.
-✅ Instanz-Funktionen für Zugriff auf die cached Daten des Telefonbuchs fehlt.
+✅ Instanz-Funktionen für Zugriff auf die Daten des Telefonbuchs fehlt.
+✅ Instanz-Funktion für Suche in Telefonbüchern.
 ✅ Anrufliste gestern/heute in Zeitpunkt-Spalte fehlt.
+✅ NAT / Betrieb aus anderen Subnetzen
+✅ Prüfung im IO welche Anrufmonitor der FritzBox eingerichtet sind, damit der Konfigurator entsprechende Instanz anbieten kann.
+✅ Hinweis in der Konfiguration der Anrufliste fehlt, das kein Intervall benötigt wird, wenn der Anrufmonitor aktiv ist.
+✅ Rufumleitungen und Anrufblockaden übersetzungen verbessern.

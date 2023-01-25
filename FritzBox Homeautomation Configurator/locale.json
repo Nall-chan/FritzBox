@@ -1,0 +1,14 @@
+{
+    "translations": {
+        "de": {
+            "Manufacturer": "Hersteller",
+            "Product": "Gerät",
+            "Not connected!": "Nicht verbunden!",
+            "The 'FritzBox IO' instance is not connected or missing.": "Die 'FritzBox IO' Instanz ist nicht verbunden oder fehlt.",
+            "Nothing found!": "Nichts gefunden!",
+            "No devices were found.\r\nEither no devices were paired or the firmware of the FritzBox is too old.": "Es wurden keine Geräte gefunden.\r\nEntweder wurden keine Geräte gekoppelt oder die Firmware der FritzBox ist zu alt.",
+            "FritzBox Homeautomation": "FritzBox SmartHome",
+            "This module is free for non-commercial use,\r\nDonations in support of the author are accepted here:": "Dieses Modul ist für die nicht kommerzielle Nutzung kostenlos,\r\nSchenkungen als Unterstützung für den Autor werden hier akzeptiert:"
+        }
+    }
+}

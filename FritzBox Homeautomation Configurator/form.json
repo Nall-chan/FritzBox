@@ -1,26 +1,56 @@
 {
-    "elements": [
-        {
-            "type": "ValidationTextBox",
-            "name": "AIN",
-            "caption": "Device AIN"
-        },
-        {
-            "name": "RefreshInterval",
-            "type": "NumberSpinner",
-            "caption": "Refresh Interval",
-            "suffix": "seconds",
-            "minimum": 0
-        }
-    ],
     "actions": [
         {
-            "type": "Button",
-            "caption": "Update Values",
-            "onClick": "IPS_RequestAction($id,'RefreshInfo',true);"
+            "type": "Configurator",
+            "name": "Configurator",
+            "add": false,
+            "delete": true,
+            "sort": {
+                "column": "name",
+                "direction": "ascending"
+            },
+            "columns": [
+                {
+                    "caption": "AIN",
+                    "name": "AIN",
+                    "width": "350px"
+                },
+                {
+                    "caption": "Manufacturer",
+                    "name": "Manufacturer",
+                    "width": "350px"
+                },
+                {
+                    "caption": "Product",
+                    "name": "ProductName",
+                    "width": "350px"
+                },
+                {
+                    "caption": "Name",
+                    "name": "name",
+                    "width": "auto"
+                }
+            ],
+            "values": []
         },
         {
-            "type": "TestCenter"
+            "name": "ErrorPopup",
+            "type": "PopupAlert",
+            "visible": false,
+            "popup": {
+                "items": [
+                    {
+                        "name": "ErrorTitle",
+                        "type": "Label",
+                        "caption": "No Devices found!"
+                    },
+                    {
+                        "name": "ErrorText",
+                        "type": "Label",
+                        "caption": "No devices were found.\r\nEither no devices were paired or the firmware of the FritzBox is too old."
+                    }
+                ]
+            }
         },
         {
             "type": "Label",

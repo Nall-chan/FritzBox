@@ -13,7 +13,6 @@ class FritzBoxHostFilter extends FritzBoxModulBase
         '/upnp/control/x_hostfilter'
     ];
     protected static $EventSubURLArray = [
-        //'/upnp/control/x_hostfilter'
     ];
     protected static $ServiceTypeArray = [
         'urn:dslforum-org:service:X_AVM-DE_HostFilter:1'
