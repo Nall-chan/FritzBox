@@ -863,7 +863,7 @@ class FritzBoxIO extends IPSModule
                 }
             }
         }
-
+        $headers = array_change_key_case($headers, CASE_UPPER);
         return $headers;
     }
 }
