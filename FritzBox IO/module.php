@@ -769,6 +769,7 @@ class FritzBoxIO extends IPSModule
     private function Subscribe(string $Uri, string $SID)
     {
         if ($this->ReadAttributeString('ConsumerAddress') == 'Invalid') {
+            $this->LogMessage('ConsumerAddress Invalid' . "\r\n" . $this->ReadAttributeString('ConsumerAddress'), KL_ERROR);
             return false;
         }
         $stream = stream_context_create(
@@ -796,15 +797,18 @@ class FritzBoxIO extends IPSModule
                       "Content-Length: 0\r\n\r\n";
         $this->SendDebug('Send SUBSCRIBE', $content, 0);
         $Prefix = (parse_url($this->Url, PHP_URL_SCHEME) == 'https') ? 'ssl://' : 'tcp://';
-        $fp = @stream_socket_client($Prefix . parse_url($this->Url, PHP_URL_HOST) . ':' . parse_url($this->Url, PHP_URL_PORT), $errno, $errstr, 4, STREAM_CLIENT_CONNECT, $stream);
+        $fp = @stream_socket_client($Prefix . parse_url($this->Url, PHP_URL_HOST) . ':' . parse_url($this->Url, PHP_URL_PORT), $errno, $errstr, 5, STREAM_CLIENT_CONNECT, $stream);
         if (!$fp) {
+            $this->LogMessage('Could not connect to eventSubURL' . "\r\n" . $Uri, KL_ERROR);
             $this->SendDebug('Could not connect to eventSubURL', $Uri, 0);
             return false;
         } else {
             for ($fwrite = 0, $written = 0, $max = strlen($content); $written < $max; $written += $fwrite) {
                 $fwrite = @fwrite($fp, substr($content, $written));
                 if ($fwrite === false) {
+                    $this->LogMessage('Error on write to eventSubURL' . "\r\n" . $Uri, KL_ERROR);
                     $this->SendDebug('Error on write to eventSubURL', $Uri, 0);
+                    @fclose($fp);
                     return false;
                 }
             }
