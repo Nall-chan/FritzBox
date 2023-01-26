@@ -109,7 +109,7 @@ class FritzBoxHomeautomation extends FritzBoxModulBase
         }
         if ($Result['NewSwitchIsEnabled'] == 'ENABLED') {
             $this->setIPSVariable('SwitchIsValid', 'Switch (valid)', (string) $Result['NewSwitchIsValid'], VARIABLETYPE_STRING, 'FB.AHA.Valid', false);
-            $this->setIPSVariable('SwitchState', 'Switch (State)', (string) $Result['NewSwitchState'], VARIABLETYPE_FLOAT, 'FB.AHA.State', true);
+            $this->setIPSVariable('SwitchState', 'Switch (State)', (string) $Result['NewSwitchState'], VARIABLETYPE_STRING, 'FB.AHA.State', true);
             $this->setIPSVariable('SwitchMode', 'Switch (Mode)', (string) $Result['NewSwitchMode'], VARIABLETYPE_STRING, 'FB.AHA.Mode', false);
             $this->setIPSVariable('SwitchLock', 'Switch (Lock)', (int) $Result['NewSwitchLock'] > 0, VARIABLETYPE_BOOLEAN, '~Switch', false);
         }
