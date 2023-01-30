@@ -1,11 +1,11 @@
 {
     "id": "{D636EA77-03A0-4359-9DFD-4CE035459023}",
     "name": "FritzBox Homeautomation Configurator",
-    "type": 3,
+    "type": 4,
     "vendor": "AVM",
     "aliases": [
         "FritzBox Homeautomation Configurator",
-        "FritzBox Homeautomation Konfigurator"
+        "FritzBox SmartHome Konfigurator"
     ],
     "parentRequirements": [
         "{D62D4515-7689-D1DB-EE97-F555AD9433F0}"

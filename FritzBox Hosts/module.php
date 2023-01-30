@@ -31,6 +31,22 @@ class FritzBoxHosts extends FritzBoxModulBase
         $this->RegisterPropertyBoolean('RenameHostVariables', true);
         $this->RegisterPropertyInteger('RefreshInterval', 60);
         $this->RegisterPropertyBoolean('HostAsTable', true);
+        $KnownVariableIdents = array_filter(IPS_GetChildrenIDs($this->InstanceID), function ($VariableID)
+        {
+            $Ident = IPS_GetObject($VariableID)['ObjectIdent'];
+            if ((substr($Ident, 0, 2) == 'IP') || (substr($Ident, 0, 3) == 'MAC')) {
+                return true;
+            }
+            return false;
+        });
+        $UsedVariableIdents = array_map(function ($Ident)
+        {
+            return [
+                'ident'=> $Ident,
+                'use'  => true
+            ];
+        }, $KnownVariableIdents);
+        $this->RegisterPropertyString('HostVariables', $UsedVariableIdents);
         $Style = $this->GenerateHTMLStyleProperty();
         $this->RegisterPropertyString('Table', json_encode($Style['Table']));
         $this->RegisterPropertyString('Columns', json_encode($Style['Columns']));
@@ -47,6 +63,7 @@ class FritzBoxHosts extends FritzBoxModulBase
 
     public function ApplyChanges()
     {
+        $this->UnregisterMessage($this->HostNumberOfEntriesId, VM_UPDATE);
         $this->SetTimerInterval('RefreshHosts', 0);
         $this->HostNumberOfEntriesId = $this->RegisterVariableInteger('HostNumberOfEntries', $this->Translate('Number of network devices'), '', -2);
         $this->SetTimerInterval('RefreshHosts', 0);
@@ -57,15 +74,24 @@ class FritzBoxHosts extends FritzBoxModulBase
         } else {
             $this->UnregisterVariable('HostTable');
         }
-
         if (!($Variable || ($Table))) {
             $this->SetStatus(IS_INACTIVE);
-            $this->UnregisterMessage($this->HostNumberOfEntriesId, VM_UPDATE);
+
             return;
         }
-        $this->RegisterMessage($this->HostNumberOfEntriesId, VM_UPDATE);
+
+        $HostVariables = json_decode($this->ReadPropertyString('HostVariables'), true);
+        foreach ($HostVariables as $HostVariable) {
+            if (!$HostVariable['use']) {
+                $this->UnregisterVariable($HostVariable['ident']);
+            }
+        }
+
         parent::ApplyChanges();
+        $this->RefreshHostList();
+
         $this->SetTimerInterval('RefreshHosts', $this->ReadPropertyInteger('RefreshInterval') * 1000);
+        $this->RegisterMessage($this->HostNumberOfEntriesId, VM_UPDATE);
     }
 
     public function MessageSink($TimeStamp, $SenderID, $Message, $Data)
@@ -80,13 +106,37 @@ class FritzBoxHosts extends FritzBoxModulBase
         }
         parent::MessageSink($TimeStamp, $SenderID, $Message, $Data);
     }
+
     public function RequestAction($Ident, $Value)
     {
         if (parent::RequestAction($Ident, $Value)) {
             return true;
         }
-        if ($Ident == 'RefreshHosts') {
-            return $this->UpdateHostNumberOfEntries();
+        switch ($Ident) {
+            case 'RefreshHosts':
+                return $this->UpdateHostNumberOfEntries();
+            case 'HostAsVariable':
+                $this->UpdateFormField('RenameHostVariables', 'enabled', $Value);
+                $this->UpdateFormField('HostvariablesPanel', 'expanded', $Value);
+                $this->UpdateFormField('HostVariables', 'enabled', $Value);
+                return;
+            case 'HostTableAsVariable':
+                $this->UpdateFormField('Table', 'enabled', $Value);
+                $this->UpdateFormField('Columns', 'enabled', $Value);
+                $this->UpdateFormField('Rows', 'enabled', $Value);
+                $this->UpdateFormField('HostAsTablePanel', 'expanded', $Value);
+                /*if ($Value) {
+                    $this->UpdateFormField('HostAsTablePanel', 'onClick', 'var_dump($HostAsVariable);');
+                }*/
+                return;
+                case 'HostvariablesPanel':
+                    if ($this->ShowVariableWarning) {
+                        $this->UpdateFormField('ErrorPopup', 'visible', true);
+                        $this->UpdateFormField('ErrorTitle', 'caption', 'Attention!');
+                        $this->UpdateFormField('ErrorText', 'caption', 'Deselecting a host causes the associated status variable to be deleted.');
+                        $this->ShowVariableWarning = false;
+                    }
+                    return;
         }
         if (strpos($Ident, 'MAC') === 0) {
             if ($Value === true) {
@@ -96,6 +146,31 @@ class FritzBoxHosts extends FritzBoxModulBase
         }
         trigger_error($this->Translate('Invalid Ident.'), E_USER_NOTICE);
         return false;
+    }
+
+    public function GetConfigurationForm()
+    {
+        $Form = json_decode(file_get_contents(__DIR__ . '/form.json'), true);
+        if (!$this->ReadPropertyBoolean('HostAsTable')) {
+            $Form['elements'][3]['items'][0]['enabled'] = false;
+            $Form['elements'][3]['items'][1]['enabled'] = false;
+            $Form['elements'][3]['items'][2]['enabled'] = false;
+        }
+        if (!$this->ReadPropertyBoolean('HostAsVariable')) {
+            $Form['elements'][1]['items'][0]['items'][1]['enabled'] = false;
+            $Form['elements'][1]['items'][1]['items'][0]['enabled'] = false;
+        } else {
+            $this->ShowVariableWarning = true;
+            $Form['elements'][1]['items'][1]['onClick'] = 'IPS_RequestAction($id,"HostvariablesPanel", true);';
+        }
+        $Values = $this->GetHostVariables();
+        if (count($Values) == 0) {
+            $Values = json_decode($this->ReadPropertyString('HostVariables'), true);
+        }
+        $Form['elements'][1]['items'][1]['items'][0]['values'] = $Values;
+        $this->SendDebug('FORM', json_encode($Form), 0);
+        $this->SendDebug('FORM', json_last_error_msg(), 0);
+        return json_encode($Form);
     }
     public function ReceiveData($JSONString)
     {
@@ -128,6 +203,9 @@ class FritzBoxHosts extends FritzBoxModulBase
         if (!($Variable || ($Table))) {
             return true;
         }
+
+        $HostVariables = array_column(json_decode($this->ReadPropertyString('HostVariables'), true), 'use', 'ident');
+
         $XMLData = $this->GetFile('Hosts');
         if ($XMLData === false) {
             $this->SendDebug('XML not found', 'Hosts', 0);
@@ -151,15 +229,19 @@ class FritzBoxHosts extends FritzBoxModulBase
                 $Action = true;
             }
             if ($Variable) {
-                $VarId = @$this->GetIDForIdent($Ident);
-                $this->setIPSVariable($Ident, (string) $xmlItem->HostName, (int) $xmlItem->Active == 1, VARIABLETYPE_BOOLEAN, '~Switch', $Action);
-                if ($VarId == 0) {
-                    $VarId = $this->GetIDForIdent($Ident);
-                    IPS_SetVariableCustomAction($VarId, 1);
-                } else {
-                    if ($Rename) {
-                        if (IPS_GetName($VarId) != (string) $xmlItem->HostName) {
-                            IPS_SetName($VarId, (string) $xmlItem->HostName);
+                if (array_key_exists($Ident, $HostVariables)) {
+                    if ($HostVariables[$Ident]) {
+                        $VarId = @$this->GetIDForIdent($Ident);
+                        $this->setIPSVariable($Ident, (string) $xmlItem->HostName, (int) $xmlItem->Active == 1, VARIABLETYPE_BOOLEAN, '~Switch', $Action);
+                        if ($VarId == 0) {
+                            $VarId = $this->GetIDForIdent($Ident);
+                            IPS_SetVariableCustomAction($VarId, 1);
+                        } else {
+                            if ($Rename) {
+                                if (IPS_GetName($VarId) != (string) $xmlItem->HostName) {
+                                    IPS_SetName($VarId, (string) $xmlItem->HostName);
+                                }
+                            }
                         }
                     }
                 }
@@ -300,6 +382,79 @@ class FritzBoxHosts extends FritzBoxModulBase
             return false;
         }
         return $result;
+    }
+
+    private function GetHostVariables(): array
+    {
+        $HostVariables = array_column(json_decode($this->ReadPropertyString('HostVariables'), true), 'use', 'ident');
+        if (!$this->HasActiveParent()) {
+            return [];
+        }
+        $XMLData = $this->GetFile('Hosts');
+        if ($XMLData === false) {
+            $this->SendDebug('XML not found', 'Hosts', 0);
+            return [];
+        }
+        $xml = new simpleXMLElement($XMLData);
+        if ($xml === false) {
+            $this->SendDebug('XML decode error', $XMLData, 0);
+            return [];
+        }
+        $this->SendDebug('XML', $XMLData, 0);
+        $KnownVariables = array_filter(IPS_GetChildrenIDs($this->InstanceID), function ($VariableID)
+        {
+            $Ident = IPS_GetObject($VariableID)['ObjectIdent'];
+            if ((substr($Ident, 0, 2) == 'IP') || (substr($Ident, 0, 3) == 'MAC')) {
+                return true;
+            }
+            return false;
+        });
+        $TableData = [];
+        foreach ($xml as $xmlItem) {
+            if ((string) $xmlItem->MACAddress == '') {
+                $Address = (string) $xmlItem->IPAddress;
+                $Ident = 'IP' . strtoupper($this->ConvertIdent((string) $xmlItem->IPAddress));
+            } else {
+                $Address = (string) $xmlItem->MACAddress;
+                $Ident = 'MAC' . strtoupper($this->ConvertIdent((string) $xmlItem->MACAddress));
+            }
+            $Used = false;
+            if (array_key_exists($Ident, $HostVariables)) {
+                $Used = $HostVariables[$Ident];
+            }
+            $VariableID = @$this->GetIDForIdent($Ident);
+            if ($VariableID) {
+                $Key = array_search($VariableID, $KnownVariables);
+                $Name = IPS_GetName($VariableID);
+                unset($KnownVariables[$Key]);
+                $RowColor = ($Name != (string) $xmlItem->HostName) ? '#DFDFDF' : '#FFFFFF';
+            } else {
+                $Name = (string) $xmlItem->HostName;
+                $RowColor = '#C0FFC0';
+            }
+            $TableData[] = [
+                'ident'   => $Ident,
+                'address' => $Address,
+                'name'    => $Name,
+                'rowColor'=> $RowColor,
+                'use'     => $Used
+            ];
+        }
+        foreach ($KnownVariables as $VariableID) {
+            if (array_key_exists($Ident, $HostVariables)) {
+                $Used = $HostVariables[$Ident];
+            } else {
+                $Used = false;
+            }
+            $TableData[] = [
+                'ident'   => IPS_GetObject($VariableID)['ObjectIdent'],
+                'address' => '',
+                'name'    => IPS_GetName($VariableID),
+                'rowColor'=> '#FFC0C0',
+                'use'     => $Used
+            ];
+        }
+        return $TableData;
     }
     private function CreateHostHTMLTable(array $TableData)
     {

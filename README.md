@@ -134,12 +134,18 @@ Für das Discovery werden Pakete über die Multicast-Adresse `239.255.255.250` a
 
 ## Changelog
 
+Version 0.75:  
+
+ - 'Homeautomation Configurator' / 'SmartHome Konfigurator' wird unter 'Konfiguratoren' angelegt.  
+ - Host-Instanz lässt das abwählen von Statusvariablen zu.  
+
 Version 0.74:  
 
  - Fehlermeldungen wenn die Host-Tabelle deaktiviert wurde.  
  - Neues Modul 'Homeautomation Configurator' / 'SmartHome Konfigurator'.  
  - 'Homeautomation' / 'SmartHome' Modul legt Variablen an.  
- 
+ - Durch Änderungen des HTTP-Header ab einer nicht genauer bekannten Fritz!OS Version traten 'Subscribe' Fehlermeldungen auf. Der Fehler ist behoben.  
+
 Version 0.73:  
 
 - Neues Modul 'Powerline' um den Zustand der Powerline Geräte darzustellen.  

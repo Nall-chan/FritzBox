@@ -28,7 +28,6 @@ class Services
         'urn:dslforum-org:service:X_AVM-DE_HostFilter:1'         => ['{6E830782-BB60-4E2E-B6FD-8937BEAE2B46}'=>0],
         'urn:dslforum-org:service:X_AVM-DE_Homeplug:1'           => ['{B1B43095-2B0A-4C85-A4DE-E962404201C7}'=>0], // Powerline
         'urn:dslforum-org:service:X_AVM-DE_Media:1'              => ['{DF0D838F-C5B4-43D4-A95B-CBCF2A05138E}'=>0], // DVBC
-        //'urn:dslforum-org:service:X_AVM-DE_Homeauto:1'           => ['{822E981D-9195-4AA7-821A-36BB1E63F993}'=>0], //Homeautomation Device
         'urn:dslforum-org:service:X_AVM-DE_Homeauto:1'           => ['{D636EA77-03A0-4359-9DFD-4CE035459023}'=>0], //Homeautomation Configurator
 
         //TODO

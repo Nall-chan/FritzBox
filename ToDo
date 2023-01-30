@@ -11,17 +11,19 @@ Fertige Instanzen:
  - Telefonie
  - Powerline
  - DVBC
+ - Homeautomation
+ - Homeautomation Configurator
 
  - Fehler:
    AB / (Portweiterleitung auch?) Update fehlt nach dem ein/Ausschalten
    https://community.symcon.de/t/beta-modul-fritzbox-ersatz-fuer-fritzbox-project/125451/202?u=nall-chan
 
-allgemeine WAN-Schnittstelleninstanz?
-Wenn ja, passen bei dir noch die Werte für „Empfangen/Gesendet seit verbunden“?
-https://community.symcon.de/t/beta-modul-fritzbox-ersatz-fuer-fritzbox-project/125451/435?u=nall-chan
+   allgemeine WAN-Schnittstelleninstanz?
+   Wenn ja, passen bei dir noch die Werte für „Empfangen/Gesendet seit verbunden“?
+   https://community.symcon.de/t/beta-modul-fritzbox-ersatz-fuer-fritzbox-project/125451/435?u=nall-chan
 
-DSL-Fehler abfragen?!
-https://community.symcon.de/t/beta-modul-fritzbox-ersatz-fuer-fritzbox-project/125451/356?u=nall-chan
+   DSL-Fehler abfragen?!
+   https://community.symcon.de/t/beta-modul-fritzbox-ersatz-fuer-fritzbox-project/125451/356?u=nall-chan
 
 
  $SecondEventGUID in WLAN und Host war wofür???
@@ -43,8 +45,7 @@ Feldtest nötig:
  
  
 Unfertig / Fehlen:
-- 2F Authentication ?  (fehlt komplett)
-🕜 Homeauto (zum testen)
+- 2F Authentication?  (fehlt komplett)
 - Dect (fehlt komplett)
 - Anrufbeantworter (fehlt komplett)
 - Wählhilfe (fehlt in Telephony, realisierbarkeit noch nicht getestet)
@@ -54,8 +55,9 @@ Unfertig / Fehlen:
 Später/Sonstiges:
 - LinkStateToInt weg und LinkState auf String umbauen
 - Fehler beim schalten der Zeitserver-Variablen.
-- Host Variablen sollten einzeln per Liste konfigurierbar sein.
-- Bei Host auto-löschen der Variablen sinnvoll? Wenn ja nur manuell zuschaltbar. Oder über eine Liste (siehe oben) abbilden.
+- Filter bei den SmartHome Geräten
+✅ Host Variablen sollten einzeln per Liste konfigurierbar sein.
+✅ Instanzen für Homeautomation
 ✅ Instanz-Funktionen für Zugriff auf die Daten des Telefonbuchs fehlt.
 ✅ Instanz-Funktion für Suche in Telefonbüchern.
 ✅ Anrufliste gestern/heute in Zeitpunkt-Spalte fehlt.

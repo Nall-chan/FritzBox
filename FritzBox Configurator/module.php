@@ -129,11 +129,19 @@ require_once __DIR__ . '/../libs/FritzBoxModule.php';
                                 $index++;
                             }
                             $AddService['type'] = $AddService['type'] . ' (' . $this->Translate(IPS_GetModule($guid)['ModuleName']) . ')';
-                            $AddService['create'] = [
-                                'moduleID'      => $guid,
-                                'configuration' => ['Index' => $index],
-                                'location'      => [IPS_GetName($this->InstanceID)]
-                            ];
+                            if (IPS_GetModule($guid)['ModuleType'] == 3) {
+                                $AddService['create'] = [
+                                    'moduleID'      => $guid,
+                                    'configuration' => ['Index' => $index],
+                                    'location'      => [IPS_GetName($this->InstanceID)]
+                                ];
+                            } else {
+                                $AddService['create'] = [
+                                    'moduleID'      => $guid,
+                                    'configuration' => ['Index' => $index]
+                                ];
+                            }
+
                             $Key = array_search(\FritzBox\Services::$Data[$serviceType], $KnownInstances);
                             if ($Key === false) {
                                 if (is_numeric($AddService['url'][-1])) {
@@ -225,6 +233,9 @@ require_once __DIR__ . '/../libs/FritzBoxModule.php';
 
         private function FilterInstances(int $InstanceID)
         {
+            if ($this->InstanceID == $InstanceID) {
+                return false;
+            }
             $Instance = IPS_GetInstance($InstanceID);
             if ($Instance['ModuleInfo']['ModuleID'] == '{822E981D-9195-4AA7-821A-36BB1E63F993}') {
                 return false;
@@ -234,7 +245,7 @@ require_once __DIR__ . '/../libs/FritzBoxModule.php';
 
         private function GetInstanceList()
         {
-            $AllInstancesOfParent = array_flip(array_filter(IPS_GetInstanceListByModuleType(MODULETYPE_DEVICE), [$this, 'FilterInstances']));
+            $AllInstancesOfParent = array_flip(array_filter(IPS_GetInstanceList(), [$this, 'FilterInstances']));
             foreach ($AllInstancesOfParent as $key => &$value) {
                 $value = [IPS_GetInstance($key)['ModuleInfo']['ModuleID'] => IPS_GetProperty($key, 'Index')];
             }

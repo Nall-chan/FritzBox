@@ -11,26 +11,85 @@
             "type": "RowLayout",
             "items": [
                 {
-                    "name": "HostAsVariable",
-                    "type": "CheckBox",
-                    "caption": "Create variable per network device",
-                    "width": "400px"
+                    "type": "ColumnLayout",
+                    "items": [
+                        {
+                            "name": "HostAsVariable",
+                            "type": "CheckBox",
+                            "caption": "Create variable per network device",
+                            "onChange": "IPS_RequestAction($id,'HostAsVariable',$HostAsVariable);",
+                            "width": "400px"
+                        },
+                        {
+                            "name": "RenameHostVariables",
+                            "type": "CheckBox",
+                            "caption": "Rename network device variables automatically",
+                            "width": "400px"
+                        }
+                    ]
                 },
                 {
-                    "name": "RenameHostVariables",
-                    "type": "CheckBox",
-                    "caption": "Rename network device variables automatically",
-                    "width": "400px"
+                    "type": "ExpansionPanel",
+                    "name": "HostvariablesPanel",
+                    "caption": "Hostvariables",
+                    "onClick": "",
+                    "items": [
+                        {
+                            "type": "List",
+                            "name": "HostVariables",
+                            "caption": "Statevariables",
+                            "rowCount": 50,
+                            "add": false,
+                            "delete": false,
+                            "loadValuesFromConfiguration": false,
+                            "sort": {
+                                "column": "name",
+                                "direction": "ascending"
+                            },
+                            "columns": [
+                                {
+                                    "name": "ident",
+                                    "caption": "Ident",
+                                    "visible": false,
+                                    "save": true
+                                },
+                                {
+                                    "name": "address",
+                                    "caption": "Address",
+                                    "width": "300px",
+                                    "save": false
+                                },
+                                {
+                                    "name": "name",
+                                    "caption": "Name",
+                                    "width": "600px",
+                                    "save": false
+                                },
+                                {
+                                    "name": "use",
+                                    "caption": "used",
+                                    "width": "75px",
+                                    "save": true,
+                                    "add": false,
+                                    "edit": {
+                                        "type": "CheckBox"
+                                    }
+                                }
+                            ]
+                        }
+                    ]
                 }
             ]
         },
         {
             "name": "HostAsTable",
             "type": "CheckBox",
-            "caption": "Show all network devices as HTML-Table"
+            "caption": "Show all network devices as HTML-Table",
+            "onChange": "IPS_RequestAction($id,'HostTableAsVariable',$HostAsTable);"
         },
         {
             "type": "ExpansionPanel",
+            "name": "HostAsTablePanel",
             "caption": "HTML-Table design",
             "items": [
                 {
@@ -50,7 +109,7 @@
                         {
                             "caption": "CSS",
                             "name": "style",
-                            "width": "auto",
+                            "width": "1250px",
                             "edit": {
                                 "type": "ValidationTextBox"
                             }
@@ -217,7 +276,7 @@
                         {
                             "caption": "CSS",
                             "name": "style",
-                            "width": "auto",
+                            "width": "925px",
                             "edit": {
                                 "type": "ValidationTextBox"
                             }
@@ -232,6 +291,26 @@
             "type": "Button",
             "caption": "Read network devices",
             "onClick": "IPS_RequestAction($id,'RefreshHosts',true);"
+        },
+        {
+            "name": "ErrorPopup",
+            "type": "PopupAlert",
+            "visible": false,
+            "popup": {
+                "items": [
+                    {
+                        "name": "ErrorTitle",
+                        "type": "Label",
+                        "caption": ""
+                    },
+                    {
+                        "name": "ErrorText",
+                        "type": "Label",
+                        "caption": "",
+                        "width": "300px"
+                    }
+                ]
+            }
         },
         {
             "type": "TestCenter"

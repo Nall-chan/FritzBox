@@ -173,6 +173,8 @@ class FritzBoxTelephony extends FritzBoxModulBase
                 return;
             case 'CallLogAsVariable':
                 $this->SendDebug('CallLogAsVariable', $Value, 0);
+                $this->UpdateFormField('LastEntries', 'enabled', $Value);
+                $this->UpdateFormField('LoadListType', 'enabled', $Value);
                 $this->UpdateFormField('Icons', 'enabled', $Value);
                 $this->UpdateFormField('ShowImage', 'enabled', $Value);
                 $this->UpdateFormField('Table', 'enabled', $Value);
@@ -181,6 +183,8 @@ class FritzBoxTelephony extends FritzBoxModulBase
                 $this->UpdateFormField('Rows', 'enabled', $Value);
                 $this->UpdateFormField('RefreshIntervalCallLog', 'enabled', $Value);
                 $this->UpdateFormField('ReloadCallLogButton', 'enabled', $Value);
+                $this->UpdateFormField('HTMLExpansionPanel', 'expanded', $Value);
+                
                 return;
         }
 
