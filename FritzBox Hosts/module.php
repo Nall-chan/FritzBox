@@ -31,23 +31,25 @@ class FritzBoxHosts extends FritzBoxModulBase
         $this->RegisterPropertyBoolean('RenameHostVariables', true);
         $this->RegisterPropertyInteger('RefreshInterval', 60);
         $this->RegisterPropertyBoolean('HostAsTable', true);
-        $KnownVariableIdents = array_filter(IPS_GetChildrenIDs($this->InstanceID), function ($VariableID)
+        $UsedVariableIdents = array_map(function ($VariableID)
         {
             $Ident = IPS_GetObject($VariableID)['ObjectIdent'];
             if ((substr($Ident, 0, 2) == 'IP') || (substr($Ident, 0, 3) == 'MAC')) {
-                return true;
+                return [
+                    'ident'=> $Ident,
+                    'use'  => true
+                ];
             }
-            return false;
-        });
-        $UsedVariableIdents=[];
-        $UsedVariableIdents = array_map(function ($Ident)
+        }, IPS_GetChildrenIDs($this->InstanceID));
+        $UsedVariableIdents = array_filter($UsedVariableIdents, function ($Line)
         {
-            return [
-                'ident'=> $Ident,
-                'use'  => true
-            ];
-        }, $KnownVariableIdents);
-        $this->RegisterPropertyString('HostVariables', json_encode($UsedVariableIdents));
+            if ($Line === null) {
+                return false;
+            }
+            return true;
+        });
+
+        $this->RegisterPropertyString('HostVariables', json_encode(array_values($UsedVariableIdents)));
         $Style = $this->GenerateHTMLStyleProperty();
         $this->RegisterPropertyString('Table', json_encode($Style['Table']));
         $this->RegisterPropertyString('Columns', json_encode($Style['Columns']));
