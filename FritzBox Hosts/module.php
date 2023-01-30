@@ -39,6 +39,7 @@ class FritzBoxHosts extends FritzBoxModulBase
             }
             return false;
         });
+        $UsedVariableIdents=[];
         $UsedVariableIdents = array_map(function ($Ident)
         {
             return [
@@ -46,7 +47,7 @@ class FritzBoxHosts extends FritzBoxModulBase
                 'use'  => true
             ];
         }, $KnownVariableIdents);
-        $this->RegisterPropertyString('HostVariables', $UsedVariableIdents);
+        $this->RegisterPropertyString('HostVariables', json_encode($UsedVariableIdents));
         $Style = $this->GenerateHTMLStyleProperty();
         $this->RegisterPropertyString('Table', json_encode($Style['Table']));
         $this->RegisterPropertyString('Columns', json_encode($Style['Columns']));
