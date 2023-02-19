@@ -90,7 +90,7 @@ class FritzBoxHostFilter extends FritzBoxModulBase
         if ($XMLData === false) {
             $this->SendDebug('XML not found', 'Hosts', 0);
         } else {
-            $xml = new simpleXMLElement($XMLData);
+            $xml = new \simpleXMLElement($XMLData);
             if ($xml === false) {
                 $this->SendDebug('XML decode error', $XMLData, 0);
             }

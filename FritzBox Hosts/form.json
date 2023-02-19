@@ -31,14 +31,14 @@
                 {
                     "type": "ExpansionPanel",
                     "name": "HostvariablesPanel",
-                    "caption": "Hostvariables",
+                    "caption": "Variables for Hosts",
                     "onClick": "",
                     "items": [
                         {
                             "type": "List",
                             "name": "HostVariables",
                             "caption": "Statevariables",
-                            "rowCount": 50,
+                            "rowCount": 30,
                             "add": false,
                             "delete": false,
                             "loadValuesFromConfiguration": false,

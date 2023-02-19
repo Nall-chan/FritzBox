@@ -133,6 +133,7 @@ class FritzBoxModulBase extends IPSModule
                 return false;
             }
             $this->GotEvent = true;
+            $this->LogMessage('Event ' . print_r($data['EventData'], true), KL_NOTIFY);
             $this->SendDebug('Event', $data['EventData'], 0);
             $this->DecodeEvent($data['EventData']);
             return true;
@@ -226,12 +227,10 @@ class FritzBoxModulBase extends IPSModule
             if (!$this->WaitForEvent()) {
                 $this->SID = '';
                 $this->SendDebug('No event after subscribe', static::$EventSubURLArray[$Index], 0);
-                //trigger_error('No event after subscribe ' . static::$EventSubURLArray[$Index], E_USER_WARNING);
                 $this->LogMessage('No event after subscribe', KL_ERROR);
                 $this->SetTimerInterval('RenewSubscription', 60000);
                 return false;
             }
-            $this->LogMessage('Event received', KL_NOTIFY);
             $this->SID = $Result['SID'];
         }
         $this->SetTimerInterval('RenewSubscription', ((int) $Result['TIMEOUT'] - 300) * 1000);

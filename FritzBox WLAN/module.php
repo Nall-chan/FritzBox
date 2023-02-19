@@ -9,6 +9,7 @@ require_once __DIR__ . '/../libs/FritzBoxTable.php';
  * @property int $APEnabledId
  * @property int $HostNumberOfEntriesId
  * @property bool $APisGuest
+ * @property int $Channel
  */
 class FritzBoxWLAN extends FritzBoxModulBase
 {
@@ -40,6 +41,24 @@ class FritzBoxWLAN extends FritzBoxModulBase
         $this->APisGuest = false;
 
         $this->RegisterPropertyBoolean('HostAsVariable', false);
+        $UsedVariableIdents = array_map(function ($VariableID)
+        {
+            $Ident = IPS_GetObject($VariableID)['ObjectIdent'];
+            if (substr($Ident, 0, 3) == 'MAC') {
+                return [
+                    'ident'=> $Ident,
+                    'use'  => true
+                ];
+            }
+        }, IPS_GetChildrenIDs($this->InstanceID));
+        $UsedVariableIdents = array_filter($UsedVariableIdents, function ($Line)
+        {
+            if ($Line === null) {
+                return false;
+            }
+            return true;
+        });
+        $this->RegisterPropertyString('HostVariables', json_encode(array_values($UsedVariableIdents)));
         $this->RegisterPropertyBoolean('InfoVariables', false);
         $this->RegisterPropertyBoolean('RenameHostVariables', true);
         $this->RegisterPropertyBoolean('ShowWLanKeyAsVariable', false);
@@ -81,6 +100,26 @@ class FritzBoxWLAN extends FritzBoxModulBase
         $this->EnableAction('X_AVM_DE_APEnabled');
         $this->UnregisterMessage($this->APEnabledId, VM_UPDATE);
         usleep(5);
+        $HostVariables = json_decode($this->ReadPropertyString('HostVariables'), true);
+        foreach ($HostVariables as $HostVariable) {
+            if (!$HostVariable['use']) {
+                $Ident = $HostVariable['ident'];
+                $VarId = @$this->GetIDForIdent($Ident);
+                if ($VarId > 0) {
+                    $del = true;
+                    foreach (IPS_GetChildrenIDs($VarId) as $Id) {
+                        if (IPS_VariableExists($Id)) {
+                            IPS_DeleteVariable($Id);
+                        } else {
+                            $del = false;
+                        }
+                    }
+                    if ($del) {
+                        $this->UnregisterVariable($Ident);
+                    }
+                }
+            }
+        }
         $Index = $this->ReadPropertyInteger('Index');
         if ($Index == -1) {
             $this->SetStatus(IS_INACTIVE);
@@ -95,15 +134,12 @@ class FritzBoxWLAN extends FritzBoxModulBase
                 }
             }
         }
-        usleep(5);
+        $this->SetTimerInterval('RefreshState', $this->ReadPropertyInteger('RefreshInterval') * 1000);
         $this->RegisterMessage($this->APEnabledId, VM_UPDATE);
         $this->HostNumberOfEntriesId = $this->RegisterVariableInteger('HostNumberOfEntries', $this->Translate('Number of active WLAN devices'), '', -2);
         $this->RegisterMessage($this->HostNumberOfEntriesId, VM_UPDATE);
+        usleep(5);
         parent::ApplyChanges();
-        $this->SetTimerInterval('RefreshState', $this->ReadPropertyInteger('RefreshInterval') * 1000);
-        if (IPS_GetKernelRunlevel() != KR_READY) {
-            return;
-        }
     }
     public function MessageSink($TimeStamp, $SenderID, $Message, $Data)
     {
@@ -129,10 +165,31 @@ class FritzBoxWLAN extends FritzBoxModulBase
         switch ($Ident) {
                 case 'RefreshState':
                     return $this->UpdateInfo();
-
                 case 'X_AVM_DE_APEnabled':
                     return $this->SetEnable((bool) $Value);
-            }
+                case 'ShowWLanKeyAsQRCode':
+                    $this->UpdateFormField('QRCodeSize', 'enabled', (bool) $Value);
+                    return;
+                case 'HostAsTable':
+                    $this->UpdateFormField('Table', 'enabled', (bool) $Value);
+                    $this->UpdateFormField('Columns', 'enabled', (bool) $Value);
+                    $this->UpdateFormField('Rows', 'enabled', (bool) $Value);
+                    $this->UpdateFormField('HostAsTablePanel', 'expanded', (bool) $Value);
+                    return;
+                case 'HostAsVariable':
+                    $this->UpdateFormField('RenameHostVariables', 'enabled', (bool) $Value);
+                    $this->UpdateFormField('HostvariablesPanel', 'expanded', (bool) $Value);
+                    $this->UpdateFormField('HostVariables', 'enabled', (bool) $Value);
+                    return;
+                case 'HostvariablesPanel':
+                    if ($this->ShowVariableWarning) {
+                        $this->UpdateFormField('ErrorPopup', 'visible', true);
+                        $this->UpdateFormField('ErrorTitle', 'caption', 'Attention!');
+                        $this->UpdateFormField('ErrorText', 'caption', 'Deselecting a host causes the associated status variable to be deleted.');
+                        $this->ShowVariableWarning = false;
+                    }
+                    return;
+                }
         trigger_error($this->Translate('Invalid Ident.'), E_USER_NOTICE);
         return false;
     }
@@ -164,6 +221,12 @@ class FritzBoxWLAN extends FritzBoxModulBase
                 $Form['actions'][2]['popup']['items'][2]['objectID'] = $ConfiguratorID;
             }
         }
+        if (!$this->ReadPropertyBoolean('HostAsTable')) {
+            $Form['elements'][6]['items'][0]['enabled'] = false;
+            $Form['elements'][6]['items'][1]['enabled'] = false;
+            $Form['elements'][6]['items'][2]['enabled'] = false;
+        }
+
         if ($this->ReadPropertyBoolean('ShowWLanKeyAsQRCode')) {
             $QRCodeID = @IPS_GetObjectIDByIdent('QRCodeIMG', $this->InstanceID);
             if ($QRCodeID > 0) {
@@ -174,12 +237,29 @@ class FritzBoxWLAN extends FritzBoxModulBase
                     ];
                 $Form['actions'][1]['items'][] = $Image;
             }
+        } else {
+            $Form['elements'][3]['items'][1]['enabled'] = false;
         }
+
+        if (!$this->ReadPropertyBoolean('HostAsVariable')) {
+            $Form['elements'][4]['items'][0]['items'][1]['enabled'] = false;
+            $Form['elements'][4]['items'][1]['items'][0]['enabled'] = false;
+        } else {
+            $this->ShowVariableWarning = true;
+            $Form['elements'][4]['items'][1]['onClick'] = 'IPS_RequestAction($id,"HostvariablesPanel", true);';
+        }
+
+        $Values = $this->GetHostVariables();
+        if (count($Values) == 0) {
+            // Fallback für konfigurierte Statusvariablen der Hosts, wenn Abfrage fehlschlägt; z.B. wenn IO offline
+            $Values = json_decode($this->ReadPropertyString('HostVariables'), true);
+        }
+        $Form['elements'][4]['items'][1]['items'][0]['values'] = $Values;
+
         $this->SendDebug('FORM', json_encode($Form), 0);
         $this->SendDebug('FORM', json_last_error_msg(), 0);
         return json_encode($Form);
     }
-    //private
     public function RefreshHostList()
     {
         $Table = $this->ReadPropertyBoolean('HostAsTable');
@@ -188,57 +268,83 @@ class FritzBoxWLAN extends FritzBoxModulBase
         if (!($Variable || ($Table))) {
             return true;
         }
-        if ($this->ParentID == 0) {
-            return false;
-        }
+        // Host holen für Namen
         $XMLData = $this->GetFile('Hosts');
         if ($XMLData === false) {
             $this->SendDebug('XML not found', 'Hosts', 0);
         } else {
-            $xml = new simpleXMLElement($XMLData);
-            if ($xml === false) {
+            $xmlHosts = new \simpleXMLElement($XMLData);
+            if ($xmlHosts === false) {
+                unset($xmlHosts);
                 $this->SendDebug('XML decode error', $XMLData, 0);
             }
         }
+        // WLAN Daten holen
+        $Uri = $this->GetWLANDeviceListPath();
+        if ($Uri === false) {
+            $this->SendDebug('Error load WLAN Data', '', 0);
+            return false;
+        }
+        $XMLData = $this->LoadAndGetData($Uri);
+        if ($XMLData === false) {
+            $this->SendDebug('XML not found', 'WLAN', 0);
+            return false;
+        }
+        $xmlWLAN = new \simpleXMLElement($XMLData);
+        if ($xmlWLAN === false) {
+            $this->SendDebug('XML decode error', $XMLData, 0);
+            return false;
+        }
+        $this->SendDebug('XML', $XMLData, 0);
+        // WLAN Daten filtern auf unseren Channel
+        $Devices = $xmlWLAN->xpath("//Item[AssociatedDeviceChannel ='" . $this->Channel . "']");
+
+        // Konfigurierte Statusvariablen für Hosts
+        $HostVariables = array_column(json_decode($this->ReadPropertyString('HostVariables'), true), 'use', 'ident');
+
+
+
         $TableData = [];
         $pos = 0;
-        $Hosts = $this->GetValue('HostNumberOfEntries');
+        //$Hosts = $this->GetValue('HostNumberOfEntries');
         $ChildsOld = IPS_GetChildrenIDs($this->InstanceID);
         $ChildsNew = [];
-        for ($i = 0; $i < $Hosts; $i++) {
-            $result = @$this->GetGenericAssociatedDeviceInfo($i);
-            if ($result === false) {
-                continue;
-            }
-            $Hostname = strtoupper((string) $result['NewAssociatedDeviceMACAddress']) . ' (' . (string) $result['NewAssociatedDeviceIPAddress'] . ')';
-            $Ident = 'MAC' . strtoupper($this->ConvertIdent((string) $result['NewAssociatedDeviceMACAddress']));
-            if (isset($xml)) {
-                $Xpath = $xml->xpath('/List/Item[MACAddress="' . (string) $result['NewAssociatedDeviceMACAddress'] . '"]/HostName');
+        //for ($i = 0; $i < $Hosts; $i++) {
+        // hier WLAN Daten durchgehen
+        foreach ($Devices as $xmlItem) {
+            $Hostname = strtoupper((string) $xmlItem->AssociatedDeviceMACAddress) . ' (' . (string) $xmlItem->AssociatedDeviceIPAddress . ')';
+            $Ident = 'MAC' . strtoupper($this->ConvertIdent((string) $xmlItem->AssociatedDeviceMACAddress));
+            if (isset($xmlHosts)) {
+                $Xpath = $xmlHosts->xpath('//Item[MACAddress="' . strtoupper((string) $xmlItem->AssociatedDeviceMACAddress) . '"]/HostName');
                 if (count($Xpath) > 0) {
                     $Hostname = (string) $Xpath[0];
                 }
             }
-            if ($Variable) {
-                $this->setIPSVariable($Ident, $Hostname, (int) $result['NewX_AVM-DE_Speed'] > 0, VARIABLETYPE_BOOLEAN, '~Switch', false, $pos);
-                $VarId = $this->GetIDForIdent($Ident);
-                $ChildsNew[] = $VarId;
-                if ($Rename && (IPS_GetName($VarId) != $Hostname)) {
-                    IPS_SetName($VarId, $Hostname);
-                }
-
-                $SpeedId = $this->RegisterSubVariable($VarId, 'Speed', 'Speed', VARIABLETYPE_INTEGER, 'FB.MBits');
-                SetValueInteger($SpeedId, (int) $result['NewX_AVM-DE_Speed']);
-                $SignalId = $this->RegisterSubVariable($VarId, 'Signal', 'Signalstrength', VARIABLETYPE_INTEGER, '~Intensity.100');
-                SetValueInteger($SignalId, (int) $result['NewX_AVM-DE_SignalStrength']);
-            }
             if ($Table) {
                 $TableData[$Hostname] = [
                     'Hostname'      => $Hostname,
-                    'IPAddress'     => (string) $result['NewAssociatedDeviceIPAddress'],
-                    'MACAddress'    => (string) $result['NewAssociatedDeviceMACAddress'],
-                    'Speed'         => (string) $result['NewX_AVM-DE_Speed'] . ' MBit/s',
-                    'Signalstrength'=> (string) $result['NewX_AVM-DE_SignalStrength'] . ' %'
+                    'IPAddress'     => (string) $xmlItem->AssociatedDeviceIPAddress,
+                    'MACAddress'    => (string) $xmlItem->AssociatedDeviceMACAddress,
+                    'Speed'         => (string) $xmlItem->{'X_AVM-DE_Speed'} . ' MBit/s',
+                    'Signalstrength'=> (string) $xmlItem->{'X_AVM-DE_SignalStrength'} . ' %'
                 ];
+            }
+            if ($Variable) {
+                if (array_key_exists($Ident, $HostVariables)) {
+                    if ($HostVariables[$Ident]) {
+                        $this->setIPSVariable($Ident, $Hostname, true, VARIABLETYPE_BOOLEAN, '~Switch', false, $pos);
+                        $VarId = $this->GetIDForIdent($Ident);
+                        $ChildsNew[] = $VarId;
+                        if ($Rename && (IPS_GetName($VarId) != $Hostname)) {
+                            IPS_SetName($VarId, $Hostname);
+                        }
+
+                        $SpeedId = $this->RegisterSubVariable($VarId, 'Speed', 'Speed', VARIABLETYPE_INTEGER, 'FB.MBits');
+                        SetValueInteger($SpeedId, (int) $xmlItem->{'X_AVM-DE_Speed'});
+                        $SignalId = $this->RegisterSubVariable($VarId, 'Signal', 'Signalstrength', VARIABLETYPE_INTEGER, '~Intensity.100');
+                        SetValueInteger($SignalId, (int) $xmlItem->{'X_AVM-DE_SignalStrength'});
+                    }
+                }
             }
         }
         if ($Variable) {
@@ -246,11 +352,15 @@ class FritzBoxWLAN extends FritzBoxModulBase
             foreach ($OfflineVarIds as $VarId) {
                 $Ident = IPS_GetObject($VarId)['ObjectIdent'];
                 if (strpos($Ident, 'MAC') === 0) {
-                    $this->SetValue($Ident, false);
-                    $SpeedId = $this->RegisterSubVariable($VarId, 'Speed', 'Speed', VARIABLETYPE_INTEGER, 'FB.MBits');
-                    SetValueInteger($SpeedId, 0);
-                    $SignalId = $this->RegisterSubVariable($VarId, 'Signal', 'Signalstrength', VARIABLETYPE_INTEGER, '~Intensity.100');
-                    SetValueInteger($SignalId, 0);
+                    if (array_key_exists($Ident, $HostVariables)) {
+                        if ($HostVariables[$Ident]) {
+                            $this->SetValue($Ident, false);
+                            $SpeedId = $this->RegisterSubVariable($VarId, 'Speed', 'Speed', VARIABLETYPE_INTEGER, 'FB.MBits');
+                            SetValueInteger($SpeedId, 0);
+                            $SignalId = $this->RegisterSubVariable($VarId, 'Signal', 'Signalstrength', VARIABLETYPE_INTEGER, '~Intensity.100');
+                            SetValueInteger($SignalId, 0);
+                        }
+                    }
                 }
             }
         }
@@ -581,6 +691,125 @@ class FritzBoxWLAN extends FritzBoxModulBase
         }
         return $result;
     }
+    private function GetHostVariables(): array
+    {
+        // Konfigurierte Statusvariablen für Hosts
+        $HostVariables = array_column(json_decode($this->ReadPropertyString('HostVariables'), true), 'use', 'ident');
+        if (!$this->HasActiveParent()) {
+            return [];
+        }
+        // Host holen für Namen
+        $XMLData = $this->GetFile('Hosts');
+        if ($XMLData === false) {
+            $this->SendDebug('XML not found', 'Hosts', 0);
+            return [];
+        }
+        $xmlHosts = new \simpleXMLElement($XMLData);
+        if ($xmlHosts === false) {
+            $this->SendDebug('XML decode error', $XMLData, 0);
+            return [];
+        }
+        $this->SendDebug('XML', $XMLData, 0);
+
+        // WLAN Daten holen
+        $Uri = $this->GetWLANDeviceListPath();
+        if ($Uri === false) {
+            $this->SendDebug('Error load WLAN Data', '', 0);
+            return [];
+        }
+        $XMLData = $this->LoadAndGetData($Uri);
+        if ($XMLData === false) {
+            $this->SendDebug('XML not found', 'WLAN', 0);
+            return [];
+        }
+        $xmlWLAN = new \simpleXMLElement($XMLData);
+        if ($xmlWLAN === false) {
+            $this->SendDebug('XML decode error', $XMLData, 0);
+            return [];
+        }
+        $this->SendDebug('XML', $XMLData, 0);
+        // WLAN Daten filtern auf unseren Channel
+        $Devices = $xmlWLAN->xpath("//Item[AssociatedDeviceChannel ='" . $this->Channel . "']");
+
+        $KnownVariableIDs = array_filter(IPS_GetChildrenIDs($this->InstanceID), function ($VariableID)
+        {
+            $Ident = IPS_GetObject($VariableID)['ObjectIdent'];
+            if (substr($Ident, 0, 3) == 'MAC') {
+                return true;
+            }
+            return false;
+        });
+        $TableData = [];
+        // hier WLAN Daten durchgehen und Namen in Host suchen
+        foreach ($Devices as $xmlItem) {
+            $Address = strtoupper((string) $xmlItem->AssociatedDeviceMACAddress);
+            $Ident = 'MAC' . strtoupper($this->ConvertIdent((string) $xmlItem->AssociatedDeviceMACAddress));
+            //$HostName = suche in $xmlHosts, sonst MAC
+            $HostName = $xmlHosts->xpath("//Item[MACAddress ='" . $Address . "']");
+            if (count($HostName) > 0) {
+                $NewName = (string) $HostName[0]->HostName;
+            } else {
+                $Name = $Address;
+            }
+
+            if (array_key_exists($Ident, $HostVariables)) {
+                $Used = $HostVariables[$Ident];
+            } else {
+                $Used = false;
+            }
+            $VariableID = @$this->GetIDForIdent($Ident);
+            if ($VariableID > 0) {
+                $Key = array_search($VariableID, $KnownVariableIDs);
+                $Name = IPS_GetName($VariableID);
+                unset($KnownVariableIDs[$Key]);
+                if (isset($NewName)) {
+                    $RowColor = ($Name != $NewName) ? '#DFDFDF' : '#FFFFFF';
+                } else {
+                    $RowColor = '#FFFFFF';
+                }
+            } else {
+                if (isset($NewName)) {
+                    $Name = $NewName;
+                }
+                $RowColor = '#C0FFC0';
+            }
+            $TableData[] = [
+                'ident'   => $Ident,
+                'address' => $Address,
+                'name'    => $Name,
+                'rowColor'=> $RowColor,
+                'use'     => $Used
+            ];
+        }
+        foreach ($KnownVariableIDs as $VariableID) {
+            $Ident = IPS_GetObject($VariableID)['ObjectIdent'];
+            if (array_key_exists($Ident, $HostVariables)) {
+                $Used = $HostVariables[$Ident];
+            } else {
+                $Used = false;
+            }
+            $Address = implode(':', str_split(substr($Ident, 3), 2));
+            $this->SendDebug('Address', $Address, 0);
+            $Name = IPS_GetName($VariableID);
+            $FoundAddress = $xmlHosts->xpath("//Item[MACAddress ='" . $Address . "']");
+            if (count($FoundAddress) > 0) {
+                $NewName = (string) $FoundAddress[0]->HostName;
+                $RowColor = ($Name != $NewName) ? '#DFDFDF' : '#FFFFFF';
+            } else {
+                $Address = '';
+                $RowColor = '#FFC0C0';
+            }
+
+            $TableData[] = [
+                'ident'   => $Ident,
+                'address' => $Address,
+                'name'    => $Name,
+                'rowColor'=> $RowColor,
+                'use'     => $Used
+            ];
+        }
+        return $TableData;
+    }
     private function GetWLANForm(array &$Options)
     {
         $result = $this->SendDataToParent(json_encode(
@@ -625,10 +854,10 @@ class FritzBoxWLAN extends FritzBoxModulBase
             if ($info === false) {
                 continue;
             }
-            if ($info['NewStandard'] == 'ac') {
-                $Options[$i]['caption'] = $i . $this->Translate(' (5 Ghz)');
-            } else {
+            if ((int) $info['NewChannel'] < 14) {
                 $Options[$i]['caption'] = $i . $this->Translate(' (2,4 Ghz)');
+            } else {
+                $Options[$i]['caption'] = $i . $this->Translate(' (5 Ghz)');
             }
         }
     }
@@ -638,10 +867,9 @@ class FritzBoxWLAN extends FritzBoxModulBase
         if ($resultState === false) {
             return false;
         }
+        $this->Channel = (int) $resultState['NewChannel'];
         $this->setIPSVariable('X_AVM_DE_APEnabled', 'WLAN state', (int) $resultState['NewEnable'] !== 0, VARIABLETYPE_BOOLEAN, '~Switch', false, -11);
         $this->setIPSVariable('SSID', 'SSID Name', (string) $resultState['NewSSID'], VARIABLETYPE_STRING, '', false, -10);
-        //todo
-        // Typ cachen
         if ($this->ReadPropertyBoolean('InfoVariables')) {
             $result = $this->GetWLANExtInfo();
             if ($result === false) {

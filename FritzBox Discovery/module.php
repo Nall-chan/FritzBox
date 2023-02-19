@@ -113,6 +113,9 @@ class FritzBoxDiscovery extends IPSModule
             $DeviceValues[] = $AddDevice;
         }
         $Form['actions'][0]['values'] = $DeviceValues;
+        if (count($Devices) == 0) {
+            $Form['actions'][1]['visible'] = true;
+        }
         $this->SendDebug('FORM', json_encode($Form), 0);
         $this->SendDebug('FORM', json_last_error_msg(), 0);
         return json_encode($Form);
@@ -120,9 +123,10 @@ class FritzBoxDiscovery extends IPSModule
 
     protected function Discover(): array
     {
+        $DevicesData = [];
         $socket = socket_create(AF_INET, SOCK_DGRAM, SOL_UDP);
         if (!$socket) {
-            return [];
+            return $DevicesData;
         }
         socket_set_option($socket, SOL_SOCKET, SO_RCVTIMEO, ['sec' => 2, 'usec' => 100000]);
         socket_set_option($socket, SOL_SOCKET, SO_REUSEADDR, 1);
@@ -141,25 +145,11 @@ class FritzBoxDiscovery extends IPSModule
         $SendData = implode("\r\n", $message) . "\r\n\r\n";
         $this->SendDebug('Search', $SendData, 0);
         if (@socket_sendto($socket, $SendData, strlen($SendData), 0, self::WS_DISCOVERY_MULTICAST_ADDRESS, self::WS_DISCOVERY_MULTICAST_PORT) === false) {
-            return [];
-        }
-        $message = [
-            'M-SEARCH * HTTP/1.1',
-            'ST: upnp:rootdevice',
-            'MAN: "ssdp:discover"',
-            'MX: 5',
-            'HOST: 239.255.255.250:1900',
-            'Content-Length: 0'
-        ];
-        $SendData = implode("\r\n", $message) . "\r\n\r\n";
-        $this->SendDebug('Search', $SendData, 0);
-        if (@socket_sendto($socket, $SendData, strlen($SendData), 0, self::WS_DISCOVERY_MULTICAST_ADDRESS, self::WS_DISCOVERY_MULTICAST_PORT) === false) {
-            return [];
+            return $DevicesData;
         }
         $response = '';
         $IPAddress = '';
         $Port = 0;
-        $DevicesData = [];
         do {
             if (0 == @socket_recvfrom($socket, $response, 2048, 0, $IPAddress, $Port)) {
                 continue;
@@ -172,7 +162,6 @@ class FritzBoxDiscovery extends IPSModule
             if (strpos($Data['SERVER'], 'AVM') === false) {
                 continue;
             }
-
             if (!in_array(parse_url($Data['LOCATION'], PHP_URL_PATH), ['/igddesc.xml', '/igd2desc.xml', '/tr64desc.xml'])) {
                 continue;
             }

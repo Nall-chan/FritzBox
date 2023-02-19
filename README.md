@@ -138,6 +138,10 @@ Version 0.75:
 
  - 'Homeautomation Configurator' / 'SmartHome Konfigurator' wird unter 'Konfiguratoren' angelegt.  
  - Host-Instanz lässt das abwählen von Statusvariablen zu.  
+ - WLAN- Instanz lässt das abwählen von Statusvariablen zu.  
+ - Sollen Variablen von WLAN-Instanzen automatisch umbenannt werden, so erfolgt dies jetzt auch wenn die Geräte offline sind.  
+ - 5GhZ WLAN wird wieder korrekt in der Konfiguration erkannt.  
+ 
 
 Version 0.74:  
 

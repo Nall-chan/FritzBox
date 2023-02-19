@@ -314,7 +314,7 @@ class FritzBoxIO extends IPSModule
         $Data = file_get_contents('php://input');
         $this->SendDebug('HOOK', $eventSubUrl, 0);
         $this->SendDebug('EVENT', $Data, 0);
-        $xml = new simpleXMLElement($Data);
+        $xml = new \simpleXMLElement($Data);
         $xml->registerXPathNamespace('event', $xml->getNameSpaces(false)['e']);
         $xmlPropertys = $xml->xpath('//event:property');
         $Propertys = [];
@@ -447,7 +447,7 @@ class FritzBoxIO extends IPSModule
             }
             //Nur bei Bedarf laden?
 
-            $SCPD_Data = new SimpleXMLElement($XMLData);
+            $SCPD_Data = new \simpleXMLElement($XMLData);
 
             $Services = [];
             // service mit xpath suchen !
@@ -572,7 +572,7 @@ class FritzBoxIO extends IPSModule
         if (is_a($result, 'SoapFault')) {
             return '';
         }
-        $xml = new simpleXMLElement($result);
+        $xml = new \simpleXMLElement($result);
         if ($xml === false) {
             $this->SendDebug('XML decode error', $result, 0);
             return '';
@@ -734,7 +734,7 @@ class FritzBoxIO extends IPSModule
                 $HttpCode = (int) explode(' ', explode("\r\n", $ResponseHeaders)[0])[1];
             }
             $this->SendDebug('Soap Response Code', $HttpCode, 0);
-        } catch (SoapFault $e) {
+        } catch (\SoapFault $e) {
             $Response = $client->__getLastResponse();
             $this->SendDebug('Soap Request Headers', $client->__getLastRequestHeaders(), 0);
             $this->SendDebug('Soap Request', $client->__getLastRequest(), 0);

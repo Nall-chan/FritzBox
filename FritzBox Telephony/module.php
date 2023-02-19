@@ -584,7 +584,7 @@ class FritzBoxTelephony extends FritzBoxModulBase
         if ($XMLData === false) {
             return false;
         }
-        $CallLog = new simpleXMLElement($XMLData);
+        $CallLog = new \simpleXMLElement($XMLData);
         if ($CallLog === false) {
             $this->SendDebug('XML decode error', $XMLData, 0);
             return false;

@@ -54,7 +54,8 @@
                     "name": "ShowWLanKeyAsQRCode",
                     "type": "CheckBox",
                     "caption": "Create QR-Code media object",
-                    "width": "400px"
+                    "width": "400px",
+                    "onChange": "IPS_RequestAction($id,'ShowWLanKeyAsQRCode',$ShowWLanKeyAsQRCode);"
                 },
                 {
                     "type": "HorizontalSlider",
@@ -70,26 +71,85 @@
             "type": "RowLayout",
             "items": [
                 {
-                    "name": "HostAsVariable",
-                    "type": "CheckBox",
-                    "caption": "Create variable per WLAN device",
-                    "width": "400px"
+                    "type": "ColumnLayout",
+                    "items": [
+                        {
+                            "name": "HostAsVariable",
+                            "type": "CheckBox",
+                            "caption": "Create variable per WLAN device",
+                            "width": "400px",
+                            "onChange": "IPS_RequestAction($id,'HostAsVariable',$HostAsVariable);"
+                        },
+                        {
+                            "name": "RenameHostVariables",
+                            "type": "CheckBox",
+                            "caption": "Rename WLAN device variables automatically",
+                            "width": "400px"
+                        }
+                    ]
                 },
                 {
-                    "name": "RenameHostVariables",
-                    "type": "CheckBox",
-                    "caption": "Rename WLAN device variables automatically",
-                    "width": "400px"
+                    "type": "ExpansionPanel",
+                    "name": "HostvariablesPanel",
+                    "caption": "Variables for Hosts",
+                    "onClick": "",
+                    "items": [
+                        {
+                            "type": "List",
+                            "name": "HostVariables",
+                            "caption": "Statevariables",
+                            "rowCount": 30,
+                            "add": false,
+                            "delete": false,
+                            "loadValuesFromConfiguration": false,
+                            "sort": {
+                                "column": "name",
+                                "direction": "ascending"
+                            },
+                            "columns": [
+                                {
+                                    "name": "ident",
+                                    "caption": "Ident",
+                                    "visible": false,
+                                    "save": true
+                                },
+                                {
+                                    "name": "address",
+                                    "caption": "Address",
+                                    "width": "300px",
+                                    "save": false
+                                },
+                                {
+                                    "name": "name",
+                                    "caption": "Name",
+                                    "width": "600px",
+                                    "save": false
+                                },
+                                {
+                                    "name": "use",
+                                    "caption": "used",
+                                    "width": "75px",
+                                    "save": true,
+                                    "add": false,
+                                    "edit": {
+                                        "type": "CheckBox"
+                                    }
+                                }
+                            ]
+                        }
+                    ]
                 }
             ]
         },
         {
             "name": "HostAsTable",
             "type": "CheckBox",
-            "caption": "Show all WLAN devices as HTML-Table"
+            "caption": "Show all WLAN devices as HTML-Table",
+            "onChange": "IPS_RequestAction($id,'HostAsTable',$HostAsTable);"
         },
         {
             "type": "ExpansionPanel",
+            "name": "HostAsTablePanel",
             "caption": "HTML-Table design",
             "items": [
                 {
@@ -109,7 +169,7 @@
                         {
                             "caption": "CSS",
                             "name": "style",
-                            "width": "auto",
+                            "width": "1250px",
                             "edit": {
                                 "type": "ValidationTextBox"
                             }
@@ -276,7 +336,7 @@
                         {
                             "caption": "CSS",
                             "name": "style",
-                            "width": "auto",
+                            "width": "925px",
                             "edit": {
                                 "type": "ValidationTextBox"
                             }
