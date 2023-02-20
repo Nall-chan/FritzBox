@@ -3,7 +3,7 @@
         {
             "name": "Index",
             "type": "Select",
-            "caption": "Index of WLAN interface",
+            "caption": "Index of WiFi interface",
             "options": [
                 {
                     "caption": "<none>",
@@ -36,7 +36,7 @@
                 {
                     "name": "ShowWLanKeyAsVariable",
                     "type": "CheckBox",
-                    "caption": "Create variable for WLAN key",
+                    "caption": "Create variable for WiFi key",
                     "width": "400px"
                 },
                 {
@@ -76,14 +76,20 @@
                         {
                             "name": "HostAsVariable",
                             "type": "CheckBox",
-                            "caption": "Create variable per WLAN device",
+                            "caption": "Create variable per WiFi device",
                             "width": "400px",
                             "onChange": "IPS_RequestAction($id,'HostAsVariable',$HostAsVariable);"
                         },
                         {
+                            "name": "AutoAddHostVariables",
+                            "type": "CheckBox",
+                            "caption": "Automatically create variables for new WiFi devices",
+                            "width": "400px"
+                        },
+                        {
                             "name": "RenameHostVariables",
                             "type": "CheckBox",
-                            "caption": "Rename WLAN device variables automatically",
+                            "caption": "Automatically rename WiFi device variables",
                             "width": "400px"
                         }
                     ]
@@ -100,17 +106,13 @@
                             "caption": "Statevariables",
                             "rowCount": 30,
                             "add": false,
-                            "delete": false,
+                            "delete": true,
                             "loadValuesFromConfiguration": false,
-                            "sort": {
-                                "column": "name",
-                                "direction": "ascending"
-                            },
                             "columns": [
                                 {
                                     "name": "ident",
                                     "caption": "Ident",
-                                    "visible": false,
+                                    "width": "300px",
                                     "save": true
                                 },
                                 {
@@ -122,7 +124,7 @@
                                 {
                                     "name": "name",
                                     "caption": "Name",
-                                    "width": "600px",
+                                    "width": "550px",
                                     "save": false
                                 },
                                 {
@@ -144,7 +146,7 @@
         {
             "name": "HostAsTable",
             "type": "CheckBox",
-            "caption": "Show all WLAN devices as HTML-Table",
+            "caption": "Show all WiFi devices as HTML-Table",
             "onChange": "IPS_RequestAction($id,'HostAsTable',$HostAsTable);"
         },
         {

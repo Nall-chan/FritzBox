@@ -157,6 +157,7 @@ class FritzBoxHosts extends FritzBoxModulBase
             $Form['elements'][3]['items'][2]['enabled'] = false;
         }
         if (!$this->ReadPropertyBoolean('HostAsVariable')) {
+            $this->ShowVariableWarning = false;
             $Form['elements'][1]['items'][0]['items'][1]['enabled'] = false;
             $Form['elements'][1]['items'][1]['items'][0]['enabled'] = false;
         } else {
