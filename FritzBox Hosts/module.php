@@ -96,11 +96,10 @@ class FritzBoxHosts extends FritzBoxModulBase
             }
         }
 
-        parent::ApplyChanges();
-        $this->RefreshHostList();
-
         $this->SetTimerInterval('RefreshHosts', $this->ReadPropertyInteger('RefreshInterval') * 1000);
         $this->RegisterMessage($this->HostNumberOfEntriesId, VM_UPDATE);
+        usleep(5);
+        parent::ApplyChanges();
     }
 
     public function MessageSink($TimeStamp, $SenderID, $Message, $Data)
@@ -220,9 +219,6 @@ class FritzBoxHosts extends FritzBoxModulBase
         if (!($Variable || ($Table))) {
             return true;
         }
-
-        $HostVariables = array_column(json_decode($this->ReadPropertyString('HostVariables'), true), 'use', 'ident');
-
         $XMLData = $this->GetFile('Hosts');
         if ($XMLData === false) {
             $this->SendDebug('XML not found', 'Hosts', 0);
@@ -234,10 +230,11 @@ class FritzBoxHosts extends FritzBoxModulBase
             return false;
         }
         $this->SendDebug('XML', $XMLData, 0);
+        // Konfigurierte Statusvariablen für Hosts
+        $HostVariables = array_column(json_decode($this->ReadPropertyString('HostVariables'), true), 'use', 'ident');
         $OnlineCounter = 0;
         $TableData = [];
         foreach ($xml as $xmlItem) {
-            //$this->SendDebug('XML xmlItem', (array)$xmlItem, 0);
             if ((string) $xmlItem->MACAddress == '') {
                 $Ident = 'IP' . strtoupper($this->ConvertIdent((string) $xmlItem->IPAddress));
                 $Action = false;
@@ -247,17 +244,22 @@ class FritzBoxHosts extends FritzBoxModulBase
             }
             if ($Variable) {
                 if (array_key_exists($Ident, $HostVariables)) {
-                    if ($HostVariables[$Ident]) {
-                        $VarId = @$this->GetIDForIdent($Ident);
-                        $this->setIPSVariable($Ident, (string) $xmlItem->HostName, (int) $xmlItem->Active == 1, VARIABLETYPE_BOOLEAN, '~Switch', $Action);
-                        if ($VarId == 0) {
-                            $VarId = $this->GetIDForIdent($Ident);
-                            IPS_SetVariableCustomAction($VarId, 1);
-                        } else {
-                            if ($Rename) {
-                                if (IPS_GetName($VarId) != (string) $xmlItem->HostName) {
-                                    IPS_SetName($VarId, (string) $xmlItem->HostName);
-                                }
+                    $Used = $HostVariables[$Ident];
+                } else {
+                    $Used = $this->ReadPropertyBoolean('AutoAddHostVariables');
+                }
+
+                if ($Used) {
+                    $VarId = @$this->GetIDForIdent($Ident);
+                    $this->setIPSVariable($Ident, (string) $xmlItem->HostName, (int) $xmlItem->Active == 1, VARIABLETYPE_BOOLEAN, '~Switch', $Action);
+                    if ($VarId == 0) {
+                        $VarId = $this->GetIDForIdent($Ident);
+                        //Standard-Aktion vorhanden, aber default nicht aktiv (WOL)
+                        IPS_SetVariableCustomAction($VarId, 1);
+                    } else {
+                        if ($Rename) {
+                            if (IPS_GetName($VarId) != (string) $xmlItem->HostName) {
+                                IPS_SetName($VarId, (string) $xmlItem->HostName);
                             }
                         }
                     }
@@ -269,8 +271,9 @@ class FritzBoxHosts extends FritzBoxModulBase
             } else {
                 $xmlItem->Active = '<div class="isinactive">' . $this->Translate('Inactive') . '</div>';
             }
-
-            $TableData[] = (array) $xmlItem;
+            if ($Table) {
+                $TableData[] = (array) $xmlItem;
+            }
         }
         $this->setIPSVariable('HostNumberActive', 'Number of active network devices', $OnlineCounter, VARIABLETYPE_INTEGER, '', false, -1);
         if ($Table) {

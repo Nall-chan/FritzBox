@@ -266,6 +266,9 @@ class FritzBoxWLAN extends FritzBoxModulBase
     }
     public function RefreshHostList()
     {
+        if ($this->ParentID == 0) {
+            return false;
+        }
         $Table = $this->ReadPropertyBoolean('HostAsTable');
         $Variable = $this->ReadPropertyBoolean('HostAsVariable');
         $Rename = $this->ReadPropertyBoolean('RenameHostVariables');
@@ -307,7 +310,7 @@ class FritzBoxWLAN extends FritzBoxModulBase
         $HostVariables = array_column(json_decode($this->ReadPropertyString('HostVariables'), true), 'use', 'ident');
 
         $TableData = [];
-        $pos = 0;
+
         $ChildsOld = IPS_GetChildrenIDs($this->InstanceID);
         $ChildsNew = [];
         // hier WLAN Daten durchgehen
@@ -336,7 +339,7 @@ class FritzBoxWLAN extends FritzBoxModulBase
                     $Used = $this->ReadPropertyBoolean('AutoAddHostVariables');
                 }
                 if ($Used) {
-                    $this->setIPSVariable($Ident, $Hostname, true, VARIABLETYPE_BOOLEAN, '~Switch', false, $pos);
+                    $this->setIPSVariable($Ident, $Hostname, true, VARIABLETYPE_BOOLEAN, '~Switch', false);
                     $VarId = $this->GetIDForIdent($Ident);
                     $ChildsNew[] = $VarId;
                     if ($Rename && (IPS_GetName($VarId) != $Hostname)) {
