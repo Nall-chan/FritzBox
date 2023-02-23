@@ -21,9 +21,15 @@
                             "width": "400px"
                         },
                         {
+                            "name": "AutoAddHostVariables",
+                            "type": "CheckBox",
+                            "caption": "Automatically create variables for new network devices",
+                            "width": "400px"
+                        },
+                        {
                             "name": "RenameHostVariables",
                             "type": "CheckBox",
-                            "caption": "Rename network device variables automatically",
+                            "caption": "Automatically rename network device variables",
                             "width": "400px"
                         }
                     ]
@@ -40,7 +46,8 @@
                             "caption": "Statevariables",
                             "rowCount": 30,
                             "add": false,
-                            "delete": false,
+                            "delete": true,
+                            "onDelete": "IPS_RequestAction($id, 'DelHostVariable', $HostVariables['ident']);",
                             "loadValuesFromConfiguration": false,
                             "sort": {
                                 "column": "name",

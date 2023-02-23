@@ -2,6 +2,8 @@
 
 declare(strict_types=1);
 
+use JetBrains\PhpStorm\Internal\ReturnTypeContract;
+
 require_once __DIR__ . '/../libs/FritzBoxBase.php';
 require_once __DIR__ . '/../libs/FritzBoxTable.php';
 
@@ -107,17 +109,8 @@ class FritzBoxWLAN extends FritzBoxModulBase
                 $Ident = $HostVariable['ident'];
                 $VarId = @$this->GetIDForIdent($Ident);
                 if ($VarId > 0) {
-                    $del = true;
-                    foreach (IPS_GetChildrenIDs($VarId) as $Id) {
-                        if (IPS_VariableExists($Id)) {
-                            IPS_DeleteVariable($Id);
-                        } else {
-                            $del = false;
-                        }
-                    }
-                    if ($del) {
-                        $this->UnregisterVariable($Ident);
-                    }
+                    $this->DelSubObjects($VarId);
+                    $this->UnregisterVariable($Ident);
                 }
             }
         }
@@ -191,7 +184,14 @@ class FritzBoxWLAN extends FritzBoxModulBase
                         $this->ShowVariableWarning = false;
                     }
                     return;
-                }
+                case 'DelHostVariable':
+                    $ObjectId = @$this->GetIDForIdent($Value);
+                    if ($ObjectId > 0) {
+                        $this->DelSubObjects($ObjectId);
+                        $this->UnregisterVariable($Value);
+                    }
+                    return;
+        }
         trigger_error($this->Translate('Invalid Ident.'), E_USER_NOTICE);
         return false;
     }
@@ -769,7 +769,7 @@ class FritzBoxWLAN extends FritzBoxModulBase
                 unset($KnownVariableIDs[$Key]);
                 $HostVariable['rowColor'] = ($HostVariable['name'] != IPS_GetName($VariableID)) ? '#DFDFDF' : '#FFFFFF';
             } else {
-                $HostVariable['rowColor'] ='#FFFFFF';
+                $HostVariable['rowColor'] = '#FFFFFF';
             }
 
             //prüfen ob in Hosts vorhanden

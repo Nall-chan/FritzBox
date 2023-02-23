@@ -107,12 +107,18 @@
                             "rowCount": 30,
                             "add": false,
                             "delete": true,
+                            "onDelete": "IPS_RequestAction($id, 'DelHostVariable', $HostVariables['ident']);",
                             "loadValuesFromConfiguration": false,
+                            "sort": {
+                                "column": "name",
+                                "direction": "ascending"
+                            },
                             "columns": [
                                 {
                                     "name": "ident",
                                     "caption": "Ident",
                                     "width": "300px",
+                                    "visible": false,
                                     "save": true
                                 },
                                 {
@@ -124,7 +130,7 @@
                                 {
                                     "name": "name",
                                     "caption": "Name",
-                                    "width": "550px",
+                                    "width": "600px",
                                     "save": false
                                 },
                                 {

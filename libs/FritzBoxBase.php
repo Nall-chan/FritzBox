@@ -463,7 +463,35 @@ class FritzBoxModulBase extends IPSModule
         }
         return $vid;
     }
-
+    protected function DelSubObjects(int $ObjectId)
+    {
+        foreach (IPS_GetChildrenIDs($ObjectId) as $Id) {
+            $this->DelSubObjects($Id);
+            switch (IPS_GetObject($Id)['ObjectType']) {
+                case OBJECTTYPE_CATEGORY:
+                    IPS_DeleteCategory($Id);
+                    break;
+                case OBJECTTYPE_INSTANCE:
+                    IPS_DeleteInstance($Id);
+                    break;
+                case OBJECTTYPE_VARIABLE:
+                    IPS_DeleteVariable($Id);
+                    break;
+                case OBJECTTYPE_SCRIPT:
+                    IPS_DeleteScript($Id, true);
+                    break;
+                case OBJECTTYPE_EVENT:
+                    IPS_DeleteEvent($Id);
+                    break;
+                case OBJECTTYPE_MEDIA:
+                    IPS_DeleteMedia($Id, true);
+                    break;
+                case OBJECTTYPE_LINK:
+                    IPS_DeleteLink($Id);
+                    break;
+                }
+        }
+    }
     protected function ServeFile(string $path)
     {
         $extension = pathinfo($path, PATHINFO_EXTENSION);

@@ -137,11 +137,11 @@ Für das Discovery werden Pakete über die Multicast-Adresse `239.255.255.250` a
 Version 0.75:  
 
  - 'Homeautomation Configurator' / 'SmartHome Konfigurator' wird unter 'Konfiguratoren' angelegt.  
- - Host-Instanz lässt das abwählen von Statusvariablen zu.  
- - WLAN- Instanz lässt das abwählen von Statusvariablen zu.  
+ - Host-Instanz lässt das abwählen und löschen von Statusvariablen zu.  
+ - WLAN- Instanz lässt das abwählen und löschen von Statusvariablen zu.  
  - Sollen Variablen von WLAN-Instanzen automatisch umbenannt werden, so erfolgt dies jetzt auch wenn die Geräte offline sind.  
  - 5GhZ WLAN wird wieder korrekt in der Konfiguration erkannt.  
- 
+ - Viele Konfigurationsformulare überarbeitet.  
 
 Version 0.74:  
 

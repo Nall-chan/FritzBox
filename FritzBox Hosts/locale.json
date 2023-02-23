@@ -2,7 +2,8 @@
     "translations": {
         "de": {
             "Create variable per network device": "Erzeuge Variable pro Netzwerkgerät",
-            "Rename network device variables automatically": "Netzwerkgeräte-Variablen automatisch umbenennen",
+            "Automatically create variables for new network devices": "Automatisch Variablen für neue Netzwerkgeräte erstellen",
+            "Automatically rename network device variables": "Netzwerkgeräte-Variablen automatisch umbenennen",
             "Refresh Interval": "Aktualisierungsintervall",
             "seconds": "Sekunden",
             "Read network devices": "Lese Netzwerkgeräte",

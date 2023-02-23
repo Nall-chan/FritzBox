@@ -47,6 +47,7 @@ class FritzBoxHosts extends FritzBoxModulBase
         });
 
         $this->RegisterPropertyString('HostVariables', json_encode(array_values($UsedVariableIdents)));
+        $this->RegisterPropertyBoolean('AutoAddHostVariables', true);
         $this->RegisterPropertyBoolean('RenameHostVariables', true);
         $this->RegisterPropertyInteger('RefreshInterval', 60);
         $this->RegisterPropertyBoolean('HostAsTable', true);
@@ -86,7 +87,12 @@ class FritzBoxHosts extends FritzBoxModulBase
         $HostVariables = json_decode($this->ReadPropertyString('HostVariables'), true);
         foreach ($HostVariables as $HostVariable) {
             if (!$HostVariable['use']) {
-                $this->UnregisterVariable($HostVariable['ident']);
+                $Ident = $HostVariable['ident'];
+                $VarId = @$this->GetIDForIdent($Ident);
+                if ($VarId > 0) {
+                    $this->DelSubObjects($VarId);
+                    $this->UnregisterVariable($Ident);
+                }
             }
         }
 
@@ -119,6 +125,7 @@ class FritzBoxHosts extends FritzBoxModulBase
             case 'RefreshHosts':
                 return $this->UpdateHostNumberOfEntries();
             case 'HostAsVariable':
+                $this->UpdateFormField('AutoAddHostVariables', 'enabled', (bool) $Value);
                 $this->UpdateFormField('RenameHostVariables', 'enabled', (bool) $Value);
                 $this->UpdateFormField('HostvariablesPanel', 'expanded', (bool) $Value);
                 $this->UpdateFormField('HostVariables', 'enabled', (bool) $Value);
@@ -129,14 +136,21 @@ class FritzBoxHosts extends FritzBoxModulBase
                 $this->UpdateFormField('Rows', 'enabled', (bool) $Value);
                 $this->UpdateFormField('HostAsTablePanel', 'expanded', (bool) $Value);
                 return;
-                case 'HostvariablesPanel':
-                    if ($this->ShowVariableWarning) {
-                        $this->UpdateFormField('ErrorPopup', 'visible', true);
-                        $this->UpdateFormField('ErrorTitle', 'caption', 'Attention!');
-                        $this->UpdateFormField('ErrorText', 'caption', 'Deselecting a host causes the associated status variable to be deleted.');
-                        $this->ShowVariableWarning = false;
-                    }
-                    return;
+            case 'HostvariablesPanel':
+                if ($this->ShowVariableWarning) {
+                    $this->UpdateFormField('ErrorPopup', 'visible', true);
+                    $this->UpdateFormField('ErrorTitle', 'caption', 'Attention!');
+                    $this->UpdateFormField('ErrorText', 'caption', 'Deselecting a host causes the associated status variable to be deleted.');
+                    $this->ShowVariableWarning = false;
+                }
+                return;
+            case 'DelHostVariable':
+                $ObjectId = @$this->GetIDForIdent($Value);
+                if ($ObjectId > 0) {
+                    $this->DelSubObjects($ObjectId);
+                    $this->UnregisterVariable($Value);
+                }
+                return;
         }
         if (strpos($Ident, 'MAC') === 0) {
             if ($Value === true) {
@@ -159,6 +173,7 @@ class FritzBoxHosts extends FritzBoxModulBase
         if (!$this->ReadPropertyBoolean('HostAsVariable')) {
             $this->ShowVariableWarning = false;
             $Form['elements'][1]['items'][0]['items'][1]['enabled'] = false;
+            $Form['elements'][1]['items'][0]['items'][2]['enabled'] = false;
             $Form['elements'][1]['items'][1]['items'][0]['enabled'] = false;
         } else {
             $this->ShowVariableWarning = true;
@@ -166,6 +181,7 @@ class FritzBoxHosts extends FritzBoxModulBase
         }
         $Values = $this->GetHostVariables();
         if (count($Values) == 0) {
+            // Fallback für konfigurierte Statusvariablen der Hosts, wenn Abfrage fehlschlägt; z.B. wenn IO offline
             $Values = json_decode($this->ReadPropertyString('HostVariables'), true);
         }
         $Form['elements'][1]['items'][1]['items'][0]['values'] = $Values;
@@ -387,6 +403,8 @@ class FritzBoxHosts extends FritzBoxModulBase
 
     private function GetHostVariables(): array
     {
+        return [];
+        //todo
         $HostVariables = array_column(json_decode($this->ReadPropertyString('HostVariables'), true), 'use', 'ident');
         if (!$this->HasActiveParent()) {
             return [];

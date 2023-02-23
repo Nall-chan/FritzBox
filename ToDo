@@ -38,7 +38,8 @@ Feldtest nötig:
 
  HTML-Tabelle fehlt:
  - File Share
- 
+
+
  Aktionen fehlen bei folgenden Instanzen:
  - IO (+ Device Config Instanz ?) für Aktion Reboot
  - WebDav Client
@@ -48,7 +49,7 @@ Unfertig / Fehlen:
 - 2F Authentication?  (fehlt komplett)
 - Dect (fehlt komplett)
 - Anrufbeantworter (fehlt komplett)
-- Wählhilfe (fehlt in Telephony, realisierbarkeit noch nicht getestet)
+- Wählhilfe (fehlt in Telephony, Realisierbarkeit noch nicht getestet)
 - Aktionen prüfen, vervollständigen
 - Übersetzung MyFritz fehlt.
 
@@ -56,6 +57,7 @@ Später/Sonstiges:
 - LinkStateToInt weg und LinkState auf String umbauen
 - Fehler beim schalten der Zeitserver-Variablen.
 - Filter bei den SmartHome Geräten
+🪲 Rufumleitungen noch immer defek.
 ✅ Host Variablen sollten einzeln per Liste konfigurierbar sein.
 ✅ Instanzen für Homeautomation
 ✅ Instanz-Funktionen für Zugriff auf die Daten des Telefonbuchs fehlt.
