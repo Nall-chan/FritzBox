@@ -711,8 +711,6 @@ class FritzBoxWLAN extends FritzBoxModulBase
     }
     private function GetHostVariables(): array
     {
-        // Konfigurierte Statusvariablen für Hosts
-        $HostVariables = json_decode($this->ReadPropertyString('HostVariables'), true);
         if (!$this->HasActiveParent()) {
             return [];
         }
@@ -755,6 +753,8 @@ class FritzBoxWLAN extends FritzBoxModulBase
             }
             return false;
         });
+        // Konfigurierte Statusvariablen für Hosts
+        $HostVariables = json_decode($this->ReadPropertyString('HostVariables'), true);
         // Property durchgehen und Werte ergänzen. Alle Idents merken
         $FoundIdents = array_column($HostVariables, 'ident');
         foreach ($HostVariables as &$HostVariable) {
@@ -782,7 +782,7 @@ class FritzBoxWLAN extends FritzBoxModulBase
                     $HostVariable['rowColor'] = '#C0FFC0';
                 }
             } else {
-                $HostVariable['rowColor'] = '#FF0000';
+                $HostVariable['rowColor'] = '#FFC0C0';
             }
         }
         // restliche Objekte aus WLANXML immer anhängen

@@ -406,23 +406,25 @@ class FritzBoxHosts extends FritzBoxModulBase
 
     private function GetHostVariables(): array
     {
-        return [];
-        //todo
-        $HostVariables = array_column(json_decode($this->ReadPropertyString('HostVariables'), true), 'use', 'ident');
         if (!$this->HasActiveParent()) {
             return [];
         }
+        // Host holen für Namen
         $XMLData = $this->GetFile('Hosts');
         if ($XMLData === false) {
             $this->SendDebug('XML not found', 'Hosts', 0);
             return [];
         }
-        $xml = new \simpleXMLElement($XMLData);
-        if ($xml === false) {
+        $xmlHosts = new \simpleXMLElement($XMLData);
+        if ($xmlHosts === false) {
             $this->SendDebug('XML decode error', $XMLData, 0);
             return [];
         }
         $this->SendDebug('XML', $XMLData, 0);
+        foreach ($xmlHosts as $Host) {
+            $Ident = 'IP' . strtoupper($this->ConvertIdent((string) $Host->IPAddress));
+            $KnownHostNames[$Ident] = (string) $Host->HostName;
+        }
         $KnownVariableIDs = array_filter(IPS_GetChildrenIDs($this->InstanceID), function ($VariableID)
         {
             $Ident = IPS_GetObject($VariableID)['ObjectIdent'];
@@ -431,31 +433,70 @@ class FritzBoxHosts extends FritzBoxModulBase
             }
             return false;
         });
-        $TableData = [];
-        foreach ($xml as $xmlItem) {
-            if ((string) $xmlItem->MACAddress == '') {
-                $Address = (string) $xmlItem->IPAddress;
-                $Ident = 'IP' . strtoupper($this->ConvertIdent((string) $xmlItem->IPAddress));
+        // Konfigurierte Statusvariablen für Hosts
+        $HostVariables = json_decode($this->ReadPropertyString('HostVariables'), true);
+        // Property durchgehen und Werte ergänzen. Alle Idents merken
+        $FoundIdents = array_column($HostVariables, 'ident');
+        foreach ($HostVariables as &$HostVariable) {
+            //$HostName = suche in $xmlHosts, sonst MAC
+            if ((substr($HostVariable['ident'], 0, 3) == 'MAC')) {
+                $HostVariable['address'] = implode(':', str_split(substr($HostVariable['ident'], 3), 2));
+                $HostName = $xmlHosts->xpath("//Item[MACAddress ='" . $HostVariable['address'] . "']");
+                if (count($HostName) > 0) {
+                    $HostVariable['name'] = (string) $HostName[0]->HostName;
+                } else {
+                    $HostVariable['name'] = $HostVariable['address'];
+                }
             } else {
-                $Address = (string) $xmlItem->MACAddress;
-                $Ident = 'MAC' . strtoupper($this->ConvertIdent((string) $xmlItem->MACAddress));
+                if (array_key_exists($HostVariable['ident'], $KnownHostNames)) {
+                    $HostVariable['name'] = $KnownHostNames[$HostVariable['ident']];
+                } else {
+                    $HostVariable['name'] = $HostVariable['address'];
+                }
             }
-            if (array_key_exists($Ident, $HostVariables)) {
-                $Used = $HostVariables[$Ident];
+            $VariableID = @$this->GetIDForIdent($HostVariable['ident']);
+            if ($VariableID > 0) {
+                $Key = array_search($VariableID, $KnownVariableIDs);
+                unset($KnownVariableIDs[$Key]);
+                $HostVariable['rowColor'] = ($HostVariable['name'] != IPS_GetName($VariableID)) ? '#DFDFDF' : '#FFFFFF';
             } else {
-                $Used = false;
+                $HostVariable['rowColor'] = '#FFFFFF';
             }
+
+            //prüfen ob in Hosts vorhanden
+            $Found = $xmlHosts->xpath("//Item[MACAddress ='" . $HostVariable['address'] . "']");
+            if ((count($Found) > 0) || (array_key_exists($HostVariable['ident'], $KnownHostNames))) {
+                if (!$HostVariable['use']) {
+                    $HostVariable['rowColor'] = '#C0FFC0';
+                }
+            } else {
+                $HostVariable['rowColor'] = '#FFC0C0';
+            }
+        }
+        // restliche Objekte aus HOST immer anhängen
+        foreach ($xmlHosts as $Host) {
+            if ((string) $Host->MACAddress == '') {
+                $Address = (string) $Host->IPAddress;
+                $Ident = 'IP' . strtoupper($this->ConvertIdent((string) $Host->IPAddress));
+            } else {
+                $Address = (string) $Host->MACAddress;
+                $Ident = 'MAC' . strtoupper($this->ConvertIdent((string) $Host->MACAddress));
+            }
+            if (in_array($Ident, $FoundIdents)) {
+                continue;
+            }
+            $Name = (string) $Host->HostName;
             $VariableID = @$this->GetIDForIdent($Ident);
             if ($VariableID > 0) {
                 $Key = array_search($VariableID, $KnownVariableIDs);
-                $Name = IPS_GetName($VariableID);
                 unset($KnownVariableIDs[$Key]);
-                $RowColor = ($Name != (string) $xmlItem->HostName) ? '#DFDFDF' : '#FFFFFF';
+                $RowColor = ($Name != IPS_GetName($VariableID)) ? '#DFDFDF' : '#FFFFFF';
+                $Used = true;
             } else {
-                $Name = (string) $xmlItem->HostName;
                 $RowColor = '#C0FFC0';
+                $Used = false;
             }
-            $TableData[] = [
+            $HostVariables[] = [
                 'ident'   => $Ident,
                 'address' => $Address,
                 'name'    => $Name,
@@ -463,22 +504,31 @@ class FritzBoxHosts extends FritzBoxModulBase
                 'use'     => $Used
             ];
         }
+        // restliche Idents aus dem Objektbaum hinzufügen, wenn auto-Add aktiv
         foreach ($KnownVariableIDs as $VariableID) {
             $Ident = IPS_GetObject($VariableID)['ObjectIdent'];
-            if (array_key_exists($Ident, $HostVariables)) {
-                $Used = $HostVariables[$Ident];
-            } else {
-                $Used = false;
+            if ((substr($Ident, 0, 2) == 'IP')) {
+                continue;
             }
-            $TableData[] = [
+            $Address = implode(':', str_split(substr($Ident, 3), 2));
+            $Name = IPS_GetName($VariableID);
+            $FoundAddress = $xmlHosts->xpath("//Item[MACAddress ='" . $Address . "']");
+            if (count($FoundAddress) > 0) {
+                $NewName = (string) $FoundAddress[0]->HostName;
+                $RowColor = ($Name != $NewName) ? '#DFDFDF' : '#FFFFFF';
+            } else {
+                $Address = '';
+                $RowColor = '#FFC0C0';
+            }
+            $HostVariables[] = [
                 'ident'   => $Ident,
-                'address' => '',
-                'name'    => IPS_GetName($VariableID),
-                'rowColor'=> '#FFC0C0',
-                'use'     => $Used
+                'address' => $Address,
+                'name'    => $Name,
+                'rowColor'=> $RowColor,
+                'use'     => true
             ];
         }
-        return $TableData;
+        return $HostVariables;
     }
     private function CreateHostHTMLTable(array $TableData)
     {
