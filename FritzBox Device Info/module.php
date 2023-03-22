@@ -6,9 +6,13 @@ require_once __DIR__ . '/../libs/FritzBoxBase.php';
 
 class FritzBoxDeviceInfo extends FritzBoxModulBase
 {
-    protected static $ControlUrlArray = ['/upnp/control/deviceinfo'];
+    protected static $ControlUrlArray = [
+        '/upnp/control/deviceinfo'
+    ];
     protected static $EventSubURLArray = [];
-    protected static $ServiceTypeArray = ['urn:dslforum-org:service:DeviceInfo:1'];
+    protected static $ServiceTypeArray = [
+        'urn:dslforum-org:service:DeviceInfo:1'
+    ];
     protected static $DefaultIndex = 0;
     public function Create()
     {

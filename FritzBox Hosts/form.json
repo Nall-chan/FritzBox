@@ -63,13 +63,19 @@
                                 {
                                     "name": "address",
                                     "caption": "Address",
+                                    "width": "200px",
+                                    "save": false
+                                },
+                                {
+                                    "name": "host",
+                                    "caption": "Hostname",
                                     "width": "300px",
                                     "save": false
                                 },
                                 {
                                     "name": "name",
-                                    "caption": "Name",
-                                    "width": "600px",
+                                    "caption": "Variable name",
+                                    "width": "300px",
                                     "save": false
                                 },
                                 {
@@ -297,7 +303,7 @@
         {
             "type": "Button",
             "caption": "Read network devices",
-            "onClick": "IPS_RequestAction($id,'RefreshHosts',true);"
+            "onClick": "IPS_RequestAction($id,'RefreshHosts',true);IPS_RequestAction($id,'ReloadForm',true);"
         },
         {
             "name": "ErrorPopup",

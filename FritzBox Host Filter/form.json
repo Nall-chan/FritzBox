@@ -6,13 +6,100 @@
             "caption": "Refresh Interval",
             "suffix": "seconds",
             "minimum": 0
+        },
+        {
+            "type": "RowLayout",
+            "items": [
+                {
+                    "type": "ColumnLayout",
+                    "items": [
+                        {
+                            "name": "HostAsVariable",
+                            "type": "CheckBox",
+                            "caption": "Create variable per network device",
+                            "onChange": "IPS_RequestAction($id,'HostAsVariable',$HostAsVariable);",
+                            "width": "400px"
+                        },
+                        {
+                            "name": "AutoAddHostVariables",
+                            "type": "CheckBox",
+                            "caption": "Automatically create variables for new network devices",
+                            "width": "400px"
+                        },
+                        {
+                            "name": "RenameHostVariables",
+                            "type": "CheckBox",
+                            "caption": "Automatically rename network device variables",
+                            "width": "400px"
+                        }
+                    ]
+                },
+                {
+                    "type": "ExpansionPanel",
+                    "name": "HostvariablesPanel",
+                    "caption": "Variables for Hosts",
+                    "onClick": "",
+                    "items": [
+                        {
+                            "type": "List",
+                            "name": "HostVariables",
+                            "caption": "Statevariables",
+                            "rowCount": 30,
+                            "add": false,
+                            "delete": true,
+                            "onDelete": "IPS_RequestAction($id, 'DelHostVariable', $HostVariables['ident']);",
+                            "loadValuesFromConfiguration": false,
+                            "sort": {
+                                "column": "name",
+                                "direction": "ascending"
+                            },
+                            "columns": [
+                                {
+                                    "name": "ident",
+                                    "caption": "Ident",
+                                    "visible": false,
+                                    "save": true
+                                },
+                                {
+                                    "name": "address",
+                                    "caption": "Address",
+                                    "width": "200px",
+                                    "save": false
+                                },
+                                {
+                                    "name": "host",
+                                    "caption": "Hostname",
+                                    "width": "300px",
+                                    "save": false
+                                },
+                                {
+                                    "name": "name",
+                                    "caption": "Variable name",
+                                    "width": "300px",
+                                    "save": false
+                                },
+                                {
+                                    "name": "use",
+                                    "caption": "used",
+                                    "width": "75px",
+                                    "save": true,
+                                    "add": false,
+                                    "edit": {
+                                        "type": "CheckBox"
+                                    }
+                                }
+                            ]
+                        }
+                    ]
+                }
+            ]
         }
     ],
     "actions": [
         {
             "type": "Button",
             "caption": "Read state",
-            "onClick": "IPS_RequestAction($id,'RefreshState',true);"
+            "onClick": "IPS_RequestAction($id,'RefreshState',true);IPS_RequestAction($id,'ReloadForm',true);"
         },
         {
             "type": "RowLayout",

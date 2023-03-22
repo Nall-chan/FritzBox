@@ -10,6 +10,7 @@ require_once __DIR__ . '/../libs/FritzBoxModule.php';
 /**
  * @property string $Url
  * @property string $Username
+ * @property bool $ForceLoadXML
  *
  */
 class FritzBoxIO extends IPSModule
@@ -45,7 +46,6 @@ class FritzBoxIO extends IPSModule
         $this->RegisterPropertyString('Password', '');
         $this->RegisterPropertyString('ReturnIP', '');
         $this->RegisterPropertyInteger('ReturnPort', 3777);
-        $this->RegisterPropertyBoolean('ReturnProtocol', false);
         $this->RegisterAttributeString('ConsumerAddress', 'Invalid');
         $this->RegisterAttributeArray('Events', []);
         $this->RegisterAttributeArray('PhoneBooks', []);
@@ -61,13 +61,13 @@ class FritzBoxIO extends IPSModule
         $this->Username = '';
         //$this->RequireParent("{6179ED6A-FC31-413C-BB8E-1204150CF376}");
         if (IPS_GetKernelRunlevel() == KR_READY) {
-            $this->doNotLoadXML = false;
+            $this->ForceLoadXML = true;
             $this->RegisterMessage($this->InstanceID, FM_CHILDADDED);
             @mkdir(IPS_GetKErnelDir() . 'FritzBoxTemp');
             @mkdir(IPS_GetKErnelDir() . 'FritzBoxTemp/' . $this->InstanceID);
         } else {
             $this->RegisterMessage(0, IPS_KERNELMESSAGE);
-            $this->doNotLoadXML = true;
+            $this->ForceLoadXML = false;
         }
     }
 
@@ -109,7 +109,6 @@ class FritzBoxIO extends IPSModule
             return $this->KernelReady();
         }
     }
-
     public function ApplyChanges()
     {
         $OldUrl = $this->Url;
@@ -123,19 +122,20 @@ class FritzBoxIO extends IPSModule
         $this->SetStatus(IS_INACTIVE);
         if ($this->CheckHost()) {
             $this->SetSummary($this->Url);
-            if (!$this->GetConsumerAddress()) {
-                $this->SetStatus(self::$http_error[501][1]);
+            if ($this->ReadPropertyString('Password') == '') {
                 return;
             }
-            if (($this->Url != $OldUrl) && !$this->doNotLoadXML) {
-                $this->doNotLoadXML = false;
-                if (!$this->LoadXMLs()) {
+            if (($this->Url != $OldUrl) || ($this->ForceLoadXML)) {
+                if ($this->LoadXMLs()) {
+                    $this->ForceLoadXML = false;
+                } else {
                     $this->ShowLastError(self::$http_error[418][0]);
-                    $this->SetStatus(self::isURLnotValid + 3);
+                    $this->SetStatus(self::isURLnotValid);
                     return;
                 }
             }
-            if ($this->ReadPropertyString('Password') == '') {
+            if (!$this->GetConsumerAddress()) {
+                $this->SetStatus(self::$http_error[501][1]);
                 return;
             }
             if ($this->ReadPropertyString('Username') == '') {
@@ -185,6 +185,23 @@ class FritzBoxIO extends IPSModule
                     break;
                 case 'GetMaxWLANs':
                     $ret = $this->ReadAttributeInteger('NoOfWlan');
+                    break;
+                case 'RefreshHostList':
+                    $data['DataID'] = '{3C010D20-02A3-413A-9C5E-D0747D61BEF0}';
+                    $result = $this->SendDataToChildren(json_encode($data));
+                    $ret = false;
+                    if (count($result) > 0) {
+                        $ret = $result[0] == 'OK';
+                    }
+                    if ($ret) {
+                        $data['DataID'] = '{FE6C73CB-028B-F569-46AC-3C02FF1F8F2F}';
+                        $data['Function'] = 'NewHostListEvent';
+                        $ret = $this->SendDataToChildren(json_encode($data));
+                    }
+                    break;
+                case 'NewHostListEvent':
+                    $data['DataID'] = '{FE6C73CB-028B-F569-46AC-3C02FF1F8F2F}';
+                    $ret = $this->SendDataToChildren(json_encode($data));
                     break;
                 case 'LoadAndGetData':
                     $ret = $this->LoadAndGetData($data['Uri']);
@@ -253,7 +270,7 @@ class FritzBoxIO extends IPSModule
         }
         $ConsumerAddress = $this->ReadAttributeString('ConsumerAddress');
         if (!$Form['actions'][1]['visible']) {
-            if (($ConsumerAddress == 'Invalid') && ($this->ReadPropertyBoolean('Open'))) {
+            if (($ConsumerAddress == 'Invalid') && ($this->GetStatus() != 203) && ($this->ReadPropertyBoolean('Open')) && ($this->ReadPropertyString('Password') != '')) {
                 $Form['actions'][1]['visible'] = true;
                 $Form['actions'][1]['popup']['items'][0]['caption'] = $this->Translate('Error');
                 $Form['actions'][1]['popup']['items'][1]['caption'] = $this->Translate('Couldn\'t determine webhook');
@@ -403,11 +420,12 @@ class FritzBoxIO extends IPSModule
     private function GetMediaObjectID(string $Ident): int
     {
         $Ident = preg_replace('/[^a-z0-9_]+/i', '_', $Ident);
-        $this->SendDebug('Get MediaObject', $Ident, 0);
         $MediaID = @IPS_GetObjectIDByIdent($Ident, $this->InstanceID);
         if ($MediaID === false) {
+            $this->SendDebug('MediaObject not Found', $Ident, 0);
             return 0;
         }
+        $this->SendDebug('Get MediaObject(' . $MediaID . ')', $Ident, 0);
         return $MediaID;
     }
     private function GetFile(string $Filename): int
@@ -426,9 +444,7 @@ class FritzBoxIO extends IPSModule
         $this->WriteAttributeBoolean('HasTel', false);
         $this->WriteAttributeBoolean('HasIGD2', false);
         foreach ($Xmls as $Xml) {
-            $Result = true;
-            $XMLData = @Sys_GetURLContentEx($Url . '/' . $Xml, ['Timeout'=>5000, 'VerifyHost' => false, 'VerifyPeer' => false]);
-
+            $XMLData = @Sys_GetURLContentEx($Url . '/' . $Xml, ['Timeout'=>3000, 'VerifyHost' => false, 'VerifyPeer' => false]);
             if ($XMLData === false) {
                 $this->SendDebug('XML not found', $Xml, 0);
                 continue;
@@ -454,7 +470,7 @@ class FritzBoxIO extends IPSModule
             $SCPD_Data->registerXPathNamespace('fritzbox', $SCPD_Data->getNameSpaces(false)['']);
             $SCPDURLs = $SCPD_Data->xpath('//fritzbox:SCPDURL');
             foreach ($SCPDURLs as $SCPDURL) {
-                $XMLSCPDData = @Sys_GetURLContentEx($Url . (string) $SCPDURL, ['Timeout'=>5000, 'VerifyHost' => false, 'VerifyPeer' => false]);
+                $XMLSCPDData = @Sys_GetURLContentEx($Url . (string) $SCPDURL, ['Timeout'=>3000, 'VerifyHost' => false, 'VerifyPeer' => false]);
                 $SCPD = substr((string) $SCPDURL, 1);
                 if ($XMLSCPDData === false) {
                     $this->SendDebug('SCPD not found', $SCPD, 0);
@@ -472,6 +488,7 @@ class FritzBoxIO extends IPSModule
                 $this->WriteAttributeBoolean('HasIGD2', true);
                 break;
             }
+            $Result = true;
         }
         $this->WriteAttributeArray('Events', $Events);
         return $Result;
@@ -480,7 +497,6 @@ class FritzBoxIO extends IPSModule
     private function GetConsumerAddress()
     {
         $Port = $this->ReadPropertyInteger('ReturnPort');
-        $Protocol = $this->ReadPropertyBoolean('ReturnProtocol') ? 'https' : 'http';
         if (IPS_GetOption('NATSupport')) {
             $ip = $this->ReadPropertyString('ReturnIP');
             if ($ip == '') {
@@ -497,23 +513,32 @@ class FritzBoxIO extends IPSModule
         } else {
             $ip = $this->ReadPropertyString('ReturnIP');
             if ($ip == '') {
-                $sock = socket_create(AF_INET, SOCK_STREAM, SOL_TCP);
-                socket_bind($sock, '0.0.0.0', 0);
+                $sock = socket_create(AF_INET6, SOCK_STREAM, SOL_TCP);
                 $Host = parse_url($this->Url);
                 @socket_connect($sock, $Host['host'], $Host['port']);
                 $ip = '';
-                socket_getsockname($sock, $ip);
+                $result = @socket_getsockname($sock, $ip);
                 @socket_close($sock);
-                if ($ip == '0.0.0.0') {
-                    $this->SendDebug('ConsumerAddress', 'Invalid', 0);
-                    $this->UpdateFormField('EventHook', 'caption', $this->Translate('Invalid'));
-                    $this->WriteAttributeString('ConsumerAddress', 'Invalid');
-                    return false;
+                if (($result == false) || ($ip == '::')) {
+                    $sock = socket_create(AF_INET, SOCK_STREAM, SOL_TCP);
+                    $Host = parse_url($this->Url);
+                    @socket_connect($sock, $Host['host'], $Host['port']);
+                    $ip = '';
+                    $result = @socket_getsockname($sock, $ip);
+                    @socket_close($sock);
+                    if (($result == false) || ($ip == '0.0.0.0')) {
+                        $this->SendDebug('ConsumerAddress', 'Invalid', 0);
+                        $this->UpdateFormField('EventHook', 'caption', $this->Translate('Invalid'));
+                        $this->WriteAttributeString('ConsumerAddress', 'Invalid');
+                        return false;
+                    }
+                } else {
+                    $ip = '[' . $ip . ']';
                 }
             }
             $Debug = 'ConsumerAddress';
         }
-        $Url = $Protocol . '://' . $ip . ':' . $Port . '/hook/FritzBoxIO' . $this->InstanceID;
+        $Url = 'http://' . $ip . ':' . $Port . '/hook/FritzBoxIO' . $this->InstanceID;
         $this->SendDebug($Debug, $Url, 0);
         $this->UpdateFormField('EventHook', 'caption', $Url);
         $this->WriteAttributeString('ConsumerAddress', $Url);
@@ -523,8 +548,8 @@ class FritzBoxIO extends IPSModule
     {
         $this->UnregisterMessage(0, IPS_KERNELMESSAGE);
         $this->RegisterMessage($this->InstanceID, FM_CHILDADDED);
+        $this->ForceLoadXML = true;
         $this->ApplyChanges();
-        $this->doNotLoadXML = false;
     }
 
     private function ShowLastError(string $ErrorMessage, string $ErrorTitle = 'Error')
@@ -758,6 +783,9 @@ class FritzBoxIO extends IPSModule
                 usleep(100000);
                 $this->SendDebug('RETRY', '', 0);
                 return $this->CallSoapAction($HttpCode, $serviceTyp, $controlURL, $function, $params, false);
+            }
+            if ($HttpCode == 418) {
+                $this->SetStatus(self::$http_error[418][1]);
             }
             return $e;
         }

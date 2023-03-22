@@ -17,6 +17,7 @@ class FritzBoxPowerline extends FritzBoxModulBase
         parent::Create();
 
         $this->RegisterPropertyInteger('RefreshInterval', 60);
+        $this->RegisterPropertyBoolean('RenameDeviceVariables', true);
         $this->RegisterTimer('RefreshInfo', 0, 'IPS_RequestAction(' . $this->InstanceID . ',"RefreshInfo",true);');
     }
 
@@ -48,35 +49,6 @@ class FritzBoxPowerline extends FritzBoxModulBase
         trigger_error($this->Translate('Invalid Ident.'), E_USER_NOTICE);
         return false;
     }
-    public function UpdateInfo()
-    {
-        $NumberOfDeviceEntries = $this->GetNumberOfDeviceEntries();
-        if ($NumberOfDeviceEntries === false) {
-            return false;
-        }
-        $ReturnValue = true;
-        $Rename = true; //todo Property
-        for ($i = 0; $i < $NumberOfDeviceEntries; $i++) {
-            $Result = $this->GetGenericDeviceEntry($i);
-            if ($Result === false) {
-                $ReturnValue = false;
-                continue;
-            }
-            $Ident = $this->ConvertIdent($Result['NewMACAddress']);
-            $Name = $Result['NewName'];
-            $this->setIPSVariable($Ident, $Name, (int) $Result['NewActive'] > 0, VARIABLETYPE_BOOLEAN, '~Switch', false);
-            $VarId = $this->GetIDForIdent($Ident);
-            if ($Rename && (IPS_GetName($VarId) != $Name)) {
-                IPS_SetName($VarId, $Name);
-            }
-
-            $ModelId = $this->RegisterSubVariable($VarId, 'Model', 'Model', VARIABLETYPE_STRING, '');
-            SetValueString($ModelId, (string) $Result['NewModel']);
-            $UpdateAvailableId = $this->RegisterSubVariable($VarId, 'UpdateAvailable', $this->Translate('Update available'), VARIABLETYPE_BOOLEAN, '');
-            SetValueBoolean($UpdateAvailableId, (int) $Result['NewUpdateAvailable'] > 0);
-        }
-        return $ReturnValue;
-    }
     public function GetGenericDeviceEntry(int $Index)
     {
         $Result = $this->Send('GetGenericDeviceEntry', [
@@ -105,5 +77,34 @@ class FritzBoxPowerline extends FritzBoxModulBase
             return false;
         }
         return $Result;
+    }
+    private function UpdateInfo()
+    {
+        $NumberOfDeviceEntries = $this->GetNumberOfDeviceEntries();
+        if ($NumberOfDeviceEntries === false) {
+            return false;
+        }
+        $ReturnValue = true;
+        $Rename = $this->ReadPropertyBoolean('RenameDeviceVariables');
+        for ($i = 0; $i < $NumberOfDeviceEntries; $i++) {
+            $Result = $this->GetGenericDeviceEntry($i);
+            if ($Result === false) {
+                $ReturnValue = false;
+                continue;
+            }
+            $Ident = $this->ConvertIdent($Result['NewMACAddress']);
+            $Name = $Result['NewName'];
+            $this->setIPSVariable($Ident, $Name, (int) $Result['NewActive'] > 0, VARIABLETYPE_BOOLEAN, '~Switch', false);
+            $VarId = $this->GetIDForIdent($Ident);
+            if ($Rename && (IPS_GetName($VarId) != $Name)) {
+                IPS_SetName($VarId, $Name);
+            }
+
+            $ModelId = $this->RegisterSubVariable($VarId, 'Model', 'Model', VARIABLETYPE_STRING, '');
+            SetValueString($ModelId, (string) $Result['NewModel']);
+            $UpdateAvailableId = $this->RegisterSubVariable($VarId, 'UpdateAvailable', $this->Translate('Update available'), VARIABLETYPE_BOOLEAN, '');
+            SetValueBoolean($UpdateAvailableId, (int) $Result['NewUpdateAvailable'] > 0);
+        }
+        return $ReturnValue;
     }
 }

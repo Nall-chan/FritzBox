@@ -6,6 +6,12 @@
             "caption": "Refresh Interval",
             "suffix": "seconds",
             "minimum": 0
+        },
+        {
+            "name": "RenameDeviceVariables",
+            "type": "CheckBox",
+            "caption": "Automatically rename device variables",
+            "width": "400px"
         }
     ],
     "actions": [

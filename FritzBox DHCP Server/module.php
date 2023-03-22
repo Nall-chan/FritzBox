@@ -5,9 +5,13 @@ require_once __DIR__ . '/../libs/FritzBoxBase.php';
 
 class FritzBoxDHCPServer extends FritzBoxModulBase
 {
-    protected static $ControlUrlArray = ['/upnp/control/lanhostconfigmgm'];
+    protected static $ControlUrlArray = [
+        '/upnp/control/lanhostconfigmgm'
+    ];
     protected static $EventSubURLArray = [];
-    protected static $ServiceTypeArray = ['urn:dslforum-org:service:LANHostConfigManagement:1'];
+    protected static $ServiceTypeArray = [
+        'urn:dslforum-org:service:LANHostConfigManagement:1'
+    ];
     protected static $DefaultIndex = 0;
     public function Create()
     {

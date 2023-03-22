@@ -30,8 +30,6 @@ class FritzBoxHomeautomation extends FritzBoxModulBase
     {
         $this->SetTimerInterval('RefreshInfo', 0);
         parent::ApplyChanges();
-        /*$this->RegisterProfileInteger('FB.Intensity', 'FB.Intensity', '', ' %', 0, 100, 1);
-         */
         $this->RegisterProfileStringEx('FB.AHA.Present', '', '', '', [
             ['DISCONNECTED', 'disconnected', '', -1],
             ['REGISTRERED', 'registrered', '', -1],
@@ -88,46 +86,6 @@ class FritzBoxHomeautomation extends FritzBoxModulBase
         }
         return $Result;
     }
-    public function UpdateInfo()
-    {
-        $Result = $this->GetSpecificDeviceInfos();
-        if ($Result === false) {
-            return false;
-        }
-
-        $this->SetSummary((string) $Result['NewProductName'] . ' (' . (string) $Result['NewFirmwareVersion'] . ')');
-        $this->setIPSVariable('Present', 'Present', (string) $Result['NewPresent'], VARIABLETYPE_STRING, 'FB.AHA.Present', false);
-        if ($Result['NewMultimeterIsEnabled'] == 'ENABLED') {
-            $this->setIPSVariable('MultimeterIsValid', 'Multimeter (valid)', (string) $Result['NewMultimeterIsValid'], VARIABLETYPE_STRING, 'FB.AHA.Valid', false);
-            $this->setIPSVariable('MultimeterPower', 'Multimeter (Power)', ((int) $Result['NewMultimeterPower'] / 100), VARIABLETYPE_FLOAT, '~Watt', false);
-            $this->setIPSVariable('MultimeterEnergy', 'Multimeter (Energy)', (int) $Result['NewMultimeterEnergy'], VARIABLETYPE_FLOAT, '~Electricity.Wh', false);
-        }
-        if ($Result['NewTemperatureIsEnabled'] == 'ENABLED') {
-            $this->setIPSVariable('TemperatureIsValid', 'Temperature (valid)', (string) $Result['NewTemperatureIsValid'], VARIABLETYPE_STRING, 'FB.AHA.Valid', false);
-            $this->setIPSVariable('TemperatureCelsius', 'Temperature (Celsius)', ((int) $Result['NewTemperatureCelsius'] / 10), VARIABLETYPE_FLOAT, '~Temperature', false);
-            $this->setIPSVariable('TemperatureOffset', 'Temperature (Offset)', ((int) $Result['NewTemperatureOffset'] / 10), VARIABLETYPE_FLOAT, '~Temperature', false);
-        }
-        if ($Result['NewSwitchIsEnabled'] == 'ENABLED') {
-            $this->setIPSVariable('SwitchIsValid', 'Switch (valid)', (string) $Result['NewSwitchIsValid'], VARIABLETYPE_STRING, 'FB.AHA.Valid', false);
-            $this->setIPSVariable('SwitchState', 'Switch (State)', (string) $Result['NewSwitchState'], VARIABLETYPE_STRING, 'FB.AHA.State', true);
-            $this->setIPSVariable('SwitchMode', 'Switch (Mode)', (string) $Result['NewSwitchMode'], VARIABLETYPE_STRING, 'FB.AHA.Mode', false);
-            $this->setIPSVariable('SwitchLock', 'Switch (Lock)', (int) $Result['NewSwitchLock'] > 0, VARIABLETYPE_BOOLEAN, '~Switch', false);
-        }
-        if ($Result['NewHkrIsValid'] == 'ENABLED') {
-            $this->setIPSVariable('HkrIsTemperature', 'Heating Thermostat (actual temperature)', ((int) $Result['NewHkrIsTemperature'] / 10), VARIABLETYPE_FLOAT, '~Temperature', false);
-
-            $this->setIPSVariable('HkrSetTemperature', 'Heating Thermostat (target temperature)', ((int) $Result['NewHkrSetTemperature'] / 10), VARIABLETYPE_FLOAT, '~Temperature', false);
-            $this->setIPSVariable('HkrSetVentilStatus', 'Heating Thermostat (target valve state)', (string) $Result['NewHkrSetVentilStatus'], VARIABLETYPE_STRING, 'FB.AHA.VentilState', false);
-
-            $this->setIPSVariable('HkrReduceTemperature', 'Heating Thermostat (reduce temperature)', ((int) $Result['NewHkrReduceTemperature'] / 10), VARIABLETYPE_FLOAT, '~Temperature', false);
-            $this->setIPSVariable('HkrReduceVentilStatus', 'Heating Thermostat (reduce valve state)', (string) $Result['NewHkrReduceVentilStatus'], VARIABLETYPE_STRING, 'FB.AHA.VentilState', false);
-
-            $this->setIPSVariable('HkrComfortTemperature', 'Heating Thermostat (comfort temperature)', ((int) $Result['NewHkrComfortTemperature'] / 10), VARIABLETYPE_FLOAT, '~Temperature', false);
-            $this->setIPSVariable('HkrComfortVentilStatus', 'Heating Thermostat (comfort valve state)', (string) $Result['NewHkrComfortVentilStatus'], VARIABLETYPE_STRING, 'FB.AHA.VentilState', false);
-        }
-
-        return true;
-    }
     public function GetSpecificDeviceInfos()
     {
         $Result = $this->Send('GetSpecificDeviceInfos', [
@@ -165,6 +123,46 @@ class FritzBoxHomeautomation extends FritzBoxModulBase
         if ($Result === false) {
             return false;
         }
+        return true;
+    }
+    private function UpdateInfo()
+    {
+        $Result = $this->GetSpecificDeviceInfos();
+        if ($Result === false) {
+            return false;
+        }
+
+        $this->SetSummary((string) $Result['NewProductName'] . ' (' . (string) $Result['NewFirmwareVersion'] . ')');
+        $this->setIPSVariable('Present', 'Present', (string) $Result['NewPresent'], VARIABLETYPE_STRING, 'FB.AHA.Present', false);
+        if ($Result['NewMultimeterIsEnabled'] == 'ENABLED') {
+            $this->setIPSVariable('MultimeterIsValid', 'Multimeter (valid)', (string) $Result['NewMultimeterIsValid'], VARIABLETYPE_STRING, 'FB.AHA.Valid', false);
+            $this->setIPSVariable('MultimeterPower', 'Multimeter (Power)', ((int) $Result['NewMultimeterPower'] / 100), VARIABLETYPE_FLOAT, '~Watt', false);
+            $this->setIPSVariable('MultimeterEnergy', 'Multimeter (Energy)', (int) $Result['NewMultimeterEnergy'], VARIABLETYPE_FLOAT, '~Electricity.Wh', false);
+        }
+        if ($Result['NewTemperatureIsEnabled'] == 'ENABLED') {
+            $this->setIPSVariable('TemperatureIsValid', 'Temperature (valid)', (string) $Result['NewTemperatureIsValid'], VARIABLETYPE_STRING, 'FB.AHA.Valid', false);
+            $this->setIPSVariable('TemperatureCelsius', 'Temperature (Celsius)', ((int) $Result['NewTemperatureCelsius'] / 10), VARIABLETYPE_FLOAT, '~Temperature', false);
+            $this->setIPSVariable('TemperatureOffset', 'Temperature (Offset)', ((int) $Result['NewTemperatureOffset'] / 10), VARIABLETYPE_FLOAT, '~Temperature', false);
+        }
+        if ($Result['NewSwitchIsEnabled'] == 'ENABLED') {
+            $this->setIPSVariable('SwitchIsValid', 'Switch (valid)', (string) $Result['NewSwitchIsValid'], VARIABLETYPE_STRING, 'FB.AHA.Valid', false);
+            $this->setIPSVariable('SwitchState', 'Switch (State)', (string) $Result['NewSwitchState'], VARIABLETYPE_STRING, 'FB.AHA.State', true);
+            $this->setIPSVariable('SwitchMode', 'Switch (Mode)', (string) $Result['NewSwitchMode'], VARIABLETYPE_STRING, 'FB.AHA.Mode', false);
+            $this->setIPSVariable('SwitchLock', 'Switch (Lock)', (int) $Result['NewSwitchLock'] > 0, VARIABLETYPE_BOOLEAN, '~Switch', false);
+        }
+        if ($Result['NewHkrIsValid'] == 'ENABLED') {
+            $this->setIPSVariable('HkrIsTemperature', 'Heating Thermostat (actual temperature)', ((int) $Result['NewHkrIsTemperature'] / 10), VARIABLETYPE_FLOAT, '~Temperature', false);
+
+            $this->setIPSVariable('HkrSetTemperature', 'Heating Thermostat (target temperature)', ((int) $Result['NewHkrSetTemperature'] / 10), VARIABLETYPE_FLOAT, '~Temperature', false);
+            $this->setIPSVariable('HkrSetVentilStatus', 'Heating Thermostat (target valve state)', (string) $Result['NewHkrSetVentilStatus'], VARIABLETYPE_STRING, 'FB.AHA.VentilState', false);
+
+            $this->setIPSVariable('HkrReduceTemperature', 'Heating Thermostat (reduce temperature)', ((int) $Result['NewHkrReduceTemperature'] / 10), VARIABLETYPE_FLOAT, '~Temperature', false);
+            $this->setIPSVariable('HkrReduceVentilStatus', 'Heating Thermostat (reduce valve state)', (string) $Result['NewHkrReduceVentilStatus'], VARIABLETYPE_STRING, 'FB.AHA.VentilState', false);
+
+            $this->setIPSVariable('HkrComfortTemperature', 'Heating Thermostat (comfort temperature)', ((int) $Result['NewHkrComfortTemperature'] / 10), VARIABLETYPE_FLOAT, '~Temperature', false);
+            $this->setIPSVariable('HkrComfortVentilStatus', 'Heating Thermostat (comfort valve state)', (string) $Result['NewHkrComfortVentilStatus'], VARIABLETYPE_STRING, 'FB.AHA.VentilState', false);
+        }
+
         return true;
     }
 }

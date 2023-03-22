@@ -49,11 +49,6 @@
                             "caption": "Port of event hook",
                             "minimum": 0,
                             "maximum": 65535
-                        },
-                        {
-                            "name": "ReturnProtocol",
-                            "type": "CheckBox",
-                            "caption": "use https"
                         }
                     ]
                 }

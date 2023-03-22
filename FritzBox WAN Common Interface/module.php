@@ -193,7 +193,7 @@ class FritzBoxWANCommonInterface extends FritzBoxModulBase
         $this->WriteAttributeInteger('Downstream', $Downstream);
         $this->setIPSVariable('UpstreamMaxBitRate', 'Upstream Max kBitrate', $Upstream, VARIABLETYPE_INTEGER, 'FB.kBit');
         $this->setIPSVariable('DownstreamMaxBitRate', 'Downstream Max kBitrate', $Downstream, VARIABLETYPE_INTEGER, 'FB.kBit');
-        /* TODO
+        /* todo
         NewX_AVM-DE_DownstreamCurrentUtilization out X_AVM-DE_DownStreamCurrentUtilization
 NewX_AVM-DE_UpstreamCurrentUtilization out X_AVM-DE_UpstreamCurrentUtilization
 NewX_AVM-DE_DownstreamCurrentMaxSpeed out X_AVM-DE_DownstreamCurrentMaxSpeed
@@ -201,7 +201,7 @@ NewX_AVM-DE_UpstreamCurrentMaxSpeed out X_AVM-DE_UpstreamCurrentMaxSpeed
          */
         return true;
     }
-    /* TODO
+    /* todo
     function AVM-DE_SetWANAccessType
     function X_AVM-DE_GetActiveProvider
      */

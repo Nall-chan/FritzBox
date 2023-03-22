@@ -7,8 +7,8 @@
             "Event subscribe error": "Ereignisabonnementfehler",
             "Invalid Ident.": "Ungültiger Ident.",
             "DVBC enabled ": "DVBC aktiv",
-            "Station search status": "Status Sendersuche",
-            "Search progress ": "Fortschritt Sendersuche ",
+            "Station search status": "Status Sendersuchlauf",
+            "Search progress ": "Fortschritt Sendersuchlauf",
             "active": "Aktiv",
             "inactive": "Inaktiv",
             "This module is free for non-commercial use,\r\nDonations in support of the author are accepted here:": "Dieses Modul ist für die nicht kommerzielle Nutzung kostenlos,\r\nSchenkungen als Unterstützung für den Autor werden hier akzeptiert:"

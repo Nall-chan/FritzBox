@@ -5,7 +5,7 @@
 [![Check Style](https://github.com/Nall-chan/FritzBox/workflows/Check%20Style/badge.svg)](https://github.com/Nall-chan/FritzBox/actions) [![Run Tests](https://github.com/Nall-chan/FritzBox/workflows/Run%20Tests/badge.svg)](https://github.com/Nall-chan/FritzBox/actions)  
 [![Spenden](https://www.paypalobjects.com/de_DE/DE/i/btn/btn_donate_SM.gif)](#spenden)  
 
-# FritzBox Geräte Informationen <!-- omit in toc -->
+# FritzBox Firmware Informationen <!-- omit in toc -->
 Beschreibung des Moduls.
 
 ### Inhaltsverzeichnis <!-- omit in toc -->
@@ -37,7 +37,7 @@ Beschreibung des Moduls.
  
  Es wird empfohlen Geräte-Instanzen über die entsprechenden 'FritzBox Konfigurator'-Instanz zu erzeugen.  
 
- Unter 'Instanz hinzufügen' ist das 'FritzBox Geräte Informationen'-Modul unter dem Hersteller 'AVM' aufgeführt.
+ Unter 'Instanz hinzufügen' ist das 'FritzBox Firmware Informationen'-Modul unter dem Hersteller 'AVM' aufgeführt.
 
 __Konfigurationsseite__:
 

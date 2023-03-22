@@ -68,7 +68,7 @@ class FritzBoxModulBase extends IPSModule
         if ($Index > -1) {
             $Filter = preg_quote(substr(json_encode(static::$EventSubURLArray[$Index]), 1, -1));
             if (property_exists($this, 'SecondEventGUID')) {
-                $Filter .= '.*|.*"DataID":"' . preg_quote(static::$SecondEventGUID) . '"';
+                $Filter .= '".*|.*"DataID":"' . preg_quote(static::$SecondEventGUID);
             }
             $this->SetReceiveDataFilter('.*"EventSubURL":"' . $Filter . '".*');
             $this->SendDebug('Filter', '.*"EventSubURL":"' . $Filter . '".*', 0);
@@ -107,7 +107,7 @@ class FritzBoxModulBase extends IPSModule
         }
     }
     // TESTING TODO
-    public function Test(string $Function)
+    /*public function Test(string $Function)
     {
         $result = $this->SendEx($Function, 1);
         if ($result === false) {
@@ -122,7 +122,7 @@ class FritzBoxModulBase extends IPSModule
             return false;
         }
         return $result;
-    }
+    }*/
 
     public function ReceiveData($JSONString)
     {
@@ -248,7 +248,21 @@ class FritzBoxModulBase extends IPSModule
         }
         return false;
     }
-
+    protected function RefreshHostXML()
+    {
+        $this->SendDebug('RefreshHostList', '', 0);
+        $Ret = $this->SendDataToParent(json_encode(
+            [
+                'DataID'     => '{D62D4515-7689-D1DB-EE97-F555AD9433F0}',
+                'Function'   => 'RefreshHostList'
+            ]
+        ));
+        if ($Ret === false) {
+            $this->SendDebug('Error on RefreshHostList', '', 0);
+            return false;
+        }
+        return true;
+    }
     protected function GetConfiguratorID()
     {
         $GUID = '{32CF40DC-51DA-6C63-8BD7-55E82F64B9E7}';

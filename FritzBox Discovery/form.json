@@ -6,14 +6,19 @@
             "add": false,
             "delete": true,
             "sort": {
-                "column": "url",
+                "column": "host",
                 "direction": "ascending"
             },
             "columns": [
                 {
-                    "caption": "IP Address",
-                    "name": "url",
-                    "width": "350px"
+                    "caption": "Device identifier",
+                    "name": "uuid",
+                    "width": "300px"
+                },
+                {
+                    "caption": "Host",
+                    "name": "host",
+                    "width": "300px"
                 },
                 {
                     "caption": "Device",

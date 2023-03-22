@@ -12,6 +12,7 @@ require_once __DIR__ . '/../libs/FritzBoxTable.php';
  * @property int $HostNumberOfEntriesId
  * @property bool $APisGuest
  * @property int $Channel
+ * @property bool $ShowVariableWarning
  */
 class FritzBoxWLAN extends FritzBoxModulBase
 {
@@ -157,6 +158,10 @@ class FritzBoxWLAN extends FritzBoxModulBase
             return true;
         }
         switch ($Ident) {
+                case 'ReloadForm':
+                    IPS_Sleep(2000);
+                    $this->ReloadForm();
+                    return;
                 case 'RefreshState':
                     return $this->UpdateInfo();
                 case 'X_AVM_DE_APEnabled':
@@ -259,7 +264,6 @@ class FritzBoxWLAN extends FritzBoxModulBase
             $Values = json_decode($this->ReadPropertyString('HostVariables'), true);
         }
         $Form['elements'][4]['items'][1]['items'][0]['values'] = $Values;
-
         $this->SendDebug('FORM', json_encode($Form), 0);
         $this->SendDebug('FORM', json_last_error_msg(), 0);
         return json_encode($Form);
@@ -302,7 +306,6 @@ class FritzBoxWLAN extends FritzBoxModulBase
             $this->SendDebug('XML decode error', $XMLData, 0);
             return false;
         }
-        $this->SendDebug('XML', $XMLData, 0);
         // WLAN Daten filtern auf unseren Channel
         $Devices = $xmlWLAN->xpath("//Item[AssociatedDeviceChannel ='" . $this->Channel . "']");
 
@@ -404,7 +407,10 @@ class FritzBoxWLAN extends FritzBoxModulBase
         }
         $data = json_decode($JSONString, true);
         unset($data['DataID']);
-        $this->SendDebug('ReceiveHostData', $data, 0);
+        if ($data['Function'] == 'NewHostListEvent') {
+            $this->SendDebug('NewHostListEvent', '', 0);
+            $this->RefreshHostList();
+        }
         return true;
     }
     public function GetHTMLQRCode()
@@ -725,7 +731,6 @@ class FritzBoxWLAN extends FritzBoxModulBase
             $this->SendDebug('XML decode error', $XMLData, 0);
             return [];
         }
-        $this->SendDebug('XML', $XMLData, 0);
 
         // WLAN Daten holen
         $Uri = $this->GetWLANDeviceListPath();
@@ -743,7 +748,6 @@ class FritzBoxWLAN extends FritzBoxModulBase
             $this->SendDebug('XML decode error', $XMLData, 0);
             return [];
         }
-        $this->SendDebug('XML', $XMLData, 0);
 
         $KnownVariableIDs = array_filter(IPS_GetChildrenIDs($this->InstanceID), function ($VariableID)
         {
@@ -762,17 +766,19 @@ class FritzBoxWLAN extends FritzBoxModulBase
             $HostVariable['address'] = implode(':', str_split(substr($HostVariable['ident'], 3), 2));
             $HostName = $xmlHosts->xpath("//Item[MACAddress ='" . $HostVariable['address'] . "']");
             if (count($HostName) > 0) {
-                $HostVariable['name'] = (string) $HostName[0]->HostName;
+                $HostVariable['host'] = (string) $HostName[0]->HostName;
             } else {
-                $HostVariable['name'] = $HostVariable['address'];
+                $HostVariable['host'] = 'unknown'; //$HostVariable['address'];
             }
             $VariableID = @$this->GetIDForIdent($HostVariable['ident']);
             if ($VariableID > 0) {
                 $Key = array_search($VariableID, $KnownVariableIDs);
                 unset($KnownVariableIDs[$Key]);
+                $HostVariable['name'] = IPS_GetName($VariableID);
                 $HostVariable['rowColor'] = ($HostVariable['name'] != IPS_GetName($VariableID)) ? '#DFDFDF' : '#FFFFFF';
             } else {
                 $HostVariable['rowColor'] = '#FFFFFF';
+                $HostVariable['name'] = '';
             }
 
             //prüfen ob in Hosts vorhanden
@@ -782,6 +788,7 @@ class FritzBoxWLAN extends FritzBoxModulBase
                     $HostVariable['rowColor'] = '#C0FFC0';
                 }
             } else {
+                $HostVariable['host'] = $this->Translate('invalid');
                 $HostVariable['rowColor'] = '#FFC0C0';
             }
         }
@@ -790,8 +797,6 @@ class FritzBoxWLAN extends FritzBoxModulBase
         // hier WLAN Daten durchgehen und Namen in Host suchen
         // WLAN Daten filtern auf unseren Channel
         $Devices = $xmlWLAN->xpath("//Item[AssociatedDeviceChannel ='" . $this->Channel . "']");
-
-        $this->SendDebug('number', count($Devices), 0);
         foreach ($Devices as $xmlItem) {
             $Ident = 'MAC' . strtoupper($this->ConvertIdent((string) $xmlItem->AssociatedDeviceMACAddress));
             if (in_array($Ident, $FoundIdents)) {
@@ -800,16 +805,17 @@ class FritzBoxWLAN extends FritzBoxModulBase
             $Address = strtoupper((string) $xmlItem->AssociatedDeviceMACAddress);
             $HostName = $xmlHosts->xpath("//Item[MACAddress ='" . $Address . "']");
             if (count($HostName) > 0) {
-                $Name = (string) $HostName[0]->HostName;
+                $Host = (string) $HostName[0]->HostName;
             } else {
-                $Name = $Address;
+                $Host = 'unknown';
             }
-
+            $Name = '';
             $VariableID = @$this->GetIDForIdent($Ident);
             if ($VariableID > 0) {
+                $Name = IPS_GetName($VariableID);
                 $Key = array_search($VariableID, $KnownVariableIDs);
                 unset($KnownVariableIDs[$Key]);
-                $RowColor = ($Name != IPS_GetName($VariableID)) ? '#DFDFDF' : '#FFFFFF';
+                $RowColor = ($Name != $Host) ? '#DFDFDF' : '#FFFFFF';
                 $Used = true;
             } else {
                 $RowColor = '#C0FFC0';
@@ -819,6 +825,7 @@ class FritzBoxWLAN extends FritzBoxModulBase
                 'ident'   => $Ident,
                 'address' => $Address,
                 'name'    => $Name,
+                'host'    => $Host,
                 'rowColor'=> $RowColor,
                 'use'     => $Used
             ];
@@ -828,12 +835,14 @@ class FritzBoxWLAN extends FritzBoxModulBase
             $Ident = IPS_GetObject($VariableID)['ObjectIdent'];
             $Address = implode(':', str_split(substr($Ident, 3), 2));
             $Name = IPS_GetName($VariableID);
+            $Host = '';
             $FoundAddress = $xmlHosts->xpath("//Item[MACAddress ='" . $Address . "']");
             if (count($FoundAddress) > 0) {
-                $NewName = (string) $FoundAddress[0]->HostName;
-                $RowColor = ($Name != $NewName) ? '#DFDFDF' : '#FFFFFF';
+                $Host = (string) $FoundAddress[0]->HostName;
+                $RowColor = ($Name != $Host) ? '#DFDFDF' : '#FFFFFF';
             } else {
                 $Address = '';
+                $Host = $this->Translate('invalid');
                 $RowColor = '#FFC0C0';
             }
 
@@ -841,6 +850,7 @@ class FritzBoxWLAN extends FritzBoxModulBase
                 'ident'   => $Ident,
                 'address' => $Address,
                 'name'    => $Name,
+                'host'    => $Host,
                 'rowColor'=> $RowColor,
                 'use'     => true
             ];

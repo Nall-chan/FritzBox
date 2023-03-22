@@ -1,0 +1,33 @@
+{
+    "translations": {
+        "de": {
+            "Refresh Interval": "Aktualisierungsintervall",
+            "seconds": "Sekunden",
+            "Update Values": "Werte aktualisieren",
+            "Event subscribe error": "Ereignisabonnementfehler",
+            "Invalid Ident.": "Ungültiger Ident.",
+            "Started": "Gestartet",
+            "Stopped": "Angehalten",
+            "Error": "Fehler",
+            "No Update Available": "Kein Update verfügbar",
+            "Update Available": "Update verfügbar",
+            "Unknown": "unbekannt",
+            "Modified": "Modifiziert",
+            "Off": "Aus",
+            "All": "Alle",
+            "Important": "Wichtige",
+            "Failed": "Fehlgeschlagen",
+            "Succeeded": "Erfolgreich",
+            "Autoupdate Mode": "Autoupdate-Modus",
+            "Upgrade Available": "Aktualisierung verfügbar",
+            "Warranty Date": "Garantiedatum",
+            "Update State": "Update Status",
+            "Build Type": "Build-Typ",
+            "Update Time": "Updatezeit",
+            "Last Firmware Version": "Letzte Firmware-Version",
+            "Current Firmware Version": "Aktuelle Firmware-Version",
+            "Update Successful": "Aktualisierung erfolgreich",
+            "This module is free for non-commercial use,\r\nDonations in support of the author are accepted here:": "Dieses Modul ist für die nicht kommerzielle Nutzung kostenlos,\r\nSchenkungen als Unterstützung für den Autor werden hier akzeptiert:"
+        }
+    }
+}

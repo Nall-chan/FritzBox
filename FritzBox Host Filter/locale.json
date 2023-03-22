@@ -3,8 +3,9 @@
         "de": {
             "Refresh Interval": "Aktualisierungsintervall",
             "seconds": "Sekunden",
-            "Read state": "Lese Status",
-            "Invalid Ident.": "Ungültiger Ident.",
+            "Create variable per network device": "Erzeuge Variable pro Netzwerkgerät",
+            "Automatically create variables for new network devices": "Automatisch Variablen für neue Netzwerkgeräte erstellen",
+            "Automatically rename network device variables": "Netzwerkgeräte-Variablen automatisch umbenennen",
             "Hostnames not available!": "Hostnamen nicht verfügbar!",
             "The 'FritzBox Host' instance is required to display hostnames.": "Die 'FritzBox Host' Instanz wird für die Darstellung der Hostnamen benötigt.",
             "Open Configurator": "Öffne Konfigurator",
@@ -12,8 +13,11 @@
             "Statevariables": "Statusvariablen",
             "Address": "Adresse",
             "used": "Benutzt",
+            "invalid": "ungültig",
             "Attention!": "Achtung!",
             "Deselecting a host causes the associated status variable to be deleted.": "Abwählen eines Host führt zum löschen der dazugehörigen Statusvariable.",
+            "Read state": "Lese Status",
+            "Invalid Ident.": "Ungültiger Ident.",
             "This module is free for non-commercial use,\r\nDonations in support of the author are accepted here:": "Dieses Modul ist für die nicht kommerzielle Nutzung kostenlos,\r\nSchenkungen als Unterstützung für den Autor werden hier akzeptiert:"
         }
     }

@@ -54,6 +54,7 @@ class FritzBoxTime extends FritzBoxModulBase
 
         return false;
     }
+
     public function GetInfo()
     {
         $result = $this->Send(__FUNCTION__);
@@ -62,6 +63,7 @@ class FritzBoxTime extends FritzBoxModulBase
         }
         return $result;
     }
+
     public function SetNTPServers(string $NTPServer1, string $NTPServer2)
     {
         $result = $this->Send(__FUNCTION__, [
@@ -71,9 +73,10 @@ class FritzBoxTime extends FritzBoxModulBase
         if ($result === false) {
             return false;
         }
-
+        $this->UpdateInfo();
         return true;
     }
+
     private function UpdateInfo()
     {
         $result = $this->GetInfo();
@@ -84,12 +87,6 @@ class FritzBoxTime extends FritzBoxModulBase
         $this->setIPSVariable('CurrentLocalTime', 'Current system clock', $VarTime->getTimestamp(), VARIABLETYPE_INTEGER, '~UnixTimestamp');
         $this->setIPSVariable('NTPServer', 'NTP-Server 1', $result['NewNTPServer1'], VARIABLETYPE_STRING, '', true);
         $this->setIPSVariable('NTPServer2', 'NTP-Server 2', $result['NewNTPServer2'], VARIABLETYPE_STRING, '', true);
-        //todo
-        /*
-        NewDaylightSavingsUsed
-        NewDaylightSavingsStart
-        NewDaylightSavingsEnd
-         */
         return true;
     }
 }

@@ -1,7 +1,7 @@
 {
     "translations": {
         "de": {
-            "IP Address": "IP Adresse",
+            "Device identifier": "Gerätekennung",
             "Device": "Gerät",
             "No Devices found!": "Keine Geräte gefunden",
             "No devices were found.\r\nTo recognize devices, incoming multicast on port 1901 (UDP) must be forwarded to IPS.\r\nPlease configure the firewall or routing accordingly.": "Es wurden keine Geräte gefunden.\r\nUm Geräte zu erkennen muss Multicast ankommend Port 1901 (UDP) an IPS weitergeleitet werden.\r\nBitte Firewall oder Routing entsprechend konfigurieren.",

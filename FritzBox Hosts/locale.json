@@ -46,7 +46,9 @@
             "Variables for Hosts": "Variablen für Netzwerkgeräte",
             "Statevariables": "Statusvariablen",
             "Address": "Adresse",
+            "Variable name": "Variablenname",
             "used": "Benutzt",
+            "invalid": "ungültig",
             "Attention!": "Achtung!",
             "Deselecting a host causes the associated status variable to be deleted.": "Abwählen eines Host führt zum löschen der dazugehörigen Statusvariable.",
             "This module is free for non-commercial use,\r\nDonations in support of the author are accepted here:": "Dieses Modul ist für die nicht kommerzielle Nutzung kostenlos,\r\nSchenkungen als Unterstützung für den Autor werden hier akzeptiert:"

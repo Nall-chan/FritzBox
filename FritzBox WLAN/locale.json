@@ -9,7 +9,7 @@
             "Create QR-Code media object": "Erzeuge Medien-Objekt mit QR-Code",
             "Create variables for extended information": "Erzeuge Variablen für erweiterte Informationen",
             "Create variable per WiFi device": "Erzeuge Variable pro WLAN Gerät",
-            "Automatically create variables for new WiFi devices":"Automatisch Variablen für neue WLAN-Geräte erstellen",
+            "Automatically create variables for new WiFi devices": "Automatisch Variablen für neue WLAN-Geräte erstellen",
             "Automatically rename WiFi device variables": "WLAN Geräte-Variablen automatisch umbenennen",
             "Show all WiFi devices as HTML-Table": "Zeige alle WLAN Gerät als HTML-Tabelle",
             "Refresh Interval": "Aktualisierungsintervall",
@@ -64,6 +64,7 @@
             "Statevariables": "Statusvariablen",
             "Address": "Adresse",
             "used": "Benutzt",
+            "invalid": "ungültig",
             "Attention!": "Achtung!",
             "Deselecting a host causes the associated status variable to be deleted.": "Abwählen eines Host führt zum löschen der dazugehörigen Statusvariable.",
             "This module is free for non-commercial use,\r\nDonations in support of the author are accepted here:": "Dieses Modul ist für die nicht kommerzielle Nutzung kostenlos,\r\nSchenkungen als Unterstützung für den Autor werden hier akzeptiert:"

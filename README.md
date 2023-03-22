@@ -136,12 +136,25 @@ Für das Discovery werden Pakete über die Multicast-Adresse `239.255.255.250` a
 
 Version 0.75:  
 
+ - Powerline-Instanz unterstützt automatisches umbenennen der Gerätevariablen.  
+ - IPv6 unterstützung hinzugefügt (Betrifft sowohl Discovery-Instanz, als auch den FritzBox IO).  
+ - Discovery-Instanz nutzt die UUID der Geräte um nach der Suche alle IPv4 und IPv6 Adressen korrekt den Geräten zuordnen zu können.
+ - Discovery-Instanz präferiert Hostnamen vor IP-Adressen.  
+ - Firmware Information Instanz, welche auch das wechseln des Updatekanal und schalten des AutoUpdate zulässt.  
  - 'Homeautomation Configurator' / 'SmartHome Konfigurator' wird unter 'Konfiguratoren' angelegt.  
- - Host-Instanz lässt das abwählen und löschen von Statusvariablen zu.  
- - WLAN- Instanz lässt das abwählen und löschen von Statusvariablen zu.  
+ - Host-Instanz lässt das abwählen von Statusvariablen (von Netzwerkgeräten) zu.  
+ - WLAN-Instanz lässt das abwählen von Statusvariablen (von Netzwerkgeräten) zu.  
+ - Host-Filter Instanz lässt das abwählen von Statusvariablen (von Netzwerkgeräten) zu.   
+ - Host-Filter Instanz stellt schaltbare Statusvariablen bereit, um Netzwerkgeräten den Internetzugang zu sperren.  
  - Sollen Variablen von WLAN-Instanzen automatisch umbenannt werden, so erfolgt dies jetzt auch wenn die Geräte offline sind.  
  - 5GhZ WLAN wird wieder korrekt in der Konfiguration erkannt.  
  - Viele Konfigurationsformulare überarbeitet.  
+ - DVB-C Instanz war defekt.  
+ - Sendersuchlauf für DVB-C kann gestartet/gestoppt werden.  
+ - DVB-C kann de/-aktiviert werden. Achtung, Fritzbox startet neu!  
+ - Rufumleitungen der Telefonie-Instanz waren teilweise defekt.  
+ - Benennung der Rufumleitungen und Anrufsperren der Telefonie-Instanz verbessert.  
+ - Anrufsperren können nicht mehr geschaltet werden.  
 
 Version 0.74:  
 

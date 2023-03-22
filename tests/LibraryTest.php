@@ -23,17 +23,9 @@ class LibraryTest extends TestCaseSymconValidation
     {
         $this->validateModule(__DIR__ . '/../FritzBox Configurator');
     }
-    public function testValidateTelephony(): void
-    {
-        $this->validateModule(__DIR__ . '/../FritzBox Telephony');
-    }
     public function testValidateCallMonitor(): void
     {
         $this->validateModule(__DIR__ . '/../FritzBox Callmonitor');
-    }
-    public function testValidateDynDNS(): void
-    {
-        $this->validateModule(__DIR__ . '/../FritzBox DynDNS');
     }
     public function testValidateDeviceInfo(): void
     {
@@ -43,17 +35,37 @@ class LibraryTest extends TestCaseSymconValidation
     {
         $this->validateModule(__DIR__ . '/../FritzBox DHCP Server');
     }
+    public function testValidateDVBC(): void
+    {
+        $this->validateModule(__DIR__ . '/../FritzBox DVBC');
+    }
+    public function testValidateDynDNS(): void
+    {
+        $this->validateModule(__DIR__ . '/../FritzBox DynDNS');
+    }
     public function testValidateFileShare(): void
     {
         $this->validateModule(__DIR__ . '/../FritzBox File Share');
     }
-    public function testValidateHosts(): void
+    public function testValidateFirmwareInfo(): void
     {
-        $this->validateModule(__DIR__ . '/../FritzBox Hosts');
+        $this->validateModule(__DIR__ . '/../FritzBox Firmware Info');
+    }
+    public function testValidateHomeautomation(): void
+    {
+        $this->validateModule(__DIR__ . '/../FritzBox Homeautomation');
+    }
+    public function testValidateHomeautomationConfigurator(): void
+    {
+        $this->validateModule(__DIR__ . '/../FritzBox Homeautomation Configurator');
     }
     public function testValidateHostFilter(): void
     {
         $this->validateModule(__DIR__ . '/../FritzBox Host Filter');
+    }
+    public function testValidateHosts(): void
+    {
+        $this->validateModule(__DIR__ . '/../FritzBox Hosts');
     }
     public function testValidateMyFritz(): void
     {
@@ -62,6 +74,14 @@ class LibraryTest extends TestCaseSymconValidation
     public function testValidateNASStorage(): void
     {
         $this->validateModule(__DIR__ . '/../FritzBox NAS Storage');
+    }
+    public function testValidatePowerline(): void
+    {
+        $this->validateModule(__DIR__ . '/../FritzBox Powerline');
+    }
+    public function testValidateTelephony(): void
+    {
+        $this->validateModule(__DIR__ . '/../FritzBox Telephony');
     }
     public function testValidateTime(): void
     {
@@ -82,6 +102,10 @@ class LibraryTest extends TestCaseSymconValidation
     public function testValidateWANIPConnection(): void
     {
         $this->validateModule(__DIR__ . '/../FritzBox WAN IP Connection');
+    }
+    public function testValidateWANPhysicalInterface(): void
+    {
+        $this->validateModule(__DIR__ . '/../FritzBox WAN Physical Interface');
     }
     public function testValidateWANPortMapping(): void
     {

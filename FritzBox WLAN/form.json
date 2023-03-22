@@ -124,13 +124,19 @@
                                 {
                                     "name": "address",
                                     "caption": "Address",
+                                    "width": "200px",
+                                    "save": false
+                                },
+                                {
+                                    "name": "host",
+                                    "caption": "Hostname",
                                     "width": "300px",
                                     "save": false
                                 },
                                 {
                                     "name": "name",
-                                    "caption": "Name",
-                                    "width": "600px",
+                                    "caption": "Variable name",
+                                    "width": "300px",
                                     "save": false
                                 },
                                 {
@@ -358,7 +364,7 @@
         {
             "type": "Button",
             "caption": "Read state",
-            "onClick": "IPS_RequestAction($id,'RefreshState',true);"
+            "onClick": "IPS_RequestAction($id,'RefreshState',true);IPS_RequestAction($id,'ReloadForm',true);"
         },
         {
             "type": "RowLayout",

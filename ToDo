@@ -1,7 +1,7 @@
 Fertige Instanzen:
  - Device Info
- - Hosts (-> Variablenliste fehlt)
- - WLAN (-> Variablenliste fehlt)
+ - Hosts
+ - WLAN
  - DHCP Server
  - WAN Common Interface
  - FTP / Samba-Freigaben
@@ -10,9 +10,10 @@ Fertige Instanzen:
  - Anrufmonitor
  - Telefonie
  - Powerline
- - DVBC
+ - DVB-C
  - Homeautomation
  - Homeautomation Configurator
+ - Firmware Informationen
 
  - Fehler:
    AB / (Portweiterleitung auch?) Update fehlt nach dem ein/Ausschalten
@@ -26,9 +27,6 @@ Fertige Instanzen:
    https://community.symcon.de/t/beta-modul-fritzbox-ersatz-fuer-fritzbox-project/125451/356?u=nall-chan
 
 
- $SecondEventGUID in WLAN und Host war wofür???
-  - Wenn Host Instanz die Host neu ausliest? -> Dann EVENT zu den anderen Childs?!
-
 
 Feldtest nötig:
  - WAN DSL Link
@@ -39,31 +37,38 @@ Feldtest nötig:
  HTML-Tabelle fehlt:
  - File Share
 
-
  Aktionen fehlen bei folgenden Instanzen:
  - IO (+ Device Config Instanz ?) für Aktion Reboot
  - WebDav Client
  
  
 Unfertig / Fehlen:
-- 2F Authentication?  (fehlt komplett)
 - Dect (fehlt komplett)
 - Anrufbeantworter (fehlt komplett)
-- Wählhilfe (fehlt in Telephony, Realisierbarkeit noch nicht getestet)
+- Wählhilfe (fehlt in Telefonie, Realisierbarkeit noch nicht getestet)
 - Aktionen prüfen, vervollständigen
 - Übersetzung MyFritz fehlt.
 
 Später/Sonstiges:
 - LinkStateToInt weg und LinkState auf String umbauen
-- Fehler beim schalten der Zeitserver-Variablen.
-- Filter bei den SmartHome Geräten
-🪲 Rufumleitungen noch immer defek.
+- Filter bei den SmartHome Geräten.
+✅ Rufumleitungen noch immer defekt.
+✅ Übersetzung Firmware Information fehlt.
+✅ Übersetzung DVBC fehlt.
+✅ Instanzen für Firmware Information.
+✅ Fehler beim schalten der Zeitserver-Variablen.
+✅ Host Filter Instanz kann Variablen mit Aktionen erzeugen.
 ✅ Host Variablen sollten einzeln per Liste konfigurierbar sein.
-✅ Instanzen für Homeautomation
+✅ WLAN und Host Listen sollen Hostnamen und Variablennamen anzeigen.
+✅ Instanzen für Homeautomation.
 ✅ Instanz-Funktionen für Zugriff auf die Daten des Telefonbuchs fehlt.
 ✅ Instanz-Funktion für Suche in Telefonbüchern.
 ✅ Anrufliste gestern/heute in Zeitpunkt-Spalte fehlt.
-✅ NAT / Betrieb aus anderen Subnetzen
+✅ NAT + Docker
 ✅ Prüfung im IO welche Anrufmonitor der FritzBox eingerichtet sind, damit der Konfigurator entsprechende Instanz anbieten kann.
 ✅ Hinweis in der Konfiguration der Anrufliste fehlt, das kein Intervall benötigt wird, wenn der Anrufmonitor aktiv ist.
 ✅ Rufumleitungen und Anrufblockaden übersetzungen verbessern.
+
+Keine Umsetzung und Support für:
+🟥 Betrieb aus anderen Subnetzen.
+🟥 2F Authentication

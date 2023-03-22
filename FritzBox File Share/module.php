@@ -17,7 +17,7 @@ require_once __DIR__ . '/../libs/FritzBoxBase.php';
         {
             //Never delete this line!
             parent::Create();
-            //TODO
+            //todo
             $this->RegisterPropertyBoolean('SharesAsTable', false);
             $this->RegisterPropertyInteger('RefreshInterval', 3600);
 
@@ -64,7 +64,7 @@ require_once __DIR__ . '/../libs/FritzBoxBase.php';
             if ($File === false) {
                 return false;
             }
-            //TODO
+            //todo
             $Data = [];
             /*
             $Url = IPS_GetProperty($this->ParentID, 'Host'). $File;
