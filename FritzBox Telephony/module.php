@@ -150,7 +150,6 @@ class FritzBoxTelephony extends FritzBoxModulBase
                 $this->UpdateFormField('IconPreview', 'visible', true);
                 return;
             case 'ReverseSearchInstanceID':
-                $this->SendDebug('ReverseSearchInstanceID', $Value, 0);
                 if ($Value > 1) {
                     $this->UpdateFormField('CustomSearchScriptID', 'enabled', false);
                 } else {
@@ -158,7 +157,6 @@ class FritzBoxTelephony extends FritzBoxModulBase
                 }
                 return;
             case 'CustomSearchScriptID':
-                $this->SendDebug('CustomSearchScriptID', $Value, 0);
                 if ($Value > 1) {
                     $this->UpdateFormField('MaxNameSize', 'enabled', false);
                     $this->UpdateFormField('ReverseSearchInstanceID', 'enabled', false);
@@ -172,7 +170,6 @@ class FritzBoxTelephony extends FritzBoxModulBase
                 }
                 return;
             case 'CallLogAsVariable':
-                $this->SendDebug('CallLogAsVariable', $Value, 0);
                 $this->UpdateFormField('LastEntries', 'enabled', $Value);
                 $this->UpdateFormField('LoadListType', 'enabled', $Value);
                 $this->UpdateFormField('Icons', 'enabled', $Value);

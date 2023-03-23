@@ -519,7 +519,7 @@ class FritzBoxIO extends IPSModule
                 $ip = '';
                 $result = @socket_getsockname($sock, $ip);
                 @socket_close($sock);
-                if (($result == false) || ($ip == '::')) {
+                if (($result == false) || (strpos($ip, '::') === 0)) {
                     $sock = socket_create(AF_INET, SOCK_STREAM, SOL_TCP);
                     $Host = parse_url($this->Url);
                     @socket_connect($sock, $Host['host'], $Host['port']);
