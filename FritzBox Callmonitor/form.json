@@ -7,6 +7,13 @@
                     "type": "ColumnLayout",
                     "items": [
                         {
+                            "name": "CountryCode",
+                            "type": "ValidationTextBox",
+                            "caption": "Country code",
+                            "width": "300px",
+                            "enabled": false
+                        },
+                        {
                             "name": "AreaCode",
                             "type": "ValidationTextBox",
                             "caption": "Area code",

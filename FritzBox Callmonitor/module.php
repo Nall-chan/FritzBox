@@ -39,6 +39,8 @@ class FritzBoxCallmonitor extends FritzBoxModulBase
         parent::Create();
 
         $this->RegisterPropertyString('AreaCode', '');
+        $this->RegisterPropertyString('CountryCode', '');
+
         $this->RegisterPropertyInteger('ReverseSearchInstanceID', 0);
         $this->RegisterPropertyInteger('CustomSearchScriptID', 0);
         $this->RegisterPropertyInteger('MaxNameSize', 30);
@@ -72,11 +74,20 @@ class FritzBoxCallmonitor extends FritzBoxModulBase
         if (IPS_GetKernelRunlevel() != KR_READY) {
             return;
         }
-        $AreaCodes = $this->GetAreaCodes();
+        $AreaCodes = @$this->GetAreaCodes();
         if (array_key_exists('OKZ', $AreaCodes)) {
+            $HasChanges = false;
             $AreaCode = $AreaCodes['OKZPrefix'] . $AreaCodes['OKZ'];
+            $CountryCode = '+'. $AreaCodes['LKZ'];
             if ($AreaCode != $this->ReadPropertyString('AreaCode')) {
                 IPS_SetProperty($this->InstanceID, 'AreaCode', $AreaCode);
+                $HasChanges = true;
+            }
+            if ($CountryCode != $this->ReadPropertyString('CountryCode')) {
+                IPS_SetProperty($this->InstanceID, 'CountryCode', $CountryCode);
+                $HasChanges = true;
+            }
+            if ($HasChanges) {
                 IPS_ApplyChanges($this->InstanceID);
                 return;
             }
@@ -527,7 +538,8 @@ class FritzBoxCallmonitor extends FritzBoxModulBase
     private function SearchName(string $Number)
     {
         $AreaCode = $this->ReadPropertyString('AreaCode');
-        $Name = $this->GetNameByNumber($Number, $AreaCode);
+        $CountryCode = $this->ReadPropertyString('CountryCode');
+        $Name = $this->GetNameByNumber($Number, $AreaCode, $CountryCode);
         if ($Name === false) {
             $MaxNameSize = $this->ReadPropertyInteger('MaxNameSize');
             $UnknownName = '(' . $Number . ')';

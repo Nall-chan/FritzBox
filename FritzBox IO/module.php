@@ -397,6 +397,14 @@ class FritzBoxIO extends IPSModule
         if (!$Data) {
             return false;
         }
+        if (strpos($Filename, 'Phonebook_') === 0) {
+            $xml = new SimpleXMLElement($Data);
+            $Numbers = $xml->xpath('//number');
+            foreach ($Numbers as &$Number) {
+                $Number[0] = preg_replace('/[^0-9+*]+/i', '', (string) $Number[0]);
+            }
+            $Data = $xml->asXML();
+        }
         $this->SetMediaObjectData($Filename, $Data);
         return true;
     }

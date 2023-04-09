@@ -97,10 +97,28 @@ trait TelHelper
         return $UnknownName;
     }
 
-    private function DoPhonebookSearch(string $Number, int $MaxNameSize)
+    private function DoPhonebookSearch(string $Number, int $MaxNameSize, string $AreaCode = '', string $CountryCode = '')
     {
         $Name = false;
         $Files = $this->GetPhoneBookFiles();
+        $SerachNumbers[] = $Number;
+        switch ($Number[0]) {
+            case '+':
+                break;
+            case '0':
+                if ($CountryCode != '') {
+                    $SerachNumbers[] = $CountryCode . substr($Number, 1);
+                }
+                break;
+            default:
+                if ($AreaCode != '') {
+                    $SerachNumbers[] = $AreaCode . $Number;
+                    if ($CountryCode != '') {
+                        $SerachNumbers[] = $CountryCode . substr($AreaCode, 1) . $Number;
+                    }
+                }
+                break;
+        }
         foreach ($Files as $File) {
             $XMLData = $this->GetFile($File);
             if ($XMLData === false) {
@@ -113,37 +131,31 @@ trait TelHelper
                 $this->SendDebug('XML decode error', $XMLData, 0);
                 continue;
             }
-            $Contact = $XMLPhoneBook->xpath("//contact[telephony/number ='" . $Number . "']");
-            if (count($Contact) > 0) {
-                try {
-                    $Name = (string) $Contact[0]->person->realName;
-                    if (strlen($Name) > $MaxNameSize) {
-                        $Name = substr($Name, 0, $MaxNameSize);
+            foreach ($SerachNumbers as $SerachNumber) {
+                $this->SendDebug('Search for', $SerachNumber, 0);
+                $Contact = $XMLPhoneBook->xpath("//contact[telephony/number ='" . $SerachNumber . "']");
+                if (count($Contact) > 0) {
+                    try {
+                        $Name = (string) $Contact[0]->person->realName;
+                        if (strlen($Name) > $MaxNameSize) {
+                            $Name = substr($Name, 0, $MaxNameSize);
+                        }
+                        break 2;
+                    } catch (\Exception $exc) {
+                        continue;
                     }
-                    break;
-                } catch (\Exception $exc) {
-                    continue;
                 }
             }
         }
         return $Name;
     }
 
-    private function GetNameByNumber(string $Number, string $AreaCode)
+    private function GetNameByNumber(string $Number, string $AreaCode = '', string $CountryCode = '')
     {
         if ($Number == '') {
             return $this->ReadPropertyString('UnknownNumberName');
         }
-        $Name = $this->DoPhonebookSearch($Number, $this->ReadPropertyInteger('MaxNameSize'));
-        if (($Name === false) && ($AreaCode != '')) {
-            if (strpos($Number, $AreaCode) === 0) {
-                $Name = $this->DoPhonebookSearch(substr($Number, strlen($AreaCode)), $this->ReadPropertyInteger('MaxNameSize'));
-            } else {
-                if ($Number[0] != '0') {
-                    $Name = $this->DoPhonebookSearch($AreaCode . $Number, $this->ReadPropertyInteger('MaxNameSize'));
-                }
-            }
-        }
+        $Name = $this->DoPhonebookSearch($Number, $this->ReadPropertyInteger('MaxNameSize'), $AreaCode, $CountryCode);
         return $Name;
     }
     private function GetPhoneDeviceNumberByID(int $ID)
@@ -248,7 +260,7 @@ trait TelHelper
             ]
         ));
         if ($Ret === false) {
-            return false;
+            return [];
         }
         $Result = unserialize($Ret);
         $this->SendDebug('Result', $Result, 0);

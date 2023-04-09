@@ -52,6 +52,7 @@ Unfertig / Fehlen:
 Später/Sonstiges:
 - LinkStateToInt weg und LinkState auf String umbauen
 - Filter bei den SmartHome Geräten.
+✅ Anrufmonitor hat Vorwahlen und Leerzeichen in Rufnummern nicht berücksichtigt.
 ✅ Rufumleitungen noch immer defekt.
 ✅ Übersetzung Firmware Information fehlt.
 ✅ Übersetzung DVBC fehlt.
