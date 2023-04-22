@@ -16,10 +16,10 @@ trait HTMLTable
      *
      * @return string HTML-String
      */
-    protected function GetTableHeader(array $Config_Table, array $Config_Columns, bool $JSActive)
+    protected function GetTableHeader(array $Config_Table, array $Config_Columns, bool $HookActive, bool $JSSort = false)
     {
         $table = '';
-        if ($JSActive) {
+        if ($HookActive) {
             // JS Rückkanal erzeugen
             $table .= '<script type="text/javascript" id="script' . $this->InstanceID . '">
 function xhrGet' . $this->InstanceID . '(o)
@@ -61,6 +61,52 @@ sleep(10).then(() => {
 
 </script>';
         }
+        if ($JSSort) {
+            $table .= '<script type="text/javascript" id="sort' . $this->InstanceID . '">
+
+function sortTable' . $this->InstanceID . '(column) {
+    var table, rows, switching, i, index, x, y, shouldSwitch;
+    table = document.getElementById("Table' . $this->InstanceID . '");
+    table = column.parentNode.parentNode.parentNode;
+    for (let i = 0; i <  column.parentNode.childNodes.length; i++) {
+        if (column.parentNode.childNodes[i].id == column.id)
+        {
+            index = i;
+        }
+      }
+    switching = true;
+    /* Make a loop that will continue until
+    no switching has been done: */
+    while (switching) {
+        // Start by saying: no switching is done:
+        switching = false;
+        rows = table.rows;
+        /* Loop through all table rows (except the
+        first, which contains table headers): */
+        for (i = 1; i < (rows.length - 1); i++) {
+        // Start by saying there should be no switching:
+        shouldSwitch = false;
+        /* Get the two elements you want to compare,
+        one from current row and one from the next: */
+        x = rows[i].getElementsByTagName("TD")[index];
+        y = rows[i + 1].getElementsByTagName("TD")[index];
+        // Check if the two rows should switch place:
+        if (x.innerHTML.localeCompare(y.innerHTML, { numeric: true }) == 1) {
+            // If so, mark as a switch and break the loop:
+            shouldSwitch = true;
+            break;
+        }
+        }
+        if (shouldSwitch) {
+        /* If a switch has been marked, make the switch
+        and mark that a switch has been done: */
+        rows[i].parentNode.insertBefore(rows[i + 1], rows[i]);
+        switching = true;
+        }
+    }
+}
+</script>';
+        }
         $Style = '';
         if (isset($Config_Table['active'])) {
             $Style .= '.isactive {' . $Config_Table['active'] . '}' . PHP_EOL;
@@ -96,7 +142,11 @@ sleep(10).then(() => {
             }
             $ThStyle[] = 'text-align:' . $Column['hralign'];
             $ThStyle[] = $Column['hrstyle'];
-            $th[$Column['index']] = '<th style="' . implode(';', $ThStyle) . '">' . $Column['name'] . '</th>';
+            $ThSort = '';
+            if ($JSSort) {
+                $ThSort = 'id="' . $Column['index'] . '" onclick="eval(document.getElementById(\'sort' . $this->InstanceID . '\').innerHTML.toString()); window.sortTable' . $this->InstanceID . '(this);"';
+            }
+            $th[$Column['index']] = '<th style="' . implode(';', $ThStyle) . '"' . $ThSort . '>' . $Column['name'] . '</th>';
         }
         ksort($th);
         $table .= implode('', $th) . '</tr>' . PHP_EOL;
@@ -116,7 +166,7 @@ sleep(10).then(() => {
      *
      * @return string Der HTML-String.
      */
-    protected function GetTable(array $Data, string $HookPrefix = '', string $HookType = '', string $HookId = '', int $CurrentLine = -1)
+    protected function GetTable(array $Data, string $HookPrefix = '', string $HookType = '', string $HookId = '', int $CurrentLine = -1, bool $Sortable = false)
     {
         $Config_Table = array_column(json_decode($this->ReadPropertyString('Table'), true), 'style', 'tag');
         $Config_Columns = json_decode($this->ReadPropertyString('Columns'), true);
@@ -128,7 +178,7 @@ sleep(10).then(() => {
             $NewSecret = base64_encode(openssl_random_pseudo_bytes(12));
             $this->{'WebHookSecret' . $HookType} = $NewSecret;
         }
-        $HTMLData = $this->GetTableHeader($Config_Table, $Config_Columns, $HookId !== '');
+        $HTMLData = $this->GetTableHeader($Config_Table, $Config_Columns, $HookId !== '', $Sortable);
         $pos = 0;
         if (count($Data) > 0) {
             foreach ($Data as $Line) {

@@ -327,7 +327,7 @@ class FritzBoxWLAN extends FritzBoxModulBase
                 }
             }
             if ($Table) {
-                $TableData[$Hostname] = [
+                $TableData[] = [
                     'Hostname'      => $Hostname,
                     'IPAddress'     => (string) $xmlItem->AssociatedDeviceIPAddress,
                     'MACAddress'    => (string) $xmlItem->AssociatedDeviceMACAddress,
@@ -386,9 +386,7 @@ class FritzBoxWLAN extends FritzBoxModulBase
             }
         }
         if ($Table) {
-            ksort($TableData);
-            $HTML = $this->GetTable($TableData);
-            $this->SetValue('HostTable', $HTML);
+            $this->CreateWLANHTMLTable($TableData);
         }
     }
     public function GetWLANDeviceListPath()
@@ -714,6 +712,13 @@ class FritzBoxWLAN extends FritzBoxModulBase
             return false;
         }
         return $result;
+    }
+    private function CreateWLANHTMLTable(array $TableData)
+    {
+        $HostName = array_column($TableData, 'Hostname');
+        array_multisort($HostName, SORT_ASC, SORT_LOCALE_STRING, $TableData);
+        $HTML = $this->GetTable($TableData, '', '', '', -1, true);
+        $this->SetValue('HostTable', $HTML);
     }
     private function GetHostVariables(): array
     {

@@ -52,6 +52,8 @@ Unfertig / Fehlen:
 Später/Sonstiges:
 - LinkStateToInt weg und LinkState auf String umbauen
 - Filter bei den SmartHome Geräten.
+- Parameter für die initiale Sortierung der HTML-Tabellen der WLAN-Instanzen und der Host-Instanz fehlt.
+✅ Die Anzeige der HTML-Tabellen der WLAN-Instanzen und der Host-Instanz kann im WebFront umsortiert werden (Die Reihenfolge wird beim aktualisieren zurückgesetzt).
 ✅ Anrufmonitor hat Vorwahlen und Leerzeichen in Rufnummern nicht berücksichtigt.
 ✅ Rufumleitungen noch immer defekt.
 ✅ Übersetzung Firmware Information fehlt.
@@ -73,3 +75,9 @@ Später/Sonstiges:
 Keine Umsetzung und Support für:
 🟥 Betrieb aus anderen Subnetzen.
 🟥 2F Authentication
+
+nicht vor 2.0:
+- Daten der Anrufliste, Anrufmonitor und AB in einem Splitter verlegen.
+- Eigene Instanz für Anrufliste, Monitor und AB, damit Trennung nach Amtsleitung möglich.
+- Eigene Instanz für Rufumleitungen?
+- Eigene Instanz für Telefonbuch?

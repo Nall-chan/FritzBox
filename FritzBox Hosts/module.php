@@ -571,7 +571,9 @@ class FritzBoxHosts extends FritzBoxModulBase
     }
     private function CreateHostHTMLTable(array $TableData)
     {
-        $HTML = $this->GetTable($TableData);
+        $HostName = array_column($TableData, 'HostName');
+        array_multisort($HostName, SORT_ASC, SORT_LOCALE_STRING, $TableData);
+        $HTML = $this->GetTable($TableData, '', '', '', -1, true);
         $this->SetValue('HostTable', $HTML);
     }
 

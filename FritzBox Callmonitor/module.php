@@ -78,7 +78,7 @@ class FritzBoxCallmonitor extends FritzBoxModulBase
         if (array_key_exists('OKZ', $AreaCodes)) {
             $HasChanges = false;
             $AreaCode = $AreaCodes['OKZPrefix'] . $AreaCodes['OKZ'];
-            $CountryCode = '+'. $AreaCodes['LKZ'];
+            $CountryCode = '+' . $AreaCodes['LKZ'];
             if ($AreaCode != $this->ReadPropertyString('AreaCode')) {
                 IPS_SetProperty($this->InstanceID, 'AreaCode', $AreaCode);
                 $HasChanges = true;
@@ -352,7 +352,6 @@ class FritzBoxCallmonitor extends FritzBoxModulBase
         }
         $Calls = $this->CallData;
         $this->SendDebug('Calls', $Calls, 0);
-        //todo ? Was Gestern heute morgen?
         $Config_Icons = json_decode($this->ReadPropertyString('Icons'), true);
         $Icon_CSS = '<div id="scoped-content"><style type="text/css" scoped>' . "\r\n";
         foreach ($Config_Icons as $Config_Icon) {

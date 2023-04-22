@@ -71,11 +71,6 @@ class FritzBoxTelephony extends FritzBoxModulBase
         $this->RegisterPropertyString('UnknownNumberName', $this->Translate('(unknown)'));
         $this->RegisterPropertyBoolean('NotShowWarning', false);
         //todo
-        // HTML Box abwählbar
-
-        //DatumMaskieren für gestern / heute (def an)
-        // Timer für 55sek nach 0Uhr
-
         // NR Filter (Liste?, add über auswahl der Nr + Name?)
         // Nr für Fax (kann das abgefragt werden?)
         // AB  / TAM?!?! über Auswahl TAM Instanz -> SelectInstance
@@ -178,10 +173,13 @@ class FritzBoxTelephony extends FritzBoxModulBase
                 $this->UpdateFormField('UseRelativDate', 'enabled', $Value);
                 $this->UpdateFormField('Columns', 'enabled', $Value);
                 $this->UpdateFormField('Rows', 'enabled', $Value);
-                $this->UpdateFormField('RefreshIntervalCallLog', 'enabled', $Value);
                 $this->UpdateFormField('ReloadCallLogButton', 'enabled', $Value);
                 $this->UpdateFormField('HTMLExpansionPanel', 'expanded', $Value);
-
+                $CallMonitorOpen = false;
+                if ($this->ParentID) {
+                    $CallMonitorOpen = (IPS_GetInstance($this->ParentID)['ConnectionID'] > 1);
+                }
+                $this->UpdateFormField('RefreshIntervalCallLog', 'enabled', ($CallMonitorOpen ? false : $Value));
                 return;
         }
 
@@ -222,7 +220,6 @@ class FritzBoxTelephony extends FritzBoxModulBase
                 }
             }
         }
-
         if ($this->ReadPropertyInteger('CustomSearchScriptID') > 1) {
             $Form['elements'][0]['items'][1]['expanded'] = false;
             $Form['elements'][0]['items'][1]['items'][0]['items'][0]['enabled'] = false;
