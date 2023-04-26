@@ -136,7 +136,8 @@ Für das Discovery werden Pakete über die Multicast-Adresse `239.255.255.250` a
 
 Version 0.76:  
 
-- Anrufmonitor hat Vorwahlen und Leerzeichen in Rufnummern nicht berücksichtigt.
+- Anrufmonitor hat Vorwahlen und Leerzeichen in Rufnummern nicht berücksichtigt.  
+- Verfügbarkeit des Anrufmonitor der FritzBox wird vom Konfigurator immer neu überprüft.  
 
 Version 0.75:  
 

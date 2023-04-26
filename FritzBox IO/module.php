@@ -54,7 +54,6 @@ class FritzBoxIO extends IPSModule
         $this->RegisterAttributeBoolean('usePPP', false);
         $this->RegisterAttributeBoolean('HasIGD2', false);
         $this->RegisterAttributeBoolean('HasTel', false);
-        $this->RegisterAttributeBoolean('CallMonitorOpen', false);
         $this->RegisterAttributeInteger('NoOfWlan', 0);
 
         $this->Url = '';
@@ -181,7 +180,7 @@ class FritzBoxIO extends IPSModule
                     $ret = $this->ReadAttributeBoolean('HasTel');
                     break;
                 case 'CallMonitorOpen':
-                    $ret = $this->ReadAttributeBoolean('CallMonitorOpen');
+                    $ret = $this->checkCallMonitorPort();
                     break;
                 case 'GetMaxWLANs':
                     $ret = $this->ReadAttributeInteger('NoOfWlan');
@@ -667,10 +666,8 @@ class FritzBoxIO extends IPSModule
 
         if (is_resource($CallMon)) {
             fclose($CallMon);
-            $this->WriteAttributeBoolean('CallMonitorOpen', true);
             return true;
         }
-        $this->WriteAttributeBoolean('CallMonitorOpen', false);
         return false;
     }
     private function setIPSVariable(string $ident, string $name, $value, $type)
