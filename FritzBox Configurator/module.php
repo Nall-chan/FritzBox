@@ -67,7 +67,6 @@ require_once __DIR__ . '/../libs/FritzBoxModule.php';
                 if (!@$xml->load($Pfad . $Xml)) {
                     continue;
                 }
-                // todo error handling
                 $xpath = new DOMXPath($xml);
                 $xpath->registerNamespace('xmlns', $xml->firstChild->namespaceURI);
                 $xmlDevices = $xpath->query('//xmlns:service', null, false);

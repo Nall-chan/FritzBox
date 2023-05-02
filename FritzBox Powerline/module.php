@@ -100,9 +100,9 @@ class FritzBoxPowerline extends FritzBoxModulBase
                 IPS_SetName($VarId, $Name);
             }
 
-            $ModelId = $this->RegisterSubVariable($VarId, 'Model', 'Model', VARIABLETYPE_STRING, '');
+            $ModelId = $this->RegisterSubVariable($VarId, 'Model', 'Model', VARIABLETYPE_STRING);
             SetValueString($ModelId, (string) $Result['NewModel']);
-            $UpdateAvailableId = $this->RegisterSubVariable($VarId, 'UpdateAvailable', $this->Translate('Update available'), VARIABLETYPE_BOOLEAN, '');
+            $UpdateAvailableId = $this->RegisterSubVariable($VarId, 'UpdateAvailable', $this->Translate('Update available'), VARIABLETYPE_BOOLEAN);
             SetValueBoolean($UpdateAvailableId, (int) $Result['NewUpdateAvailable'] > 0);
         }
         return $ReturnValue;

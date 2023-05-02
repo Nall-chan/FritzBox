@@ -27,7 +27,6 @@ require_once __DIR__ . '/../libs/FritzBoxBase.php';
         public function Destroy()
         {
             if (!IPS_InstanceExists($this->InstanceID)) {
-                $this->UnregisterProfile('FB.LinkState');
                 $this->UnregisterProfile('FB.kBit');
             }
             //Never delete this line!
@@ -37,18 +36,6 @@ require_once __DIR__ . '/../libs/FritzBoxBase.php';
         public function ApplyChanges()
         {
             $this->SetTimerInterval('RefreshLinkProperties', 0);
-            $this->RegisterProfileIntegerEx(
-                'FB.LinkState',
-                '',
-                '',
-                '',
-                [
-                    [0, 'Up', '', 0x00ff00],
-                    [1, 'Down', '', 0xff0000],
-                    [2, 'Initializing', '', 0xff00ff],
-                    [3, 'Unavailable', '', 0xff0000],
-                ]
-            );
             $this->RegisterProfileInteger('FB.kBit', '', '', ' kBit/s', 0, 0, 0);
             parent::ApplyChanges();
             if (IPS_GetKernelRunlevel() != KR_READY) {
@@ -102,7 +89,7 @@ require_once __DIR__ . '/../libs/FritzBoxBase.php';
             }
 
             $this->setIPSVariable('WANAccessType', 'WAN Access type', (string) $result['NewWANAccessType'], VARIABLETYPE_STRING);
-            $this->setIPSVariable('PhysicalLinkStatus', 'Physical Link Status', $this->LinkStateToInt((string) $result['NewPhysicalLinkStatus']), VARIABLETYPE_INTEGER, 'FB.LinkState');
+            $this->setIPSVariable('PhysicalLinkStatus', 'Physical Link Status', (string) $result['NewPhysicalLinkStatus'], VARIABLETYPE_STRING);
             $Downstream = (int) ((int) $result['NewLayer1DownstreamMaxBitRate'] / 1000);
             $Upstream = (int) ((int) $result['NewLayer1UpstreamMaxBitRate'] / 1000);
             $this->setIPSVariable('UpstreamMaxBitRate', 'Upstream Max kBitrate', $Upstream, VARIABLETYPE_INTEGER, 'FB.kBit');

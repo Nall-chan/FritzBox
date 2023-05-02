@@ -133,7 +133,6 @@ class FritzBoxModulBase extends IPSModule
                 return false;
             }
             $this->GotEvent = true;
-            $this->LogMessage('Event ' . print_r($data['EventData'], true), KL_NOTIFY);
             $this->SendDebug('Event', $data['EventData'], 0);
             $this->DecodeEvent($data['EventData']);
             return true;
@@ -374,6 +373,7 @@ class FritzBoxModulBase extends IPSModule
         $this->SendDebug('Result', $Result, 0);
         return $Result;
     }
+
     protected function setIPSVariable(string $ident, string $name, $value, $type, string $profile = '', bool $action = false, int $pos = 0)
     {
         $this->MaintainVariable($ident, $this->Translate($name), $type, $profile, $pos, true);
@@ -382,36 +382,22 @@ class FritzBoxModulBase extends IPSModule
         }
         $this->SetValue($ident, $value);
     }
-    protected function LinkStateToInt(string $LinkState): int
-    {
-        switch ($LinkState) {
 
-                case 'Up':
-                    return 0;
-                case 'Down':
-                    return 1;
-                case 'Initializing':
-                    return 2;
-            }
-        return 3;
-    }
-    //todo
-    // Aktuell nur de Zeit
     protected function ConvertRuntime(int $Time)
     {
         $strtime = '';
         $sec = intval(gmdate('s', $Time));
         if ($sec != 0) {
-            $strtime = $sec . ' Sek';
+            $strtime = $sec . $this->Translate(' sec');
         }
         if ($Time >= 60) {
-            $strtime = intval(gmdate('i', $Time)) . ' Min ' . $strtime;
+            $strtime = intval(gmdate('i', $Time)) . $this->Translate(' min ') . $strtime;
         }
         if ($Time >= 3600) {
-            $strtime = gmdate('G', $Time) . ' Std ' . $strtime;
+            $strtime = gmdate('G', $Time) . $this->Translate(' h ') . $strtime;
         }
         if ($Time >= 3600 * 24) {
-            $strtime = gmdate('z', $Time) . ' Tg ' . $strtime;
+            $strtime = gmdate('z', $Time) . $this->Translate(' d ') . $strtime;
         }
         return $strtime;
     }

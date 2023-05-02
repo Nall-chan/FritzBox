@@ -10,7 +10,6 @@ class LibraryTest extends TestCaseSymconValidation
     {
         $this->validateLibrary(__DIR__ . '/..');
     }
-
     public function testValidateDiscovery(): void
     {
         $this->validateModule(__DIR__ . '/../FritzBox Discovery');

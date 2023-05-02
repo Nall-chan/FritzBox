@@ -14,6 +14,10 @@
             "Runtime (seconds)": "Laufzeit (sekunden)",
             "Runtime": "Laufzeit",
             "Last events": "Letzte Ereignisse",
+            " sec": " Sek",
+            " min ": " Min ",
+            " h ": " Std ",
+            " d ": " Tg ",
             "This module is free for non-commercial use,\r\nDonations in support of the author are accepted here:": "Dieses Modul ist für die nicht kommerzielle Nutzung kostenlos,\r\nSchenkungen als Unterstützung für den Autor werden hier akzeptiert:"
         }
     }

@@ -50,9 +50,9 @@ Unfertig / Fehlen:
 - Übersetzung MyFritz fehlt.
 
 Später/Sonstiges:
-- LinkStateToInt weg und LinkState auf String umbauen
 - Filter bei den SmartHome Geräten.
 - Parameter für die initiale Sortierung der HTML-Tabellen der WLAN-Instanzen und der Host-Instanz fehlt.
+✅ LinkStateToInt weg und LinkState auf String umbauen
 ✅ Die Anzeige der HTML-Tabellen der WLAN-Instanzen und der Host-Instanz kann im WebFront umsortiert werden (Die Reihenfolge wird beim aktualisieren zurückgesetzt).
 ✅ Anrufmonitor hat Vorwahlen und Leerzeichen in Rufnummern nicht berücksichtigt.
 ✅ Rufumleitungen noch immer defekt.

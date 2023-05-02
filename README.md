@@ -73,9 +73,6 @@ Für das Discovery werden Pakete über die Multicast-Adresse `239.255.255.250` a
 - __FritzBox Anruf-Monitor__ ([Dokumentation](FritzBox%20Callmonitor/))  
 	Kurze Beschreibung des Moduls.
 
-- __FritzBox Telefonie__ ([Dokumentation](FritzBox%20Telephony/))  
-	Kurze Beschreibung des Moduls.
-
 - __FritzBox DVBC__ ([Dokumentation](FritzBox%20DVBC/))  
 	Kurze Beschreibung des Moduls.
 
@@ -91,19 +88,31 @@ Für das Discovery werden Pakete über die Multicast-Adresse `239.255.255.250` a
 - __FritzBox Dateifreigabe__ ([Dokumentation](FritzBox%20File%20Share/))  
 	Kurze Beschreibung des Moduls.
 
-- __FritzBox Hosts__ ([Dokumentation](FritzBox%20Hosts/))  
+- __FritzBox FritzBox Firmware Informationen__ ([Dokumentation](FritzBox%20Firmware%20Info/))  
 	Kurze Beschreibung des Moduls.
 
 - __FritzBox Host Filter__ ([Dokumentation](FritzBox%20Host%20Filter/))  
 	Kurze Beschreibung des Moduls.
 
-- __FritzBox Powerline__ ([Dokumentation](FritzBox%20Powerline/))  
+- __FritzBox Hosts__ ([Dokumentation](FritzBox%20Hosts/))  
 	Kurze Beschreibung des Moduls.
 
 - __FritzBox MyFritz__ ([Dokumentation](FritzBox%20MyFritz/))  
 	Kurze Beschreibung des Moduls.
 
 - __FritzBox NAS Storage__ ([Dokumentation](FritzBox%20NAS%20Storage/))  
+	Kurze Beschreibung des Moduls.
+
+- __FritzBox Powerline__ ([Dokumentation](FritzBox%20Powerline/))  
+	Kurze Beschreibung des Moduls.
+
+- __FritzBox SmartHome__ ([Dokumentation](FritzBox%20Homeautomation/))  
+	Kurze Beschreibung des Moduls.
+
+- __FritzBox SmartHome Konfigurator__ ([Dokumentation](FritzBox%20Homeautomation%20Configurator/))  
+	Kurze Beschreibung des Moduls.
+
+- __FritzBox Telefonie__ ([Dokumentation](FritzBox%20Telephony/))  
 	Kurze Beschreibung des Moduls.
 
 - __FritzBox NTP-Server & Systemzeit__ ([Dokumentation](FritzBox%20Time/))  
@@ -116,6 +125,9 @@ Für das Discovery werden Pakete über die Multicast-Adresse `239.255.255.250` a
 	Kurze Beschreibung des Moduls.
 
 - __FritzBox DSL Interface__ ([Dokumentation](FritzBox%20WAN%20DSL%20Link/))  
+	Kurze Beschreibung des Moduls.
+
+- __FritzBox WAN Physical Interface__ ([Dokumentation](FritzBox%20WAN%20Physical%20Interface/))  
 	Kurze Beschreibung des Moduls.
 
 - __FritzBox WAN IP Connection__ ([Dokumentation](FritzBox%20WAN%20IP%20Connection/))  
@@ -138,6 +150,9 @@ Version 0.76:
 
 - Anrufmonitor hat Vorwahlen und Leerzeichen in Rufnummern nicht berücksichtigt.  
 - Verfügbarkeit des Anrufmonitor der FritzBox wird vom Konfigurator immer neu überprüft.  
+- LinkStatus Variablen werden als String Variablen angelegt.  
+- Debug Meldungen von Ereignissen aus dem LogFile entfernt.  
+- Discovery-Instanz sucht auf allen Netzwerkschnittstellen und allen IP-Adressen nach Geräten und präferiert in absteigender Reihenfolge den Hostnamen, IPv6 Adressen und zuletzt IPv4 Adressen der FritzBox(en).  
 
 Version 0.75:  
 

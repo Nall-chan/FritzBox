@@ -4,9 +4,6 @@ declare(strict_types=1);
 
 require_once __DIR__ . '/../libs/FritzBoxBase.php';
 
-/**
- * @todo Timer für allgemeine Infos und timer für Datenrate
- */
 class FritzBoxWANCommonInterface extends FritzBoxModulBase
 {
     protected static $ControlUrlArray = [
@@ -37,7 +34,6 @@ class FritzBoxWANCommonInterface extends FritzBoxModulBase
     public function Destroy()
     {
         if (!IPS_InstanceExists($this->InstanceID)) {
-            $this->UnregisterProfile('FB.LinkState');
             $this->UnregisterProfile('FB.kBit');
             $this->UnregisterProfile('FB.Speed');
             $this->UnregisterProfile('FB.MByte');
@@ -51,18 +47,6 @@ class FritzBoxWANCommonInterface extends FritzBoxModulBase
     public function ApplyChanges()
     {
         $this->SetTimerInterval('RefreshInfo', 0);
-        $this->RegisterProfileIntegerEx(
-            'FB.LinkState',
-            '',
-            '',
-            '',
-            [
-                [0, 'Up', '', 0x00ff00],
-                [1, 'Down', '', 0xff0000],
-                [2, 'Initializing', '', 0xff00ff],
-                [3, 'Unavailable', '', 0xff0000],
-            ]
-        );
         $this->RegisterProfileInteger('FB.kBit', '', '', ' kBit/s', 0, 0, 0);
         $this->RegisterProfileFloat('FB.Speed', '', '', '%', 0, 100, 0, 2);
         $this->RegisterProfileFloat('FB.MByte', '', '', ' MB', 0, 0, 0, 2);
@@ -170,7 +154,7 @@ class FritzBoxWANCommonInterface extends FritzBoxModulBase
     protected function DecodeEvent($Event)
     {
         if (array_key_exists('PhysicalLinkStatus', $Event)) {
-            $this->setIPSVariable('PhysicalLinkStatus', 'Physical Link Status', $this->LinkStateToInt((string) $Event['PhysicalLinkStatus']), VARIABLETYPE_INTEGER, 'FB.LinkState');
+            $this->setIPSVariable('PhysicalLinkStatus', 'Physical Link Status', (string) $Event['PhysicalLinkStatus'], VARIABLETYPE_STRING);
             unset($Event['PhysicalLinkStatus']);
             $this->UpdateCommonLinkProperties();
         }
@@ -186,7 +170,7 @@ class FritzBoxWANCommonInterface extends FritzBoxModulBase
         }
 
         $this->setIPSVariable('WANAccessType', 'WAN Access type', (string) $result['NewWANAccessType'], VARIABLETYPE_STRING, 'FB.AccessType');
-        $this->setIPSVariable('PhysicalLinkStatus', 'Physical Link Status', $this->LinkStateToInt((string) $result['NewPhysicalLinkStatus']), VARIABLETYPE_INTEGER, 'FB.LinkState');
+        $this->setIPSVariable('PhysicalLinkStatus', 'Physical Link Status', (string) $result['NewPhysicalLinkStatus'], VARIABLETYPE_STRING);
         $Downstream = (int) ((int) $result['NewLayer1DownstreamMaxBitRate'] / 1000);
         $Upstream = (int) ((int) $result['NewLayer1UpstreamMaxBitRate'] / 1000);
         $this->WriteAttributeInteger('Upstream', $Upstream);

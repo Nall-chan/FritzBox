@@ -81,6 +81,10 @@
             "Please open the 'Module-Store' and install the 'Caller ID Reverse Search'-library.": "Bitte den 'Module-Store' öffnen und die 'Anrufer Rückwärtssuche'-Bibliothek installieren.",
             "Do not display the message again": "Meldung nicht erneut anzeigen",
             "Active calls": "Aktive Gespräche",
+            " sec": " Sek",
+            " min ": " Min ",
+            " h ": " Std ",
+            " d ": " Tg ",
             "This module is free for non-commercial use,\r\nDonations in support of the author are accepted here:": "Dieses Modul ist für die nicht kommerzielle Nutzung kostenlos,\r\nSchenkungen als Unterstützung für den Autor werden hier akzeptiert:"
         }
     }

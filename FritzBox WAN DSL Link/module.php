@@ -37,18 +37,6 @@ class FritzBoxWANDSLLink extends FritzBoxModulBase
     public function ApplyChanges()
     {
         $this->SetTimerInterval('RefreshInfo', 0);
-        $this->RegisterProfileIntegerEx(
-            'FB.LinkState',
-            '',
-            '',
-            '',
-            [
-                [0, 'Up', '', 0x00ff00],
-                [1, 'Down', '', 0xff0000],
-                [2, 'Initializing', '', 0xff00ff],
-                [3, 'Unavailable', '', 0xff0000],
-            ]
-        );
         parent::ApplyChanges();
         $Index = $this->ReadPropertyInteger('Index');
         if ($Index == -1) {
@@ -121,7 +109,7 @@ class FritzBoxWANDSLLink extends FritzBoxModulBase
     protected function DecodeEvent($Event)
     {
         if (array_key_exists('LinkStatus', $Event)) {
-            $this->setIPSVariable('LinkStatus', 'DSL Link Status', $this->LinkStateToInt((string) $Event['LinkStatus']), VARIABLETYPE_INTEGER, 'FB.LinkState');
+            $this->setIPSVariable('LinkStatus', 'DSL Link Status', (string) $Event['LinkStatus'], VARIABLETYPE_STRING);
             unset($Event['LinkStatus']);
             $this->UpdateInfo();
         }
@@ -131,29 +119,29 @@ class FritzBoxWANDSLLink extends FritzBoxModulBase
     {
         $result = $this->GetDSLLinkInfo();
         if ($result !== false) {
-            $this->setIPSVariable('LinkType', 'DSL Link Type', $result['NewLinkType'], VARIABLETYPE_STRING, '');
-            $this->setIPSVariable('LinkStatus', 'DSL Link Status', $this->LinkStateToInt((string) $result['NewLinkStatus']), VARIABLETYPE_INTEGER, 'FB.LinkState');
+            $this->setIPSVariable('LinkType', 'DSL Link Type', $result['NewLinkType'], VARIABLETYPE_STRING);
+            $this->setIPSVariable('LinkStatus', 'DSL Link Status', (string) $result['NewLinkStatus'], VARIABLETYPE_STRING);
         }
         $result = $this->GetAutoConfig();
         if ($result !== false) {
-            $this->setIPSVariable('AutoConfig', 'DSL Auto Config', (bool) $result, VARIABLETYPE_BOOLEAN, '');
+            $this->setIPSVariable('AutoConfig', 'DSL Auto Config', (bool) $result, VARIABLETYPE_BOOLEAN);
         }
 
         $result = $this->GetModulationType();
         if ($result !== false) {
-            $this->setIPSVariable('ModulationType', 'ModulationType', $result, VARIABLETYPE_STRING, '');
+            $this->setIPSVariable('ModulationType', 'ModulationType', $result, VARIABLETYPE_STRING);
         }
         $result = $this->GetDestinationAddress();
         if ($result !== false) {
-            $this->setIPSVariable('DestinationAddress', 'DestinationAddress', $result, VARIABLETYPE_STRING, '');
+            $this->setIPSVariable('DestinationAddress', 'DestinationAddress', $result, VARIABLETYPE_STRING);
         }
         $result = $this->GetATMEncapsulation();
         if ($result !== false) {
-            $this->setIPSVariable('ATMEncapsulation', 'ATMEncapsulation', $result, VARIABLETYPE_STRING, '');
+            $this->setIPSVariable('ATMEncapsulation', 'ATMEncapsulation', $result, VARIABLETYPE_STRING);
         }
         $result = $this->GetFCSPreserved();
         if ($result !== false) {
-            $this->setIPSVariable('FCSPreserved', 'FCSPreserved', (bool) $result, VARIABLETYPE_BOOLEAN, '');
+            $this->setIPSVariable('FCSPreserved', 'FCSPreserved', (bool) $result, VARIABLETYPE_BOOLEAN);
         }
     }
 }
