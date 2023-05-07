@@ -59,7 +59,6 @@ require_once __DIR__ . '/../libs/FritzBoxModule.php';
 
             $this->ParentID = $Splitter;
             $KnownInstances = $this->GetInstanceList();
-
             $Pfad = IPS_GetKErnelDir() . 'FritzBoxTemp/' . $Splitter . '/';
             $Xmls = ['tr64desc.xml', 'igd2desc.xml', 'igddesc.xml'];
             foreach ($Xmls as $Xml) {
@@ -124,7 +123,7 @@ require_once __DIR__ . '/../libs/FritzBoxModule.php';
                         $guid = key(\FritzBox\Services::$Data[$serviceType]);
                         if ($guid !== null) {
                             $index = \FritzBox\Services::$Data[$serviceType][$guid];
-                            if (($serviceType == 'urn:schemas-upnp-org:service:WANDSLLinkConfig:1') && ($Xml == 'igd2desc.xml')) {
+                            if (($guid != '{9396D756-40EA-46C7-AA06-623B8DCB789B}') && ($index == 0) && ($Xml == 'igd2desc.xml')) {
                                 $index++;
                             }
                             $AddService['type'] = $AddService['type'] . ' (' . $this->Translate(IPS_GetModule($guid)['ModuleName']) . ')';
@@ -141,7 +140,7 @@ require_once __DIR__ . '/../libs/FritzBoxModule.php';
                                 ];
                             }
 
-                            $Key = array_search(\FritzBox\Services::$Data[$serviceType], $KnownInstances);
+                            $Key = array_search([$guid => $index], $KnownInstances);
                             if ($Key === false) {
                                 if (is_numeric($AddService['url'][-1])) {
                                     $AddService['name'] = $this->Translate(IPS_GetModule($guid)['ModuleName']) . ' ' . $AddService['url'][-1];

@@ -193,6 +193,9 @@ class FritzBoxTelephony extends FritzBoxModulBase
     public function GetConfigurationForm()
     {
         $Form = json_decode(file_get_contents(__DIR__ . '/form.json'), true);
+        if ($this->GetStatus() == IS_CREATING) {
+            return json_encode($Form);
+        }
         if (!IPS_LibraryExists('{D0E8905A-F00C-EA84-D607-3D27000348D8}')) {
             if (!$this->ReadPropertyBoolean('NotShowWarning')) {
                 $Form['elements'][4]['visible'] = true;

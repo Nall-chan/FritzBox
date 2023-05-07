@@ -29,7 +29,6 @@ Fertige Instanzen:
 
 
 Feldtest nötig:
- - WAN DSL Link
  - WAN Port Mapping (Cable = Okay, DSL = Feldtest nötig)
  - WAN IP Connection
  - WAN Physical Interface
@@ -52,6 +51,10 @@ Unfertig / Fehlen:
 Später/Sonstiges:
 - Filter bei den SmartHome Geräten.
 - Parameter für die initiale Sortierung der HTML-Tabellen der WLAN-Instanzen und der Host-Instanz fehlt.
+✅ WLAN-Instanz für das Gäste-WLAN hat immer die gleichen Geräte wie WLAN 1 angezeigt.  
+✅ Offene Konfigurationsformulare konnten beim Modul-Update Fehlermeldungen werfen und wurden geschlossen.  
+✅ WAN DSL Link Feldtest okay.  
+✅ Vorhandene WAN DSL-Verbindung Instanz wurde im Konfigurator nicht korrekt erkannt.  
 ✅ LinkStateToInt weg und LinkState auf String umbauen
 ✅ Die Anzeige der HTML-Tabellen der WLAN-Instanzen und der Host-Instanz kann im WebFront umsortiert werden (Die Reihenfolge wird beim aktualisieren zurückgesetzt).
 ✅ Anrufmonitor hat Vorwahlen und Leerzeichen in Rufnummern nicht berücksichtigt.

@@ -254,6 +254,9 @@ class FritzBoxIO extends IPSModule
     public function GetConfigurationForm()
     {
         $Form = json_decode(file_get_contents(__DIR__ . '/form.json'), true);
+        if ($this->GetStatus() == IS_CREATING) {
+            return json_encode($Form);
+        }
         if ($this->ReadPropertyString('Username') == '') {
             $Form['elements'][2]['visible'] = true;
         }

@@ -87,6 +87,9 @@ class FritzBoxWANDSLLink extends FritzBoxModulBase
     public function GetConfigurationForm()
     {
         $Form = json_decode(file_get_contents(__DIR__ . '/form.json'), true);
+        if ($this->GetStatus() == IS_CREATING) {
+            return json_encode($Form);
+        }
         $Splitter = IPS_GetInstance($this->InstanceID)['ConnectionID'];
         if (($Splitter > 1) && $this->HasActiveParent()) {
             $Ret = $this->SendDataToParent(json_encode(

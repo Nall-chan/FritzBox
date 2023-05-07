@@ -104,6 +104,9 @@ class FritzBoxHostFilter extends FritzBoxModulBase
     public function GetConfigurationForm()
     {
         $Form = json_decode(file_get_contents(__DIR__ . '/form.json'), true);
+        if ($this->GetStatus() == IS_CREATING) {
+            return json_encode($Form);
+        }
         if (!$this->GetFile('Hosts')) {
             $Form['actions'][2]['visible'] = true;
             $Form['actions'][2]['popup']['items'][0]['caption'] = 'Hostnames not available!';

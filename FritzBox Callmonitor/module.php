@@ -135,14 +135,14 @@ class FritzBoxCallmonitor extends FritzBoxModulBase
                 $this->UpdateFormField('IconPreview', 'visible', true);
                 return;
             case 'ReverseSearchInstanceID':
-                if ($Value > 0) {
+                if ($Value > 1) {
                     $this->UpdateFormField('CustomSearchScriptID', 'enabled', false);
                 } else {
                     $this->UpdateFormField('CustomSearchScriptID', 'enabled', true);
                 }
                 return;
             case 'CustomSearchScriptID':
-                if ($Value > 0) {
+                if ($Value > 1) {
                     $this->UpdateFormField('MaxNameSize', 'enabled', false);
                     $this->UpdateFormField('ReverseSearchInstanceID', 'enabled', false);
                     $this->UpdateFormField('SearchMarker', 'enabled', false);
@@ -161,6 +161,9 @@ class FritzBoxCallmonitor extends FritzBoxModulBase
     public function GetConfigurationForm()
     {
         $Form = json_decode(file_get_contents(__DIR__ . '/form.json'), true);
+        if ($this->GetStatus() == IS_CREATING) {
+            return json_encode($Form);
+        }
         if ($this->ReadPropertyString('AreaCode') == '') {
             $Form['elements'][0]['items'][0]['items'][0]['enabled'] = true;
             $Form['actions'][2]['visible'] = true;

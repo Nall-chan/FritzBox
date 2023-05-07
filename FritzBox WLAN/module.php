@@ -203,6 +203,9 @@ class FritzBoxWLAN extends FritzBoxModulBase
     public function GetConfigurationForm()
     {
         $Form = json_decode(file_get_contents(__DIR__ . '/form.json'), true);
+        if ($this->GetStatus() == IS_CREATING) {
+            return json_encode($Form);
+        }
         if (count(static::$ServiceTypeArray) < 2) {
             return json_encode($Form);
         }
@@ -307,7 +310,11 @@ class FritzBoxWLAN extends FritzBoxModulBase
             return false;
         }
         // WLAN Daten filtern auf unseren Channel
-        $Devices = $xmlWLAN->xpath("//Item[AssociatedDeviceChannel ='" . $this->Channel . "']");
+        if ($this->APisGuest) {
+            $Devices = $xmlWLAN->xpath("//Item[AssociatedDeviceGuest = '1']");
+        } else {
+            $Devices = $xmlWLAN->xpath("//Item[AssociatedDeviceChannel ='" . $this->Channel . "']");
+        }
 
         // Konfigurierte Statusvariablen für Hosts
         $HostVariables = array_column(json_decode($this->ReadPropertyString('HostVariables'), true), 'use', 'ident');
@@ -801,7 +808,11 @@ class FritzBoxWLAN extends FritzBoxModulBase
 
         // hier WLAN Daten durchgehen und Namen in Host suchen
         // WLAN Daten filtern auf unseren Channel
-        $Devices = $xmlWLAN->xpath("//Item[AssociatedDeviceChannel ='" . $this->Channel . "']");
+        if ($this->APisGuest) {
+            $Devices = $xmlWLAN->xpath("//Item[AssociatedDeviceGuest = '1']");
+        } else {
+            $Devices = $xmlWLAN->xpath("//Item[AssociatedDeviceChannel ='" . $this->Channel . "']");
+        }
         foreach ($Devices as $xmlItem) {
             $Ident = 'MAC' . strtoupper($this->ConvertIdent((string) $xmlItem->AssociatedDeviceMACAddress));
             if (in_array($Ident, $FoundIdents)) {

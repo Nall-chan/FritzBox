@@ -168,6 +168,9 @@ class FritzBoxHosts extends FritzBoxModulBase
     public function GetConfigurationForm()
     {
         $Form = json_decode(file_get_contents(__DIR__ . '/form.json'), true);
+        if ($this->GetStatus() == IS_CREATING) {
+            return json_encode($Form);
+        }
         if (!$this->ReadPropertyBoolean('HostAsTable')) {
             $Form['elements'][3]['items'][0]['enabled'] = false;
             $Form['elements'][3]['items'][1]['enabled'] = false;

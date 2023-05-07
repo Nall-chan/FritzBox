@@ -45,6 +45,9 @@ class FritzBoxHomeautomationConfigurator extends FritzBoxModulBase
         if ($this->GetStatus() == IS_CREATING) {
             return json_encode($Form);
         }
+        if ($this->GetStatus() == IS_CREATING) {
+            return json_encode($Form);
+        }
         $Splitter = IPS_GetInstance($this->InstanceID)['ConnectionID'];
         if (($Splitter == 0) || !$this->HasActiveParent()) {
             $Form['actions'][1]['visible'] = true;
@@ -59,10 +62,11 @@ class FritzBoxHomeautomationConfigurator extends FritzBoxModulBase
             $Form['actions'][1]['popup']['items'][0]['caption'] = 'Nothing found!';
             $Form['actions'][1]['popup']['items'][1]['caption'] = "No devices were found.\r\nEither no devices were paired or the firmware of the FritzBox is too old.";
             $Form['actions'][1]['popup']['items'][1]['width'] = '300px';
-            return json_encode($Form);
+            //return json_encode($Form);
         }
         $DeviceValues = [];
         $KnownInstances = $this->GetInstanceList(); // [InstanceID => AIN]
+        $this->SendDebug('KnownInstances', $KnownInstances, 0);
         foreach ($Devices as $DeviceData) {
             $AddDevice = [
                 'instanceID'      => 0,
@@ -95,6 +99,8 @@ class FritzBoxHomeautomationConfigurator extends FritzBoxModulBase
             $AddDevice = [
                 'instanceID'      => $id,
                 'AIN'             => $AIN,
+                'Manufacturer'    => '',
+                'ProductName'     => '',
                 'name'            => IPS_GetName($id)
             ];
             $DeviceValues[] = $AddDevice;

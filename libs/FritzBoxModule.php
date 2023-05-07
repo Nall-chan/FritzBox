@@ -7,7 +7,7 @@ namespace FritzBox;
 class Services
 {
     public static $Data = [
-        'urn:schemas-upnp-org:service:WANCommonInterfaceConfig:1'=> ['{FD564AAF-E00A-4CF8-A60D-7F60B4CDFC1B}'=>1],
+        'urn:schemas-upnp-org:service:WANCommonInterfaceConfig:1'=> ['{FD564AAF-E00A-4CF8-A60D-7F60B4CDFC1B}'=>0],
         'urn:schemas-upnp-org:service:WANIPConnection:1'         => ['{61C9DC95-5A0F-7B9A-4427-82EDB57AA1B9}'=>0],
         'urn:schemas-upnp-org:service:WANIPConnection:2'         => ['{61C9DC95-5A0F-7B9A-4427-82EDB57AA1B9}'=>1],
         'urn:dslforum-org:service:WLANConfiguration:1'           => ['{B3D72623-556E-B6C6-25E0-B3DEFE41F031}'=>0], // WLAN
