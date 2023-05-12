@@ -175,6 +175,9 @@ require_once __DIR__ . '/../libs/FritzBoxBase.php';
                 return false;
             }
             $MyIPs = array_column(Sys_GetNetworkInfo(), 'IP');
+            if (IPS_GetOption('NATPublicIP') !== '') {
+                $MyIPs[] = IPS_GetOption('NATPublicIP');
+            }
             $MyIdents = [];
             $this->setIPSVariable('NumberOfServices', 'Number of MyFritz services', $NoOfServices, VARIABLETYPE_INTEGER, '', false, -1);
             for ($i = 0; $i < $NoOfServices; $i++) {

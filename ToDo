@@ -51,6 +51,9 @@ Unfertig / Fehlen:
 Später/Sonstiges:
 - Filter bei den SmartHome Geräten.
 - Parameter für die initiale Sortierung der HTML-Tabellen der WLAN-Instanzen und der Host-Instanz fehlt.
+✅ UpnP Unsubscribe ergänzt für das korrekte Abmelden von Events an der FritzBox.  
+✅ Port Forwarding hat die eigene PublicIP bei NAT nicht berücksichtigt.  
+✅ Port Forwarding hat Netzwerke mit 2 Ziffern im ersten Octet (z.B. 10.x.y.z) nicht unterstützt.  
 ✅ WLAN-Instanz für das Gäste-WLAN hat immer die gleichen Geräte wie WLAN 1 angezeigt.  
 ✅ Offene Konfigurationsformulare konnten beim Modul-Update Fehlermeldungen werfen und wurden geschlossen.  
 ✅ WAN DSL Link Feldtest okay.  

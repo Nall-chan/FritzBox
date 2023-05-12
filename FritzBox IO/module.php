@@ -30,6 +30,7 @@ class FritzBoxIO extends IPSModule
     private static $http_error =
         [
             418 => ['Could not connect to host, maybe i am a teapot?', self::isDisconnected],
+            412 => ['Precondition Failed!', self::isConnected],
             404 => ['Service not Found', self::isServicenotValid],
             401 => ['Unauthorized', self::isUnauthorized],
             500 => ['UPnPError', self::isDisconnected],
@@ -169,6 +170,9 @@ class FritzBoxIO extends IPSModule
                 break;
                 case 'SUBSCRIBE':
                     $ret = $this->Subscribe($data['EventSubURL'], $data['SID']);
+                    break;
+                case 'UNSUBSCRIBE':
+                    $ret = $this->Unsubscribe($data['EventSubURL'], $data['SID']);
                     break;
                 case 'ISPPP':
                     $ret = $this->ReadAttributeBoolean('usePPP');
@@ -585,7 +589,7 @@ class FritzBoxIO extends IPSModule
         }
         $Host = parse_url($URL, PHP_URL_HOST);
         if ($Host == null) {
-            $this->SetStatus(IS_EBASE + 3);
+            $this->SetStatus(self::isURLnotValid);
             return false;
         }
         $Port = parse_url($URL, PHP_URL_PORT);
@@ -872,7 +876,58 @@ class FritzBoxIO extends IPSModule
             return $data;
         }
     }
+    private function Unsubscribe(string $Uri, string $SID)
+    {
+        $stream = stream_context_create(
+            [
+                'ssl'  => [
+                    'verify_peer'       => false,
+                    'verify_peer_name'  => false,
+                    'allow_self_signed' => true
+                ]
+            ]
+        );
 
+        $content = 'UNSUBSCRIBE ' . $Uri . " HTTP/1.1\r\n" .
+                      'HOST: ' . parse_url($this->Url, PHP_URL_HOST) . ':' . parse_url($this->Url, PHP_URL_PORT) . "\r\n" .
+                      'SID: ' . $SID . "\r\n" .
+                      'USER-AGENT: PHP/' . PHP_VERSION . ' UPnP/2.0 Symcon/' . IPS_GetKernelVersion() . "\r\n" .
+                      "Connection: Close\r\n" .
+                      "Content-Length: 0\r\n\r\n";
+        $this->SendDebug('Send UNSUBSCRIBE', $content, 0);
+        $Prefix = (parse_url($this->Url, PHP_URL_SCHEME) == 'https') ? 'ssl://' : 'tcp://';
+        $fp = @stream_socket_client($Prefix . parse_url($this->Url, PHP_URL_HOST) . ':' . parse_url($this->Url, PHP_URL_PORT), $errno, $errstr, 5, STREAM_CLIENT_CONNECT, $stream);
+        if (!$fp) {
+            $this->LogMessage('Could not connect to eventSubURL' . "\r\n" . $Uri, KL_ERROR);
+            $this->SendDebug('Could not connect to eventSubURL', $Uri, 0);
+            return false;
+        } else {
+            for ($fwrite = 0, $written = 0, $max = strlen($content); $written < $max; $written += $fwrite) {
+                $fwrite = @fwrite($fp, substr($content, $written));
+                if ($fwrite === false) {
+                    $this->LogMessage('Error on write to eventSubURL' . "\r\n" . $Uri, KL_ERROR);
+                    $this->SendDebug('Error on write to eventSubURL', $Uri, 0);
+                    @fclose($fp);
+                    return false;
+                }
+            }
+            $ret = stream_get_contents($fp);
+            fclose($fp);
+            $headers = $this->http_parse_headers($ret);
+            if (!isset($headers[0])) {
+                $this->LogMessage('Error on unsubscribe (parse headers)' . "\r\n" . $ret, KL_ERROR);
+                $this->SendDebug('Error on unsubscribe (parse headers)', $headers[0], 0);
+                return false;
+            }
+            if ($headers[0] != 'HTTP/1.1 200 OK') {
+                $this->LogMessage('Error on unsubscribe (' . $headers[0] . ')' . "\r\n" . $ret, KL_ERROR);
+                $this->SendDebug('Error on unsubscribe', $headers[0], 0);
+                return false;
+            }
+            $this->SendDebug('Unsubscribe successfully', $Uri, 0);
+            return true;
+        }
+    }
     private function http_parse_headers($raw_headers)
     {
         $headers = [];

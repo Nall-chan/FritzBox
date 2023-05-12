@@ -9,7 +9,7 @@ eval('declare(strict_types=1);namespace FritzBoxModulBase {?>' . file_get_conten
 
 /**
  * @property string $SID
- * @property bool $GotEvent
+ * @property bool $isSubscribed
  */
 class FritzBoxModulBase extends IPSModule
 {
@@ -40,20 +40,22 @@ class FritzBoxModulBase extends IPSModule
 
     public function Destroy()
     {
+        if (IPS_InstanceExists($this->InstanceID)) {
+            if ($this->isSubscribed) {
+                $this->Unsubscribe();
+            }
+        }
         //Never delete this line!
         parent::Destroy();
     }
-
     public function ApplyChanges()
     {
         //Never delete this line!
-        if (count(static::$EventSubURLArray) > 0) {
-            $this->SetTimerInterval('RenewSubscription', 0);
+        if ($this->isSubscribed) {
+            $this->Unsubscribe();
         }
         $this->SetReceiveDataFilter('.*NOTHINGTORECEIVE.*');
         parent::ApplyChanges();
-        $this->SID = '';
-        $this->GotEvent = false;
         $this->RegisterMessage($this->InstanceID, FM_CONNECT);
         $this->RegisterMessage($this->InstanceID, FM_DISCONNECT);
         if (IPS_GetKernelRunlevel() != KR_READY) {
@@ -132,7 +134,7 @@ class FritzBoxModulBase extends IPSModule
             if (!array_key_exists('EventData', $data)) {
                 return false;
             }
-            $this->GotEvent = true;
+            $this->isSubscribed = true;
             $this->SendDebug('Event', $data['EventData'], 0);
             $this->DecodeEvent($data['EventData']);
             return true;
@@ -166,9 +168,19 @@ class FritzBoxModulBase extends IPSModule
      */
     protected function IOChangeState($State)
     {
-        if ($State == IS_ACTIVE) {
+        switch ($State) {
+        case IS_ACTIVE:
             $this->ApplyChanges();
-            //$this->Subscribe();
+            break;
+        case IS_INACTIVE:
+        case IS_EBASE + 1:
+        case IS_EBASE + 2:
+        case IS_EBASE + 3:
+        case IS_EBASE + 4:
+            $this->SID = '';
+            $this->isSubscribed = false;
+            $this->SetTimerInterval('RenewSubscription', 0);
+            break;
         }
     }
 
@@ -195,7 +207,7 @@ class FritzBoxModulBase extends IPSModule
             $this->SID = '';
             return true;
         }
-        $this->GotEvent = false;
+        $this->isSubscribed = false;
 
         $this->SendDebug('Subscribe', $this->SID, 0);
         $Ret = $this->SendDataToParent(json_encode(
@@ -238,8 +250,7 @@ class FritzBoxModulBase extends IPSModule
     protected function WaitForEvent()
     {
         for ($i = 0; $i < 1000; $i++) {
-            if ($this->GotEvent) {
-                $this->GotEvent = false;
+            if ($this->isSubscribed) {
                 return true;
             } else {
                 IPS_Sleep(5);
@@ -551,6 +562,44 @@ class FritzBoxModulBase extends IPSModule
             }
         }
         return 'text/plain';
+    }
+    private function Unsubscribe()
+    {
+        $this->SendDebug('Unsubscribe', $this->SID, 0);
+        $this->isSubscribed = false;
+        $SID = $this->SID;
+        $this->SID = '';
+        $this->SetTimerInterval('RenewSubscription', 0);
+        $Index = $this->ReadPropertyInteger('Index');
+        if ($Index < 0) {
+            return;
+        }
+        if (count(static::$EventSubURLArray) == 0) {
+            return;
+        }
+        if (!$this->HasActiveParent()) {
+            return;
+        }
+
+        $Ret = @$this->SendDataToParent(json_encode(
+            [
+                'DataID'     => '{D62D4515-7689-D1DB-EE97-F555AD9433F0}',
+                'Function'   => 'UNSUBSCRIBE',
+                'EventSubURL'=> static::$EventSubURLArray[$Index],
+                'SID'        => $SID
+            ]
+        ));
+        if ($Ret === false) {
+            $this->SID = '';
+            $this->SendDebug('Error on Unsubscribe (parse)', static::$EventSubURLArray[$Index], 0);
+        } else {
+            $Result = unserialize($Ret);
+            if ($Result === false) {
+                $this->SID = '';
+                $this->SendDebug('Error on Unsubscribe (Result)', static::$EventSubURLArray[$Index], 0);
+            }
+            $this->SendDebug('Unsubscribe', $Result, 0);
+        }
     }
     private function FilterInstances(int $InstanceID)
     {

@@ -5,6 +5,7 @@
             "Interface closed": "Verbindung geschlossen",
             "Connection lost": "Verbindung verloren",
             "Could not connect to host, maybe i am a teapot?": "Es konnte keine Verbindung zum Host hergestellt werden, vielleicht bin ich eine Teekanne?",
+            "Precondition Failed!": "Voraussetzung nicht erfüllt!",
             "Service not Found": "Dienst nicht gefunden",
             "UPnPError": "UPnP Fehler",
             "Webhook invalid": "Webhook ungültig",
