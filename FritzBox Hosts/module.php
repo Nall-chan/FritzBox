@@ -459,7 +459,6 @@ class FritzBoxHosts extends FritzBoxModulBase
         // Property durchgehen und Werte ergänzen. Alle Idents merken
         $FoundIdents = array_column($HostVariables, 'ident');
         foreach ($HostVariables as &$HostVariable) {
-            //$HostName = suche in $xmlHosts, sonst MAC
             if ((substr($HostVariable['ident'], 0, 3) == 'MAC')) {
                 $HostVariable['address'] = implode(':', str_split(substr($HostVariable['ident'], 3), 2));
                 $HostName = $xmlHosts->xpath("//Item[MACAddress ='" . $HostVariable['address'] . "']");

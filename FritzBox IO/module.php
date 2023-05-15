@@ -309,7 +309,6 @@ class FritzBoxIO extends IPSModule
             echo 'File not found!';
             return;
         }
-
         if ($_SERVER['REQUEST_METHOD'] != 'NOTIFY') {
             http_response_code(405);
             $this->SendHeaders();

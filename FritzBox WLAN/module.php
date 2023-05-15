@@ -379,9 +379,9 @@ class FritzBoxWLAN extends FritzBoxModulBase
                             if (count($Xpath) > 0) {
                                 $Hostname = (string) $Xpath[0];
                             }
-                        }
-                        if ($Rename && (IPS_GetName($VarId) != $Hostname)) {
-                            IPS_SetName($VarId, $Hostname);
+                            if ($Rename && (IPS_GetName($VarId) != $Hostname)) {
+                                IPS_SetName($VarId, $Hostname);
+                            }
                         }
                         $this->SetValue($Ident, false);
                         $SpeedId = $this->RegisterSubVariable($VarId, 'Speed', 'Speed', VARIABLETYPE_INTEGER, 'FB.MBits');

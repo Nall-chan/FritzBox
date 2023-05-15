@@ -179,7 +179,9 @@ class FritzBoxModulBase extends IPSModule
         case IS_EBASE + 4:
             $this->SID = '';
             $this->isSubscribed = false;
-            $this->SetTimerInterval('RenewSubscription', 0);
+            if (count(static::$EventSubURLArray) > 0) {
+                $this->SetTimerInterval('RenewSubscription', 0);
+            }
             break;
         }
     }
@@ -569,12 +571,13 @@ class FritzBoxModulBase extends IPSModule
         $this->isSubscribed = false;
         $SID = $this->SID;
         $this->SID = '';
-        $this->SetTimerInterval('RenewSubscription', 0);
-        $Index = $this->ReadPropertyInteger('Index');
-        if ($Index < 0) {
+        if (count(static::$EventSubURLArray) > 0) {
+            $this->SetTimerInterval('RenewSubscription', 0);
+        } else {
             return;
         }
-        if (count(static::$EventSubURLArray) == 0) {
+        $Index = $this->ReadPropertyInteger('Index');
+        if ($Index < 0) {
             return;
         }
         if (!$this->HasActiveParent()) {
