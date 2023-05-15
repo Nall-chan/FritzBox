@@ -63,7 +63,7 @@ class FritzBoxDynDns extends FritzBoxModulBase
             case 'RefreshInfo':
                 return $this->UpdateDynDnsClient();
             case 'Enable':
-                return $this->EnableRemoteAccess($Value);
+                return $this->EnableRemoteAccess((bool) $Value);
          }
         trigger_error($this->Translate('Invalid Ident.'), E_USER_NOTICE);
 

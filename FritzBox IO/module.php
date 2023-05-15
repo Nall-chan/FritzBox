@@ -11,7 +11,12 @@ require_once __DIR__ . '/../libs/FritzBoxModule.php';
  * @property string $Url
  * @property string $Username
  * @property bool $ForceLoadXML
- *
+ * @method void RegisterHook(string $WebHook)
+ * @method void UnregisterHook(string $WebHook)
+ * @method void RegisterAttributeArray(string $name, mixed $Value, int $Size = 0)
+ * @method mixed ReadAttributeArray(string $name)
+ * @method void WriteAttributeArray(string $name, mixed $value)
+ * @method bool SendDebug(string $Message, mixed $Data, int $Format)
  */
 class FritzBoxIO extends IPSModule
 {

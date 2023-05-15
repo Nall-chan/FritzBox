@@ -4,6 +4,11 @@ declare(strict_types=1);
 eval('declare(strict_types=1);namespace FritzBoxConfigurator {?>' . file_get_contents(__DIR__ . '/../libs/helper/BufferHelper.php') . '}');
 eval('declare(strict_types=1);namespace FritzBoxConfigurator {?>' . file_get_contents(__DIR__ . '/../libs/helper/DebugHelper.php') . '}');
 require_once __DIR__ . '/../libs/FritzBoxModule.php';
+
+/**
+ * @property int ParentID
+ * @method bool SendDebug(string $Message, mixed $Data, int $Format)
+ */
     class FritzBoxConfigurator extends IPSModule
     {
         use \FritzBoxConfigurator\BufferHelper;

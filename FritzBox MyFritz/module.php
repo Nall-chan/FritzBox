@@ -43,7 +43,7 @@ require_once __DIR__ . '/../libs/FritzBoxBase.php';
                 return true;
             }
             if (in_array($this->ConvertIdent($Ident), $this->ServiceIdents)) {
-                return $this->EnableService($this->ConvertIdent($Ident), $Value);
+                return $this->EnableService($this->ConvertIdent($Ident), (bool) $Value);
             }
             switch ($Ident) {
                 case 'RefreshInfo':

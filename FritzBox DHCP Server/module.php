@@ -47,7 +47,7 @@ class FritzBoxDHCPServer extends FritzBoxModulBase
             case 'RefreshState':
                 return $this->UpdateInfo();
             case 'DHCPServerEnable':
-                return $this->SetDHCPServerEnable($Value);
+                return $this->SetDHCPServerEnable((bool) $Value);
             case 'MinAddress':
                 return $this->SetAddressRange($Value, $this->GetValue('MaxAddress'));
             case 'MaxAddress':

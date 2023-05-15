@@ -10,6 +10,15 @@ eval('declare(strict_types=1);namespace FritzBoxModulBase {?>' . file_get_conten
 /**
  * @property string $SID
  * @property bool $isSubscribed
+ * @property int ParentID
+ * @method bool SendDebug(string $Message, mixed $Data, int $Format)
+ * @method void RegisterParent()
+ * @method void UnregisterProfile(string $Name)
+ * @method void RegisterProfileBooleanEx(string $Name, string $Icon, string $Prefix, string $Suffix, array $Associations)
+ * @method void RegisterProfileInteger(string $Name, string $Icon, string $Prefix, string $Suffix, int $MinValue, int $MaxValue, int $StepSize)
+ * @method void RegisterProfileIntegerEx(string $Name, string $Icon, string $Prefix, string $Suffix, array $Associations, int $MaxValue = -1, float $StepSize = 0)
+ * @method void RegisterProfileStringEx(string $Name, string $Icon, string $Prefix, string $Suffix, array $Associations)
+ * @method void RegisterProfileFloat(string $Name, string $Icon, string $Prefix, string $Suffix, float $MinValue, float $MaxValue, float $StepSize, int $Digits)
  */
 class FritzBoxModulBase extends IPSModule
 {
@@ -17,13 +26,13 @@ class FritzBoxModulBase extends IPSModule
     use \FritzBoxModulBase\DebugHelper;
     use \FritzBoxModulBase\VariableProfileHelper;
     use \FritzBoxModulBase\InstanceStatus {
-        \FritzBoxModulBase\InstanceStatus::MessageSink as IOMessageSink; // MessageSink gibt es sowohl hier in der Klasse, als auch im Trait InstanceStatus. Hier wird für die Methode im Trait ein Alias benannt.
-        //\FritzBoxModulBase\InstanceStatus::RegisterParent as IORegisterParent;
+        \FritzBoxModulBase\InstanceStatus::MessageSink as IOMessageSink;
         \FritzBoxModulBase\InstanceStatus::RequestAction as IORequestAction;
     }
     protected static $ControlUrlArray = [];
     protected static $ServiceTypeArray = [];
     protected static $EventSubURLArray = [];
+    protected static $SecondEventGUID = '';
     protected static $DefaultIndex = -1;
     public function Create()
     {
@@ -69,13 +78,13 @@ class FritzBoxModulBase extends IPSModule
         }
         if ($Index > -1) {
             $Filter = preg_quote(substr(json_encode(static::$EventSubURLArray[$Index]), 1, -1));
-            if (property_exists($this, 'SecondEventGUID')) {
+            if (static::$SecondEventGUID != '') {
                 $Filter .= '".*|.*"DataID":"' . preg_quote(static::$SecondEventGUID);
             }
             $this->SetReceiveDataFilter('.*"EventSubURL":"' . $Filter . '".*');
             $this->SendDebug('Filter', '.*"EventSubURL":"' . $Filter . '".*', 0);
         } else {
-            if (property_exists($this, 'SecondEventGUID')) {
+            if (static::$SecondEventGUID != '') {
                 $Filter = '.*"DataID":"' . preg_quote(static::$SecondEventGUID) . '".*';
                 $this->SetReceiveDataFilter($Filter);
                 $this->SendDebug('FilterSecondEventGUID', $Filter, 0);

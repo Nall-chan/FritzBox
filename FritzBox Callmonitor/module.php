@@ -8,6 +8,8 @@ require_once __DIR__ . '/../libs/FritzBoxTable.php';
 eval('declare(strict_types=1);namespace FritzBoxCallmonitor {?>' . file_get_contents(__DIR__ . '/../libs/helper/SemaphoreHelper.php') . '}');
 /**
  * @property array $CallData
+ * @method bool lock(string $ident)
+ * @method void unlock(string $ident)
  */
 class FritzBoxCallmonitor extends FritzBoxModulBase
 {
