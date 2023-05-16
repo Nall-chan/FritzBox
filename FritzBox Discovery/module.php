@@ -148,7 +148,9 @@ class FritzBoxDiscovery extends IPSModule
                 socket_set_option($socket, IPPROTO_IPV6, IPV6_MULTICAST_HOPS, 4);
                 socket_set_option($socket, IPPROTO_IPV6, IPV6_MULTICAST_IF, $Interface);
                 socket_set_option($socket, SOL_SOCKET, SO_BROADCAST, 1);
-                socket_bind($socket, $IP, 1901);
+                if (@socket_bind($socket, $IP, 1901) == false) {
+                    continue;
+                }
                 $discoveryTimeout = time() + self::WS_DISCOVERY_TIMEOUT;
                 $message = [
                     'M-SEARCH * HTTP/1.1',
@@ -211,7 +213,9 @@ class FritzBoxDiscovery extends IPSModule
                 socket_set_option($socket, IPPROTO_IP, IP_MULTICAST_TTL, 4);
                 socket_set_option($socket, IPPROTO_IP, IP_MULTICAST_IF, $Interface);
                 socket_set_option($socket, SOL_SOCKET, SO_BROADCAST, 1);
-                socket_bind($socket, $IP, 1901);
+                if (@socket_bind($socket, $IP, 1901) == false) {
+                    continue;
+                }
                 $discoveryTimeout = time() + self::WS_DISCOVERY_TIMEOUT;
                 $message = [
                     'M-SEARCH * HTTP/1.1',

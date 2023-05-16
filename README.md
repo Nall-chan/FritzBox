@@ -151,6 +151,7 @@ Version 0.78:
 - Port Forwarding hat Netzwerke mit 2 Ziffern im ersten Octet (z.B. 10.x.y.z) nicht unterstützt. 
 - UpnP Unsubscribe ergänzt für das korrekte Abmelden von Events an der FritzBox. (Sollte den HTTP 412 Precondition Failed Fehler beheben.)  
 - Fehlte ein Eintrag in der Host-Tabelle der FritzBox und war das automatische umbenennen von Host-Variablen in einer WLAN-Instanz aktiv, so konnte der Name der Variable gelöscht werden und wurde als unnamed Object angezeigt.  
+- Discovery-Instanz funktioniert unter Linux-OS wieder.  
 
 Version 0.77:  
 - Vorhandene WAN DSL-Verbindung Instanz wurde im Konfigurator nicht korrekt erkannt.  
