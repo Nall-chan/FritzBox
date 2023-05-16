@@ -144,7 +144,7 @@ require_once __DIR__ . '/../libs/FritzBoxBase.php';
         public function EnablePortMapping(string $Ident, bool $Value)
         {
             if (@$this->GetIDForIdent($Ident) == false) {
-                trigger_error('Invalid ident.', E_USER_NOTICE);
+                trigger_error($this->Translate('Invalid Ident.'), E_USER_NOTICE);
                 return false;
             }
 
@@ -169,18 +169,22 @@ require_once __DIR__ . '/../libs/FritzBoxBase.php';
                 }
                 $Ident = str_replace('.', 'P', $result['NewInternalClient']) . '_' . $result['NewInternalPort'] . '_' . $result['NewProtocol'];
                 if ($NewIdent == $Ident) {
-                    $changeResult = $this->AddPortMapping(
-                        $result['NewRemoteHost'],
-                        $result['NewExternalPort'],
-                        $result['NewProtocol'],
-                        $result['NewInternalPort'],
-                        $result['NewInternalClient'],
-                        $NewEnabled,
-                        $result['NewPortMappingDescription'],
-                        $result['NewLeaseDuration']
-                    );
-                    if ($changeResult) {
-                        $result['NewEnabled'] = $NewEnabled;
+                    if (in_array((string) $result['NewInternalClient'], $MyIPs)) {
+                        $changeResult = $this->AddPortMapping(
+                            $result['NewRemoteHost'],
+                            $result['NewExternalPort'],
+                            $result['NewProtocol'],
+                            $result['NewInternalPort'],
+                            $result['NewInternalClient'],
+                            $NewEnabled,
+                            $result['NewPortMappingDescription'],
+                            $result['NewLeaseDuration']
+                        );
+                        if ($changeResult) {
+                            $result['NewEnabled'] = $NewEnabled;
+                        }
+                    } else {
+                        trigger_error($this->Translate('Only port forwarding of IP addresses of the Symcon server can be switched!'), E_USER_NOTICE);
                     }
                 }
 

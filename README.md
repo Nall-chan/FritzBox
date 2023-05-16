@@ -164,7 +164,7 @@ Version 0.76:
 - Verfügbarkeit des Anrufmonitor der FritzBox wird vom Konfigurator immer neu überprüft.  
 - LinkStatus Variablen werden als String Variablen angelegt.  
 - Debug Meldungen von Ereignissen aus dem LogFile entfernt.  
-- Discovery-Instanz sucht auf allen Netzwerkschnittstellen und allen IP-Adressen nach Geräten und präferiert in absteigender Reihenfolge den Hostnamen, IPv6 Adressen und zuletzt IPv4 Adressen der FritzBox(en).  
+- Discovery-Instanz sucht auf allen Netzwerkschnittstellen und allen IP-Adressen nach Geräten und präferiert in IPv4 Adressen der FritzBox(en).  
 
 Version 0.75:  
 

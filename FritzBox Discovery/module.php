@@ -64,15 +64,17 @@ class FritzBoxDiscovery extends IPSModule
         foreach ($InstanceIDListConfigurators as $InstanceIDConfigurator) {
             $Splitter = IPS_GetInstance($InstanceIDConfigurator)['ConnectionID'];
             if ($Splitter > 0) {
-                $DevicesAddress[$InstanceIDConfigurator] = parse_url(IPS_GetProperty($Splitter, 'Host'), PHP_URL_HOST);
+                $Url = parse_url(IPS_GetProperty($Splitter, 'Host'), PHP_URL_HOST);
+                $DevicesAddress[$InstanceIDConfigurator] = ($Url ? $Url : '');
             }
         }
         foreach ($Devices as $UUID => $Data) {
+            $Data['Hosts'] = array_unique($Data['Hosts']);
             ksort($Data['Hosts']);
             $AddDevice = [
                 'instanceID'        => 0,
                 'uuid'              => $UUID,
-                'host'              => $Data['Hosts'][array_key_first($Data['Hosts'])],
+                'host'              => $Data['Hosts'][array_key_last($Data['Hosts'])],
                 'name'              => $Data['Server']
             ];
             foreach ($Data['Hosts'] as $Host) {
@@ -80,14 +82,12 @@ class FritzBoxDiscovery extends IPSModule
                 if ($InstanceIDConfigurator !== false) {
                     $AddDevice['name'] = IPS_GetLocation($InstanceIDConfigurator);
                     $AddDevice['instanceID'] = $InstanceIDConfigurator;
+                    $AddDevice['host'] = $Host;
                     unset($DevicesAddress[$InstanceIDConfigurator]);
-                    break;
                 }
-            }
-            if ($AddDevice['instanceID'] == 0) {
-                $Host = $Data['Hosts'][array_key_first($Data['Hosts'])];
-            }
-            $AddDevice['create']['https://' . $Host] = [
+
+            
+                $AddDevice['create']['https://' . $Host] = [
                 [
                     'moduleID'      => '{32CF40DC-51DA-6C63-8BD7-55E82F64B9E7}',
                     'configuration' => new stdClass()
@@ -100,7 +100,7 @@ class FritzBoxDiscovery extends IPSModule
                     ]
                 ]
             ];
-            $AddDevice['create']['http://' . $Host] = [
+                $AddDevice['create']['http://' . $Host] = [
                 [
                     'moduleID'      => '{32CF40DC-51DA-6C63-8BD7-55E82F64B9E7}',
                     'configuration' => new stdClass()
@@ -114,7 +114,7 @@ class FritzBoxDiscovery extends IPSModule
                 ]
 
             ];
-
+            }
             $DeviceValues[] = $AddDevice;
         }
         foreach ($DevicesAddress as $id => $Url) {
