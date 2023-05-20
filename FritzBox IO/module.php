@@ -195,20 +195,20 @@ class FritzBoxIO extends IPSModule
                     $ret = $this->ReadAttributeInteger('NoOfWlan');
                     break;
                 case 'RefreshHostList':
-                    $data['DataID'] = '{3C010D20-02A3-413A-9C5E-D0747D61BEF0}';
+                    $data['DataID'] = \FritzBox\GUID::RefreshHostListRequest;
                     $result = $this->SendDataToChildren(json_encode($data));
                     $ret = false;
                     if (count($result) > 0) {
                         $ret = $result[0] == 'OK';
                     }
                     if ($ret) {
-                        $data['DataID'] = '{FE6C73CB-028B-F569-46AC-3C02FF1F8F2F}';
+                        $data['DataID'] = \FritzBox\GUID::NewHostListEvent;
                         $data['Function'] = 'NewHostListEvent';
                         $ret = $this->SendDataToChildren(json_encode($data));
                     }
                     break;
                 case 'NewHostListEvent':
-                    $data['DataID'] = '{FE6C73CB-028B-F569-46AC-3C02FF1F8F2F}';
+                    $data['DataID'] = \FritzBox\GUID::NewHostListEvent;
                     $ret = $this->SendDataToChildren(json_encode($data));
                     break;
                 case 'LoadAndGetData':
@@ -255,7 +255,7 @@ class FritzBoxIO extends IPSModule
     public function ReceiveData($JSONString)
     {
         $data = json_decode($JSONString);
-        $data->DataID = '{FE5B2BCA-CA0F-25DC-8E79-BDFD242CB06E}';
+        $data->DataID = \FritzBox\GUID::CallMonitorEvent;
         $this->SendDebug('Forward', json_encode($data), 0);
         $this->SendDataToChildren(json_encode($data));
     }
@@ -352,7 +352,7 @@ class FritzBoxIO extends IPSModule
         $this->SendDataToChildren(
             json_encode(
                 [
-                    'DataID'     => '{CBD869A0-869B-3D4C-7EA8-D917D935E647}',
+                    'DataID'     => \FritzBox\GUID::SendEventToChildren,
                     'EventSubURL'=> $eventSubUrl,
                     'EventData'  => $Propertys
                 ]
@@ -364,7 +364,7 @@ class FritzBoxIO extends IPSModule
         if (IPS_GetInstance($this->InstanceID)['ConnectionID'] != 0) {
             return;
         }
-        $this->RequireParent('{3CFF0FD9-E306-41DB-9B5A-9D06D38576C3}');
+        $this->RequireParent(\FritzBox\GUID::ClientSocket);
         $ParentId = IPS_GetInstance($this->InstanceID)['ConnectionID'];
         if ($ParentId > 1) {
             IPS_SetProperty($ParentId, 'Host', parse_url($this->Url, PHP_URL_HOST));

@@ -4,39 +4,78 @@ declare(strict_types=1);
 
 namespace FritzBox;
 
+class GUID
+{
+    //Library
+    const CIRS = '{D0E8905A-F00C-EA84-D607-3D27000348D8}';
+    //Modules
+    const FritzBoxIO = '{6FF9A05D-4E49-4371-23F1-7F58283FB1D9}';
+    const Configurator = '{32CF40DC-51DA-6C63-8BD7-55E82F64B9E7}';
+    const WANCommonInterface = '{FD564AAF-E00A-4CF8-A60D-7F60B4CDFC1B}';
+    const WANIPConnection = '{61C9DC95-5A0F-7B9A-4427-82EDB57AA1B9}';
+    const WLAN = '{B3D72623-556E-B6C6-25E0-B3DEFE41F031}';
+    const Hosts = '{66495783-EAEF-7A90-B13C-399045E4790B}';
+    const DHCPServer = '{BDD8382D-00EF-4D84-8B3E-795584ABEB12}';
+    const DeviceInfo = '{0E5BA3F0-4622-4C96-8D5F-F28DAB051C2F}';
+    const Time = '{4BD2D88F-E56B-9DF1-19A2-E6A688C5EA70}';
+    const WANPortMapping = '{9396D756-40EA-46C7-AA06-623B8DCB789B}';
+    const UPnPMediaServer = '{0F09E36F-BE54-D01D-5AF1-48FF618426AC}';
+    const WebDavStorage = '{EA069D88-287E-9F08-DB85-799EBA7A2678}';
+    const Storage = '{14588B6C-6F13-A3C1-0C79-88B6624E1D87}';
+    const MyFritz = '{D8AA1AB8-0FCE-56F9-FE36-E0D49878FB75}';
+    const DynDns = '{A3828BD1-B487-1860-2812-36E8DA0D358E}';
+    const FileShare = '{E9B51A32-A87F-8E47-34E8-594535C7D42A}';
+    const HostFilter = '{6E830782-BB60-4E2E-B6FD-8937BEAE2B46}';
+    const PowerLine = '{B1B43095-2B0A-4C85-A4DE-E962404201C7}';
+    const DVBC = '{DF0D838F-C5B4-43D4-A95B-CBCF2A05138E}';
+    const HomeautomationDevice = '{822E981D-9195-4AA7-821A-36BB1E63F993}';
+    const HomeautomationConfigurator = '{D636EA77-03A0-4359-9DFD-4CE035459023}';
+    const FirmwareInfo = '{802BCC3D-7144-4803-8886-0F5A08E2BF5D}';
+    const CallMonitor = '{5B5C7F75-E7FE-AE5C-6A51-8252688CBF4D}';
+    const WANDSLLink = '{061AEAF5-ADCD-AD9E-9BF9-AD40DF364EB6}';
+    const WANPhysicalInterface = '{C1A97F94-EE83-0553-5F42-FA242F406B1E}';
+    const Telephony = '{AD0B22A7-C71C-71DD-A40B-B70334C5AB3C}';
+    const ClientSocket = '{3CFF0FD9-E306-41DB-9B5A-9D06D38576C3}';
+    const UtilControl = '{B69010EA-96D5-46DF-B885-24821B8C8DBD}';
+    //DataFlow
+    const SendToFritzBoxIO = '{D62D4515-7689-D1DB-EE97-F555AD9433F0}';
+    const SendEventToChildren = '{CBD869A0-869B-3D4C-7EA8-D917D935E647}';
+    const NewHostListEvent = '{FE6C73CB-028B-F569-46AC-3C02FF1F8F2F}';
+    const RefreshHostListRequest = '{3C010D20-02A3-413A-9C5E-D0747D61BEF0}';
+    const CallMonitorEvent = '{FE5B2BCA-CA0F-25DC-8E79-BDFD242CB06E}';
+}
 class Services
 {
     public static $Data = [
-        'urn:schemas-upnp-org:service:WANCommonInterfaceConfig:1'=> ['{FD564AAF-E00A-4CF8-A60D-7F60B4CDFC1B}'=>0],
-        'urn:schemas-upnp-org:service:WANIPConnection:1'         => ['{61C9DC95-5A0F-7B9A-4427-82EDB57AA1B9}'=>0],
-        'urn:schemas-upnp-org:service:WANIPConnection:2'         => ['{61C9DC95-5A0F-7B9A-4427-82EDB57AA1B9}'=>1],
-        'urn:dslforum-org:service:WLANConfiguration:1'           => ['{B3D72623-556E-B6C6-25E0-B3DEFE41F031}'=>0], // WLAN
-        'urn:dslforum-org:service:WLANConfiguration:2'           => ['{B3D72623-556E-B6C6-25E0-B3DEFE41F031}'=>1], // WLAN
-        'urn:dslforum-org:service:WLANConfiguration:3'           => ['{B3D72623-556E-B6C6-25E0-B3DEFE41F031}'=>2], // WLAN
-        'urn:dslforum-org:service:Hosts:1'                       => ['{66495783-EAEF-7A90-B13C-399045E4790B}'=>0], // Hosts
-        'urn:dslforum-org:service:LANHostConfigManagement:1'     => ['{BDD8382D-00EF-4D84-8B3E-795584ABEB12}'=>0],
-        'urn:dslforum-org:service:DeviceInfo:1'                  => ['{0E5BA3F0-4622-4C96-8D5F-F28DAB051C2F}'=>0], // Geräteinformationen
-        'urn:dslforum-org:service:Time:1'                        => ['{4BD2D88F-E56B-9DF1-19A2-E6A688C5EA70}'=>0], // Zeitserver
-        'urn:dslforum-org:service:WANIPConnection:1'             => ['{9396D756-40EA-46C7-AA06-623B8DCB789B}'=>1], // (nur?) bei Cabel
-        'urn:dslforum-org:service:X_AVM-DE_UPnP:1'               => ['{0F09E36F-BE54-D01D-5AF1-48FF618426AC}'=>0],
-        'urn:dslforum-org:service:X_AVM-DE_WebDAVClient:1'       => ['{EA069D88-287E-9F08-DB85-799EBA7A2678}'=>0],
-        'urn:dslforum-org:service:X_AVM-DE_Storage:1'            => ['{14588B6C-6F13-A3C1-0C79-88B6624E1D87}'=>0],
-        'urn:dslforum-org:service:X_AVM-DE_MyFritz:1'            => ['{D8AA1AB8-0FCE-56F9-FE36-E0D49878FB75}'=>0],
-        'urn:dslforum-org:service:X_AVM-DE_RemoteAccess:1'       => ['{A3828BD1-B487-1860-2812-36E8DA0D358E}'=>0],
-        'urn:dslforum-org:service:X_AVM-DE_Filelinks:1'          => ['{E9B51A32-A87F-8E47-34E8-594535C7D42A}'=>0],
-        'urn:dslforum-org:service:X_AVM-DE_HostFilter:1'         => ['{6E830782-BB60-4E2E-B6FD-8937BEAE2B46}'=>0], // Hostfilter
-        'urn:dslforum-org:service:X_AVM-DE_Homeplug:1'           => ['{B1B43095-2B0A-4C85-A4DE-E962404201C7}'=>0], // Powerline
-        'urn:dslforum-org:service:X_AVM-DE_Media:1'              => ['{DF0D838F-C5B4-43D4-A95B-CBCF2A05138E}'=>0], // DVB-C (nur Cable)
-        'urn:dslforum-org:service:X_AVM-DE_Homeauto:1'           => ['{D636EA77-03A0-4359-9DFD-4CE035459023}'=>0], // Homeautomation Configurator
-        'urn:dslforum-org:service:UserInterface:1'               => ['{802BCC3D-7144-4803-8886-0F5A08E2BF5D}'=>0], // Firmware
-        'callmonitor'                                            => ['{5B5C7F75-E7FE-AE5C-6A51-8252688CBF4D}'=>0], // Anrufmonitor
-        //todo (später)
-        'urn:schemas-upnp-org:service:WANDSLLinkConfig:1'        => ['{061AEAF5-ADCD-AD9E-9BF9-AD40DF364EB6}'=>0],
-        //'urn:dslforum-org:service:WANDSLInterfaceConfig:1'       => [], // anstatt     WANDSLLinkConfig
-        'urn:dslforum-org:service:WANPPPConnection:1'            => ['{9396D756-40EA-46C7-AA06-623B8DCB789B}'=>0], // bei DSL (prüfen im Feldtest)
+        'urn:schemas-upnp-org:service:WANCommonInterfaceConfig:1'=> [GUID::WANCommonInterface=>0],
+        'urn:schemas-upnp-org:service:WANIPConnection:1'         => [GUID::WANIPConnection=>0],
+        'urn:schemas-upnp-org:service:WANIPConnection:2'         => [GUID::WANIPConnection=>1],
+        'urn:dslforum-org:service:WLANConfiguration:1'           => [GUID::WLAN=>0], // WLAN
+        'urn:dslforum-org:service:WLANConfiguration:2'           => [GUID::WLAN=>1], // WLAN
+        'urn:dslforum-org:service:WLANConfiguration:3'           => [GUID::WLAN=>2], // WLAN
+        'urn:dslforum-org:service:Hosts:1'                       => [GUID::Hosts=>0], // Hosts
+        'urn:dslforum-org:service:LANHostConfigManagement:1'     => [GUID::DHCPServer=>0],
+        'urn:dslforum-org:service:DeviceInfo:1'                  => [GUID::DeviceInfo=>0], // Geräteinformationen
+        'urn:dslforum-org:service:Time:1'                        => [GUID::Time=>0], // Zeitserver
+        'urn:dslforum-org:service:WANPPPConnection:1'            => [GUID::WANPortMapping=>0], // bei DSL
+        'urn:dslforum-org:service:WANIPConnection:1'             => [GUID::WANPortMapping=>1], // bei Cabel
+        'urn:dslforum-org:service:X_AVM-DE_UPnP:1'               => [GUID::UPnPMediaServer=>0],
+        'urn:dslforum-org:service:X_AVM-DE_WebDAVClient:1'       => [GUID::WebDavStorage=>0],
+        'urn:dslforum-org:service:X_AVM-DE_Storage:1'            => [GUID::Storage=>0],
+        'urn:dslforum-org:service:X_AVM-DE_MyFritz:1'            => [GUID::MyFritz=>0],
+        'urn:dslforum-org:service:X_AVM-DE_RemoteAccess:1'       => [GUID::DynDns=>0],
+        'urn:dslforum-org:service:X_AVM-DE_Filelinks:1'          => [GUID::FileShare=>0],
+        'urn:dslforum-org:service:X_AVM-DE_HostFilter:1'         => [GUID::HostFilter=>0], // Hostfilter
+        'urn:dslforum-org:service:X_AVM-DE_Homeplug:1'           => [GUID::PowerLine=>0], // Powerline
+        'urn:dslforum-org:service:X_AVM-DE_Media:1'              => [GUID::DVBC=>0], // DVB-C (nur Cable)
+        'urn:dslforum-org:service:X_AVM-DE_Homeauto:1'           => [GUID::HomeautomationConfigurator=>0], // Homeautomation Configurator
+        'urn:dslforum-org:service:UserInterface:1'               => [GUID::FirmwareInfo=>0], // Firmware
+        'callmonitor'                                            => [GUID::CallMonitor=>0], // Anrufmonitor
+        'urn:schemas-upnp-org:service:WANDSLLinkConfig:1'        => [GUID::WANDSLLink=>0],
+        //'urn:dslforum-org:service:WANDSLInterfaceConfig:1'       => [], // später, zusätzlich zu WANDSLLinkConfig
+        'urn:dslforum-org:service:WANCommonInterfaceConfig:1'    => [GUID::WANPhysicalInterface=>0],
         //todo (jetzt)
-        'urn:dslforum-org:service:WANCommonInterfaceConfig:1'    => ['{C1A97F94-EE83-0553-5F42-FA242F406B1E}'=>0], // todo
-        'urn:dslforum-org:service:X_AVM-DE_OnTel:1'              => ['{AD0B22A7-C71C-71DD-A40B-B70334C5AB3C}'=>0], // todo Telefonie
+        'urn:dslforum-org:service:X_AVM-DE_OnTel:1'              => [GUID::Telephony =>0], // todo Telefonie
         'urn:dslforum-org:service:X_VoIP:1'                      => [], // in OnTel enthalten ?! // todo
         'urn:dslforum-org:service:X_AVM-DE_Dect:1'               => [],
         'urn:dslforum-org:service:X_AVM-DE_TAM:1'                => [],

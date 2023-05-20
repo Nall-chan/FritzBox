@@ -140,7 +140,7 @@ class FritzBoxWANCommonInterface extends FritzBoxModulBase
         if (($Splitter > 1) && $this->HasActiveParent()) {
             $Ret = $this->SendDataToParent(json_encode(
                 [
-                    'DataID'     => '{D62D4515-7689-D1DB-EE97-F555AD9433F0}',
+                    'DataID'     => \FritzBox\GUID::SendToFritzBoxIO,
                     'Function'   => 'HasIGD2'
                 ]
             ));

@@ -4,8 +4,6 @@ declare(strict_types=1);
 require_once __DIR__ . '/../libs/FritzBoxBase.php';
 class FritzBoxHomeautomationConfigurator extends FritzBoxModulBase
 {
-    const  DEVICE_GUID = '{822E981D-9195-4AA7-821A-36BB1E63F993}';
-
     protected static $ControlUrlArray = [
         '/upnp/control/x_homeauto'
     ];
@@ -76,7 +74,7 @@ class FritzBoxHomeautomationConfigurator extends FritzBoxModulBase
                 'name'            => (string) $DeviceData['NewDeviceName'],
                 'create'          => [
 
-                    'moduleID'      => self::DEVICE_GUID,
+                    'moduleID'      => \FritzBox\GUID::HomeautomationDevice,
                     'configuration' => [
                         'Index'   => 0,
                         'AIN'     => (string) $DeviceData['NewAIN']
@@ -118,7 +116,7 @@ class FritzBoxHomeautomationConfigurator extends FritzBoxModulBase
 
     private function GetInstanceList()
     {
-        $AllInstancesOfParent = array_flip(array_filter(IPS_GetInstanceListByModuleID(self::DEVICE_GUID), [$this, 'FilterInstances']));
+        $AllInstancesOfParent = array_flip(array_filter(IPS_GetInstanceListByModuleID(\FritzBox\GUID::HomeautomationDevice), [$this, 'FilterInstances']));
         foreach ($AllInstancesOfParent as $key => &$value) {
             $value = IPS_GetProperty($key, 'AIN');
         }

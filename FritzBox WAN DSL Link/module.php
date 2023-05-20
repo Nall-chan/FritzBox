@@ -84,6 +84,10 @@ class FritzBoxWANDSLLink extends FritzBoxModulBase
     {
         return $this->Send(__FUNCTION__);
     }
+    public function GetStatistics()
+    {
+        return $this->Send(__FUNCTION__);
+    }
     public function GetConfigurationForm()
     {
         $Form = json_decode(file_get_contents(__DIR__ . '/form.json'), true);
@@ -94,7 +98,7 @@ class FritzBoxWANDSLLink extends FritzBoxModulBase
         if (($Splitter > 1) && $this->HasActiveParent()) {
             $Ret = $this->SendDataToParent(json_encode(
             [
-                'DataID'     => '{D62D4515-7689-D1DB-EE97-F555AD9433F0}',
+                'DataID'     => \FritzBox\GUID::SendToFritzBoxIO,
                 'Function'   => 'HasIGD2'
             ]
         ));
@@ -145,6 +149,13 @@ class FritzBoxWANDSLLink extends FritzBoxModulBase
         $result = $this->GetFCSPreserved();
         if ($result !== false) {
             $this->setIPSVariable('FCSPreserved', 'FCSPreserved', (bool) $result, VARIABLETYPE_BOOLEAN);
+        }
+        $result = $this->GetStatistics();
+        if ($result !== false) {
+            $this->setIPSVariable('ATMTransmittedBlocks', 'ATMTransmittedBlocks', (int) $result['NewATMTransmittedBlocks'], VARIABLETYPE_INTEGER);
+            $this->setIPSVariable('ATMReceivedBlocks', 'ATMReceivedBlocks', (int) $result['NewATMReceivedBlocks'], VARIABLETYPE_INTEGER);
+            $this->setIPSVariable('AAL5CRCErrors', 'AAL5CRCErrors', (int) $result['NewAAL5CRCErrors'], VARIABLETYPE_INTEGER);
+            $this->setIPSVariable('ATMCRCErrors', 'ATMCRCErrors', (int) $result['NewATMCRCErrors'], VARIABLETYPE_INTEGER);
         }
     }
 }

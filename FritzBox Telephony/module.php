@@ -37,7 +37,7 @@ class FritzBoxTelephony extends FritzBoxModulBase
         'urn:dslforum-org:service:X_VoIP:1'
     ];
 
-    protected static $SecondEventGUID = '{FE5B2BCA-CA0F-25DC-8E79-BDFD242CB06E}';
+    protected static $SecondEventGUID = \FritzBox\GUID::CallMonitorEvent;
     protected static $DefaultIndex = 0;
     public function Create()
     {
@@ -196,7 +196,7 @@ class FritzBoxTelephony extends FritzBoxModulBase
         if ($this->GetStatus() == IS_CREATING) {
             return json_encode($Form);
         }
-        if (!IPS_LibraryExists('{D0E8905A-F00C-EA84-D607-3D27000348D8}')) {
+        if (!IPS_LibraryExists(\FritzBox\GUID::CIRS)) {
             if (!$this->ReadPropertyBoolean('NotShowWarning')) {
                 $Form['elements'][4]['visible'] = true;
             }
@@ -886,7 +886,7 @@ class FritzBoxTelephony extends FritzBoxModulBase
         $this->SendDebug('Files', $Files, 0);
         $this->SendDataToParent(json_encode(
             [
-                'DataID'     => '{D62D4515-7689-D1DB-EE97-F555AD9433F0}',
+                'DataID'     => \FritzBox\GUID::SendToFritzBoxIO,
                 'Function'   => 'SetPhonebooks',
                 'Files'      => $Files
             ]

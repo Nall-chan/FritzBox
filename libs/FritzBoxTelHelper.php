@@ -67,7 +67,7 @@ trait TelHelper
     }
     protected function GetIconsList()
     {
-        $id = IPS_GetInstanceListByModuleID('{B69010EA-96D5-46DF-B885-24821B8C8DBD}')[0];
+        $id = IPS_GetInstanceListByModuleID(\FritzBox\GUID::UtilControl)[0];
         $Icons = [];
         $Icons[] = ['caption' => '<none>', 'value' => ''];
         foreach (UC_GetIconList($id) as $Icon) {
@@ -170,7 +170,7 @@ trait TelHelper
         $this->SendDebug('Function', 'SetPhoneDevices', 0);
         $Ret = $this->SendDataToParent(json_encode(
             [
-                'DataID'     => '{D62D4515-7689-D1DB-EE97-F555AD9433F0}',
+                'DataID'     => \FritzBox\GUID::SendToFritzBoxIO,
                 'Function'   => 'SetPhoneDevices',
                 'Devices'    => $PhoneDevices
             ]
@@ -191,7 +191,7 @@ trait TelHelper
         $this->SendDebug('Function', 'GetPhoneDevices', 0);
         $Ret = $this->SendDataToParent(json_encode(
             [
-                'DataID'     => '{D62D4515-7689-D1DB-EE97-F555AD9433F0}',
+                'DataID'     => \FritzBox\GUID::SendToFritzBoxIO,
                 'Function'   => 'GetPhoneDevice',
                 'DeviceID'   => $DeviceID
             ]
@@ -217,7 +217,7 @@ trait TelHelper
         $this->SendDebug('Function', 'GetPhoneDevices', 0);
         $Ret = $this->SendDataToParent(json_encode(
             [
-                'DataID'     => '{D62D4515-7689-D1DB-EE97-F555AD9433F0}',
+                'DataID'     => \FritzBox\GUID::SendToFritzBoxIO,
                 'Function'   => 'GetPhoneDevices'
             ]
         ));
@@ -236,7 +236,7 @@ trait TelHelper
         $this->SendDebug('Function', 'GetPhoneBookFiles', 0);
         $Ret = $this->SendDataToParent(json_encode(
             [
-                'DataID'     => '{D62D4515-7689-D1DB-EE97-F555AD9433F0}',
+                'DataID'     => \FritzBox\GUID::SendToFritzBoxIO,
                 'Function'   => 'GetPhonebooks'
             ]
         ));
@@ -255,7 +255,7 @@ trait TelHelper
         $this->SendDebug('Function', 'GetAreaCodes', 0);
         $Ret = $this->SendDataToParent(json_encode(
             [
-                'DataID'     => '{D62D4515-7689-D1DB-EE97-F555AD9433F0}',
+                'DataID'     => \FritzBox\GUID::SendToFritzBoxIO,
                 'Function'   => 'GetAreaCodes'
             ]
         ));

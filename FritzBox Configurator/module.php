@@ -19,7 +19,7 @@ require_once __DIR__ . '/../libs/FritzBoxModule.php';
             //Never delete this line!
             parent::Create();
             $this->ParentID = 0;
-            $this->ConnectParent('{6FF9A05D-4E49-4371-23F1-7F58283FB1D9}');
+            $this->ConnectParent(\FritzBox\GUID::FritzBoxIO);
         }
 
         public function Destroy()
@@ -52,7 +52,7 @@ require_once __DIR__ . '/../libs/FritzBoxModule.php';
             }
             $Ret = $this->SendDataToParent(json_encode(
                 [
-                    'DataID'     => '{D62D4515-7689-D1DB-EE97-F555AD9433F0}',
+                    'DataID'     => \FritzBox\GUID::SendToFritzBoxIO,
                     'Function'   => 'SCPD'
                 ]
             ));
@@ -128,7 +128,7 @@ require_once __DIR__ . '/../libs/FritzBoxModule.php';
                         $guid = key(\FritzBox\Services::$Data[$serviceType]);
                         if ($guid !== null) {
                             $index = \FritzBox\Services::$Data[$serviceType][$guid];
-                            if (($guid != '{9396D756-40EA-46C7-AA06-623B8DCB789B}') && ($index == 0) && ($Xml == 'igd2desc.xml')) {
+                            if (($guid != \FritzBox\GUID::WANPortMapping) && ($index == 0) && ($Xml == 'igd2desc.xml')) {
                                 $index++;
                             }
                             $AddService['type'] = $AddService['type'] . ' (' . $this->Translate(IPS_GetModule($guid)['ModuleName']) . ')';
@@ -172,7 +172,7 @@ require_once __DIR__ . '/../libs/FritzBoxModule.php';
             }
             $Ret = $this->SendDataToParent(json_encode(
                 [
-                    'DataID'     => '{D62D4515-7689-D1DB-EE97-F555AD9433F0}',
+                    'DataID'     => \FritzBox\GUID::SendToFritzBoxIO,
                     'Function'   => 'HasTel'
                 ]
             ));
@@ -184,7 +184,7 @@ require_once __DIR__ . '/../libs/FritzBoxModule.php';
                 } else {
                     $Ret = $this->SendDataToParent(json_encode(
                         [
-                            'DataID'     => '{D62D4515-7689-D1DB-EE97-F555AD9433F0}',
+                            'DataID'     => \FritzBox\GUID::SendToFritzBoxIO,
                             'Function'   => 'CallMonitorOpen'
                         ]
                     ));
@@ -197,8 +197,8 @@ require_once __DIR__ . '/../libs/FritzBoxModule.php';
                     $Form['actions'][1]['popup']['items'][1]['caption'] = "The call monitor is not activated on the FritzBox, or is blocked by something.\r\nDial #96*5* from a phone to activate the feature.";
                     $Form['actions'][1]['popup']['items'][1]['width'] = '400px';
                 }
-                $serviceType = 'callmonitor';
-                $guid = key(\FritzBox\Services::$Data[$serviceType]);
+                //$serviceType = 'callmonitor';
+                $guid = \FritzBox\GUID::CallMonitor; //key(\FritzBox\Services::$Data[$serviceType]);
                 $AddService = [
                     'url'             => '',
                     'event'           => '',
@@ -209,7 +209,7 @@ require_once __DIR__ . '/../libs/FritzBoxModule.php';
                         'location'      => [IPS_GetName($this->InstanceID)]
                     ]
                 ];
-                $Key = array_search(\FritzBox\Services::$Data[$serviceType], $KnownInstances);
+                $Key = array_search([\FritzBox\GUID::CallMonitor =>0], $KnownInstances);
                 if ($Key === false) {
                     $AddService['name'] = $this->Translate(IPS_GetModule($guid)['ModuleName']);
                     $AddService['instanceID'] = 0;
@@ -240,7 +240,7 @@ require_once __DIR__ . '/../libs/FritzBoxModule.php';
                 return false;
             }
             $Instance = IPS_GetInstance($InstanceID);
-            if ($Instance['ModuleInfo']['ModuleID'] == '{822E981D-9195-4AA7-821A-36BB1E63F993}') {
+            if ($Instance['ModuleInfo']['ModuleID'] == \FritzBox\GUID::HomeautomationDevice) {
                 return false;
             }
             return $Instance['ConnectionID'] == $this->ParentID;

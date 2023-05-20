@@ -35,22 +35,26 @@ Feldtest nötig:
 
  HTML-Tabelle fehlt:
  - File Share
-
+ - NAS
+  
  Aktionen fehlen bei folgenden Instanzen:
  - IO (+ Device Config Instanz ?) für Aktion Reboot
  - WebDav Client
  
  
 Unfertig / Fehlen:
+- WAN DSL Interface (urn:dslforum-org:service:WANDSLInterfaceConfig:1 / https://avm.de/fileadmin/user_upload/Global/Service/Schnittstellen/wandslifconfigSCPD.pdf)
 - Dect (fehlt komplett)
 - Anrufbeantworter (fehlt komplett)
 - Wählhilfe (fehlt in Telefonie, Realisierbarkeit noch nicht getestet)
 - Aktionen prüfen, vervollständigen
 - Übersetzung MyFritz fehlt.
-
+- File Share
+  
 Später/Sonstiges:
 - Filter bei den SmartHome Geräten.
 - Parameter für die initiale Sortierung der HTML-Tabellen der WLAN-Instanzen und der Host-Instanz fehlt.
+✅ Instanz WAN DSL-Verbindung liefer weitere Werte  (z.B. die CRCErrors)
 ✅ Discovery-Instanz funktioniert unter Linux-OS wieder.  
 ✅ Fehlte ein Eintrag in der Host-Tabelle der FritzBox und war das automatische umbenennen von Host-Variablen in einer WLAN-Instanz aktiv, so konnte der Name der Variable gelöscht werden und wurde als unnamed Object angezeigt.  
 ✅ UpnP Unsubscribe ergänzt für das korrekte Abmelden von Events an der FritzBox.  

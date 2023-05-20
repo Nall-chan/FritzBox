@@ -32,7 +32,7 @@ class FritzBoxCallmonitor extends FritzBoxModulBase
         'urn:dslforum-org:service:X_AVM-DE_OnTel:1'
     ];
 
-    protected static $SecondEventGUID = '{FE5B2BCA-CA0F-25DC-8E79-BDFD242CB06E}';
+    protected static $SecondEventGUID = \FritzBox\GUID::CallMonitorEvent;
     protected static $DefaultIndex = 0;
 
     public function Create()
@@ -172,7 +172,7 @@ class FritzBoxCallmonitor extends FritzBoxModulBase
             $Form['actions'][2]['popup']['items'][0]['caption'] = 'Areacode not found!';
             $Form['actions'][2]['popup']['items'][1]['caption'] = "The area code could not be determined automatically.\r\nPlease specify manually.";
         }
-        if (!IPS_LibraryExists('{D0E8905A-F00C-EA84-D607-3D27000348D8}')) {
+        if (!IPS_LibraryExists(\FritzBox\GUID::CIRS)) {
             if (!$this->ReadPropertyBoolean('NotShowWarning')) {
                 $Form['elements'][5]['visible'] = true;
             }

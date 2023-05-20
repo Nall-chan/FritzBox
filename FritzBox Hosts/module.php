@@ -21,7 +21,7 @@ class FritzBoxHosts extends FritzBoxModulBase
     protected static $ServiceTypeArray = [
         'urn:dslforum-org:service:Hosts:1'
     ];
-    protected static $SecondEventGUID = '{3C010D20-02A3-413A-9C5E-D0747D61BEF0}';
+    protected static $SecondEventGUID = \FritzBox\GUID::RefreshHostListRequest;
     protected static $DefaultIndex = 0;
     public function Create()
     {
@@ -206,10 +206,10 @@ class FritzBoxHosts extends FritzBoxModulBase
         if ($data['Function'] == 'RefreshHostList') {
             $File = $this->GetHostListPath();
             if ($File === false) {
-                return false;
+                return '';
             }
             if (!$this->LoadAndSaveFile($File, 'Hosts')) {
-                return false;
+                return '';
             }
         }
         return 'OK';
@@ -231,7 +231,7 @@ class FritzBoxHosts extends FritzBoxModulBase
         $this->SendDebug('Fire', 'NewHostListEvent', 0);
         $this->SendDataToParent(json_encode(
             [
-                'DataID'     => '{D62D4515-7689-D1DB-EE97-F555AD9433F0}',
+                'DataID'     => \FritzBox\GUID::SendToFritzBoxIO,
                 'Function'   => 'NewHostListEvent'
             ]
         ));

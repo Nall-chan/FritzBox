@@ -33,7 +33,7 @@ class FritzBoxWLAN extends FritzBoxModulBase
         'urn:dslforum-org:service:WLANConfiguration:2',
         'urn:dslforum-org:service:WLANConfiguration:3'
     ];
-    protected static $SecondEventGUID = '{FE6C73CB-028B-F569-46AC-3C02FF1F8F2F}';
+    protected static $SecondEventGUID = \FritzBox\GUID::NewHostListEvent;
 
     public function Create()
     {
@@ -877,7 +877,7 @@ class FritzBoxWLAN extends FritzBoxModulBase
     {
         $result = $this->SendDataToParent(json_encode(
             [
-                'DataID'     => '{D62D4515-7689-D1DB-EE97-F555AD9433F0}',
+                'DataID'     => \FritzBox\GUID::SendToFritzBoxIO,
                 'Function'   => 'GetMaxWLANs'
             ]
         ));
@@ -889,7 +889,7 @@ class FritzBoxWLAN extends FritzBoxModulBase
             $Index = $Options[$i]['value'];
             $result = $this->SendDataToParent(json_encode(
                 [
-                    'DataID'    => '{D62D4515-7689-D1DB-EE97-F555AD9433F0}',
+                    'DataID'    => \FritzBox\GUID::SendToFritzBoxIO,
                     'ServiceTyp'=> static::$ServiceTypeArray[$Index],
                     'ControlUrl'=> static::$ControlUrlArray[$Index],
                     'Function'  => 'X_AVM-DE_GetWLANExtInfo',
@@ -906,7 +906,7 @@ class FritzBoxWLAN extends FritzBoxModulBase
             }
             $result = $this->SendDataToParent(json_encode(
                 [
-                    'DataID'    => '{D62D4515-7689-D1DB-EE97-F555AD9433F0}',
+                    'DataID'    => \FritzBox\GUID::SendToFritzBoxIO,
                     'ServiceTyp'=> static::$ServiceTypeArray[$Index],
                     'ControlUrl'=> static::$ControlUrlArray[$Index],
                     'Function'  => 'GetInfo',

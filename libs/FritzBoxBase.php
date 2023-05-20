@@ -6,7 +6,7 @@ eval('declare(strict_types=1);namespace FritzBoxModulBase {?>' . file_get_conten
 eval('declare(strict_types=1);namespace FritzBoxModulBase {?>' . file_get_contents(__DIR__ . '/../libs/helper/VariableProfileHelper.php') . '}');
 eval('declare(strict_types=1);namespace FritzBoxModulBase {?>' . file_get_contents(__DIR__ . '/../libs/helper/DebugHelper.php') . '}');
 eval('declare(strict_types=1);namespace FritzBoxModulBase {?>' . file_get_contents(__DIR__ . '/../libs/helper/ParentIOHelper.php') . '}');
-
+require_once __DIR__ . '/../libs/FritzBoxModule.php';
 /**
  * @property string $SID
  * @property bool $isSubscribed
@@ -40,7 +40,7 @@ class FritzBoxModulBase extends IPSModule
         parent::Create();
         $this->SID = '';
         $this->ParentID = 0;
-        $this->ConnectParent('{6FF9A05D-4E49-4371-23F1-7F58283FB1D9}');
+        $this->ConnectParent(\FritzBox\GUID::FritzBoxIO);
         if (count(static::$EventSubURLArray) > 0) {
             $this->RegisterTimer('RenewSubscription', 0, 'IPS_RequestAction(' . $this->InstanceID . ',"Subscribe",true);');
         }
@@ -138,7 +138,7 @@ class FritzBoxModulBase extends IPSModule
     public function ReceiveData($JSONString)
     {
         $data = json_decode($JSONString, true);
-        if ($data['DataID'] == '{CBD869A0-869B-3D4C-7EA8-D917D935E647}') {
+        if ($data['DataID'] == \FritzBox\GUID::SendEventToChildren) {
             unset($data['DataID']);
             if (!array_key_exists('EventData', $data)) {
                 return false;
@@ -223,7 +223,7 @@ class FritzBoxModulBase extends IPSModule
         $this->SendDebug('Subscribe', $this->SID, 0);
         $Ret = $this->SendDataToParent(json_encode(
             [
-                'DataID'     => '{D62D4515-7689-D1DB-EE97-F555AD9433F0}',
+                'DataID'     => \FritzBox\GUID::SendToFritzBoxIO,
                 'Function'   => 'SUBSCRIBE',
                 'EventSubURL'=> static::$EventSubURLArray[$Index],
                 'SID'        => $this->SID
@@ -274,7 +274,7 @@ class FritzBoxModulBase extends IPSModule
         $this->SendDebug('RefreshHostList', '', 0);
         $Ret = $this->SendDataToParent(json_encode(
             [
-                'DataID'     => '{D62D4515-7689-D1DB-EE97-F555AD9433F0}',
+                'DataID'     => \FritzBox\GUID::SendToFritzBoxIO,
                 'Function'   => 'RefreshHostList'
             ]
         ));
@@ -286,7 +286,7 @@ class FritzBoxModulBase extends IPSModule
     }
     protected function GetConfiguratorID()
     {
-        $GUID = '{32CF40DC-51DA-6C63-8BD7-55E82F64B9E7}';
+        $GUID = \FritzBox\GUID::Configurator;
         $Instances = IPS_GetInstanceListByModuleID($GUID);
         $AllInstancesOfParent = array_filter($Instances, [$this, 'FilterInstances']);
         if (count($AllInstancesOfParent) > 0) {
@@ -310,7 +310,7 @@ class FritzBoxModulBase extends IPSModule
         $this->SendDebug('Filename', $Filename, 0);
         $Ret = $this->SendDataToParent(json_encode(
             [
-                'DataID'     => '{D62D4515-7689-D1DB-EE97-F555AD9433F0}',
+                'DataID'     => \FritzBox\GUID::SendToFritzBoxIO,
                 'Function'   => ($Filename == '' ? 'LoadAndGetData' : 'LoadAndSaveFile'),
                 'Uri'        => $Uri,
                 'Filename'   => $Filename
@@ -332,7 +332,7 @@ class FritzBoxModulBase extends IPSModule
         $this->SendDebug('Filename', $Filename, 0);
         $Ret = $this->SendDataToParent(json_encode(
             [
-                'DataID'     => '{D62D4515-7689-D1DB-EE97-F555AD9433F0}',
+                'DataID'     => \FritzBox\GUID::SendToFritzBoxIO,
                 'Function'   => 'GetFile',
                 'Filename'   => $Filename
             ]
@@ -369,7 +369,7 @@ class FritzBoxModulBase extends IPSModule
         $this->SendDebug('Params', $Parameter, 0);
         $Ret = $this->SendDataToParent(json_encode(
             [
-                'DataID'    => '{D62D4515-7689-D1DB-EE97-F555AD9433F0}',
+                'DataID'    => \FritzBox\GUID::SendToFritzBoxIO,
                 'ServiceTyp'=> static::$ServiceTypeArray[$Index],
                 'ControlUrl'=> static::$ControlUrlArray[$Index],
                 'Function'  => $Function,
@@ -595,7 +595,7 @@ class FritzBoxModulBase extends IPSModule
 
         $Ret = @$this->SendDataToParent(json_encode(
             [
-                'DataID'     => '{D62D4515-7689-D1DB-EE97-F555AD9433F0}',
+                'DataID'     => \FritzBox\GUID::SendToFritzBoxIO,
                 'Function'   => 'UNSUBSCRIBE',
                 'EventSubURL'=> static::$EventSubURLArray[$Index],
                 'SID'        => $SID

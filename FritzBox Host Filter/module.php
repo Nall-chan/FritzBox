@@ -17,7 +17,7 @@ class FritzBoxHostFilter extends FritzBoxModulBase
     protected static $ServiceTypeArray = [
         'urn:dslforum-org:service:X_AVM-DE_HostFilter:1'
     ];
-    protected static $SecondEventGUID = '{FE6C73CB-028B-F569-46AC-3C02FF1F8F2F}';
+    protected static $SecondEventGUID = \FritzBox\GUID::NewHostListEvent;
     protected static $DefaultIndex = 0;
     public function Create()
     {

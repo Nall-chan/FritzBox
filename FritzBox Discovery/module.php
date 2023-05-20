@@ -58,7 +58,7 @@ class FritzBoxDiscovery extends IPSModule
             return json_encode($Form);
         }
         $Devices = $this->Discover();
-        $InstanceIDListConfigurators = IPS_GetInstanceListByModuleID('{32CF40DC-51DA-6C63-8BD7-55E82F64B9E7}');
+        $InstanceIDListConfigurators = IPS_GetInstanceListByModuleID(\FritzBox\GUID::Configurator);
         $DevicesAddress = [];
         $DeviceValues = [];
         foreach ($InstanceIDListConfigurators as $InstanceIDConfigurator) {
@@ -86,34 +86,33 @@ class FritzBoxDiscovery extends IPSModule
                     unset($DevicesAddress[$InstanceIDConfigurator]);
                 }
 
-            
                 $AddDevice['create']['https://' . $Host] = [
-                [
-                    'moduleID'      => '{32CF40DC-51DA-6C63-8BD7-55E82F64B9E7}',
-                    'configuration' => new stdClass()
-                ],
-                [
-                    'moduleID'      => '{6FF9A05D-4E49-4371-23F1-7F58283FB1D9}',
-                    'configuration' => [
-                        'Host'     => 'https://' .
-                        $Host
+                    [
+                        'moduleID'      => \FritzBox\GUID::Configurator,
+                        'configuration' => new stdClass()
+                    ],
+                    [
+                        'moduleID'      => \FritzBox\GUID::FritzBoxIO,
+                        'configuration' => [
+                            'Host'     => 'https://' .
+                            $Host
+                        ]
                     ]
-                ]
-            ];
+                ];
                 $AddDevice['create']['http://' . $Host] = [
-                [
-                    'moduleID'      => '{32CF40DC-51DA-6C63-8BD7-55E82F64B9E7}',
-                    'configuration' => new stdClass()
-                ],
-                [
-                    'moduleID'      => '{6FF9A05D-4E49-4371-23F1-7F58283FB1D9}',
-                    'configuration' => [
-                        'Host'     => 'http://' .
-                        $Host
+                    [
+                        'moduleID'      => \FritzBox\GUID::Configurator,
+                        'configuration' => new stdClass()
+                    ],
+                    [
+                        'moduleID'      => \FritzBox\GUID::FritzBoxIO,
+                        'configuration' => [
+                            'Host'     => 'http://' .
+                            $Host
+                        ]
                     ]
-                ]
 
-            ];
+                ];
             }
             $DeviceValues[] = $AddDevice;
         }
