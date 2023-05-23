@@ -3,7 +3,7 @@
 declare(strict_types=1);
 
 eval('declare(strict_types=1);namespace FritzBoxDiscovery {?>' . file_get_contents(__DIR__ . '/../libs/helper/DebugHelper.php') . '}');
-
+require_once __DIR__ . '/../libs/FritzBoxModule.php';
 /**
  * @method bool SendDebug(string $Message, mixed $Data, int $Format)
  */
