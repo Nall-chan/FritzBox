@@ -1,5 +1,5 @@
 [![SDK](https://img.shields.io/badge/Symcon-PHPModul-red.svg)](https://www.symcon.de/service/dokumentation/entwicklerbereich/sdk-tools/sdk-php/)
-[![Version](https://img.shields.io/badge/Modul%20version-0.78-blue.svg)]()
+[![Version](https://img.shields.io/badge/Modul%20version-0.79-blue.svg)]()
 [![Version](https://img.shields.io/badge/Symcon%20Version-6.0%20%3E-green.svg)](https://community.symcon.de/t/ip-symcon-6-0-testing/44478)  
 [![License](https://img.shields.io/badge/License-CC%20BY--NC--SA%204.0-green.svg)](https://creativecommons.org/licenses/by-nc-sa/4.0/)
 [![Check Style](https://github.com/Nall-chan/FritzBox/workflows/Check%20Style/badge.svg)](https://github.com/Nall-chan/FritzBox/actions) [![Run Tests](https://github.com/Nall-chan/FritzBox/workflows/Run%20Tests/badge.svg)](https://github.com/Nall-chan/FritzBox/actions)  
@@ -146,13 +146,20 @@ Für das Discovery werden Pakete über die Multicast-Adresse `239.255.255.250` a
 
 ## Changelog
 
+Version 0.79:  
+- WAN DSL-Verbindung funktionierte in 0.78 nicht mehr, Änderungen aktuell zurückgenommen.  
+- SOAP Fehler mit PHP 8.2 (Symcon 7.0) behoben.  
+- Dynamisches Konfigurationsformular im Anrufmonitor ergänzt.  
+- Discovery-Instanz unterscheidet nicht mehr bei Groß/Kleinschreibung von Hostnamen.  
+- Umbenennen von Host-Variablen in einer WLAN-Instanz konnte zu Fehlern führen.  
+
 Version 0.78:  
-- Instanz WAN DSL-Verbindung liefer weitere Werte  (z.B. die CRCErrors).  
-- Port Forwarding hat die eigene PublicIP bei NAT nicht berücksichtigt.  
-- Port Forwarding hat Netzwerke mit 2 Ziffern im ersten Octet (z.B. 10.x.y.z) nicht unterstützt.  
+- <s>Instanz WAN DSL-Verbindung liefert weitere Werte  (z.B. die CRCErrors).</s>  
+- Instanz Port-Weiterleitung hat die eigene PublicIP bei NAT nicht berücksichtigt.  
+- Instanz Port-Weiterleitung hat Netzwerke mit 2 Ziffern im ersten Octet (z.B. 10.x.y.z) nicht unterstützt.  
 - UpnP Unsubscribe ergänzt für das korrekte Abmelden von Events an der FritzBox. (Sollte den HTTP 412 Precondition Failed Fehler beheben.)  
-- Fehlte ein Eintrag in der Host-Tabelle der FritzBox und war das automatische umbenennen von Host-Variablen in einer WLAN-Instanz aktiv, so konnte der Name der Variable gelöscht werden und wurde als unnamed Object angezeigt.  
-- Discovery-Instanz funktioniert unter Linux-OS wieder.  
+- Fehlte ein Eintrag in der Host-Tabelle der FritzBox **und** war das automatische umbenennen von Host-Variablen in einer WLAN-Instanz aktiv, so wurde der Name der Variable gelöscht werden und wurde als unnamed Object angezeigt.  
+- Discovery-Instanz funktioniert unter Linux-OS wieder. 
 
 Version 0.77:  
 - Vorhandene WAN DSL-Verbindung Instanz wurde im Konfigurator nicht korrekt erkannt.  

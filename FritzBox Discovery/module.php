@@ -323,11 +323,11 @@ class FritzBoxDiscovery extends IPSModule
     {
         if (array_key_exists($USN, $DevicesData)) {
             if (!in_array($Host, $DevicesData[$USN]['Hosts'])) {
-                $DevicesData[$USN]['Hosts'][$Index] = $Host;
+                $DevicesData[$USN]['Hosts'][$Index] = strtolower($Host);
             }
         } else {
             $DevicesData[$USN]['Server'] = $Server;
-            $DevicesData[$USN]['Hosts'][$Index] = $Host;
+            $DevicesData[$USN]['Hosts'][$Index] = strtolower($Host);
         }
     }
 }

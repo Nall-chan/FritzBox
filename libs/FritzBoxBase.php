@@ -12,7 +12,7 @@ require_once __DIR__ . '/../libs/FritzBoxModule.php';
  * @property bool $isSubscribed
  * @property int ParentID
  * @method bool SendDebug(string $Message, mixed $Data, int $Format)
- * @method void RegisterParent()
+ * @method int RegisterParent()
  * @method void UnregisterProfile(string $Name)
  * @method void RegisterProfileBooleanEx(string $Name, string $Icon, string $Prefix, string $Suffix, array $Associations)
  * @method void RegisterProfileInteger(string $Name, string $Icon, string $Prefix, string $Suffix, int $MinValue, int $MaxValue, int $StepSize)

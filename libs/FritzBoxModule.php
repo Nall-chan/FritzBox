@@ -72,6 +72,7 @@ class Services
         'urn:dslforum-org:service:UserInterface:1'               => [GUID::FirmwareInfo=>0], // Firmware
         'callmonitor'                                            => [GUID::CallMonitor=>0], // Anrufmonitor
         'urn:schemas-upnp-org:service:WANDSLLinkConfig:1'        => [GUID::WANDSLLink=>0],
+        //'urn:dslforum-org:service:WANDSLLinkConfig:1'            => [], // unnötig? DSL Daten?
         //'urn:dslforum-org:service:WANDSLInterfaceConfig:1'       => [], // später, zusätzlich zu WANDSLLinkConfig
         'urn:dslforum-org:service:WANCommonInterfaceConfig:1'    => [GUID::WANPhysicalInterface=>0],
         //todo (jetzt)
@@ -86,7 +87,6 @@ class Services
         //'urn:dslforum-org:service:DeviceConfig:1'                => [], // im IO Enthalten -> ausbauen?
         //'urn:dslforum-org:service:LANEthernetInterfaceConfig:1'  => [], // Statistik, unnötig?
         //'urn:dslforum-org:service:WANEthernetLinkConfig:1'       => [], // unnötig?
-        //'urn:dslforum-org:service:WANDSLLinkConfig:1'            => [], // unnötig? DSL Daten?
         //'urn:dslforum-org:service:X_AVM-DE_Speedtest:1'          => [], // unnötig
         //'urn:dslforum-org:service:X_AVM-DE_Auth:1'               => [], // unnötig
         //'urn:dslforum-org:service:ManagementServer:1'            => [], // unnötig

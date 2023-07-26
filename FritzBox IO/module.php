@@ -68,14 +68,12 @@ class FritzBoxIO extends IPSModule
         if (IPS_GetKernelRunlevel() == KR_READY) {
             $this->ForceLoadXML = true;
             $this->RegisterMessage($this->InstanceID, FM_CHILDADDED);
-            @mkdir(IPS_GetKErnelDir() . 'FritzBoxTemp');
-            @mkdir(IPS_GetKErnelDir() . 'FritzBoxTemp/' . $this->InstanceID);
+            $this->CreateTempDir();
         } else {
             $this->RegisterMessage(0, IPS_KERNELMESSAGE);
             $this->ForceLoadXML = false;
         }
     }
-
     public function Destroy()
     {
         if (!IPS_InstanceExists($this->InstanceID)) {
@@ -359,6 +357,15 @@ class FritzBoxIO extends IPSModule
             )
         );
     }
+    private function CreateTempDir()
+    {
+        if (!is_dir(IPS_GetKErnelDir() . 'FritzBoxTemp')) {
+            @mkdir(IPS_GetKErnelDir() . 'FritzBoxTemp');
+        }
+        if (!is_dir(IPS_GetKErnelDir() . 'FritzBoxTemp/' . $this->InstanceID)) {
+            @mkdir(IPS_GetKErnelDir() . 'FritzBoxTemp/' . $this->InstanceID);
+        }
+    }
     private function CreateCallMonitorCS()
     {
         if (IPS_GetInstance($this->InstanceID)['ConnectionID'] != 0) {
@@ -454,6 +461,7 @@ class FritzBoxIO extends IPSModule
 
     private function LoadXmls()
     {
+        $this->CreateTempDir();
         @array_map('unlink', glob(IPS_GetKErnelDir() . 'FritzBoxTemp/' . $this->InstanceID . '/*.xml'));
         $Url = $this->Url;
         $Xmls = ['tr64desc.xml', 'igd2desc.xml', 'igddesc.xml'];
@@ -729,7 +737,6 @@ class FritzBoxIO extends IPSModule
             'noroot'                 => true,
             'trace'                  => true,
             'exceptions'             => true,
-            'ssl_method'             => SOAP_SSL_METHOD_TLS,
             'soap_version'           => SOAP_1_1,
             'connection_timeout'     => 10,
             'default_socket_timeout' => 10,

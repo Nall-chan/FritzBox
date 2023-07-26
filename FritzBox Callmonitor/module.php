@@ -156,6 +156,19 @@ class FritzBoxCallmonitor extends FritzBoxModulBase
                     $this->UpdateFormField('UnknownNumberName', 'enabled', true);
                 }
                 return;
+            case 'CallsAsNotification':
+                $this->UpdateFormField('NotificationPanel', 'expanded', $Value);
+                $this->UpdateFormField('Targets', 'enabled', $Value);
+                $this->UpdateFormField('Notification', 'enabled', $Value);
+                return;
+            case 'CallsAsTable':
+                $this->UpdateFormField('Icons', 'enabled', $Value);
+                $this->UpdateFormField('ShowImage', 'enabled', $Value);
+                $this->UpdateFormField('Table', 'enabled', $Value);
+                $this->UpdateFormField('Columns', 'enabled', $Value);
+                $this->UpdateFormField('Rows', 'enabled', $Value);
+                $this->UpdateFormField('HTMLExpansionPanel', 'expanded', $Value);
+                return;
             }
         trigger_error($this->Translate('Invalid Ident.'), E_USER_NOTICE);
         return false;

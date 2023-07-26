@@ -99,10 +99,12 @@
                     "name": "CallsAsNotification",
                     "type": "CheckBox",
                     "caption": "Send notification",
+                    "onChange": "IPS_RequestAction($id,'CallsAsNotification',$CallsAsNotification);",
                     "width": "300px"
                 },
                 {
                     "type": "ExpansionPanel",
+                    "name": "NotificationPanel",
                     "caption": "WebFront Notification",
                     "width": "auto",
                     "items": [
@@ -231,11 +233,13 @@
                     "name": "CallsAsTable",
                     "type": "CheckBox",
                     "caption": "Show all calls as HTML-Table",
+                    "onChange": "IPS_RequestAction($id,'CallsAsTable',$CallsAsTable);",
                     "width": "300px"
                 },
                 {
                     "type": "ExpansionPanel",
                     "caption": "HTML-Table design",
+                    "name": "HTMLExpansionPanel",
                     "items": [
                         {
                             "type": "RowLayout",
