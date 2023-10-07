@@ -109,6 +109,11 @@ trait TelHelper
                 if ($CountryCode != '') {
                     $SerachNumbers[] = $CountryCode . substr($Number, 1);
                 }
+                if ($AreaCode != '') {
+                    if (strpos($Number, $AreaCode) === 0) {
+                        $SerachNumbers[] = substr($Number, strlen($AreaCode));
+                    }
+                }
                 break;
             default:
                 if ($AreaCode != '') {

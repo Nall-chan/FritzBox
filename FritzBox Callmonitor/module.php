@@ -16,13 +16,13 @@ class FritzBoxCallmonitor extends FritzBoxModulBase
     use \FritzBoxModul\HTMLTable;
     use \FritzBoxModul\TelHelper;
     use \FritzBoxCallmonitor\Semaphore;
-    const Call_Incoming = 1;
-    const Call_Outgoing = 2;
-    const Connected_Incoming = 3;
-    const Connected_Outgoing = 4;
-    const Disconnect_Incoming = 5;
-    const Disconnect_Outgoing = 6;
-    const FoundMarker = 20;
+    public const Call_Incoming = 1;
+    public const Call_Outgoing = 2;
+    public const Connected_Incoming = 3;
+    public const Connected_Outgoing = 4;
+    public const Disconnect_Incoming = 5;
+    public const Disconnect_Outgoing = 6;
+    public const FoundMarker = 20;
 
     protected static $ControlUrlArray = [
         '/upnp/control/x_contact'
@@ -169,7 +169,7 @@ class FritzBoxCallmonitor extends FritzBoxModulBase
                 $this->UpdateFormField('Rows', 'enabled', $Value);
                 $this->UpdateFormField('HTMLExpansionPanel', 'expanded', $Value);
                 return;
-            }
+        }
         trigger_error($this->Translate('Invalid Ident.'), E_USER_NOTICE);
         return false;
     }
