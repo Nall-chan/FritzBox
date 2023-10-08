@@ -36,7 +36,7 @@ Es wird dringend empfohlen vor der Integration in IPS folgende Parameter in der 
 
 - Zugangsdaten einen Benutzers  
 - Berechtigung der Zugangsdaten  
-- Anrufmonitor, sofern gewünscht, per Telefon aktivieren. (#96*5* wählen)  
+- Anrufmonitor, sofern gewünscht, per Telefon aktivieren. (`#96*5* wählen`)  
 ...
 
 ----------

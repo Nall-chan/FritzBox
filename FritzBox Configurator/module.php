@@ -179,7 +179,8 @@ class FritzBoxConfigurator extends IPSModule
         $HasTel = unserialize($Ret);
         $this->SendDebug('HasTel', $HasTel, 0);
         if ($HasTel) {
-            if (IPS_GetInstance($this->ParentID)['ConnectionID'] > 1) {
+            $CS = IPS_GetInstance($this->ParentID)['ConnectionID'];
+            if ($CS > 1 && (IPS_GetInstance($CS)['InstanceStatus'] == IS_ACTIVE)) {
                 $CallMonitorOpen = true;
             } else {
                 $Ret = $this->SendDataToParent(json_encode(
