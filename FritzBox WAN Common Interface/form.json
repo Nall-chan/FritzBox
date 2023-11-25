@@ -29,7 +29,7 @@
         {
             "name": "RefreshLinkPropertiesInterval",
             "type": "NumberSpinner",
-            "caption": "Refresh Interval Link Properties",
+            "caption": "Refresh Linkstate Interval",
             "suffix": "seconds",
             "minimum": 60
         }
@@ -42,7 +42,7 @@
         },
         {
             "type": "Button",
-            "caption": "Update Values",
+            "caption": "Update Linkstate",
             "onClick": "IPS_RequestAction($id,'RefreshLinkProperties',true);"
         },
         {

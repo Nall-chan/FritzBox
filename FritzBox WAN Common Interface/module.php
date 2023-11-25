@@ -38,7 +38,7 @@ class FritzBoxWANCommonInterface extends FritzBoxModulBase
             $this->UnregisterProfile('FB.Speed');
             $this->UnregisterProfile('FB.MByte');
             $this->UnregisterProfile('FB.kbs');
-            $this->UnregisterProfile('FB.AccessType');
+            $this->UnregisterProfile('FB.AvmAccessType');
         }
         //Never delete this line!
         parent::Destroy();
@@ -51,14 +51,18 @@ class FritzBoxWANCommonInterface extends FritzBoxModulBase
         $this->RegisterProfileFloat('FB.Speed', '', '', '%', 0, 100, 0, 2);
         $this->RegisterProfileFloat('FB.MByte', '', '', ' MB', 0, 0, 0, 2);
         $this->RegisterProfileFloat('FB.kbs', '', '', ' kb/s', 0, 0, 0, 2);
-        $this->RegisterProfileStringEx('FB.AccessType', '', '', '', [
+        $this->RegisterProfileStringEx('FB.AvmAccessType', '', '', '', [
             ['DSL', 'DSL', '', -1],
-            ['Ethernet', 'Ethernet', '', -1],
-            ['X_AVM-DE_Fiber', 'Fiber', '', -1],
-            ['X_AVMDE_UMTS', 'UMTS', '', -1],
-            ['X_AVM-DE_Cable', 'Cable', '', -1],
-            ['X_AVM-DE_LTE', 'LTE', '', -1],
-            ['unknown', 'unknown', '', -1]
+            ['ATA', 'ATA', '', -1],
+            ['USB-Tethering', 'USB-Tethering', '', -1],
+            ['Cable', 'Cable', '', -1],
+            ['LTE', 'LTE', '', -1],
+            ['Serial', 'Serial', '', -1],
+            ['WLAN', 'WLAN', '', -1],
+            ['ISDN', 'ISDN', '', -1],
+            ['IP-Client', 'IP-Client', '', -1],
+            ['Fiber', 'Fiber', '', -1],
+            ['Other', 'Other', '', -1]
         ]);
         parent::ApplyChanges();
 
@@ -82,7 +86,6 @@ class FritzBoxWANCommonInterface extends FritzBoxModulBase
         switch ($Ident) {
             case 'RefreshInfo':
                 return $this->UpdateAddonInfos();
-
             case 'RefreshLinkProperties':
                 return $this->UpdateCommonLinkProperties();
         }
@@ -172,7 +175,7 @@ class FritzBoxWANCommonInterface extends FritzBoxModulBase
             return false;
         }
 
-        $this->setIPSVariable('WANAccessType', 'WAN Access type', (string) $result['NewWANAccessType'], VARIABLETYPE_STRING, 'FB.AccessType');
+        //$this->setIPSVariable('WANAccessType', 'WAN Access type', (string) $result['NewWANAccessType'], VARIABLETYPE_STRING, 'FB.AccessType');
         $this->setIPSVariable('PhysicalLinkStatus', 'Physical Link Status', (string) $result['NewPhysicalLinkStatus'], VARIABLETYPE_STRING);
         $Downstream = (int) ((int) $result['NewLayer1DownstreamMaxBitRate'] / 1000);
         $Upstream = (int) ((int) $result['NewLayer1UpstreamMaxBitRate'] / 1000);
@@ -189,7 +192,6 @@ NewX_AVM-DE_UpstreamCurrentMaxSpeed out X_AVM-DE_UpstreamCurrentMaxSpeed
         return true;
     }
     /* todo
-    function AVM-DE_SetWANAccessType
     function X_AVM-DE_GetActiveProvider
      */
     private function UpdateAddonInfos()
@@ -228,7 +230,7 @@ NewX_AVM-DE_UpstreamCurrentMaxSpeed out X_AVM-DE_UpstreamCurrentMaxSpeed
             $this->setIPSVariable('DNSServer2', 'DNS-Server 2', (string) $result['NewDNSServer2'], VARIABLETYPE_STRING);
         }
         if (array_key_exists('NewX_AVM_DE_WANAccessType', $result)) {
-            $this->setIPSVariable('WANAccessType', 'WAN Access type', (string) $result['NewX_AVM_DE_WANAccessType'], VARIABLETYPE_STRING);
+            $this->setIPSVariable('WANAccessType', 'WAN Access type', (string) $result['NewX_AVM_DE_WANAccessType'], VARIABLETYPE_STRING, 'FB.AvmAccessType');
         }
         if (array_key_exists('NewVoipDNSServer1', $result)) {
             $this->setIPSVariable('VoipDNSServer1', 'VoIP DNS-Server 1', (string) $result['NewVoipDNSServer1'], VARIABLETYPE_STRING);
