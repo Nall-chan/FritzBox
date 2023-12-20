@@ -7,7 +7,7 @@
 [![Wunschliste](https://img.shields.io/badge/Wunschliste-Amazon-ff69fb.svg)](#2-spenden)  
 
 # FritzBox Konfigurator <!-- omit in toc -->
-Beschreibung des Moduls.
+Konfigurator zum Anlegen von weiteren Instanzen.  
 
 ### Inhaltsverzeichnis <!-- omit in toc -->
 
@@ -28,7 +28,8 @@ Beschreibung des Moduls.
 
 ## 1. Funktionsumfang
 
-*
+* Ermittelt alle Dienste der FritzBox.
+* Ermöglicht das anlegen von Instanzen für unterstützte Dienste.
 
 ## 2. Voraussetzungen
 

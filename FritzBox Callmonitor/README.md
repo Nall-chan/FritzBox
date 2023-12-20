@@ -7,7 +7,7 @@
 [![Wunschliste](https://img.shields.io/badge/Wunschliste-Amazon-ff69fb.svg)](#2-spenden)  
 
 # FritzBox Callmonitor <!-- omit in toc -->
-Anrufmonitor welcher ankommenden und abgehenden Anrufen erkennt.
+Anrufmonitor welcher ankommenden und abgehenden Anrufen erkennt.  
 
 ### Inhaltsverzeichnis <!-- omit in toc -->
 

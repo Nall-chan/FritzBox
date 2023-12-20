@@ -7,7 +7,7 @@
 [![Wunschliste](https://img.shields.io/badge/Wunschliste-Amazon-ff69fb.svg)](#2-spenden)  
 
 # FritzBox Geräte Informationen <!-- omit in toc -->
-Beschreibung des Moduls.
+Allgemeine Geräte Informationen abrufen.  
 
 ### Inhaltsverzeichnis <!-- omit in toc -->
 
@@ -28,6 +28,7 @@ Beschreibung des Moduls.
 
 ## 1. Funktionsumfang
 
+* Auslesen und abbilden allgemeiner Informationen zur FritzBox in Symcon Variablen.
 * Alte Variablen vom FB-Project sind **nicht** kompatibel.
 
 ## 2. Voraussetzungen

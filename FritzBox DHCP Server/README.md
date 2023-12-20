@@ -1,12 +1,13 @@
 [![SDK](https://img.shields.io/badge/Symcon-PHPModul-red.svg)](https://www.symcon.de/service/dokumentation/entwicklerbereich/sdk-tools/sdk-php/)
-[![Version](https://img.shields.io/badge/Modul%20version-0.79-blue.svg)]()
+[![Version](https://img.shields.io/badge/Modul%20version-0.80-blue.svg)]()
 [![Version](https://img.shields.io/badge/Symcon%20Version-6.0%20%3E-green.svg)](https://community.symcon.de/t/ip-symcon-6-0-testing/44478)  
 [![License](https://img.shields.io/badge/License-CC%20BY--NC--SA%204.0-green.svg)](https://creativecommons.org/licenses/by-nc-sa/4.0/)
 [![Check Style](https://github.com/Nall-chan/FritzBox/workflows/Check%20Style/badge.svg)](https://github.com/Nall-chan/FritzBox/actions) [![Run Tests](https://github.com/Nall-chan/FritzBox/workflows/Run%20Tests/badge.svg)](https://github.com/Nall-chan/FritzBox/actions)  
-[![Spenden](https://www.paypalobjects.com/de_DE/DE/i/btn/btn_donate_SM.gif)](#spenden)  
+[![Spenden](https://www.paypalobjects.com/de_DE/DE/i/btn/btn_donate_SM.gif)](#2-spenden)
+[![Wunschliste](https://img.shields.io/badge/Wunschliste-Amazon-ff69fb.svg)](#2-spenden)  
 
 # FritzBox DHCP Server <!-- omit in toc -->
-Beschreibung des Moduls.
+Internen DHCP-Server der FritzBox verwalten.  
 
 ### Inhaltsverzeichnis <!-- omit in toc -->
 
@@ -18,59 +19,108 @@ Beschreibung des Moduls.
   - [Statusvariablen](#statusvariablen)
   - [Profile](#profile)
 - [6. WebFront](#6-webfront)
-- [7. PHP-Befehlsreferenz](#7-php-befehlsreferenz)
+- [7. PHP-Funktionsreferenz](#7-php-funktionsreferenz)
+- [8. Aktionen](#8-aktionen)
+- [9. Anhang](#9-anhang)
+  - [1. Changelog](#1-changelog)
+  - [2. Spenden](#2-spenden)
+- [10. Lizenz](#10-lizenz)
 
-### 1. Funktionsumfang
+## 1. Funktionsumfang
 
+* Auslesen und abbilden der Konfiguration des DHCP Server der FritzBox in Symcon Variablen.
+* Verändern der Konfiguration über Symcon.  
 * Alte Variablen vom FB-Project **sind** kompatibel.
 
-### 2. Voraussetzungen
+## 2. Voraussetzungen
 
 - IP-Symcon ab Version 6.0
 
-### 3. Software-Installation
+## 3. Software-Installation
 
-* Über den Module Store das 'FritzBox'-Modul installieren.
+* Über den Module Store das `FritzBox`-Modul installieren.
 
-### 4. Einrichten der Instanzen in IP-Symcon
+## 4. Einrichten der Instanzen in IP-Symcon
 
- Es wird empfohlen Geräte-Instanzen über die entsprechenden 'FritzBox Konfigurator'-Instanz zu erzeugen.  
+ Es wird empfohlen Geräte-Instanzen über die entsprechenden [FritzBox Konfigurator](../FritzBox%20Configurator/README.md)-Instanz zu erzeugen.  
  
  Unter 'Instanz hinzufügen' ist das 'FritzBox DHCP Server'-Modul unter dem Hersteller 'AVM' aufgeführt.
 
 __Konfigurationsseite__:
 
-Name     | Beschreibung
--------- | ------------------
-         |
-         |
+![Config](imgs/config.png)
 
-### 5. Statusvariablen und Profile
+__Konfigurationsparameter__: 
+| Name            | Typ     | Beschreibung                         |
+| --------------- | ------- | ------------------------------------ |
+| RefreshInterval | integer | Aktualisierungsintervall in Sekunden |
+
+## 5. Statusvariablen und Profile
 
 Die Statusvariablen werden automatisch angelegt. Das Löschen einzelner kann zu Fehlfunktionen führen.
 
-#### Statusvariablen
+### Statusvariablen
 
-Name   | Typ     | Beschreibung
------- | ------- | ------------
-       |         |
-       |         |
+| Ident            | Name             | Typ    | Beschreibung                                  |
+| ---------------- | ---------------- | ------ | --------------------------------------------- |
+| DHCPServerEnable | DHCP aktiv       | string | DHCP Server ist ein/ausgeschaltet             |
+| MinAddress       | IP-Adresse Start | string | Start Adresse des IP-Adressbereiches          |
+| MaxAddress       | IP-Adresse Ende  | string | Letzte Adresse des IP-Adressbereiches         |
+| SubnetMask       | Subnet Mask      | string | Subnet Maske des Adressbereiches              |
+| IPRouters        | Gateway          | string | Gateway welches den Clients übergeben wird    |
+| DNSServers       | DNS-Server       | string | DNS-Server welcher den Clients übergeben wird |
+| DomainName       | Doamin           | string | Domain welche den Clients übergeben wird      |
 
-#### Profile
 
-Name   | Typ
------- | -------
-       |
-       |
+### Profile
 
-### 6. WebFront
+Dieses Modul erzeugt keine Variablenprofile.  
 
-Die Funktionalität, die das Modul im WebFront bietet.
+## 6. WebFront
 
-### 7. PHP-Befehlsreferenz
+![Webfront](imgs/webfront.png)
 
-`boolean FB_BeispielFunktion(integer $InstanzID);`
-Erklärung der Funktion.
+## 7. PHP-Funktionsreferenz
 
-Beispiel:
-`FB_BeispielFunktion(12345);`
+**Details folgen**
+
+```php
+array FB_GetInfo(int $InstanceID)
+bool FB_SetDHCPServerEnable(int $InstanceID, bool $Value) 
+array FB_GetAddressRange(int $InstanceID)
+bool FB_SetAddressRange(int $InstanceID, string $MinAddress, string $MaxAddress)
+string FB_GetSubnetMask(int $InstanceID)
+bool FB_SetSubnetMask(int $InstanceID, string $SubnetMask)
+string FB_GetIPRoutersList(int $InstanceID)
+bool FB_SetIPRouter(int $InstanceID, string $IPRouters)
+string FB_GetDNSServers(int $InstanceID)
+integer FB_GetIPInterfaceNumberOfEntries(integer $InstanceID)
+bool FB_SetIPInterface(int $InstanceID, bool $Enable, string $IPInterfaceIPAddress, string $IPInterfaceSubnetMask, string $IPInterfaceIPAddressingType)
+```
+
+## 8. Aktionen
+
+Folgende Aktion ist Verfügbar:
+
+ActionId: `{84136A92-5C4B-AF6D-ECB0-D18E7FB4DE2C}`
+DHCP-Server steuern (Aktiviert oder deaktiviert den DHCP-Server der FritzBox)
+
+## 9. Anhang
+
+### 1. Changelog
+
+[Changelog der Library](../README.md#changelog)
+
+### 2. Spenden
+
+  Die Library ist für die nicht kommerzielle Nutzung kostenlos, Schenkungen als Unterstützung für den Autor werden hier akzeptiert:  
+
+<a href="https://www.paypal.com/donate?hosted_button_id=G2SLW2MEMQZH2" target="_blank"><img src="https://www.paypalobjects.com/de_DE/DE/i/btn/btn_donate_LG.gif" border="0" /></a>  
+
+[![Wunschliste](https://img.shields.io/badge/Wunschliste-Amazon-ff69fb.svg)](https://www.amazon.de/hz/wishlist/ls/YU4AI9AQT9F?ref_=wl_share) 
+
+## 10. Lizenz
+
+  IPS-Modul:  
+  [CC BY-NC-SA 4.0](https://creativecommons.org/licenses/by-nc-sa/4.0/)  
+
