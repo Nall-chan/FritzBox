@@ -11,6 +11,8 @@
             "Remote access active": "Fernzugriff Aktiv",
             "DynDns active": "DynDns Aktiv",
             "Provider": "Anbieter",
+            "IPv4 State": "IPv4 Status",
+            "IPv6 State": "IPv6 Status",
             "offline": "Offline",
             "checking": "Prüfe",
             "updating": "Aktualisiere",

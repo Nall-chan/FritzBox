@@ -83,7 +83,7 @@ Dieses Modul erzeugt keine Variablenprofile.
 ## 7. PHP-Funktionsreferenz
 
 ```php
-array|false FB_GetInfo(int $InstanceID);
+array|false FB_GetInfo(integer $InstanceID);
 ```
 Beispiel:  
 ```php

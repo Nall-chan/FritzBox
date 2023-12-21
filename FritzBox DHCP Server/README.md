@@ -85,24 +85,24 @@ Dieses Modul erzeugt keine Variablenprofile.
 **Details folgen**
 
 ```php
-array FB_GetInfo(int $InstanceID)
-bool FB_SetDHCPServerEnable(int $InstanceID, bool $Value) 
-array FB_GetAddressRange(int $InstanceID)
-bool FB_SetAddressRange(int $InstanceID, string $MinAddress, string $MaxAddress)
-string FB_GetSubnetMask(int $InstanceID)
-bool FB_SetSubnetMask(int $InstanceID, string $SubnetMask)
-string FB_GetIPRoutersList(int $InstanceID)
-bool FB_SetIPRouter(int $InstanceID, string $IPRouters)
-string FB_GetDNSServers(int $InstanceID)
+array FB_GetInfo(integer $InstanceID)
+boolean FB_SetDHCPServerEnable(integer $InstanceID, boolean $Value) 
+array FB_GetAddressRange(integer $InstanceID)
+boolean FB_SetAddressRange(integer $InstanceID, string $MinAddress, string $MaxAddress)
+string FB_GetSubnetMask(integer $InstanceID)
+boolean FB_SetSubnetMask(integer $InstanceID, string $SubnetMask)
+string FB_GetIPRoutersList(integer $InstanceID)
+boolean FB_SetIPRouter(integer $InstanceID, string $IPRouters)
+string FB_GetDNSServers(integer $InstanceID)
 integer FB_GetIPInterfaceNumberOfEntries(integer $InstanceID)
-bool FB_SetIPInterface(int $InstanceID, bool $Enable, string $IPInterfaceIPAddress, string $IPInterfaceSubnetMask, string $IPInterfaceIPAddressingType)
+boolean FB_SetIPInterface(integer $InstanceID, boolean $Enable, string $IPInterfaceIPAddress, string $IPInterfaceSubnetMask, string $IPInterfaceIPAddressingType)
 ```
 
 ## 8. Aktionen
 
 Folgende Aktion ist Verfügbar:
 
-ActionId: `{84136A92-5C4B-AF6D-ECB0-D18E7FB4DE2C}`
+ActionId: `{84136A92-5C4B-AF6D-ECB0-D18E7FB4DE2C}`  
 DHCP-Server steuern (Aktiviert oder deaktiviert den DHCP-Server der FritzBox)
 
 ## 9. Anhang

@@ -43,7 +43,7 @@ class FritzBoxDVBC extends FritzBoxModulBase
             ['start', 'Start', '', -1],
             ['stop', 'Stop', '', -1]
         ]);
-        $this->RegisterVariableString('StationSearchMode', $this->Translate('Station Search Mode'), 'FB.StartStop', 0);
+        $this->RegisterVariableString('StationSearchMode', $this->Translate('Station search'), 'FB.StartStop', 0);
         $this->EnableAction('StationSearchMode');
         $this->SetTimerInterval('RefreshInfo', $this->ReadPropertyInteger('RefreshInterval') * 1000);
         if (IPS_GetKernelRunlevel() != KR_READY) {
@@ -96,7 +96,7 @@ class FritzBoxDVBC extends FritzBoxModulBase
         if ($Result === false) {
             return false;
         }
-        $this->setIPSVariable('StationSearchStatus', 'Station search Status', (string) $Result, VARIABLETYPE_STRING, 'FB.ActiveInactive');
+        $this->setIPSVariable('StationSearchStatus', 'Station search status', (string) $Result, VARIABLETYPE_STRING, 'FB.ActiveInactive');
         return true;
     }
     private function UpdateInfo()
@@ -106,7 +106,7 @@ class FritzBoxDVBC extends FritzBoxModulBase
             return false;
         }
         $this->setIPSVariable('DVBCEnabled', 'DVBC enabled', (int) $Result['NewDVBCEnabled'] > 0, VARIABLETYPE_BOOLEAN, '~Switch', true);
-        $this->setIPSVariable('StationSearchStatus', 'Station search Status', (string) $Result['NewStationSearchStatus'], VARIABLETYPE_STRING, 'FB.ActiveInactive');
+        $this->setIPSVariable('StationSearchStatus', 'Station search status', (string) $Result['NewStationSearchStatus'], VARIABLETYPE_STRING, 'FB.ActiveInactive');
         $this->setIPSVariable('SearchProgress', 'Search progress', (int) $Result['NewSearchProgress'], VARIABLETYPE_INTEGER, 'FB.Intensity');
         return true;
     }

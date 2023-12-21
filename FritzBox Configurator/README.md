@@ -49,7 +49,8 @@ __Konfigurationsseite__:
 
 Ermöglicht das auswählen bestimmter Services der FritzBox um dann die jeweilig passende Instanz zu erstellen.  
 
-![Config](imgs/config.png)
+![Config](imgs/config.png)  
+
 ## 5. Statusvariablen und Profile
 
 ### Statusvariablen
@@ -62,7 +63,7 @@ Dieses Modul erzeugt keine Variablenprofile.
 
 ## 6. WebFront
 
-Dieses Modul ist nur zur Darstellung im WebFront gedacht.
+Dieses Modul ist nicht zur Darstellung im WebFront gedacht.
 
 ## 7. PHP-Funktionsreferenz
 
