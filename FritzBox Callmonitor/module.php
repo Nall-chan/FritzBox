@@ -200,6 +200,13 @@ class FritzBoxCallmonitor extends FritzBoxModulBase
         if ($this->ReadPropertyInteger('ReverseSearchInstanceID') > 1) {
             $Form['elements'][1]['items'][1]['enabled'] = false;
         }
+        if (!$this->ReadPropertyBoolean('CallsAsTable')) {
+            $Form['elements'][3]['items'][1]['items'][0]['items'][0]['enabled'] = false;
+            $Form['elements'][3]['items'][1]['items'][0]['items'][1]['enabled'] = false;
+            $Form['elements'][3]['items'][1]['items'][1]['enabled'] = false;
+            $Form['elements'][3]['items'][1]['items'][2]['enabled'] = false;
+            $Form['elements'][3]['items'][1]['items'][3]['enabled'] = false;
+        }
         $Form['elements'][2]['items'][1]['items'][1]['columns'][3]['edit']['options'] = $this->GetIconsList();
         $this->SendDebug('FORM', json_encode($Form), 0);
         $this->SendDebug('FORM', json_last_error_msg(), 0);
