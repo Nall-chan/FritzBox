@@ -13,17 +13,17 @@
                 {
                     "caption": "AIN",
                     "name": "AIN",
-                    "width": "350px"
+                    "width": "150px"
                 },
                 {
                     "caption": "Manufacturer",
                     "name": "Manufacturer",
-                    "width": "350px"
+                    "width": "150px"
                 },
                 {
                     "caption": "Product",
                     "name": "ProductName",
-                    "width": "350px"
+                    "width": "300px"
                 },
                 {
                     "caption": "Name",
