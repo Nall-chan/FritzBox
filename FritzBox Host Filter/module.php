@@ -148,7 +148,7 @@ class FritzBoxHostFilter extends FritzBoxModulBase
         $Rename = $this->ReadPropertyBoolean('RenameHostVariables');
         $AutoAdd = $this->ReadPropertyBoolean('AutoAddHostVariables');
         if (!$Variable) {
-            return true;
+            return false;
         }
         $XMLData = $this->GetFile('Hosts');
         if ($XMLData === false) {
@@ -194,7 +194,9 @@ class FritzBoxHostFilter extends FritzBoxModulBase
                 }
             }
         }
+        return true;
     }
+
     public function ReceiveData($JSONString)
     {
         $Processed = parent::ReceiveData($JSONString);

@@ -43,7 +43,7 @@ DVB-C Receivers der FritzBox auslesen und steuern.
 
 ## 4. Einrichten der Instanzen in IP-Symcon
 
- Es wird empfohlen Geräte-Instanzen über die entsprechenden 'FritzBox DVBC'-Instanz zu erzeugen.  
+ Es wird empfohlen Instanzen über die entsprechenden [FritzBox Konfigurator](../FritzBox%20Configurator/README.md)-Instanz zu erzeugen.  
  
  Unter 'Instanz hinzufügen' ist das 'FritzBox DVBC'-Modul unter dem Hersteller 'AVM' aufgeführt.
 
