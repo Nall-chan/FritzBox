@@ -45,14 +45,18 @@ Dateifreigaben der FritzBox verwalten und darstellen.
  
  Unter 'Instanz hinzufügen' ist das 'FritzBox Dateifreigabe'-Modul unter dem Hersteller 'AVM' aufgeführt.
 
+__Konfigurationsseite__:
+
+![Config](imgs/config.png)  
+
 __Konfigurationsparameter__: 
-| Name          | Typ            | Beschreibung                                                                   |
-| ------------- | -------------- | ------------------------------------------------------------------------------ |
-| SharesAsTable | boolean        | Ausgabe der Dateifreigaben als HTML-Tabelle in einer String-Variable           |
-| Table         | string / Liste | HTML/CSS Konfiguration der HTML-Tabelle                                        |
-| Columns       | string / Liste | HTML/CSS Konfiguration der Spalten (pro Spalte)                                |
-| Rows          | string / Liste | HTML/CSS Konfiguration der Zeilen (Überschrift, gerade und ungerade)           |
-| Icons         | string / Liste | Icon für jedes Ereignis, wird in der Spalte Icon in der HTML Tabelle angezeigt |
+| Name          | Typ            | Beschreibung                                                         |
+| ------------- | -------------- | -------------------------------------------------------------------- |
+| SharesAsTable | boolean        | Ausgabe der Dateifreigaben als HTML-Tabelle in einer String-Variable |
+| Table         | string / Liste | HTML/CSS Konfiguration der HTML-Tabelle                              |
+| Columns       | string / Liste | HTML/CSS Konfiguration der Spalten (pro Spalte)                      |
+| Rows          | string / Liste | HTML/CSS Konfiguration der Zeilen (Überschrift, gerade und ungerade) |
+| Icons         | string / Liste | Icon für die Spalten Icon und Valid                                  |
 
 
 ## 5. Statusvariablen und Profile
@@ -71,7 +75,7 @@ Dieses Modul erzeugt keine Variablenprofile.
 
 ## 6. WebFront
 
-Die Funktionalität, die das Modul im WebFront bietet.
+![Webfront](imgs/webfront.png)  
 
 ## 7. PHP-Funktionsreferenz
 
