@@ -56,9 +56,9 @@ __Konfigurationsparameter__:
 | Name                 | Typ            | Beschreibung                                     |
 | -------------------- | -------------- | ------------------------------------------------ |
 | RefreshInterval      | integer        | Aktualisierungsintervall in Sekunden             |
-| HostAsVariable       | bool           | Darstellung als Symcon Variable                  |
-| AutoAddHostVariables | bool           | Für neue Hosts automatisch eine Variable anlegen |
-| RenameHostVariables  | bool           | Variablen automatisch umbenennen                 |
+| HostAsVariable       | boolean        | Darstellung als Symcon Variable                  |
+| AutoAddHostVariables | boolean        | Für neue Hosts automatisch eine Variable anlegen |
+| RenameHostVariables  | boolean        | Variablen automatisch umbenennen                 |
 | HostVariables        | string / Liste | Konfiguration der Variablen per Host             |
 
 ## 5. Statusvariablen und Profile
@@ -67,23 +67,17 @@ Die Statusvariablen werden automatisch angelegt. Das Löschen einzelner kann zu 
 
 ### Statusvariablen
 
-| Ident             | Name                | Typ    |
-| ----------------- | ------------------- | ------ |
-| Present           | Zustand             | string |
-| MultimeterIsValid | Multimeter (gültig) | string |
+| Ident             | Name     | Typ     |
+| ----------------- | -------- | ------- |
+| `IP` + IP Adresse | Hostname | boolean |
 
 ### Profile
 
-| Name           | Typ    |
-| -------------- | ------ |
-| FB.AHA.Present | string |
-| FB.AHA.Valid   | string |
+Dieses Modul erzeugt keine Variablenprofile.  
 
 ## 6. WebFront
 
-
 ![Webfront](imgs/webfront.png)  
-
 
 ## 7. PHP-Funktionsreferenz
 
@@ -92,7 +86,7 @@ boolean FB_RefreshHostList(integer $InstanceID);
 string|false FB_MarkTicket(integer $InstanceID);
 string|false FB_GetTicketIDStatus(integer $InstanceID, int $TicketID);
 boolean FB_DiscardAllTickets(integer $InstanceID);
-boolean FB_DisallowWANAccessByIP(integer $InstanceID, string $IPv4Address, bool $Disallow);
+boolean FB_DisallowWANAccessByIP(integer $InstanceID, string $IPv4Address, boolean$Disallow);
 array|false FB_GetWANAccessByIP(integer $InstanceID, string $IPv4Address);
 ```
 

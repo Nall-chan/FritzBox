@@ -21,8 +21,10 @@ class FritzBoxHosts extends FritzBoxModulBase
     protected static $ServiceTypeArray = [
         'urn:dslforum-org:service:Hosts:1'
     ];
+
     protected static $SecondEventGUID = \FritzBox\GUID::RefreshHostListRequest;
     protected static $DefaultIndex = 0;
+
     public function Create()
     {
         //Never delete this line!
@@ -49,7 +51,7 @@ class FritzBoxHosts extends FritzBoxModulBase
 
         $this->RegisterPropertyString('HostVariables', json_encode(array_values($UsedVariableIdents)));
         $this->RegisterPropertyBoolean('AutoAddHostVariables', true);
-        $this->RegisterPropertyBoolean('RenameHostVariables', true);
+        $this->RegisterPropertyBoolean('RenameHostVariables', false);
         $this->RegisterPropertyInteger('RefreshInterval', 60);
         $this->RegisterPropertyBoolean('HostAsTable', true);
         $Style = $this->GenerateHTMLStyleProperty();
@@ -194,6 +196,7 @@ class FritzBoxHosts extends FritzBoxModulBase
         $this->SendDebug('FORM', json_encode($Form), 0);
         $this->SendDebug('FORM', json_last_error_msg(), 0);
         return json_encode($Form);
+    
     }
     public function ReceiveData($JSONString)
     {
@@ -214,6 +217,7 @@ class FritzBoxHosts extends FritzBoxModulBase
         }
         return 'OK';
     }
+
     public function RefreshHostList()
     {
         if ($this->ParentID == 0) {
@@ -303,6 +307,7 @@ class FritzBoxHosts extends FritzBoxModulBase
         }
         return true;
     }
+
     public function GetHostNumberOfEntries()
     {
         $result = $this->Send(__FUNCTION__);
@@ -311,6 +316,7 @@ class FritzBoxHosts extends FritzBoxModulBase
         }
         return $result;
     }
+
     public function GetSpecificHostEntry(string $MACAddress)
     {
         $result = $this->Send(__FUNCTION__, [
@@ -321,6 +327,7 @@ class FritzBoxHosts extends FritzBoxModulBase
         }
         return $result;
     }
+
     public function GetGenericHostEntry(int $Index)
     {
         $result = $this->Send(__FUNCTION__, [
@@ -331,6 +338,7 @@ class FritzBoxHosts extends FritzBoxModulBase
         }
         return $result;
     }
+
     public function GetSpecificHostEntryByIP(string $IPAddress)
     {
         $result = $this->Send('X_AVM-DE_GetSpecificHostEntryByIP', [
@@ -341,6 +349,7 @@ class FritzBoxHosts extends FritzBoxModulBase
         }
         return $result;
     }
+
     public function GetChangeCounter()
     {
         $result = $this->Send('X_AVM-DE_GetChangeCounter');
@@ -349,6 +358,7 @@ class FritzBoxHosts extends FritzBoxModulBase
         }
         return $result;
     }
+
     public function SetHostNameByMACAddress(string $MACAddress, string $Hostname)
     {
         $result = $this->Send('X_AVM-DE_SetHostNameByMACAddress', [
@@ -360,6 +370,7 @@ class FritzBoxHosts extends FritzBoxModulBase
         }
         return $result;
     }
+
     public function GetAutoWakeOnLANByMACAddress(string $MACAddress)
     {
         $result = $this->Send('X_AVM-DE_GetAutoWakeOnLANByMACAddress', [
@@ -370,6 +381,7 @@ class FritzBoxHosts extends FritzBoxModulBase
         }
         return $result;
     }
+
     public function SetAutoWakeOnLANByMACAddress(string $MACAddress, bool $Enabled)
     {
         $result = $this->Send('X_AVM-DE_SetAutoWakeOnLANByMACAddress', [
@@ -381,6 +393,7 @@ class FritzBoxHosts extends FritzBoxModulBase
         }
         return $result;
     }
+
     public function WakeOnLANByMACAddress(string $MACAddress)
     {
         $result = $this->Send('X_AVM-DE_WakeOnLANByMACAddress', [
@@ -391,6 +404,7 @@ class FritzBoxHosts extends FritzBoxModulBase
         }
         return $result;
     }
+
     public function HostsCheckUpdate()
     {
         $result = $this->Send('X_AVM-DE_HostsCheckUpdate');
@@ -399,6 +413,7 @@ class FritzBoxHosts extends FritzBoxModulBase
         }
         return $result;
     }
+
     public function HostDoUpdate(string $MACAddress)
     {
         $result = $this->Send('X_AVM-DE_HostDoUpdate', [
@@ -409,6 +424,7 @@ class FritzBoxHosts extends FritzBoxModulBase
         }
         return $result;
     }
+
     public function GetHostListPath()
     {
         $result = $this->Send('X_AVM-DE_GetHostListPath');
@@ -417,6 +433,7 @@ class FritzBoxHosts extends FritzBoxModulBase
         }
         return $result;
     }
+
     public function GetMeshListPath()
     {
         $result = $this->Send('X_AVM-DE_GetMeshListPath');
@@ -571,6 +588,7 @@ class FritzBoxHosts extends FritzBoxModulBase
         }
         return $HostVariables;
     }
+    
     private function CreateHostHTMLTable(array $TableData)
     {
         $HostName = array_column($TableData, 'HostName');

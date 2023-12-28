@@ -7,7 +7,7 @@
 [![Wunschliste](https://img.shields.io/badge/Wunschliste-Amazon-ff69fb.svg)](#2-spenden)  
 
 # FritzBox Hosts <!-- omit in toc -->
-Beschreibung des Moduls.
+Abfragen und Anzeigen von Hostnamen und Onlinestatus von Geräte im Netzwerk.
 
 ### Inhaltsverzeichnis <!-- omit in toc -->
 
@@ -19,11 +19,20 @@ Beschreibung des Moduls.
   - [Statusvariablen](#statusvariablen)
   - [Profile](#profile)
 - [6. WebFront](#6-webfront)
-- [7. PHP-Befehlsreferenz](#7-php-befehlsreferenz)
+- [7. PHP-Funktionsreferenz](#7-php-funktionsreferenz)
+- [8. Aktionen](#8-aktionen)
+- [9. Anhang](#9-anhang)
+  - [1. Changelog](#1-changelog)
+  - [2. Spenden](#2-spenden)
+- [10. Lizenz](#10-lizenz)
 
 ## 1. Funktionsumfang
 
 * Alte Variablen vom FB-Project sind **nicht** kompatibel.
+* Ermöglicht das auslesen alle der FritzBox bekannten Netzwerkgeräte.  
+* Darstellung alle Hosts und des jeweiligen Onlinezustand als Symcon Variable.  
+* Darstellung alle Hosts und des jeweiligen Onlinezustand als HTML Tabelle.  
+* Möglichkeit WOL an Hosts zu senden.  
 
 ## 2. Voraussetzungen
 
@@ -41,10 +50,21 @@ Beschreibung des Moduls.
 
 __Konfigurationsseite__:
 
-| Name | Beschreibung |
-| ---- | ------------ |
-|      |
-|      |
+![Config](imgs/config1.png)  
+
+__Konfigurationsparameter__:  
+
+| Name                 | Typ            | Beschreibung                                                         |
+| -------------------- | -------------- | -------------------------------------------------------------------- |
+| RefreshInterval      | integer        | Aktualisierungsintervall in Sekunden                                 |
+| HostAsVariable       | boolean        | Darstellung als Symcon Variable                                      |
+| AutoAddHostVariables | boolean        | Für neue Hosts automatisch eine Variable anlegen                     |
+| RenameHostVariables  | boolean        | Variablen automatisch umbenennen                                     |
+| HostVariables        | string / Liste | Konfiguration der Variablen per Host                                 |
+| HostAsTable          | boolean        | Ausgabe der Hosts als HTML-Tabelle in einer String-Variable          |
+| Table                | string / Liste | HTML/CSS Konfiguration der HTML-Tabelle                              |
+| Columns              | string / Liste | HTML/CSS Konfiguration der Spalten (pro Spalte)                      |
+| Rows                 | string / Liste | HTML/CSS Konfiguration der Zeilen (Überschrift, gerade und ungerade) |
 
 ## 5. Statusvariablen und Profile
 
@@ -52,29 +72,51 @@ Die Statusvariablen werden automatisch angelegt. Das Löschen einzelner kann zu 
 
 ### Statusvariablen
 
-| Name | Typ | Beschreibung |
-| ---- | --- | ------------ |
-|      |
-|      |
+| Ident              | Name           | Typ     | Beschreibung           |
+| ------------------ | -------------- | ------- | ---------------------- |
+| HostTable          | Netzwerkgeräte | string  | HTML Tabelle der Hosts |
+| `IP` + IP Adresse  | Hostname       | boolean | Onlinezustand          |
+| `MAC` + IP Adresse | Hostname       | boolean | Onlinezustand          |
 
 ### Profile
 
-| Name | Typ |
-| ---- | --- |
-|      |
-|      |
+Dieses Modul erzeugt keine Variablenprofile.  
 
 ## 6. WebFront
 
-Die Funktionalität, die das Modul im WebFront bietet.
+HTML Tabelle:  
+![Webfront](imgs/webfront1.png)  
+
+---  
+
+Variablen:  
+![Webfront](imgs/webfront2.png)  
 
 ## 7. PHP-Funktionsreferenz
 
-Keine Funktionen verfügbar. 
+```php
+boolean FB_RefreshHostList(integer $InstanceID);
+false|integer FB_GetHostNumberOfEntries(integer $InstanceID);
+array|false FB_GetSpecificHostEntry(integer $InstanceID, string $MACAddress);
+array|false FB_GetGenericHostEntry(integer $InstanceID, integer $Index);
+array|false FB_GetSpecificHostEntryByIP(integer $InstanceID, string $IPAddress);
+int|false FB_GetChangeCounter(integer $InstanceID);
+boolean FB_SetHostNameByMACAddress(integer $InstanceID, string $MACAddress, string $Hostname);
+boolean FB_GetAutoWakeOnLANByMACAddress(integer $InstanceID, string $MACAddress);
+boolean FB_SetAutoWakeOnLANByMACAddress(integer $InstanceID, string $MACAddress, boolean $Enabled);
+boolean FB_WakeOnLANByMACAddress(integer $InstanceID, string $MACAddress);
+array|false FB_HostsCheckUpdate(integer $InstanceID);
+boolean FB_HostDoUpdate(integer $InstanceID, string $MACAddress);
+string|false FB_GetHostListPath(integer $InstanceID);
+string|false FB_GetMeshListPath(integer $InstanceID);
+```
 
 ## 8. Aktionen
 
-Keine Aktionen verfügbar.
+Folgende Aktion ist Verfügbar:
+
+ActionId: `{F7C8619E-21C1-4EE1-CCA8-0AC4CB111AD8}`  
+Host mit WOL aufwecken  
 
 ## 9. Anhang
 

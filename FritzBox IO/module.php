@@ -32,6 +32,7 @@ class FritzBoxIO extends IPSModule
     const isUnauthorized = IS_EBASE + 2;
     const isURLnotValid = IS_EBASE + 3;
     const isServicenotValid = IS_EBASE + 4;
+
     private static $http_error =
         [
             418 => ['Could not connect to host, maybe i am a teapot?', self::isDisconnected],
@@ -46,12 +47,14 @@ class FritzBoxIO extends IPSModule
     {
         //Never delete this line!
         parent::Create();
+        
         $this->RegisterPropertyBoolean('Open', true);
         $this->RegisterPropertyString('Host', 'http://');
         $this->RegisterPropertyString('Username', '');
         $this->RegisterPropertyString('Password', '');
         $this->RegisterPropertyString('ReturnIP', '');
         $this->RegisterPropertyInteger('ReturnPort', 3777);
+
         $this->RegisterAttributeString('ConsumerAddress', 'Invalid');
         $this->RegisterAttributeArray('Events', []);
         $this->RegisterAttributeArray('PhoneBooks', []);
@@ -74,6 +77,7 @@ class FritzBoxIO extends IPSModule
             $this->ForceLoadXML = false;
         }
     }
+
     public function Destroy()
     {
         if (!IPS_InstanceExists($this->InstanceID)) {
@@ -112,6 +116,7 @@ class FritzBoxIO extends IPSModule
             return $this->KernelReady();
         }
     }
+
     public function ApplyChanges()
     {
         $OldUrl = $this->Url;
@@ -164,6 +169,7 @@ class FritzBoxIO extends IPSModule
             $this->SetSummary('');
         }
     }
+
     public function ForwardData($JSONString)
     {
         $data = json_decode($JSONString, true);
@@ -304,6 +310,7 @@ class FritzBoxIO extends IPSModule
         }
         return true;
     }
+
     protected function ProcessHookData()
     {
         if ($this->ReadPropertyBoolean('Open') == false) {
