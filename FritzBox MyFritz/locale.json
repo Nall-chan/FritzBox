@@ -6,6 +6,10 @@
             "Update Values": "Werte aktualisieren",
             "Event subscribe error": "Ereignisabonnementfehler",
             "Invalid Ident.": "Ungültiger Ident.",
+            "MyFritz enabled": "MyFritz aktiv",
+            "FritzBox registered": "FritzBox registriert",
+            "MyFritz address": "MyFritz Adresse",
+            "Number of MyFritz services": "Anzahl der MyFritz Dienste",
             "This module is free for non-commercial use,\r\nDonations in support of the author are accepted here:": "Dieses Modul ist für die nicht kommerzielle Nutzung kostenlos,\r\nSchenkungen als Unterstützung für den Autor werden hier akzeptiert:"
         }
     }

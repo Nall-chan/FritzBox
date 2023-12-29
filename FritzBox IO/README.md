@@ -50,19 +50,18 @@ __Konfigurationsseite__:
 
 **Zur fehlerfreien Kommunikation und korrekten Konfiguration sind die [Hinweise zum Symcon-System / Host](../README.md#hinweise-zum-symcon-system--host) der Library zu beachten!**  
 
-![Config](imgs/config1.png)  
-![Config](imgs/config2.png)  
+![Config](imgs/config.png)  
 
 __Konfigurationsparameter__:  
 
-| Name       | Typ     | Beschreibung |
-| ---------- | ------- | ------------ |
-| Open       | boolean |              |
-| Host       | string  |              |
-| Username   | string  |              |
-| Password   | string  |              |
-| ReturnIP   | string  |              |
-| ReturnPort | integer |              |
+| Name       | Typ     | Beschreibung                                             |
+| ---------- | ------- | -------------------------------------------------------- |
+| Open       | boolean | Verbindung aktiveren                                     |
+| Host       | string  | URL der FritzBox                                         |
+| Username   | string  | Benutzername zur Anmeldung                               |
+| Password   | string  | Passwort zum Benutzernamen                               |
+| ReturnIP   | string  | IP-Adresse unter welcher die FritzBox IP-Symcon erreicht |
+| ReturnPort | integer | Port zur o.a. IP-Adresse                                 |
 
 ## 5. Statusvariablen und Profile
 
