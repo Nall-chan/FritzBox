@@ -1,12 +1,13 @@
 [![SDK](https://img.shields.io/badge/Symcon-PHPModul-red.svg)](https://www.symcon.de/service/dokumentation/entwicklerbereich/sdk-tools/sdk-php/)
-[![Version](https://img.shields.io/badge/Modul%20version-0.79-blue.svg)]()
+[![Version](https://img.shields.io/badge/Modul%20version-0.80-blue.svg)]()
 [![Version](https://img.shields.io/badge/Symcon%20Version-6.0%20%3E-green.svg)](https://community.symcon.de/t/ip-symcon-6-0-testing/44478)  
 [![License](https://img.shields.io/badge/License-CC%20BY--NC--SA%204.0-green.svg)](https://creativecommons.org/licenses/by-nc-sa/4.0/)
 [![Check Style](https://github.com/Nall-chan/FritzBox/workflows/Check%20Style/badge.svg)](https://github.com/Nall-chan/FritzBox/actions) [![Run Tests](https://github.com/Nall-chan/FritzBox/workflows/Run%20Tests/badge.svg)](https://github.com/Nall-chan/FritzBox/actions)  
-[![Spenden](https://www.paypalobjects.com/de_DE/DE/i/btn/btn_donate_SM.gif)](#spenden)  
+[![Spenden](https://www.paypalobjects.com/de_DE/DE/i/btn/btn_donate_SM.gif)](#2-spenden)
+[![Wunschliste](https://img.shields.io/badge/Wunschliste-Amazon-ff69fb.svg)](#2-spenden)  
 
 # FritzBox WAN IP Connection <!-- omit in toc -->
-Beschreibung des Moduls.
+Auslesen der WAN IP Verbindung.  
 
 ### Inhaltsverzeichnis <!-- omit in toc -->
 
@@ -18,60 +19,128 @@ Beschreibung des Moduls.
   - [Statusvariablen](#statusvariablen)
   - [Profile](#profile)
 - [6. WebFront](#6-webfront)
-- [7. PHP-Befehlsreferenz](#7-php-befehlsreferenz)
+- [7. PHP-Funktionsreferenz](#7-php-funktionsreferenz)
+- [8. Aktionen](#8-aktionen)
+- [9. Anhang](#9-anhang)
+  - [1. Changelog](#1-changelog)
+  - [2. Spenden](#2-spenden)
+- [10. Lizenz](#10-lizenz)
 
-### 1. Funktionsumfang
+## 1. Funktionsumfang
 
-* Alte Variablen vom FB-Project **sind** kompatibel.
+* Alte Variablen vom FB-Project **sind** kompatibel.  
+* Auslesen der WAN IP Verbindung.  
+* Verbindungsaufbau und -abbau steuern.  
 
-### 2. Voraussetzungen
+## 2. Voraussetzungen
 
 - IP-Symcon ab Version 6.0
 
-### 3. Software-Installation
+## 3. Software-Installation
 
-* Über den Module Store das 'FritzBox'-Modul installieren.
+* Über den Module Store das `FritzBox`-Modul installieren.
 
 
-### 4. Einrichten der Instanzen in IP-Symcon
+## 4. Einrichten der Instanzen in IP-Symcon
 
- Es wird empfohlen Geräte-Instanzen über die entsprechenden 'FritzBox Konfigurator'-Instanz zu erzeugen.  
+ Es wird empfohlen Instanzen über die entsprechenden [FritzBox Konfigurator](../FritzBox%20Configurator/README.md)-Instanz zu erzeugen.  
  
  Unter 'Instanz hinzufügen' ist das 'FritzBox WAN IP-Verbindung'-Modul unter dem Hersteller 'AVM' aufgeführt.
 
 __Konfigurationsseite__:
 
-Name     | Beschreibung
--------- | ------------------
-         |
-         |
+![Config](imgs/config.png)  
 
-### 5. Statusvariablen und Profile
+__Konfigurationsparameter__:  
+
+| Name            | Typ     | Beschreibung                         |
+| --------------- | ------- | ------------------------------------ |
+| Index           | integer | Dienst (Service Index)               |
+| RefreshInterval | integer | Aktualisierungsintervall in Sekunden |
+
+## 5. Statusvariablen und Profile
 
 Die Statusvariablen werden automatisch angelegt. Das Löschen einzelner kann zu Fehlfunktionen führen.
 
-#### Statusvariablen
+### Statusvariablen
 
-Name   | Typ     | Beschreibung
------- | ------- | ------------
-       |         |
-       |         |
+| Ident               | Name                         | Typ     |
+| ------------------- | ---------------------------- | ------- |
+| ConnectionAction    | Steuerung der Verbindung     | integer |
+| ConnectionStatus    | IP Verbindungsstatus         | boolean |
+| UptimeRAW           | Verbindungsdauer in Sekunden | integer |
+| Uptime              | Verbindungsdauer             | string  |
+| ExternalIPAddress   | Externe IPv4 Adresse         | string  |
+| IPv4DNSServer1      | IPv4 DNS-Server 1            | string  |
+| IPv4DNSServer2      | IPv4 DNS-Server 2            | string  |
+| ExternalIPv6Address | Externe IPv6 Adresse         | string  |
+| IPv6Prefix          | IPv6 Prefix                  | string  |
+| IPv6DNSServer1      | IPv6 DNS-Server 1            | string  |
+| IPv6DNSServer2      | IPv6 DNS-Server 2            | string  |
 
-#### Profile
+### Profile
 
-Name   | Typ
------- | -------
-       |
-       |
+| Name                | Typ     |
+| ------------------- | ------- |
+| FB.Connect          | integer |
+| FB.ConnectionStatus | boolean |
 
-### 6. WebFront
+## 6. WebFront
 
-Die Funktionalität, die das Modul im WebFront bietet.
+![WebFront](imgs/webfront.png)  
 
-### 7. PHP-Befehlsreferenz
+## 7. PHP-Funktionsreferenz
 
-`boolean FB_BeispielFunktion(integer $InstanzID);`
-Erklärung der Funktion.
+```php
+array|false FB_GetConnectionTypeInfo(integer $InstanzID);
+boolean FB_ForceTermination(integer $InstanzID);
+boolean FB_RequestTermination(integer $InstanzID);
+boolean FB_RequestConnection(integer $InstanzID);
+array|false FB_GetStatusInfo(integer $InstanzID);
+string|false FB_GetExternalIPAddress(integer $InstanzID);
+array|false FB_GetDNSServer(integer $InstanzID);
+array|false FB_GetExternalIPv6Address(integer $InstanzID);
+array|false FB_GetIPv6DNSServer(integer $InstanzID);
+array|false FB_GetIPv6Prefix(integer $InstanzID);
+array|false FB_GetNATRSIPStatus(integer $InstanzID);
+integer|false FB_GetWarnDisconnectDelay(integer $InstanzID);
+boolean FB_SetWarnDisconnectDelay(integer $DelayTime);
+integer|false FB_GetIdleDisconnectTime(integer $InstanzID);
+boolean FB_SetIdleDisconnectTime(integer $Timeout);
+integer|false FB_GetAutoDisconnectTime(integer $InstanzID);
+boolean FB_SetAutoDisconnectTime(integer $InstanzID, integer $AutoDisconnectTime);
+```
 
-Beispiel:
-`FB_BeispielFunktion(12345);`
+## 8. Aktionen
+
+Folgende Aktionen sind Verfügbar:
+
+ActionId: `{B971BAC4-DB28-4C60-39E6-BFCA1B94991C}`  
+Verbindung anfordern  
+- Startet einen Verbindungsaufbau der FritzBox zum Internet  
+
+---  
+ 
+ActionId: `{87E9978A-0B44-B1E8-5C89-87EC3AD51AA3}`  
+Trenne Verbindung  
+- Trennt die Verbindung der FritzBox zum Internet  
+
+## 9. Anhang
+
+### 1. Changelog
+
+[Changelog der Library](../README.md#changelog)
+
+### 2. Spenden
+
+  Die Library ist für die nicht kommerzielle Nutzung kostenlos, Schenkungen als Unterstützung für den Autor werden hier akzeptiert:  
+
+<a href="https://www.paypal.com/donate?hosted_button_id=G2SLW2MEMQZH2" target="_blank"><img src="https://www.paypalobjects.com/de_DE/DE/i/btn/btn_donate_LG.gif" border="0" /></a>  
+
+[![Wunschliste](https://img.shields.io/badge/Wunschliste-Amazon-ff69fb.svg)](https://www.amazon.de/hz/wishlist/ls/YU4AI9AQT9F?ref_=wl_share) 
+
+## 10. Lizenz
+
+  IPS-Modul:  
+  [CC BY-NC-SA 4.0](https://creativecommons.org/licenses/by-nc-sa/4.0/)  
+
