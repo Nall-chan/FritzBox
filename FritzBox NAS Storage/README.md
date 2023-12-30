@@ -92,7 +92,7 @@ bool FB_SetFTPServerWAN(integer $InstanzID, boolean $Enable, boolean $SSLOnly);
 
 ## 8. Aktionen
 
-Folgende Aktion ist Verfügbar:
+Folgende Aktionen sind Verfügbar:
 
 ActionId: `{A686F0FC-12D3-D82B-7237-04718B5CDAAF}`  
 SMB Freigabe steuern  

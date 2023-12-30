@@ -16,6 +16,7 @@ class FritzBoxWANPhysicalInterface extends FritzBoxModulBase
         'urn:dslforum-org:service:WANCommonInterfaceConfig:1'
     ];
     protected static $DefaultIndex = 0;
+
     public function Create()
     {
         //Never delete this line!
@@ -54,6 +55,7 @@ class FritzBoxWANPhysicalInterface extends FritzBoxModulBase
         $this->UpdateCommonLinkProperties();
         $this->SetTimerInterval('RefreshLinkProperties', $this->ReadPropertyInteger('RefreshInterval') * 1000);
     }
+
     public function RequestAction($Ident, $Value)
     {
         if (parent::RequestAction($Ident, $Value)) {
@@ -68,6 +70,7 @@ class FritzBoxWANPhysicalInterface extends FritzBoxModulBase
         trigger_error($this->Translate('Invalid Ident.'), E_USER_NOTICE);
         return false;
     }
+
     public function GetCommonLinkProperties()
     {
         $result = $this->Send(__FUNCTION__);
@@ -76,27 +79,33 @@ class FritzBoxWANPhysicalInterface extends FritzBoxModulBase
         }
         return $result;
     }
+
     public function GetTotalBytesSent()
     {
         return $this->Send(__FUNCTION__);
     }
+
     public function GetTotalBytesReceived()
     {
         return $this->Send(__FUNCTION__);
     }
+
     public function GetTotalPacketsSent()
     {
         return $this->Send(__FUNCTION__);
     }
+
     public function GetTotalPacketsReceived()
     {
         return $this->Send(__FUNCTION__);
     }
+
     public function SetWANAccessType(string $WanAccessType)
     {
         $result = $this->Send('X_AVM-DE_SetWANAccessType', ['NewAccessType'=>$WanAccessType]);
         return $result !== false;
     }
+
     private function UpdateCommonLinkProperties()
     {
         $result = $this->GetCommonLinkProperties();
