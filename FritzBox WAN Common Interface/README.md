@@ -55,7 +55,6 @@ __Konfigurationsparameter__:
 | ----------------------------- | ------- | ------------------------------------------------ |
 | Index                         | integer | Dienst (Service Index)                           |
 | RefreshInterval               | integer | Aktualisierungsintervall in Sekunden             |
-| RefreshInterval               | integer | Aktualisierungsintervall in Sekunden             |
 | RefreshLinkPropertiesInterval | integer | Aktualisierungsintervall Link Status in Sekunden |
 
 ## 5. Statusvariablen und Profile

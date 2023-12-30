@@ -19,6 +19,7 @@ class FritzBoxWANDSLLink extends FritzBoxModulBase
         'urn:schemas-upnp-org:service:WANDSLLinkConfig:1'
 
     ];
+
     public function Create()
     {
         //Never delete this line!
@@ -48,6 +49,7 @@ class FritzBoxWANDSLLink extends FritzBoxModulBase
         }
         $this->SetTimerInterval('RefreshInfo', $this->ReadPropertyInteger('RefreshInterval') * 1000);
     }
+    
     public function RequestAction($Ident, $Value)
     {
         if (parent::RequestAction($Ident, $Value)) {
@@ -59,18 +61,22 @@ class FritzBoxWANDSLLink extends FritzBoxModulBase
         }
         trigger_error($this->Translate('Invalid Ident.'), E_USER_NOTICE);
     }
+
     public function GetDSLLinkInfo()
     {
         return $this->Send(__FUNCTION__);
     }
+
     public function GetAutoConfig()
     {
         return $this->Send(__FUNCTION__);
     }
+
     public function GetModulationType()
     {
         return $this->Send(__FUNCTION__);
     }
+
     public function GetDestinationAddress()
     {
         return $this->Send(__FUNCTION__);
@@ -80,16 +86,17 @@ class FritzBoxWANDSLLink extends FritzBoxModulBase
     {
         return $this->Send(__FUNCTION__);
     }
+
     public function GetFCSPreserved()
     {
         return $this->Send(__FUNCTION__);
     }
-    // todo
-    /*
+
     public function GetStatistics()
     {
         return $this->Send(__FUNCTION__);
-    }*/
+    }
+
     public function GetConfigurationForm()
     {
         $Form = json_decode(file_get_contents(__DIR__ . '/form.json'), true);
@@ -124,6 +131,7 @@ class FritzBoxWANDSLLink extends FritzBoxModulBase
         }
         parent::DecodeEvent($Event);
     }
+
     private function UpdateInfo()
     {
         $result = $this->GetDSLLinkInfo();
@@ -138,19 +146,19 @@ class FritzBoxWANDSLLink extends FritzBoxModulBase
 
         $result = $this->GetModulationType();
         if ($result !== false) {
-            $this->setIPSVariable('ModulationType', 'ModulationType', $result, VARIABLETYPE_STRING);
+            $this->setIPSVariable('ModulationType', 'Modulation Type', $result, VARIABLETYPE_STRING);
         }
         $result = $this->GetDestinationAddress();
         if ($result !== false) {
-            $this->setIPSVariable('DestinationAddress', 'DestinationAddress', $result, VARIABLETYPE_STRING);
+            $this->setIPSVariable('DestinationAddress', 'Destination Address', $result, VARIABLETYPE_STRING);
         }
         $result = $this->GetATMEncapsulation();
         if ($result !== false) {
-            $this->setIPSVariable('ATMEncapsulation', 'ATMEncapsulation', $result, VARIABLETYPE_STRING);
+            $this->setIPSVariable('ATMEncapsulation', 'ATM Encapsulation', $result, VARIABLETYPE_STRING);
         }
         $result = $this->GetFCSPreserved();
         if ($result !== false) {
-            $this->setIPSVariable('FCSPreserved', 'FCSPreserved', (bool) $result, VARIABLETYPE_BOOLEAN);
+            $this->setIPSVariable('FCSPreserved', 'FCS Preserved', (bool) $result, VARIABLETYPE_BOOLEAN);
         }
         // todo
         /*$result = $this->GetStatistics();
