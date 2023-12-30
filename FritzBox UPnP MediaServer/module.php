@@ -2,6 +2,7 @@
 
 declare(strict_types=1);
 require_once __DIR__ . '/../libs/FritzBoxBase.php';
+
 class FritzBoxUPnPMediaServer extends FritzBoxModulBase
 {
     protected static $ControlUrlArray = [
@@ -11,6 +12,7 @@ class FritzBoxUPnPMediaServer extends FritzBoxModulBase
     protected static $ServiceTypeArray = [
         'urn:dslforum-org:service:X_AVM-DE_UPnP:1'
     ];
+
     public function Create()
     {
         //Never delete this line!
@@ -36,6 +38,7 @@ class FritzBoxUPnPMediaServer extends FritzBoxModulBase
         }
         $this->UpdateInfo();
     }
+
     public function RequestAction($Ident, $Value)
     {
         if (parent::RequestAction($Ident, $Value)) {
@@ -53,6 +56,7 @@ class FritzBoxUPnPMediaServer extends FritzBoxModulBase
 
         return false;
     }
+
     public function GetInfo()
     {
         $result = $this->Send(__FUNCTION__);
@@ -61,6 +65,7 @@ class FritzBoxUPnPMediaServer extends FritzBoxModulBase
         }
         return $result;
     }
+
     public function EnableUPnPServer(bool $Enable, bool $UPnPMediaServer)
     {
         $result = $this->Send('SetConfig', [
@@ -72,6 +77,7 @@ class FritzBoxUPnPMediaServer extends FritzBoxModulBase
         }
         return true;
     }
+
     private function UpdateInfo()
     {
         $result = $this->GetInfo();

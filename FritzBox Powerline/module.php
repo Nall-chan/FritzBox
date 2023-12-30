@@ -2,6 +2,7 @@
 
 declare(strict_types=1);
 require_once __DIR__ . '/../libs/FritzBoxBase.php';
+
 class FritzBoxPowerline extends FritzBoxModulBase
 {
     protected static $ControlUrlArray = [
@@ -11,13 +12,14 @@ class FritzBoxPowerline extends FritzBoxModulBase
     protected static $ServiceTypeArray = [
         'urn:dslforum-org:service:X_AVM-DE_Homeplug:1'
     ];
+
     public function Create()
     {
         //Never delete this line!
         parent::Create();
 
         $this->RegisterPropertyInteger('RefreshInterval', 60);
-        $this->RegisterPropertyBoolean('RenameDeviceVariables', true);
+        $this->RegisterPropertyBoolean('RenameDeviceVariables', false);
         $this->RegisterTimer('RefreshInfo', 0, 'IPS_RequestAction(' . $this->InstanceID . ',"RefreshInfo",true);');
     }
 
@@ -37,6 +39,7 @@ class FritzBoxPowerline extends FritzBoxModulBase
         }
         $this->UpdateInfo();
     }
+
     public function RequestAction($Ident, $Value)
     {
         if (parent::RequestAction($Ident, $Value)) {
@@ -49,19 +52,21 @@ class FritzBoxPowerline extends FritzBoxModulBase
         trigger_error($this->Translate('Invalid Ident.'), E_USER_NOTICE);
         return false;
     }
-    public function GetGenericDeviceEntry(int $Index)
+
+    public function GetNumberOfDeviceEntries()
     {
-        $Result = $this->Send('GetGenericDeviceEntry', [
-            'NewIndex'         => $Index
-        ]);
+        $Result = $this->Send('GetNumberOfDeviceEntries');
         if ($Result === false) {
             return false;
         }
         return $Result;
     }
-    public function GetNumberOfDeviceEntries()
+
+    public function GetGenericDeviceEntry(int $Index)
     {
-        $Result = $this->Send('GetNumberOfDeviceEntries');
+        $Result = $this->Send('GetGenericDeviceEntry', [
+            'NewIndex'         => $Index
+        ]);
         if ($Result === false) {
             return false;
         }
@@ -78,6 +83,7 @@ class FritzBoxPowerline extends FritzBoxModulBase
         }
         return $Result;
     }
+
     private function UpdateInfo()
     {
         $NumberOfDeviceEntries = $this->GetNumberOfDeviceEntries();

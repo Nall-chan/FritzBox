@@ -47,7 +47,7 @@ class FritzBoxIO extends IPSModule
     {
         //Never delete this line!
         parent::Create();
-        
+
         $this->RegisterPropertyBoolean('Open', true);
         $this->RegisterPropertyString('Host', 'http://');
         $this->RegisterPropertyString('Username', '');
@@ -92,17 +92,17 @@ class FritzBoxIO extends IPSModule
     public function MessageSink($TimeStamp, $SenderID, $Message, $Data)
     {
         switch ($Message) {
-                case IPS_KERNELMESSAGE:
-                    if ($Data[0] == KR_READY) {
-                        IPS_RequestAction($this->InstanceID, 'KernelReady', true);
-                    }
-                    break;
-                case FM_CHILDADDED:
-                    if (IPS_GetInstance($Data[0])['ModuleInfo']['ModuleID'] == key(\FritzBox\Services::$Data['callmonitor'])) {
-                        $this->CreateCallMonitorCS();
-                    }
-                    break;
-            }
+            case IPS_KERNELMESSAGE:
+                if ($Data[0] == KR_READY) {
+                    IPS_RequestAction($this->InstanceID, 'KernelReady', true);
+                }
+                break;
+            case FM_CHILDADDED:
+                if (IPS_GetInstance($Data[0])['ModuleInfo']['ModuleID'] == key(\FritzBox\Services::$Data['callmonitor'])) {
+                    $this->CreateCallMonitorCS();
+                }
+                break;
+        }
     }
 
     public function GetConfigurationForParent()
@@ -174,85 +174,85 @@ class FritzBoxIO extends IPSModule
     {
         $data = json_decode($JSONString, true);
         switch ($data['Function']) {
-                case 'SCPD':
-                    $ret = $this->ReadAttributeArray('Events');
+            case 'SCPD':
+                $ret = $this->ReadAttributeArray('Events');
                 break;
-                case 'SUBSCRIBE':
-                    $ret = $this->Subscribe($data['EventSubURL'], $data['SID']);
-                    break;
-                case 'UNSUBSCRIBE':
-                    $ret = $this->Unsubscribe($data['EventSubURL'], $data['SID']);
-                    break;
-                case 'ISPPP':
-                    $ret = $this->ReadAttributeBoolean('usePPP');
-                    break;
-                case 'HasIGD2':
-                    $ret = $this->ReadAttributeBoolean('HasIGD2');
-                    break;
-                case 'HasTel':
-                    $ret = $this->ReadAttributeBoolean('HasTel');
-                    break;
-                case 'CallMonitorOpen':
-                    $ret = $this->checkCallMonitorPort();
-                    break;
-                case 'GetMaxWLANs':
-                    $ret = $this->ReadAttributeInteger('NoOfWlan');
-                    break;
-                case 'RefreshHostList':
-                    $data['DataID'] = \FritzBox\GUID::RefreshHostListRequest;
-                    $result = $this->SendDataToChildren(json_encode($data));
-                    $ret = false;
-                    if (count($result) > 0) {
-                        $ret = $result[0] == 'OK';
-                    }
-                    if ($ret) {
-                        $data['DataID'] = \FritzBox\GUID::NewHostListEvent;
-                        $data['Function'] = 'NewHostListEvent';
-                        $ret = $this->SendDataToChildren(json_encode($data));
-                    }
-                    break;
-                case 'NewHostListEvent':
+            case 'SUBSCRIBE':
+                $ret = $this->Subscribe($data['EventSubURL'], $data['SID']);
+                break;
+            case 'UNSUBSCRIBE':
+                $ret = $this->Unsubscribe($data['EventSubURL'], $data['SID']);
+                break;
+            case 'ISPPP':
+                $ret = $this->ReadAttributeBoolean('usePPP');
+                break;
+            case 'HasIGD2':
+                $ret = $this->ReadAttributeBoolean('HasIGD2');
+                break;
+            case 'HasTel':
+                $ret = $this->ReadAttributeBoolean('HasTel');
+                break;
+            case 'CallMonitorOpen':
+                $ret = $this->checkCallMonitorPort();
+                break;
+            case 'GetMaxWLANs':
+                $ret = $this->ReadAttributeInteger('NoOfWlan');
+                break;
+            case 'RefreshHostList':
+                $data['DataID'] = \FritzBox\GUID::RefreshHostListRequest;
+                $result = $this->SendDataToChildren(json_encode($data));
+                $ret = false;
+                if (count($result) > 0) {
+                    $ret = $result[0] == 'OK';
+                }
+                if ($ret) {
                     $data['DataID'] = \FritzBox\GUID::NewHostListEvent;
+                    $data['Function'] = 'NewHostListEvent';
                     $ret = $this->SendDataToChildren(json_encode($data));
-                    break;
-                case 'LoadAndGetData':
-                    $ret = $this->LoadAndGetData($data['Uri']);
-                    break;
-                case 'LoadAndSaveFile':
-                    $ret = $this->LoadAndSaveFile($data['Uri'], $data['Filename']);
-                    break;
-                case 'GetFile':
-                    $ret = $this->GetFile($data['Filename']);
-                    break;
-                case 'GetAreaCodes':
-                    $ret = $this->ReadAttributeArray('AreaCodes');
-                    break;
-                case 'SetPhonebooks':
-                    $this->WriteAttributeArray('PhoneBooks', $data['Files']);
-                    $ret = true;
-                    break;
-                case 'GetPhonebooks':
-                    $ret = $this->ReadAttributeArray('PhoneBooks');
-                    break;
-                case 'SetPhoneDevices':
-                        $this->WriteAttributeArray('PhoneDevices', $data['Devices']);
-                        $ret = true;
-                    break;
-                case 'GetPhoneDevice':
-                    $Devices = $this->ReadAttributeArray('PhoneDevices');
-                    if (array_key_exists($data['DeviceID'], $Devices)) {
-                        $ret = $Devices[$data['DeviceID']];
-                    } else {
-                        $ret = '';
-                    }
+                }
                 break;
-                case 'GetPhoneDevices':
-                        $ret = $this->ReadAttributeArray('PhoneDevices');
-                    break;
-                default:
-                    $ret = $this->CallSoapAction($HttpCode, $data['ServiceTyp'], $data['ControlUrl'], $data['Function'], $data['Parameter']);
-                    break;
-            }
+            case 'NewHostListEvent':
+                $data['DataID'] = \FritzBox\GUID::NewHostListEvent;
+                $ret = $this->SendDataToChildren(json_encode($data));
+                break;
+            case 'LoadAndGetData':
+                $ret = $this->LoadAndGetData($data['Uri']);
+                break;
+            case 'LoadAndSaveFile':
+                $ret = $this->LoadAndSaveFile($data['Uri'], $data['Filename']);
+                break;
+            case 'GetFile':
+                $ret = $this->GetFile($data['Filename']);
+                break;
+            case 'GetAreaCodes':
+                $ret = $this->ReadAttributeArray('AreaCodes');
+                break;
+            case 'SetPhonebooks':
+                $this->WriteAttributeArray('PhoneBooks', $data['Files']);
+                $ret = true;
+                break;
+            case 'GetPhonebooks':
+                $ret = $this->ReadAttributeArray('PhoneBooks');
+                break;
+            case 'SetPhoneDevices':
+                $this->WriteAttributeArray('PhoneDevices', $data['Devices']);
+                $ret = true;
+                break;
+            case 'GetPhoneDevice':
+                $Devices = $this->ReadAttributeArray('PhoneDevices');
+                if (array_key_exists($data['DeviceID'], $Devices)) {
+                    $ret = $Devices[$data['DeviceID']];
+                } else {
+                    $ret = '';
+                }
+                break;
+            case 'GetPhoneDevices':
+                $ret = $this->ReadAttributeArray('PhoneDevices');
+                break;
+            default:
+                $ret = $this->CallSoapAction($HttpCode, $data['ServiceTyp'], $data['ControlUrl'], $data['Function'], $data['Parameter']);
+                break;
+        }
         return serialize($ret);
     }
 
@@ -797,9 +797,9 @@ class FritzBoxIO extends IPSModule
             $this->SendDebug('Soap Response Error Header', $ResponseHeaders, 0);
             $this->SendDebug('Soap Response Error', $Response, 0);
             if (property_exists($e, 'detail')) {
-                $Details = $e->detail->{$e->faultstring};
-                $Detail = $e->faultstring . '(' . $Details->errorCode . ')';
-                $this->SendDebug($Detail, $Details->errorDescription, 0);
+                $Details = $e->detail;
+                $Detail = $e->faultstring . '(' . $e->faultcode . ')';
+                $this->SendDebug($Detail, $Details, 0);
             } else {
                 $this->SendDebug('Error', $e, 0);
             }

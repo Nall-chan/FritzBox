@@ -2,6 +2,7 @@
 
 declare(strict_types=1);
 require_once __DIR__ . '/../libs/FritzBoxBase.php';
+
 class FritzBoxNASStorage extends FritzBoxModulBase
 {
     protected static $ControlUrlArray = [
@@ -11,6 +12,7 @@ class FritzBoxNASStorage extends FritzBoxModulBase
     protected static $ServiceTypeArray = [
         'urn:dslforum-org:service:X_AVM-DE_Storage:1'
     ];
+
     public function Create()
     {
         //Never delete this line!
@@ -25,6 +27,7 @@ class FritzBoxNASStorage extends FritzBoxModulBase
         //Never delete this line!
         parent::Destroy();
     }
+
     public function ApplyChanges()
     {
         $this->SetTimerInterval('RefreshInfo', 0);
@@ -35,6 +38,7 @@ class FritzBoxNASStorage extends FritzBoxModulBase
         }
         $this->UpdateInfo();
     }
+
     public function RequestAction($Ident, $Value)
     {
         if (parent::RequestAction($Ident, $Value)) {
@@ -55,6 +59,7 @@ class FritzBoxNASStorage extends FritzBoxModulBase
         trigger_error($this->Translate('Invalid Ident.'), E_USER_NOTICE);
         return false;
     }
+
     public function GetInfo()
     {
         $result = $this->Send(__FUNCTION__);
@@ -63,6 +68,7 @@ class FritzBoxNASStorage extends FritzBoxModulBase
         }
         return $result;
     }
+
     public function SetSMBServer(bool $Enable)
     {
         $result = $this->Send(__FUNCTION__, [
@@ -74,6 +80,7 @@ class FritzBoxNASStorage extends FritzBoxModulBase
         }
         return false;
     }
+
     public function SetFTPServer(bool $Enable)
     {
         $result = $this->Send(__FUNCTION__, [
@@ -85,6 +92,7 @@ class FritzBoxNASStorage extends FritzBoxModulBase
         }
         return false;
     }
+
     public function SetFTPServerWAN(bool $Enable, bool $SSLOnly)
     {
         $result = $this->Send(__FUNCTION__, [
@@ -97,6 +105,7 @@ class FritzBoxNASStorage extends FritzBoxModulBase
         }
         return false;
     }
+
     private function UpdateInfo()
     {
         $result = $this->GetInfo();

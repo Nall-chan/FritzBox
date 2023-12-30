@@ -196,7 +196,6 @@ class FritzBoxHosts extends FritzBoxModulBase
         $this->SendDebug('FORM', json_encode($Form), 0);
         $this->SendDebug('FORM', json_last_error_msg(), 0);
         return json_encode($Form);
-    
     }
     public function ReceiveData($JSONString)
     {
@@ -588,7 +587,7 @@ class FritzBoxHosts extends FritzBoxModulBase
         }
         return $HostVariables;
     }
-    
+
     private function CreateHostHTMLTable(array $TableData)
     {
         $HostName = array_column($TableData, 'HostName');

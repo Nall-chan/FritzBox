@@ -2,6 +2,7 @@
 
 declare(strict_types=1);
 require_once __DIR__ . '/../libs/FritzBoxBase.php';
+
 class FritzBoxTime extends FritzBoxModulBase
 {
     protected static $ControlUrlArray = [
@@ -37,6 +38,7 @@ class FritzBoxTime extends FritzBoxModulBase
         }
         $this->UpdateInfo();
     }
+
     public function RequestAction($Ident, $Value)
     {
         if (parent::RequestAction($Ident, $Value)) {
