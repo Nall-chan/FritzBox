@@ -99,59 +99,6 @@ class FritzBoxFileShare extends FritzBoxModulBase
         return json_encode($Form);
     }
 
-    public function GetShareList()
-    {
-        if ($this->ParentID == 0) {
-            return false;
-        }
-
-        $File = $this->GetFilelinkListPath();
-        if ($File === false) {
-            return false;
-        }
-
-        $XMLData = $this->LoadAndGetData($File);
-        if ($XMLData === false) {
-            return false;
-        }
-
-        $FileList = new \simpleXMLElement($XMLData);
-        if ($FileList === false) {
-            $this->SendDebug('XML decode error', $XMLData, 0);
-            return false;
-        }
-
-        $TableData = [];
-        foreach ($FileList as $FileItem) {
-            $Filename = explode('/', (string) $FileItem->Path);
-            $FileItem->addChild('Filename', end($Filename));
-
-            if ((int) $FileItem->IsDirectory) {
-                $FileItem->addChild('Icon', '<div class="Icon' . $this->InstanceID . self::Is_Dir . '"></div>');
-            } else {
-                $FileItem->addChild('Icon', '<div class="Icon' . $this->InstanceID . self::Is_File . '"></div>');
-            }
-            if ((int) $FileItem->Valid) {
-                $FileItem->Valid = '<div class="Icon' . $this->InstanceID . self::Is_Valid . '"></div>';
-            } else {
-                $FileItem->Valid = '<div class="Icon' . $this->InstanceID . self::Is_InValid . '"></div>';
-            }
-            if ((int) $FileItem->AccessCountLimit) {
-                $FileItem->AccessCount = (string) $FileItem->AccessCount . '/' . $FileItem->AccessCountLimit;
-            }
-            if ((int) $FileItem->Expire) {
-                $Expires = new DateTime((string) $FileItem->ExpireDate);
-                $Expires->setTimezone(new DateTimeZone(date_default_timezone_get()));
-                $FileItem->ExpireDate = $Expires->format('j.n.Y H:i:s');
-            } else {
-                $FileItem->ExpireDate = $this->Translate('Never');
-            }
-            $TableData[] = (array) $FileItem;
-        }
-        $this->SendDebug('Table', $TableData, 0);
-        return $TableData;
-    }
-
     public function RefreshFileShareTable()
     {
         $Table = $this->ReadPropertyBoolean('SharesAsTable');
@@ -241,6 +188,59 @@ class FritzBoxFileShare extends FritzBoxModulBase
             return false;
         }
         return $result;
+    }
+
+    private function GetShareList()
+    {
+        if ($this->ParentID == 0) {
+            return false;
+        }
+
+        $File = $this->GetFilelinkListPath();
+        if ($File === false) {
+            return false;
+        }
+
+        $XMLData = $this->LoadAndGetData($File);
+        if ($XMLData === false) {
+            return false;
+        }
+
+        $FileList = new \simpleXMLElement($XMLData);
+        if ($FileList === false) {
+            $this->SendDebug('XML decode error', $XMLData, 0);
+            return false;
+        }
+
+        $TableData = [];
+        foreach ($FileList as $FileItem) {
+            $Filename = explode('/', (string) $FileItem->Path);
+            $FileItem->addChild('Filename', end($Filename));
+
+            if ((int) $FileItem->IsDirectory) {
+                $FileItem->addChild('Icon', '<div class="Icon' . $this->InstanceID . self::Is_Dir . '"></div>');
+            } else {
+                $FileItem->addChild('Icon', '<div class="Icon' . $this->InstanceID . self::Is_File . '"></div>');
+            }
+            if ((int) $FileItem->Valid) {
+                $FileItem->Valid = '<div class="Icon' . $this->InstanceID . self::Is_Valid . '"></div>';
+            } else {
+                $FileItem->Valid = '<div class="Icon' . $this->InstanceID . self::Is_InValid . '"></div>';
+            }
+            if ((int) $FileItem->AccessCountLimit) {
+                $FileItem->AccessCount = (string) $FileItem->AccessCount . '/' . $FileItem->AccessCountLimit;
+            }
+            if ((int) $FileItem->Expire) {
+                $Expires = new DateTime((string) $FileItem->ExpireDate);
+                $Expires->setTimezone(new DateTimeZone(date_default_timezone_get()));
+                $FileItem->ExpireDate = $Expires->format('j.n.Y H:i:s');
+            } else {
+                $FileItem->ExpireDate = $this->Translate('Never');
+            }
+            $TableData[] = (array) $FileItem;
+        }
+        $this->SendDebug('Table', $TableData, 0);
+        return $TableData;
     }
 
     private function CreateHostHTMLTable(array $TableData)
