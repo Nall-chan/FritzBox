@@ -18,6 +18,7 @@ class FritzBoxWANCommonInterface extends FritzBoxModulBase
         'urn:schemas-upnp-org:service:WANCommonInterfaceConfig:1',
         'urn:schemas-upnp-org:service:WANCommonInterfaceConfig:1'
     ];
+
     public function Create()
     {
         //Never delete this line!
@@ -78,6 +79,7 @@ class FritzBoxWANCommonInterface extends FritzBoxModulBase
         $this->SetTimerInterval('RefreshInfo', $this->ReadPropertyInteger('RefreshInterval') * 1000);
         $this->SetTimerInterval('RefreshLinkProperties', $this->ReadPropertyInteger('RefreshLinkPropertiesInterval') * 1000);
     }
+
     public function RequestAction($Ident, $Value)
     {
         if (parent::RequestAction($Ident, $Value)) {
@@ -92,6 +94,7 @@ class FritzBoxWANCommonInterface extends FritzBoxModulBase
         trigger_error($this->Translate('Invalid Ident.'), E_USER_NOTICE);
         return false;
     }
+
     public function GetCommonLinkProperties()
     {
         $result = $this->Send(__FUNCTION__);
@@ -100,22 +103,43 @@ class FritzBoxWANCommonInterface extends FritzBoxModulBase
         }
         return $result;
     }
+
     public function GetTotalBytesSent()
     {
-        return $this->Send(__FUNCTION__);
+        $result = $this->Send(__FUNCTION__);
+        if ($result === false) {
+            return false;
+        }
+        return (int) $result;
     }
+
     public function GetTotalBytesReceived()
     {
-        return $this->Send(__FUNCTION__);
+        $result = $this->Send(__FUNCTION__);
+        if ($result === false) {
+            return false;
+        }
+        return (int) $result;
     }
+
     public function GetTotalPacketsSent()
     {
-        return $this->Send(__FUNCTION__);
+        $result = $this->Send(__FUNCTION__);
+        if ($result === false) {
+            return false;
+        }
+        return (int) $result;
     }
+
     public function GetTotalPacketsReceived()
     {
-        return $this->Send(__FUNCTION__);
+        $result = $this->Send(__FUNCTION__);
+        if ($result === false) {
+            return false;
+        }
+        return (int) $result;
     }
+
     public function GetAddonInfos()
     {
         $result = $this->Send(__FUNCTION__);
@@ -124,13 +148,23 @@ class FritzBoxWANCommonInterface extends FritzBoxModulBase
         }
         return $result;
     }
+
     public function GetDsliteStatus()
     {
-        return $this->Send('X_AVM_DE_GetDsliteStatus');
+        $result = $this->Send('X_AVM_DE_GetDsliteStatus');
+        if ($result === false) {
+            return false;
+        }
+        return (bool) $result;
     }
+
     public function GetIPTVInfos()
     {
-        return $this->Send('X_AVM_DE_GetIPTVInfos');
+        $result = $this->Send('X_AVM_DE_GetIPTVInfos');
+        if ($result === false) {
+            return false;
+        }
+        return $result;
     }
 
     public function GetConfigurationForm()
@@ -157,6 +191,7 @@ class FritzBoxWANCommonInterface extends FritzBoxModulBase
         $this->SendDebug('FORM', json_last_error_msg(), 0);
         return json_encode($Form);
     }
+
     protected function DecodeEvent($Event)
     {
         if (array_key_exists('PhysicalLinkStatus', $Event)) {
@@ -175,7 +210,6 @@ class FritzBoxWANCommonInterface extends FritzBoxModulBase
             return false;
         }
 
-        //$this->setIPSVariable('WANAccessType', 'WAN Access type', (string) $result['NewWANAccessType'], VARIABLETYPE_STRING, 'FB.AccessType');
         $this->setIPSVariable('PhysicalLinkStatus', 'Physical Link Status', (string) $result['NewPhysicalLinkStatus'], VARIABLETYPE_STRING);
         $Downstream = (int) ((int) $result['NewLayer1DownstreamMaxBitRate'] / 1000);
         $Upstream = (int) ((int) $result['NewLayer1UpstreamMaxBitRate'] / 1000);
@@ -191,9 +225,7 @@ NewX_AVM-DE_UpstreamCurrentMaxSpeed out X_AVM-DE_UpstreamCurrentMaxSpeed
          */
         return true;
     }
-    /* todo
-    function X_AVM-DE_GetActiveProvider
-     */
+
     private function UpdateAddonInfos()
     {
         $result = $this->GetAddonInfos();

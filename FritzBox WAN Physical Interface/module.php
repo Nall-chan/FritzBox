@@ -71,6 +71,16 @@ class FritzBoxWANPhysicalInterface extends FritzBoxModulBase
         return false;
     }
 
+    public function GetActiveProvider()
+    {
+        $result = $this->Send('X_AVM-DE_GetActiveProvider');
+
+        if ($result === false) {
+            return false;
+        }
+        return $result;
+    }
+    
     public function GetCommonLinkProperties()
     {
         $result = $this->Send(__FUNCTION__);
@@ -82,22 +92,38 @@ class FritzBoxWANPhysicalInterface extends FritzBoxModulBase
 
     public function GetTotalBytesSent()
     {
-        return $this->Send(__FUNCTION__);
+        $result = $this->Send(__FUNCTION__);
+        if ($result === false) {
+            return false;
+        }
+        return (int) $result;
     }
 
     public function GetTotalBytesReceived()
     {
-        return $this->Send(__FUNCTION__);
+        $result = $this->Send(__FUNCTION__);
+        if ($result === false) {
+            return false;
+        }
+        return (int) $result;
     }
 
     public function GetTotalPacketsSent()
     {
-        return $this->Send(__FUNCTION__);
+        $result = $this->Send(__FUNCTION__);
+        if ($result === false) {
+            return false;
+        }
+        return (int) $result;
     }
 
     public function GetTotalPacketsReceived()
     {
-        return $this->Send(__FUNCTION__);
+        $result = $this->Send(__FUNCTION__);
+        if ($result === false) {
+            return false;
+        }
+        return (int) $result;
     }
 
     public function SetWANAccessType(string $WanAccessType)

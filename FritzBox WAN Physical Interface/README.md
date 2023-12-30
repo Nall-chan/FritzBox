@@ -84,10 +84,11 @@ Die Statusvariablen werden automatisch angelegt. Das Löschen einzelner kann zu 
 
 ```php
 array|false FB_GetCommonLinkProperties(integer $InstanzID);
-integer FB_GetTotalBytesSent(integer $InstanzID);
-integer FB_GetTotalBytesReceived(integer $InstanzID);
-integer FB_GetTotalPacketsSent(integer $InstanzID);
-integer FB_GetTotalPacketsReceived(integer $InstanzID);
+string|false FB_GetActiveProvider(integer $InstanzID);
+integer|false FB_GetTotalBytesSent(integer $InstanzID);
+integer|false FB_GetTotalBytesReceived(integer $InstanzID);
+integer|false FB_GetTotalPacketsSent(integer $InstanzID);
+integer|false FB_GetTotalPacketsReceived(integer $InstanzID);
 boolean FB_SetWANAccessType(integer $InstanzID, string $WanAccessType);
 ```
 
