@@ -2,6 +2,7 @@
 
 declare(strict_types=1);
 require_once __DIR__ . '/../libs/FritzBoxBase.php';
+
 class FritzBoxWebDavStorage extends FritzBoxModulBase
 {
     protected static $ControlUrlArray = [
@@ -11,6 +12,7 @@ class FritzBoxWebDavStorage extends FritzBoxModulBase
     protected static $ServiceTypeArray = [
         'urn:dslforum-org:service:X_AVM-DE_WebDAVClient:1'
     ];
+
     public function Create()
     {
         //Never delete this line!
@@ -43,6 +45,7 @@ class FritzBoxWebDavStorage extends FritzBoxModulBase
             $this->SetStatus(IS_ACTIVE);
         }
     }
+
     public function RequestAction($Ident, $Value)
     {
         if (parent::RequestAction($Ident, $Value)) {
@@ -53,11 +56,12 @@ class FritzBoxWebDavStorage extends FritzBoxModulBase
                 return $this->UpdateWebDAVClient();
             case 'Enable':
                 return $this->UpdateWebDAVClient((bool) $Value);
-         }
+        }
         trigger_error($this->Translate('Invalid Ident.'), E_USER_NOTICE);
 
         return false;
     }
+
     public function GetInfo()
     {
         $result = $this->Send(__FUNCTION__);
@@ -66,6 +70,7 @@ class FritzBoxWebDavStorage extends FritzBoxModulBase
         }
         return $result;
     }
+
     public function EnableWebDAVClient(bool $Enable, string $HostURL, string $NewMountpointName)
     {
         $result = $this->Send('SetConfig', [
@@ -80,6 +85,7 @@ class FritzBoxWebDavStorage extends FritzBoxModulBase
         }
         return false;
     }
+
     private function UpdateWebDAVClient(bool $NewEnabled = null)
     {
         $result = $this->GetInfo();
@@ -93,7 +99,6 @@ class FritzBoxWebDavStorage extends FritzBoxModulBase
             }
         }
         $this->setIPSVariable('Enable', 'WebDav client active', (bool) $result['NewEnable'], VARIABLETYPE_BOOLEAN, '~Switch', true);
-
         return true;
     }
 }
