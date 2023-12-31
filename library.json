@@ -4,9 +4,9 @@
     "name": "FritzBox",
     "url": "https://github.com/Nall-chan/FritzBox/blob/master/README.md",
     "compatibility": {
-        "version": "6.0"
+        "version": "6.1"
     },
-    "version": "0.79",
-    "build": 79,
-    "date": 1690361755
+    "version": "0.80",
+    "build": 80,
+    "date": 1704031937
 }

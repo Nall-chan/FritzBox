@@ -43,7 +43,7 @@ Auslesen und steuern des Online-Speichers.
 
  Es wird empfohlen Instanzen über die entsprechenden [FritzBox Konfigurator](../FritzBox%20Configurator/README.md)-Instanz zu erzeugen.  
  
- Unter 'Instanz hinzufügen' ist das 'FritzBox FritzBox Online-Speicher'-Modul unter dem Hersteller 'AVM' aufgeführt.
+ Unter 'Instanz hinzufügen' ist das 'FritzBox Online-Speicher'-Modul unter dem Hersteller 'AVM' aufgeführt.
 
 __Konfigurationsseite__:
 

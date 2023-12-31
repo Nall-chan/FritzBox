@@ -138,6 +138,7 @@ FB_SetBasBeaconSecurityProperties(
     )
 FB_GetBasBeaconSecurityProperties(integer $InstanzID);
 FB_GetStatistics(integer $InstanzID);
+FB_GetPacketStatistics(integer $InstanzID);
 FB_GetBSSID(integer $InstanzID);
 FB_GetSSID(integer $InstanzID);
 FB_SetSSID(integer $InstanzID, string $SSID)

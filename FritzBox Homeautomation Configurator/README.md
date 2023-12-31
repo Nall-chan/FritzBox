@@ -7,7 +7,7 @@
 [![Wunschliste](https://img.shields.io/badge/Wunschliste-Amazon-ff69fb.svg)](#2-spenden)  
 
 # FritzBox Homeautomation Configurator<!-- omit in toc -->
-Beschreibung des Moduls.
+Konfigurator zum Anlegen von SmartHome Instanzen.  
 
 ### Inhaltsverzeichnis <!-- omit in toc -->
 
@@ -28,7 +28,7 @@ Beschreibung des Moduls.
 
 ## 1. Funktionsumfang
 
-
+Konfigurator zum Anlegen von SmartHome Instanzen.  
 
 ## 2. Voraussetzungen
 

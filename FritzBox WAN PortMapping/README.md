@@ -6,7 +6,7 @@
 [![Spenden](https://www.paypalobjects.com/de_DE/DE/i/btn/btn_donate_SM.gif)](#2-spenden)
 [![Wunschliste](https://img.shields.io/badge/Wunschliste-Amazon-ff69fb.svg)](#2-spenden)  
 
-# FritzBox WAN Port-Weiterleitung <!-- omit in toc -->
+# FritzBox WAN Port Mapping <!-- omit in toc -->
 Auslesen und darstellen der Portweiterleitungen.  
 
 ### Inhaltsverzeichnis <!-- omit in toc -->

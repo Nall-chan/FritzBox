@@ -7,7 +7,7 @@
 [![Wunschliste](https://img.shields.io/badge/Wunschliste-Amazon-ff69fb.svg)](#2-spenden)  
 
 # FritzBox IO <!-- omit in toc -->
-Instanz zur Kommunikation mit der FritzBox.
+Instanz zur Kommunikation mit der FritzBox.  
 
 ### Inhaltsverzeichnis <!-- omit in toc -->
 

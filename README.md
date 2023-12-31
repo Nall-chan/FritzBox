@@ -3,7 +3,7 @@
 [![Version](https://img.shields.io/badge/Symcon%20Version-6.0%20%3E-green.svg)](https://community.symcon.de/t/ip-symcon-6-0-testing/44478)  
 [![License](https://img.shields.io/badge/License-CC%20BY--NC--SA%204.0-green.svg)](https://creativecommons.org/licenses/by-nc-sa/4.0/)
 [![Check Style](https://github.com/Nall-chan/FritzBox/workflows/Check%20Style/badge.svg)](https://github.com/Nall-chan/FritzBox/actions) [![Run Tests](https://github.com/Nall-chan/FritzBox/workflows/Run%20Tests/badge.svg)](https://github.com/Nall-chan/FritzBox/actions)  
-[![Spenden](https://www.paypalobjects.com/de_DE/DE/i/btn/btn_donate_SM.gif)](#spenden)  
+[![Spenden](https://www.paypalobjects.com/de_DE/DE/i/btn/btn_donate_SM.gif)](#spenden)
 [![Wunschliste](https://img.shields.io/badge/Wunschliste-Amazon-ff69fb.svg)](#spenden)  
 
 # FritzBox <!-- omit in toc -->
@@ -22,8 +22,21 @@
 
 ## Vorbemerkungen zur Library
 
-**todo**
-Diese Library ....  
+**Falls das alte FritzBox-Project noch installiert ist:**
+
+- Deaktiviert die ScriptTimer oder setzt deren Intervall hoch. Die FritzBox reagieren empfindlich auf zu viele Anfragen.
+- Schließt den Client-Socket vom Anrufmonitor in Symcon.
+
+**Weitere Hinweise**
+1. Für die Rückwärtssuche nach Rufnummern wird das Modul hier benötigt, oder ein eigenes Script
+https://community.symcon.de/t/modul-rueckwaertssuche-von-rufnummern-ueber-das-internet/125450
+1. Das Modul enthält fast alle Funktionen des alten FritzBox-Project, teilweise aber mit anderen Leistungsmerkmalen.
+1. Die vorhandenen IPS-Variablen können teilweise von versierten Anwendern übernommen werden, eine Anleitung bzw. Beschreibung zum vorgehen folgt.
+ 1. Auch wenn AVM angefangen hat die SmartHome-Geräte über diese Schnittstelle bereitzustellen, so ist der Funktionsumfang noch sehr gering. Für das **AHA-HTTP-Interface** bitte das Modul von tommi benutzen, funktionsumfang kenne ich aber nicht → [neue PHP-Module als Ersatz meiner Delphi-Module](https://community.symcon.de/t/neue-php-module-als-ersatz-meiner-delphi-module/40770)
+1. Zugriff auf eine FritzBox über das Internet ist **nicht** möglich!
+Siehe auch CallStranger Sicherheitslücke.
+Zitat AVM: 
+`...ist nicht betroffen, da UPnP dort nicht aus dem Internet erreicht oder genutzt werden kann.`
 
 ----------
 
@@ -32,13 +45,21 @@ Diese Library ....
 Es werden Instanzen zum auffinden (Discovery) und einrichten (Konfigurator) von Geräten in Symcon bereitgestellt.  
 Diese Instanzen werden nur korrekt funktionieren, wenn die betreffenden Geräte entsprechend Konfiguriert wurden.  
 
-**todo**
 Es wird dringend empfohlen vor der Integration in IPS folgende Parameter in der FritzBox zu konfigurieren / zu prüfen:
 
 - Zugangsdaten einen Benutzers  
 - Berechtigung der Zugangsdaten  
 - Anrufmonitor, sofern gewünscht, per Telefon aktivieren. (`#96*5* wählen`)  
-...
+
+**Vorbereitungen in der FritzBox:**
+
+Es wird dringend empfohlen einen eigenen Benutzer mit Passwort in der FritzBox anzulegen und mit folgenden Berechtigungen zu versehen (Anmeldung aus Internet sollte aus sein [siehe Hinweis 5])  
+
+![Rechte](imgs/rechte.png)
+
+Unter Heimnetz / Netzwerk / Netzwerkeinstellungen / weitere Einstellungen bitte folgende Einstellungen setzen (Neustart der Box nicht vergessen):  
+
+![Heimnetz](imgs/heimnetz.png)
 
 ----------
 
@@ -63,89 +84,95 @@ Für das Discovery werden Pakete über die Multicast-Adresse `239.255.255.250` a
 ## Folgende Module beinhaltet das FritzBox Repository  
 
 - __FritzBox Discovery__ ([Dokumentation](FritzBox%20Discovery/))  
-	Kurze Beschreibung des Moduls.
+	Auffinden von FritzBox Geräten im Netzwerk.  
 
 - __FritzBox Konfigurator__ ([Dokumentation](FritzBox%20Configurator/))  
-	Kurze Beschreibung des Moduls.
+	Konfigurator zum Anlegen von weiteren Instanzen.  
 
 - __FritzBox IO__ ([Dokumentation](FritzBox%20IO/))  
-	Kurze Beschreibung des Moduls.
+	Instanz zur Kommunikation mit der FritzBox.  
 
 - __FritzBox Anruf-Monitor__ ([Dokumentation](FritzBox%20Callmonitor/))  
-	Kurze Beschreibung des Moduls.
+	Anrufmonitor welcher ankommenden und abgehenden Anrufen erkennt.  
 
 - __FritzBox DVBC__ ([Dokumentation](FritzBox%20DVBC/))  
-	Kurze Beschreibung des Moduls.
+	DVB-C Receivers der FritzBox auslesen und steuern.  
 
 - __FritzBox DynDNS__ ([Dokumentation](FritzBox%20DDNS/))  
-	Kurze Beschreibung des Moduls.
+	Auslesen und steuern des Fernzugriff und der DynDNS Funktionen.  
 
 - __FritzBox Geräte Informationen__ ([Dokumentation](FritzBox%20Device%20Info/))  
-	Kurze Beschreibung des Moduls.
+	Allgemeine Geräte Informationen abrufen.  
 
 - __FritzBox DHCP Server__ ([Dokumentation](FritzBox%20DHCP%20Server/))  
-	Kurze Beschreibung des Moduls.
+	Internen DHCP-Server der FritzBox verwalten.  
 
 - __FritzBox Dateifreigabe__ ([Dokumentation](FritzBox%20File%20Share/))  
-	Kurze Beschreibung des Moduls.
+	Dateifreigaben der FritzBox verwalten und darstellen.  
 
-- __FritzBox FritzBox Firmware Informationen__ ([Dokumentation](FritzBox%20Firmware%20Info/))  
-	Kurze Beschreibung des Moduls.
+- __FritzBox Firmware Informationen__ ([Dokumentation](FritzBox%20Firmware%20Info/))  
+	Auslesen von Informationen zur Firmware der FritzBox.  
 
 - __FritzBox Host Filter__ ([Dokumentation](FritzBox%20Host%20Filter/))  
-	Kurze Beschreibung des Moduls.
+	Abfragen und Steuern des Zugangs von Clients zum Internet.  
 
 - __FritzBox Hosts__ ([Dokumentation](FritzBox%20Hosts/))  
-	Kurze Beschreibung des Moduls.
+	Abfragen und anzeigen von Hostnamen und Onlinestatus von Geräte im Netzwerk.  
 
 - __FritzBox MyFritz__ ([Dokumentation](FritzBox%20MyFritz/))  
-	Kurze Beschreibung des Moduls.
+	Auslesen und darstellen der MyFritz Dienste.  
 
 - __FritzBox NAS Storage__ ([Dokumentation](FritzBox%20NAS%20Storage/))  
-	Kurze Beschreibung des Moduls.
+	Status der Netzwerkfreigabe und des FTP Servers auslesen und setzen.  
 
 - __FritzBox Powerline__ ([Dokumentation](FritzBox%20Powerline/))  
-	Kurze Beschreibung des Moduls.
+	Auslesen der Zustände von Powerline Geräten.  
 
 - __FritzBox SmartHome__ ([Dokumentation](FritzBox%20Homeautomation/))  
-	Kurze Beschreibung des Moduls.
+	TR64 Geräte Instanz für SmartHome Geräte der FRitzBox.  
 
 - __FritzBox SmartHome Konfigurator__ ([Dokumentation](FritzBox%20Homeautomation%20Configurator/))  
-	Kurze Beschreibung des Moduls.
+	Konfigurator zum Anlegen von SmartHome Instanzen.  
 
 - __FritzBox Telefonie__ ([Dokumentation](FritzBox%20Telephony/))  
-	Kurze Beschreibung des Moduls.
+	Verarbeitet alle Telefonie-Funktionen.  
 
 - __FritzBox NTP-Server & Systemzeit__ ([Dokumentation](FritzBox%20Time/))  
-	Kurze Beschreibung des Moduls.
+	Auslesen und Steuern des NTP Dienst.  
 
 - __FritzBox UPnP MediaServer__ ([Dokumentation](FritzBox%20UPnP%20MediaServer/))  
-	Kurze Beschreibung des Moduls.
+	Auslesen und steuern der UPnP/DLA Funktionen.  
 
-- __FritzBox WAN Interface__ ([Dokumentation](FritzBox%20WAN%20Common%20Interface/))  
-	Kurze Beschreibung des Moduls.
+- __FritzBox allgemeine WAN-Schnittstelle__ ([Dokumentation](FritzBox%20WAN%20Common%20Interface/))  
+	Auslesen der aktuell genutzten WAN Verbindung.  
 
-- __FritzBox DSL Interface__ ([Dokumentation](FritzBox%20WAN%20DSL%20Link/))  
-	Kurze Beschreibung des Moduls.
+- __FritzBox DSL-Verbindung__ ([Dokumentation](FritzBox%20WAN%20DSL%20Link/))  
+	Status der DSL Verbindung.  
 
-- __FritzBox WAN Physical Interface__ ([Dokumentation](FritzBox%20WAN%20Physical%20Interface/))  
-	Kurze Beschreibung des Moduls.
+- __FritzBox WAN physikalische WAN-Schnittstelle__ ([Dokumentation](FritzBox%20WAN%20Physical%20Interface/))  
+	Status des WAN Zugang in Symcon darstellen.  
 
-- __FritzBox WAN IP Connection__ ([Dokumentation](FritzBox%20WAN%20IP%20Connection/))  
-	Kurze Beschreibung des Moduls.
+- __FritzBox WAN IP-Verbindung__ ([Dokumentation](FritzBox%20WAN%20IP%20Connection/))  
+	Auslesen der WAN IP Verbindung.  
 
-- __FritzBox NAT Port Forwarding__ ([Dokumentation](FritzBox%20WAN%20PortMapping/))  
-	Kurze Beschreibung des Moduls.
+- __FritzBox WAN Port-Weiterleitung__ ([Dokumentation](FritzBox%20WAN%20PortMapping/))  
+	Auslesen und darstellen der Portweiterleitungen.  
 
-- __FritzBox WebDav Speicher__ ([Dokumentation](FritzBox%20WebDav%20Storage/))  
-	Kurze Beschreibung des Moduls.
+- __FritzBox Online-Speicher__ ([Dokumentation](FritzBox%20WebDav%20Storage/))  
+	Auslesen und steuern des Online-Speichers.  
 
 - __FritzBox WLAN__ ([Dokumentation](FritzBox%20WLAN/))  
-	Kurze Beschreibung des Moduls.
+	Auslesen und steuern der WLAN Funktionen.  
 
 ----------
 
 ## Changelog
+
+Version 0.80:  
+- Fehlerhafte Übersetzungen bei DVB-C, DynDNS behoben.  
+- Diverse fehlende Übersetzungen ergänzt.
+- Dynamisches Konfigurationsformular im Anrufmonitor war nicht komplett.  
+- Dokumentation erstellt.  
 
 Version 0.79:  
 - WAN DSL-Verbindung funktionierte in 0.78 nicht mehr, Änderungen aktuell zurückgenommen.  
@@ -290,7 +317,7 @@ Version 0.50:
   
   Die Library ist für die nicht kommerzielle Nutzung kostenlos, Schenkungen als Unterstützung für den Autor werden hier akzeptiert:  
 
-<a href="https://www.paypal.com/donate?hosted_button_id=G2SLW2MEMQZH2" target="_blank"><img src="https://www.paypalobjects.com/de_DE/DE/i/btn/btn_donate_LG.gif" border="0" /></a>
+<a href="https://www.paypal.com/donate?hosted_button_id=G2SLW2MEMQZH2" target="_blank"><img src="https://www.paypalobjects.com/de_DE/DE/i/btn/btn_donate_LG.gif" border="0" /></a>  
 
 [![Wunschliste](https://img.shields.io/badge/Wunschliste-Amazon-ff69fb.svg)](https://www.amazon.de/hz/wishlist/ls/YU4AI9AQT9F?ref_=wl_share) 
 

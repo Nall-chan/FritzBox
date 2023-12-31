@@ -7,7 +7,7 @@
 [![Wunschliste](https://img.shields.io/badge/Wunschliste-Amazon-ff69fb.svg)](#2-spenden)  
 
 # FritzBox Hosts <!-- omit in toc -->
-Abfragen und Anzeigen von Hostnamen und Onlinestatus von Geräte im Netzwerk.
+Abfragen und anzeigen von Hostnamen und Onlinestatus von Geräte im Netzwerk.  
 
 ### Inhaltsverzeichnis <!-- omit in toc -->
 

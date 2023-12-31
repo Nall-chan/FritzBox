@@ -7,7 +7,7 @@
 [![Wunschliste](https://img.shields.io/badge/Wunschliste-Amazon-ff69fb.svg)](#2-spenden)  
 
 # FritzBox DynDns <!-- omit in toc -->
-Auslesen und steuern des Fernzugriff und der DynDNS Funktionen.
+Auslesen und steuern des Fernzugriff und der DynDNS Funktionen.  
 
 ### Inhaltsverzeichnis <!-- omit in toc -->
 

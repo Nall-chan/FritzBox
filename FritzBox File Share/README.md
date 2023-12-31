@@ -7,7 +7,7 @@
 [![Wunschliste](https://img.shields.io/badge/Wunschliste-Amazon-ff69fb.svg)](#2-spenden)  
 
 # FritzBox Dateifreigabe <!-- omit in toc -->
-Dateifreigaben der FritzBox verwalten und darstellen.
+Dateifreigaben der FritzBox verwalten und darstellen.  
 
 ### Inhaltsverzeichnis <!-- omit in toc -->
 

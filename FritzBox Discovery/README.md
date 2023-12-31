@@ -7,7 +7,7 @@
 [![Wunschliste](https://img.shields.io/badge/Wunschliste-Amazon-ff69fb.svg)](#2-spenden)  
 
 # FritzBox Discovery <!-- omit in toc -->
-Auffinden von FritzBox Geräten im Netzwerk.
+Auffinden von FritzBox Geräten im Netzwerk.  
 
 ### Inhaltsverzeichnis <!-- omit in toc -->
 

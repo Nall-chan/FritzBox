@@ -7,7 +7,7 @@
 [![Wunschliste](https://img.shields.io/badge/Wunschliste-Amazon-ff69fb.svg)](#2-spenden)  
 
 # FritzBox Homeautomation <!-- omit in toc -->
-TR64 Geräte Instanz für SmartHome Geräte der FRitzBox.
+TR64 Geräte Instanz für SmartHome Geräte der FRitzBox.  
 
 ### Inhaltsverzeichnis <!-- omit in toc -->
 
