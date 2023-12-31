@@ -7,43 +7,56 @@ namespace FritzBox;
 class GUID
 {
     //Library
-    const CIRS = '{D0E8905A-F00C-EA84-D607-3D27000348D8}';
+    public const CIRS = '{D0E8905A-F00C-EA84-D607-3D27000348D8}';
     //Modules
-    const FritzBoxIO = '{6FF9A05D-4E49-4371-23F1-7F58283FB1D9}';
-    const Configurator = '{32CF40DC-51DA-6C63-8BD7-55E82F64B9E7}';
-    const WANCommonInterface = '{FD564AAF-E00A-4CF8-A60D-7F60B4CDFC1B}';
-    const WANIPConnection = '{61C9DC95-5A0F-7B9A-4427-82EDB57AA1B9}';
-    const WLAN = '{B3D72623-556E-B6C6-25E0-B3DEFE41F031}';
-    const Hosts = '{66495783-EAEF-7A90-B13C-399045E4790B}';
-    const DHCPServer = '{BDD8382D-00EF-4D84-8B3E-795584ABEB12}';
-    const DeviceInfo = '{0E5BA3F0-4622-4C96-8D5F-F28DAB051C2F}';
-    const Time = '{4BD2D88F-E56B-9DF1-19A2-E6A688C5EA70}';
-    const WANPortMapping = '{9396D756-40EA-46C7-AA06-623B8DCB789B}';
-    const UPnPMediaServer = '{0F09E36F-BE54-D01D-5AF1-48FF618426AC}';
-    const WebDavStorage = '{EA069D88-287E-9F08-DB85-799EBA7A2678}';
-    const Storage = '{14588B6C-6F13-A3C1-0C79-88B6624E1D87}';
-    const MyFritz = '{D8AA1AB8-0FCE-56F9-FE36-E0D49878FB75}';
-    const DynDns = '{A3828BD1-B487-1860-2812-36E8DA0D358E}';
-    const FileShare = '{E9B51A32-A87F-8E47-34E8-594535C7D42A}';
-    const HostFilter = '{6E830782-BB60-4E2E-B6FD-8937BEAE2B46}';
-    const PowerLine = '{B1B43095-2B0A-4C85-A4DE-E962404201C7}';
-    const DVBC = '{DF0D838F-C5B4-43D4-A95B-CBCF2A05138E}';
-    const HomeautomationDevice = '{822E981D-9195-4AA7-821A-36BB1E63F993}';
-    const HomeautomationConfigurator = '{D636EA77-03A0-4359-9DFD-4CE035459023}';
-    const FirmwareInfo = '{802BCC3D-7144-4803-8886-0F5A08E2BF5D}';
-    const CallMonitor = '{5B5C7F75-E7FE-AE5C-6A51-8252688CBF4D}';
-    const WANDSLLink = '{061AEAF5-ADCD-AD9E-9BF9-AD40DF364EB6}';
-    const WANPhysicalInterface = '{C1A97F94-EE83-0553-5F42-FA242F406B1E}';
-    const Telephony = '{AD0B22A7-C71C-71DD-A40B-B70334C5AB3C}';
-    const ClientSocket = '{3CFF0FD9-E306-41DB-9B5A-9D06D38576C3}';
-    const UtilControl = '{B69010EA-96D5-46DF-B885-24821B8C8DBD}';
+    public const FritzBoxIO = '{6FF9A05D-4E49-4371-23F1-7F58283FB1D9}';
+    public const Configurator = '{32CF40DC-51DA-6C63-8BD7-55E82F64B9E7}';
+    public const WANCommonInterface = '{FD564AAF-E00A-4CF8-A60D-7F60B4CDFC1B}';
+    public const WANIPConnection = '{61C9DC95-5A0F-7B9A-4427-82EDB57AA1B9}';
+    public const WLAN = '{B3D72623-556E-B6C6-25E0-B3DEFE41F031}';
+    public const Hosts = '{66495783-EAEF-7A90-B13C-399045E4790B}';
+    public const DHCPServer = '{BDD8382D-00EF-4D84-8B3E-795584ABEB12}';
+    public const DeviceInfo = '{0E5BA3F0-4622-4C96-8D5F-F28DAB051C2F}';
+    public const Time = '{4BD2D88F-E56B-9DF1-19A2-E6A688C5EA70}';
+    public const WANPortMapping = '{9396D756-40EA-46C7-AA06-623B8DCB789B}';
+    public const UPnPMediaServer = '{0F09E36F-BE54-D01D-5AF1-48FF618426AC}';
+    public const WebDavStorage = '{EA069D88-287E-9F08-DB85-799EBA7A2678}';
+    public const Storage = '{14588B6C-6F13-A3C1-0C79-88B6624E1D87}';
+    public const MyFritz = '{D8AA1AB8-0FCE-56F9-FE36-E0D49878FB75}';
+    public const DynDns = '{A3828BD1-B487-1860-2812-36E8DA0D358E}';
+    public const FileShare = '{E9B51A32-A87F-8E47-34E8-594535C7D42A}';
+    public const HostFilter = '{6E830782-BB60-4E2E-B6FD-8937BEAE2B46}';
+    public const PowerLine = '{B1B43095-2B0A-4C85-A4DE-E962404201C7}';
+    public const DVBC = '{DF0D838F-C5B4-43D4-A95B-CBCF2A05138E}';
+    public const HomeautomationDevice = '{822E981D-9195-4AA7-821A-36BB1E63F993}';
+    public const HomeautomationConfigurator = '{D636EA77-03A0-4359-9DFD-4CE035459023}';
+    public const FirmwareInfo = '{802BCC3D-7144-4803-8886-0F5A08E2BF5D}';
+    public const CallMonitor = '{5B5C7F75-E7FE-AE5C-6A51-8252688CBF4D}';
+    public const WANDSLLink = '{061AEAF5-ADCD-AD9E-9BF9-AD40DF364EB6}';
+    public const WANPhysicalInterface = '{C1A97F94-EE83-0553-5F42-FA242F406B1E}';
+    public const Telephony = '{AD0B22A7-C71C-71DD-A40B-B70334C5AB3C}';
+    public const ClientSocket = '{3CFF0FD9-E306-41DB-9B5A-9D06D38576C3}';
+    public const UtilControl = '{B69010EA-96D5-46DF-B885-24821B8C8DBD}';
+    public const Store = '{F45B5D1F-56AE-4C61-9AB2-C87C63149EC3}';
     //DataFlow
-    const SendToFritzBoxIO = '{D62D4515-7689-D1DB-EE97-F555AD9433F0}';
-    const SendEventToChildren = '{CBD869A0-869B-3D4C-7EA8-D917D935E647}';
-    const NewHostListEvent = '{FE6C73CB-028B-F569-46AC-3C02FF1F8F2F}';
-    const RefreshHostListRequest = '{3C010D20-02A3-413A-9C5E-D0747D61BEF0}';
-    const CallMonitorEvent = '{FE5B2BCA-CA0F-25DC-8E79-BDFD242CB06E}';
+    public const SendToFritzBoxIO = '{D62D4515-7689-D1DB-EE97-F555AD9433F0}';
+    public const SendEventToChildren = '{CBD869A0-869B-3D4C-7EA8-D917D935E647}';
+    public const NewHostListEvent = '{FE6C73CB-028B-F569-46AC-3C02FF1F8F2F}';
+    public const RefreshHostListRequest = '{3C010D20-02A3-413A-9C5E-D0747D61BEF0}';
+    public const CallMonitorEvent = '{FE5B2BCA-CA0F-25DC-8E79-BDFD242CB06E}';
 }
+
+class Store
+{
+    public const BundleId = 'de.nall.chan.cirs';
+    public static $Opts = [
+        'http' => [
+            'method' => 'GET',
+            'header' => "User-Agent: Awesome-PHP\r\n"
+        ]
+    ];
+}
+
 class Services
 {
     public static $Data = [

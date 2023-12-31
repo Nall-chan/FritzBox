@@ -102,6 +102,10 @@
             "after long delay": "nach langer Verzögerung",
             "after short delay": "nach kurzer Verzögerung",
             "immediately": "umgehend",
+            "Install Modul from Module-Store": "Modul aus dem Modul-Store installieren",
+            "Close": "Schließen",
+            "Please wait, installation in progress.": "Bitte warten, die Installation läuft.",
+            "Please wait": "Bitte warten",
             "This module is free for non-commercial use,\r\nDonations in support of the author are accepted here:": "Dieses Modul ist für die nicht kommerzielle Nutzung kostenlos,\r\nSchenkungen als Unterstützung für den Autor werden hier akzeptiert:"
         }
     }

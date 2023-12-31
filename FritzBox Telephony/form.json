@@ -453,6 +453,13 @@
             "type": "PopupAlert",
             "visible": false,
             "popup": {
+                "closeCaption": "Close",
+                "buttons": [
+                    {
+                        "caption": "Install Modul from Module-Store",
+                        "onClick": "IPS_RequestAction($id,'InstallCIRSModule',true);"
+                    }
+                ],
                 "items": [
                     {
                         "type": "Label",
@@ -532,6 +539,21 @@
                                 "image": ""
                             }
                         ]
+                    }
+                ]
+            }
+        },
+        {
+            "type": "PopupAlert",
+            "name": "WaitPopup",
+            "visible": false,
+            "popup": {
+                "closeCaption": "Please wait",
+                "items": [
+                    {
+                        "name": "WaitText",
+                        "type": "Label",
+                        "caption": "Please wait, installation in progress."
                     }
                 ]
             }

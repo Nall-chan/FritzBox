@@ -39,6 +39,7 @@ class FritzBoxTelephony extends FritzBoxModulBase
 
     protected static $SecondEventGUID = \FritzBox\GUID::CallMonitorEvent;
     protected static $DefaultIndex = 0;
+
     public function Create()
     {
         //Never delete this line!
@@ -182,6 +183,12 @@ class FritzBoxTelephony extends FritzBoxModulBase
                 }
                 $this->UpdateFormField('RefreshIntervalCallLog', 'enabled', ($CallMonitorOpen ? false : $Value));
                 return;
+            case 'InstallCIRSModule':
+                $this->UpdateFormField('ReversSearchPopup', 'visible', false);
+                $this->UpdateFormField('WaitPopup', 'visible', true);
+                $this->InstallCIRSModule();
+                $this->ReloadForm();
+                return;
         }
 
         if (substr($Ident, 0, 2) == 'D_') {
@@ -198,9 +205,19 @@ class FritzBoxTelephony extends FritzBoxModulBase
         if ($this->GetStatus() == IS_CREATING) {
             return json_encode($Form);
         }
-        if (!IPS_LibraryExists(\FritzBox\GUID::CIRS)) {
+        if (!$this->isCIRSModuleInstalled()) {
             if (!$this->ReadPropertyBoolean('NotShowWarning')) {
                 $Form['elements'][4]['visible'] = true;
+                if ($this->StoreAvailable()) {
+                    $Form['elements'][4]['popup']['items'][2]['visible'] = false;
+                } else {
+                    $Form['elements'][4]['popup']['buttons'] = [
+                        [
+                            'caption'=> 'Module-Store not available',
+                            'enabled'=> false
+                        ]
+                    ];
+                }
             }
         }
         if (!$this->ReadPropertyBoolean('CallLogAsVariable')) {
@@ -511,6 +528,7 @@ class FritzBoxTelephony extends FritzBoxModulBase
         }
         return true;
     }
+
     /**
      * Verarbeitet Daten aus dem Webhook.
      *
@@ -1155,5 +1173,36 @@ class FritzBoxTelephony extends FritzBoxModulBase
             ]
         ];
         return ['Table' => $NewTableConfig, 'Columns' => $NewColumnsConfig, 'Rows' => $NewRowsConfig, 'Icons'=> $NewIcons];
+    }
+
+    private function isCIRSModuleInstalled(): bool
+    {
+        return IPS_LibraryExists(\FritzBox\GUID::CIRS);
+    }
+    private function StoreAvailable(): bool
+    {
+        $Id = IPS_GetInstanceListByModuleID(\FritzBox\GUID::Store)[0];
+        return SC_GetLastConfirmedStoreConditions($Id) == 3;
+    }
+    private function InstallCIRSModule()
+    {
+        $Id = IPS_GetInstanceListByModuleID(\FritzBox\GUID::Store)[0];
+        $Context = stream_context_create(\FritzBox\Store::$Opts);
+        $Version = urlencode('{"version":"6.4","date":' . time() . '}');
+        $Bundles = json_decode(file_get_contents('https://api.symcon.de/store/modules?language=de&search=Rückwärtssuche&compatibility=' . $Version, false, $Context), true);
+        $Bundles = array_values(array_filter($Bundles, function ($item)
+        {
+            return $item['bundle'] == \FritzBox\Store::BundleId;
+        }));
+        $Module = [];
+        foreach ($Bundles as $Channel) {
+            $Module[$Channel['channel']] = $Channel;
+        }
+        if (array_key_exists('beta', $Module)) {
+            $Install = $Module['beta'];
+        } else {
+            $Install = $Module['stable'];
+        }
+        return SC_InstallModule($Id, $Install['bundle'], 1, $Install['release']);
     }
 }
