@@ -14,6 +14,7 @@ class FritzBoxFirmwareInfo extends FritzBoxModulBase
         'urn:dslforum-org:service:UserInterface:1'
     ];
     protected static $DefaultIndex = 0;
+
     public function Create()
     {
         //Never delete this line!
@@ -22,6 +23,7 @@ class FritzBoxFirmwareInfo extends FritzBoxModulBase
         $this->RegisterPropertyInteger('RefreshInterval', 60);
         $this->RegisterTimer('RefreshState', 0, 'IPS_RequestAction(' . $this->InstanceID . ',"RefreshState",true);');
     }
+
     public function Destroy()
     {
         if (!IPS_InstanceExists($this->InstanceID)) {
@@ -78,6 +80,7 @@ class FritzBoxFirmwareInfo extends FritzBoxModulBase
 
         $this->UpdateInfo();
     }
+
     public function RequestAction($Ident, $Value)
     {
         if (parent::RequestAction($Ident, $Value)) {
@@ -93,6 +96,7 @@ class FritzBoxFirmwareInfo extends FritzBoxModulBase
 
         return false;
     }
+
     public function GetInfo()
     {
         $result = $this->Send(__FUNCTION__);
@@ -101,6 +105,7 @@ class FritzBoxFirmwareInfo extends FritzBoxModulBase
         }
         return $result;
     }
+
     public function GetInfoEx()
     {
         $result = $this->Send('X_AVM-DE_GetInfo');
@@ -109,6 +114,7 @@ class FritzBoxFirmwareInfo extends FritzBoxModulBase
         }
         return $result;
     }
+
     public function SetAutoUpdateMode(string $Mode)
     {
         $result = $this->Send('X_AVM-DE_SetConfig', [
@@ -120,6 +126,7 @@ class FritzBoxFirmwareInfo extends FritzBoxModulBase
         $this->setIPSVariable('AutoUpdateMode', 'Autoupdate Mode', $Mode, VARIABLETYPE_STRING, 'FB.AutoUpdateMode', true);
         return true;
     }
+
     public function GetInternationalConfig()
     {
         $result = $this->Send('X_AVM-DE_GetInternationalConfig');
@@ -128,6 +135,7 @@ class FritzBoxFirmwareInfo extends FritzBoxModulBase
         }
         return $result;
     }
+
     public function CheckUpdate()
     {
         $result = $this->Send('X_AVM-DE_CheckUpdate');
@@ -136,6 +144,7 @@ class FritzBoxFirmwareInfo extends FritzBoxModulBase
         }
         return true;
     }
+
     public function DoUpdate()
     {
         $result = $this->Send('X_AVM-DE_DoUpdate');

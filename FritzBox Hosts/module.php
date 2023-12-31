@@ -197,6 +197,7 @@ class FritzBoxHosts extends FritzBoxModulBase
         $this->SendDebug('FORM', json_last_error_msg(), 0);
         return json_encode($Form);
     }
+
     public function ReceiveData($JSONString)
     {
         $Processed = parent::ReceiveData($JSONString);

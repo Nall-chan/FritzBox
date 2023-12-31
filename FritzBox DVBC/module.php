@@ -11,6 +11,7 @@ class FritzBoxDVBC extends FritzBoxModulBase
     protected static $ServiceTypeArray = [
         'urn:dslforum-org:service:X_AVM-DE_Media:1'
     ];
+
     public function Create()
     {
         //Never delete this line!
@@ -51,6 +52,7 @@ class FritzBoxDVBC extends FritzBoxModulBase
         }
         $this->UpdateInfo();
     }
+
     public function RequestAction($Ident, $Value)
     {
         if (parent::RequestAction($Ident, $Value)) {
@@ -67,6 +69,7 @@ class FritzBoxDVBC extends FritzBoxModulBase
         trigger_error($this->Translate('Invalid Ident.'), E_USER_NOTICE);
         return false;
     }
+
     public function GetInfo()
     {
         $Result = $this->Send('GetInfo');
@@ -99,6 +102,7 @@ class FritzBoxDVBC extends FritzBoxModulBase
         $this->setIPSVariable('StationSearchStatus', 'Station search status', (string) $Result, VARIABLETYPE_STRING, 'FB.ActiveInactive');
         return true;
     }
+
     private function UpdateInfo()
     {
         $Result = $this->GetInfo();

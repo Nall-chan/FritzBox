@@ -29,11 +29,13 @@ class FritzBoxModulBase extends IPSModule
         \FritzBoxModulBase\InstanceStatus::MessageSink as IOMessageSink;
         \FritzBoxModulBase\InstanceStatus::RequestAction as IORequestAction;
     }
+
     protected static $ControlUrlArray = [];
     protected static $ServiceTypeArray = [];
     protected static $EventSubURLArray = [];
     protected static $SecondEventGUID = '';
     protected static $DefaultIndex = -1;
+
     public function Create()
     {
         //Never delete this line!
@@ -57,6 +59,7 @@ class FritzBoxModulBase extends IPSModule
         //Never delete this line!
         parent::Destroy();
     }
+
     public function ApplyChanges()
     {
         //Never delete this line!
@@ -107,6 +110,7 @@ class FritzBoxModulBase extends IPSModule
         }
         return false;
     }
+
     public function MessageSink($TimeStamp, $SenderID, $Message, $Data)
     {
         $this->IOMessageSink($TimeStamp, $SenderID, $Message, $Data);
@@ -117,23 +121,6 @@ class FritzBoxModulBase extends IPSModule
                 break;
         }
     }
-    // TESTING TODO
-    /*public function Test(string $Function)
-    {
-        $result = $this->SendEx($Function, 1);
-        if ($result === false) {
-            return false;
-        }
-        return $result;
-    }
-    public function TestValue(string $Function, $Value)
-    {
-        $result = $this->SendEx($Function, 1, $Value);
-        if ($result === false) {
-            return false;
-        }
-        return $result;
-    }*/
 
     public function ReceiveData($JSONString)
     {
@@ -150,6 +137,7 @@ class FritzBoxModulBase extends IPSModule
         }
         return null;
     }
+
     protected function DecodeEvent($Event)
     {
         foreach ($Event as $Ident => $EventData) {
@@ -162,16 +150,13 @@ class FritzBoxModulBase extends IPSModule
             }
         }
     }
+
     protected function KernelReady()
     {
         $this->UnregisterMessage(0, IPS_KERNELSTARTED);
         $this->ApplyChanges();
     }
 
-    /*protected function RegisterParent()
-    {
-        $this->IORegisterParent();
-    }*/
     /**
      * Wird ausgeführt wenn sich der Status vom Parent ändert.
      */
@@ -205,6 +190,7 @@ class FritzBoxModulBase extends IPSModule
         }
         return $Result;
     }
+
     protected function DoSubscribe(): bool
     {
         $Index = $this->ReadPropertyInteger('Index');
@@ -258,6 +244,7 @@ class FritzBoxModulBase extends IPSModule
         $this->SetTimerInterval('RenewSubscription', ((int) $Result['TIMEOUT'] - 300) * 1000);
         return true;
     }
+
     protected function WaitForEvent()
     {
         for ($i = 0; $i < 1000; $i++) {
@@ -269,6 +256,7 @@ class FritzBoxModulBase extends IPSModule
         }
         return false;
     }
+
     protected function RefreshHostXML()
     {
         $this->SendDebug('RefreshHostList', '', 0);
@@ -284,6 +272,7 @@ class FritzBoxModulBase extends IPSModule
         }
         return true;
     }
+
     protected function GetConfiguratorID()
     {
         $GUID = \FritzBox\GUID::Configurator;
@@ -323,6 +312,7 @@ class FritzBoxModulBase extends IPSModule
         $this->SendDebug('Result', $Result, 0);
         return $Result;
     }
+
     protected function GetFile(string $Filename)
     {
         if (!$this->HasActiveParent()) {
@@ -357,6 +347,7 @@ class FritzBoxModulBase extends IPSModule
         }
         return $this->SendEx($Function, $Index, $Parameter);
     }
+
     protected function SendEx(string $Function, int $Index, array $Parameter = [])
     {
         if (!$this->HasActiveParent()) {
@@ -428,6 +419,7 @@ class FritzBoxModulBase extends IPSModule
     {
         return preg_replace('/[^a-zA-Z0-9_]/', '', $Ident);
     }
+
     /**
      * Erstellt eine Untervariable in IPS.
      *
@@ -485,6 +477,7 @@ class FritzBoxModulBase extends IPSModule
         }
         return $vid;
     }
+
     protected function DelSubObjects(int $ObjectId)
     {
         foreach (IPS_GetChildrenIDs($ObjectId) as $Id) {
@@ -514,6 +507,7 @@ class FritzBoxModulBase extends IPSModule
                 }
         }
     }
+
     protected function ServeFile(string $path)
     {
         $extension = pathinfo($path, PATHINFO_EXTENSION);
@@ -539,6 +533,7 @@ class FritzBoxModulBase extends IPSModule
             readfile($path);
         }
     }
+
     protected function IsCompressionAllowed($mimeType)
     {
         return in_array($mimeType, [
@@ -574,6 +569,7 @@ class FritzBoxModulBase extends IPSModule
         }
         return 'text/plain';
     }
+
     private function Unsubscribe()
     {
         $this->SendDebug('Unsubscribe', $this->SID, 0);
@@ -613,6 +609,7 @@ class FritzBoxModulBase extends IPSModule
             $this->SendDebug('Unsubscribe', $Result, 0);
         }
     }
+
     private function FilterInstances(int $InstanceID)
     {
         return IPS_GetInstance($InstanceID)['ConnectionID'] == $this->ParentID;

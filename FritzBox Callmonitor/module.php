@@ -6,6 +6,7 @@ require_once __DIR__ . '/../libs/FritzBoxBase.php';
 require_once __DIR__ . '/../libs/FritzBoxTelHelper.php';
 require_once __DIR__ . '/../libs/FritzBoxTable.php';
 eval('declare(strict_types=1);namespace FritzBoxCallmonitor {?>' . file_get_contents(__DIR__ . '/../libs/helper/SemaphoreHelper.php') . '}');
+
 /**
  * @property array $CallData
  * @method bool lock(string $ident)
@@ -112,6 +113,7 @@ class FritzBoxCallmonitor extends FritzBoxModulBase
             $this->UnregisterVariable('CallList');
         }
     }
+
     public function RequestAction($Ident, $Value)
     {
         if (parent::RequestAction($Ident, $Value)) {
@@ -173,6 +175,7 @@ class FritzBoxCallmonitor extends FritzBoxModulBase
         trigger_error($this->Translate('Invalid Ident.'), E_USER_NOTICE);
         return false;
     }
+
     public function GetConfigurationForm()
     {
         $Form = json_decode(file_get_contents(__DIR__ . '/form.json'), true);
@@ -212,6 +215,7 @@ class FritzBoxCallmonitor extends FritzBoxModulBase
         $this->SendDebug('FORM', json_last_error_msg(), 0);
         return json_encode($Form);
     }
+
     public function ReceiveData($JSONString)
     {
         $data = json_decode($JSONString, true);
@@ -300,6 +304,7 @@ class FritzBoxCallmonitor extends FritzBoxModulBase
         }
         return true;
     }
+
     private function SendNotification(array $NotifyData)
     {
         if (!$this->ReadPropertyBoolean('CallsAsNotification')) {
@@ -330,6 +335,7 @@ class FritzBoxCallmonitor extends FritzBoxModulBase
             WFC_SendNotification($Target['target'], $Title, $Text, $Icon, $Timeout);
         }
     }
+
     private function RunActions(array $NotifyData)
     {
         $Actions = json_decode($this->ReadPropertyString('Actions'), true);
@@ -358,6 +364,7 @@ class FritzBoxCallmonitor extends FritzBoxModulBase
             IPS_RunAction($ActionData['actionID'], $ActionData['parameters']);
         }
     }
+
     private function InsertValuesInActionParameters(array &$ActionData, array $Pattern, array $Values)
     {
         foreach ($ActionData['parameters'] as &$Parameters) {
@@ -370,6 +377,7 @@ class FritzBoxCallmonitor extends FritzBoxModulBase
             }
         }
     }
+
     private function RebuildTable()
     {
         if (!$this->ReadPropertyBoolean('CallsAsTable')) {
@@ -404,6 +412,7 @@ class FritzBoxCallmonitor extends FritzBoxModulBase
         $this->SetValue('CallList', $Icon_CSS . $HTML);
         return true;
     }
+
     private function GenerateHTMLStyleProperty()
     {
         $NewTableConfig = [
@@ -559,6 +568,7 @@ class FritzBoxCallmonitor extends FritzBoxModulBase
         ];
         return ['Table' => $NewTableConfig, 'Columns' => $NewColumnsConfig, 'Rows' => $NewRowsConfig, 'Icons' => $NewIcons];
     }
+
     private function SearchName(string $Number)
     {
         $AreaCode = $this->ReadPropertyString('AreaCode');

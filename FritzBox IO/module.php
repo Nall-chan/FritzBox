@@ -364,6 +364,7 @@ class FritzBoxIO extends IPSModule
             )
         );
     }
+
     private function CreateTempDir()
     {
         if (!is_dir(IPS_GetKErnelDir() . 'FritzBoxTemp')) {
@@ -373,6 +374,7 @@ class FritzBoxIO extends IPSModule
             @mkdir(IPS_GetKErnelDir() . 'FritzBoxTemp/' . $this->InstanceID);
         }
     }
+
     private function CreateCallMonitorCS()
     {
         if (IPS_GetInstance($this->InstanceID)['ConnectionID'] != 0) {
@@ -387,6 +389,7 @@ class FritzBoxIO extends IPSModule
             @IPS_ApplyChanges($ParentId);
         }
     }
+
     private function SendHeaders()
     {
         header('Connection: close');
@@ -432,6 +435,7 @@ class FritzBoxIO extends IPSModule
         $this->SetMediaObjectData($Filename, $Data);
         return true;
     }
+
     private function SetMediaObjectData(string $Ident, string $Data)
     {
         $Ident = preg_replace('/[^a-z0-9_]+/i', '_', $Ident);
@@ -449,6 +453,7 @@ class FritzBoxIO extends IPSModule
         }
         IPS_SetMediaContent($MediaID, base64_encode($Data));
     }
+
     private function GetMediaObjectID(string $Ident): int
     {
         $Ident = preg_replace('/[^a-z0-9_]+/i', '_', $Ident);
@@ -460,6 +465,7 @@ class FritzBoxIO extends IPSModule
         $this->SendDebug('Get MediaObject(' . $MediaID . ')', $Ident, 0);
         return $MediaID;
     }
+
     private function GetFile(string $Filename): int
     {
         $this->SendDebug('Get File: ', $Filename, 0);
@@ -577,6 +583,7 @@ class FritzBoxIO extends IPSModule
         $this->WriteAttributeString('ConsumerAddress', $Url);
         return true;
     }
+
     private function KernelReady()
     {
         $this->UnregisterMessage(0, IPS_KERNELMESSAGE);
@@ -619,6 +626,7 @@ class FritzBoxIO extends IPSModule
         $this->Url = $Scheme . '://' . $Host . ':' . $Port;
         return true;
     }
+
     private function GetLastUser()
     {
         $result = $this->CallSoapAction(
@@ -641,6 +649,7 @@ class FritzBoxIO extends IPSModule
         }
         return '';
     }
+
     private function getWANConnectionTyp(&$HttpCode): bool
     {
         $result = $this->CallSoapAction(
@@ -656,6 +665,7 @@ class FritzBoxIO extends IPSModule
         $this->setIPSVariable('ConnectionType', 'Connection Type', (string) $result, VARIABLETYPE_STRING);
         return true;
     }
+
     private function getAreaCodes()
     {
         $Area = $this->CallSoapAction(
@@ -685,6 +695,7 @@ class FritzBoxIO extends IPSModule
         $this->WriteAttributeArray('AreaCodes', $Areas);
         return true;
     }
+
     private function checkCallMonitorPort()
     {
         $Host = parse_url($this->Url, PHP_URL_HOST);
@@ -696,6 +707,7 @@ class FritzBoxIO extends IPSModule
         }
         return false;
     }
+
     private function setIPSVariable(string $ident, string $name, $value, $type)
     {
         $this->MaintainVariable($ident, $this->Translate($name), $type, '', 0, true);
@@ -894,6 +906,7 @@ class FritzBoxIO extends IPSModule
             return $data;
         }
     }
+
     private function Unsubscribe(string $Uri, string $SID)
     {
         $stream = stream_context_create(
@@ -946,6 +959,7 @@ class FritzBoxIO extends IPSModule
             return true;
         }
     }
+
     private function http_parse_headers($raw_headers)
     {
         $headers = [];

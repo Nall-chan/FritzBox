@@ -11,6 +11,7 @@ class FritzBoxHomeautomation extends FritzBoxModulBase
     protected static $ServiceTypeArray = [
         'urn:dslforum-org:service:X_AVM-DE_Homeauto:1'
     ];
+
     public function Create()
     {
         //Never delete this line!
@@ -64,6 +65,7 @@ class FritzBoxHomeautomation extends FritzBoxModulBase
         }
         $this->UpdateInfo();
     }
+
     public function RequestAction($Ident, $Value)
     {
         if (parent::RequestAction($Ident, $Value)) {
@@ -78,6 +80,7 @@ class FritzBoxHomeautomation extends FritzBoxModulBase
         trigger_error($this->Translate('Invalid Ident.'), E_USER_NOTICE);
         return false;
     }
+
     public function GetInfo()
     {
         $Result = $this->Send('GetInfo');
@@ -86,6 +89,7 @@ class FritzBoxHomeautomation extends FritzBoxModulBase
         }
         return $Result;
     }
+
     public function GetSpecificDeviceInfos()
     {
         $Result = $this->Send('GetSpecificDeviceInfos', [
@@ -125,6 +129,7 @@ class FritzBoxHomeautomation extends FritzBoxModulBase
         }
         return true;
     }
+
     private function UpdateInfo()
     {
         $Result = $this->GetSpecificDeviceInfos();

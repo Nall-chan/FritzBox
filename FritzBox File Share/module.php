@@ -20,6 +20,7 @@ class FritzBoxFileShare extends FritzBoxModulBase
         'urn:dslforum-org:service:X_AVM-DE_Filelinks:1'
     ];
     protected static $DefaultIndex = 0;
+
     public function Create()
     {
         //Never delete this line!
@@ -263,6 +264,7 @@ class FritzBoxFileShare extends FritzBoxModulBase
         $this->SetValue('SharesTable', $Icon_CSS . $HTML);
         return true;
     }
+
     private function GenerateHTMLStyleProperty()
     {
         $NewTableConfig = [

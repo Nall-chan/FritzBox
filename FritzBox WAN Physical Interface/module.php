@@ -80,7 +80,7 @@ class FritzBoxWANPhysicalInterface extends FritzBoxModulBase
         }
         return $result;
     }
-    
+
     public function GetCommonLinkProperties()
     {
         $result = $this->Send(__FUNCTION__);

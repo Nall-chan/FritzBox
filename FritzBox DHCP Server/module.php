@@ -13,6 +13,7 @@ class FritzBoxDHCPServer extends FritzBoxModulBase
         'urn:dslforum-org:service:LANHostConfigManagement:1'
     ];
     protected static $DefaultIndex = 0;
+
     public function Create()
     {
         //Never delete this line!
@@ -38,6 +39,7 @@ class FritzBoxDHCPServer extends FritzBoxModulBase
 
         $this->UpdateInfo();
     }
+
     public function RequestAction($Ident, $Value)
     {
         if (parent::RequestAction($Ident, $Value)) {
@@ -61,6 +63,7 @@ class FritzBoxDHCPServer extends FritzBoxModulBase
 
         return false;
     }
+
     public function GetInfo()
     {
         $result = $this->Send(__FUNCTION__);
@@ -69,6 +72,7 @@ class FritzBoxDHCPServer extends FritzBoxModulBase
         }
         return $result;
     }
+
     public function GetAddressRange()
     {
         $result = $this->Send(__FUNCTION__);
@@ -78,6 +82,7 @@ class FritzBoxDHCPServer extends FritzBoxModulBase
 
         return $result;
     }
+
     public function GetIPRoutersList()
     {
         $result = $this->Send(__FUNCTION__);
@@ -87,6 +92,7 @@ class FritzBoxDHCPServer extends FritzBoxModulBase
 
         return $result;
     }
+
     public function GetSubnetMask()
     {
         $result = $this->Send(__FUNCTION__);
@@ -96,6 +102,7 @@ class FritzBoxDHCPServer extends FritzBoxModulBase
 
         return $result;
     }
+
     public function GetDNSServers()
     {
         $result = $this->Send(__FUNCTION__);
@@ -105,6 +112,7 @@ class FritzBoxDHCPServer extends FritzBoxModulBase
 
         return $result;
     }
+
     public function GetIPInterfaceNumberOfEntries()
     {
         $result = $this->Send(__FUNCTION__);
@@ -114,6 +122,7 @@ class FritzBoxDHCPServer extends FritzBoxModulBase
 
         return $result;
     }
+
     public function SetDHCPServerEnable(bool $Value)
     {
         $result = $this->Send(__FUNCTION__, ['NewDHCPServerEnable'=>(int) $Value]);
@@ -123,6 +132,7 @@ class FritzBoxDHCPServer extends FritzBoxModulBase
 
         return true;
     }
+
     public function SetIPInterface(bool $Enable, string $IPInterfaceIPAddress, string $IPInterfaceSubnetMask, string $IPInterfaceIPAddressingType)
     {
         $result = $this->Send(__FUNCTION__, [
@@ -137,6 +147,7 @@ class FritzBoxDHCPServer extends FritzBoxModulBase
 
         return true;
     }
+
     public function SetAddressRange(string $MinAddress, string $MaxAddress)
     {
         $result = $this->Send(__FUNCTION__, [
@@ -149,6 +160,7 @@ class FritzBoxDHCPServer extends FritzBoxModulBase
 
         return true;
     }
+
     public function SetIPRouter(string $IPRouters)
     {
         $result = $this->Send(__FUNCTION__, [
@@ -160,6 +172,7 @@ class FritzBoxDHCPServer extends FritzBoxModulBase
 
         return true;
     }
+
     public function SetSubnetMask(string $SubnetMask)
     {
         $result = $this->Send(__FUNCTION__, [

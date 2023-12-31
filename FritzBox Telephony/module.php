@@ -119,6 +119,7 @@ class FritzBoxTelephony extends FritzBoxModulBase
         // SetDeflectionEnable
         //$this->RegisterHook('/hook/FritzBoxCallLog' . $this->InstanceID);
     }
+
     public function RequestAction($Ident, $Value)
     {
         if (parent::RequestAction($Ident, $Value)) {
@@ -190,6 +191,7 @@ class FritzBoxTelephony extends FritzBoxModulBase
         trigger_error($this->Translate('Invalid Ident.'), E_USER_NOTICE);
         return false;
     }
+
     public function GetConfigurationForm()
     {
         $Form = json_decode(file_get_contents(__DIR__ . '/form.json'), true);
@@ -246,6 +248,7 @@ class FritzBoxTelephony extends FritzBoxModulBase
         }
         return $result;
     }
+
     public function GetPhonebookList()
     {
         $result = $this->Send(__FUNCTION__);
@@ -254,6 +257,7 @@ class FritzBoxTelephony extends FritzBoxModulBase
         }
         return $result;
     }
+
     public function GetPhonebook(int $PhonebookID)
     {
         $result = $this->Send(
@@ -267,6 +271,7 @@ class FritzBoxTelephony extends FritzBoxModulBase
         }
         return $result;
     }
+
     public function GetPhonebookEntry(int $PhonebookID, int $PhonebookEntryID)
     {
         $result = $this->Send(
@@ -281,6 +286,7 @@ class FritzBoxTelephony extends FritzBoxModulBase
         }
         return $result;
     }
+
     public function GetPhonebookEntryUID(int $PhonebookID, int $PhonebookEntryUniqueID)
     {
         $result = $this->Send(
@@ -295,6 +301,7 @@ class FritzBoxTelephony extends FritzBoxModulBase
         }
         return $result;
     }
+
     public function GetPhonebooks()
     {
         $Files = $this->GetPhoneBookFiles();
@@ -309,6 +316,7 @@ class FritzBoxTelephony extends FritzBoxModulBase
         }
         return $Result;
     }
+
     public function GetPhonebookEntrysByNumber(string $Number)
     {
         $Files = $this->GetPhoneBookFiles();
@@ -335,6 +343,7 @@ class FritzBoxTelephony extends FritzBoxModulBase
         }
         return false;
     }
+
     public function SearchNameByNumber(string $Number, string $AreaCode)
     {
         $Name = $this->GetNameByNumber($Number, $AreaCode);
@@ -344,6 +353,7 @@ class FritzBoxTelephony extends FritzBoxModulBase
         }
         return $Name;
     }
+
     public function GetDECTHandsetList()
     {
         $result = $this->Send(__FUNCTION__);
@@ -352,6 +362,7 @@ class FritzBoxTelephony extends FritzBoxModulBase
         }
         return $result;
     }
+
     public function GetDECTHandsetInfo(int $DectID)
     {
         $result = $this->Send(
@@ -365,6 +376,7 @@ class FritzBoxTelephony extends FritzBoxModulBase
         }
         return $result;
     }
+
     public function GetNumberOfDeflections()
     {
         $result = $this->Send(__FUNCTION__);
@@ -373,6 +385,7 @@ class FritzBoxTelephony extends FritzBoxModulBase
         }
         return $result;
     }
+
     public function GetDeflections()
     {
         $result = $this->Send(__FUNCTION__);
@@ -381,6 +394,7 @@ class FritzBoxTelephony extends FritzBoxModulBase
         }
         return $result;
     }
+
     public function GetDeflection(int $DeflectionId)
     {
         $result = $this->Send(
@@ -394,6 +408,7 @@ class FritzBoxTelephony extends FritzBoxModulBase
         }
         return $result;
     }
+
     public function SetDeflectionEnable(int $DeflectionId, bool $Enable)
     {
         $result = $this->Send(
@@ -416,6 +431,7 @@ class FritzBoxTelephony extends FritzBoxModulBase
         }
         return true;
     }
+
     public function GetCallBarringList()
     {
         $result = $this->Send(__FUNCTION__);
@@ -424,6 +440,7 @@ class FritzBoxTelephony extends FritzBoxModulBase
         }
         return $this->LoadAndGetData($result);
     }
+
     public function GetCallBarringEntry(int $PhonebookEntryID)
     {
         $result = $this->Send(
@@ -437,6 +454,7 @@ class FritzBoxTelephony extends FritzBoxModulBase
         }
         return $result;
     }
+
     public function GetCallBarringEntryByNum(string $Number)
     {
         $result = $this->Send(
@@ -450,6 +468,7 @@ class FritzBoxTelephony extends FritzBoxModulBase
         }
         return $result;
     }
+
     public function SetCallBarringEntry(string $PhonebookEntryData)
     {
         $result = $this->Send(
@@ -463,6 +482,7 @@ class FritzBoxTelephony extends FritzBoxModulBase
         }
         return $result;
     }
+
     public function DeleteCallBarringEntryUID(string $PhonebookEntryData)
     {
         $result = $this->Send(
@@ -476,6 +496,7 @@ class FritzBoxTelephony extends FritzBoxModulBase
         }
         return $result;
     }
+
     public function ReceiveData($JSONString)
     {
         $data = json_decode($JSONString, true);
@@ -530,6 +551,7 @@ class FritzBoxTelephony extends FritzBoxModulBase
             echo 'OK';
         }*/
     }
+
     private function SetNewCallLogRefreshTimer()
     {
         $Interval = $this->ReadPropertyInteger('RefreshIntervalCallLog') * 60000;
@@ -546,6 +568,7 @@ class FritzBoxTelephony extends FritzBoxModulBase
         $this->SendDebug('NewCallLogRefreshTimer', $Interval, 0);
         $this->SetTimerInterval('RefreshCallLog', $Interval);
     }
+
     private function RefreshCallLog()
     {
         $this->SendDebug('RefreshCallLog', 'start', 0);
@@ -694,6 +717,7 @@ class FritzBoxTelephony extends FritzBoxModulBase
         $this->SetPhonebookFiles($LoadedFiles);
         return true;
     }
+
     private function RefreshDeflectionList($ActionIdent = null, $ActionValue = false)
     {
         if (!$this->ReadPropertyBoolean('DeflectionAsVariable') && !$this->ReadPropertyBoolean('CallBarringAsVariable') && is_null($ActionIdent)) {
@@ -862,6 +886,7 @@ class FritzBoxTelephony extends FritzBoxModulBase
         }
         return $Result;
     }
+
     private function ConvertDeflectMode(string $Mode): string
     {
         switch ($Mode) {
@@ -877,6 +902,7 @@ class FritzBoxTelephony extends FritzBoxModulBase
                 return 'immediately';
         }
     }
+
     private function SetPhonebookFiles(array $Files)
     {
         if (!$this->HasActiveParent()) {

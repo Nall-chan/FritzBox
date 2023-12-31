@@ -43,6 +43,7 @@ class FritzBoxDiscovery extends IPSModule
         //Never delete this line!
         parent::ApplyChanges();
     }
+
     public function GetConfigurationForm()
     {
         $Form = json_decode(file_get_contents(__DIR__ . '/form.json'), true);
@@ -271,6 +272,7 @@ class FritzBoxDiscovery extends IPSModule
         $this->SendDebug('DevicesData', $DevicesData, 0);
         return $DevicesData;
     }
+
     private function parseHeader(string $Data): array
     {
         $Lines = explode("\r\n", $Data);
@@ -283,6 +285,7 @@ class FritzBoxDiscovery extends IPSModule
         }
         return $Header;
     }
+
     private function getIPAdresses()
     {
         $Interfaces = SYS_GetNetworkInfo();
@@ -319,6 +322,7 @@ class FritzBoxDiscovery extends IPSModule
         }
         return $Addresses;
     }
+
     private function AddDiscoveryEntry(&$DevicesData, $USN, $Server, $Host, $Index)
     {
         if (array_key_exists($USN, $DevicesData)) {

@@ -49,7 +49,7 @@ class FritzBoxWANDSLLink extends FritzBoxModulBase
         }
         $this->SetTimerInterval('RefreshInfo', $this->ReadPropertyInteger('RefreshInterval') * 1000);
     }
-    
+
     public function RequestAction($Ident, $Value)
     {
         if (parent::RequestAction($Ident, $Value)) {

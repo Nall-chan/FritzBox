@@ -19,6 +19,7 @@ class FritzBoxHostFilter extends FritzBoxModulBase
     ];
     protected static $SecondEventGUID = \FritzBox\GUID::NewHostListEvent;
     protected static $DefaultIndex = 0;
+
     public function Create()
     {
         //Never delete this line!
@@ -212,6 +213,7 @@ class FritzBoxHostFilter extends FritzBoxModulBase
         }
         return true;
     }
+
     public function MarkTicket()
     {
         $result = $this->Send(__FUNCTION__);
@@ -220,6 +222,7 @@ class FritzBoxHostFilter extends FritzBoxModulBase
         }
         return $result;
     }
+
     public function GetTicketIDStatus(int $TicketID)
     {
         $result = $this->Send(__FUNCTION__, [
@@ -230,6 +233,7 @@ class FritzBoxHostFilter extends FritzBoxModulBase
         }
         return $result;
     }
+
     public function DiscardAllTickets()
     {
         $result = $this->Send(__FUNCTION__);
@@ -238,6 +242,7 @@ class FritzBoxHostFilter extends FritzBoxModulBase
         }
         return true;
     }
+
     public function DisallowWANAccessByIP(string $IPv4Address, bool $Disallow)
     {
         $result = $this->Send(__FUNCTION__, [
@@ -249,6 +254,7 @@ class FritzBoxHostFilter extends FritzBoxModulBase
         }
         return true;
     }
+
     public function GetWANAccessByIP(string $IPv4Address)
     {
         $result = $this->Send(__FUNCTION__, [
@@ -259,10 +265,12 @@ class FritzBoxHostFilter extends FritzBoxModulBase
         }
         return $result;
     }
+
     private function UpdateInfo()
     {
         $this->RefreshHostXML();
     }
+
     private function GetHostVariables(): array
     {
         if (!$this->HasActiveParent()) {

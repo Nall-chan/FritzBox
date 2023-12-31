@@ -14,6 +14,7 @@ class FritzBoxDeviceInfo extends FritzBoxModulBase
         'urn:dslforum-org:service:DeviceInfo:1'
     ];
     protected static $DefaultIndex = 0;
+
     public function Create()
     {
         //Never delete this line!
@@ -22,6 +23,7 @@ class FritzBoxDeviceInfo extends FritzBoxModulBase
         $this->RegisterPropertyInteger('RefreshInterval', 60);
         $this->RegisterTimer('RefreshState', 0, 'IPS_RequestAction(' . $this->InstanceID . ',"RefreshState",true);');
     }
+
     public function ApplyChanges()
     {
         //Never delete this line!
@@ -33,6 +35,7 @@ class FritzBoxDeviceInfo extends FritzBoxModulBase
 
         $this->UpdateInfo();
     }
+
     public function RequestAction($Ident, $Value)
     {
         if (parent::RequestAction($Ident, $Value)) {
@@ -46,6 +49,7 @@ class FritzBoxDeviceInfo extends FritzBoxModulBase
 
         return false;
     }
+
     public function GetInfo()
     {
         $result = $this->Send(__FUNCTION__);
@@ -54,6 +58,7 @@ class FritzBoxDeviceInfo extends FritzBoxModulBase
         }
         return $result;
     }
+
     private function UpdateInfo()
     {
         $result = $this->GetInfo();

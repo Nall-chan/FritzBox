@@ -37,6 +37,7 @@ class FritzBoxHomeautomationConfigurator extends FritzBoxModulBase
         trigger_error($this->Translate('Invalid Ident.'), E_USER_NOTICE);
         return false;
     }
+
     public function GetConfigurationForm()
     {
         $Form = json_decode(file_get_contents(__DIR__ . '/form.json'), true);

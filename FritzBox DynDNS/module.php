@@ -11,6 +11,7 @@ class FritzBoxDynDns extends FritzBoxModulBase
     protected static $ServiceTypeArray = [
         'urn:dslforum-org:service:X_AVM-DE_RemoteAccess:1'
     ];
+
     public function Create()
     {
         //Never delete this line!
@@ -54,6 +55,7 @@ class FritzBoxDynDns extends FritzBoxModulBase
         $this->UpdateDynDnsClient();
         $this->SetTimerInterval('RefreshInfo', $this->ReadPropertyInteger('RefreshInterval') * 1000);
     }
+
     public function RequestAction($Ident, $Value)
     {
         if (parent::RequestAction($Ident, $Value)) {
@@ -69,6 +71,7 @@ class FritzBoxDynDns extends FritzBoxModulBase
 
         return false;
     }
+
     public function GetInfo()
     {
         $result = $this->Send(__FUNCTION__);
@@ -77,6 +80,7 @@ class FritzBoxDynDns extends FritzBoxModulBase
         }
         return $result;
     }
+
     public function GetDDNSInfo()
     {
         $result = $this->Send(__FUNCTION__);
@@ -85,6 +89,7 @@ class FritzBoxDynDns extends FritzBoxModulBase
         }
         return $result;
     }
+
     public function EnableRemoteAccess(bool $Enable)
     {
         $result = $this->Send('SetEnable', [
@@ -95,6 +100,7 @@ class FritzBoxDynDns extends FritzBoxModulBase
         }
         return true;
     }
+
     public function EnableConfig(bool $Enable, int $Port, string $Username, string $Password)
     {
         $result = $this->Send('SetConfig', [
@@ -108,6 +114,7 @@ class FritzBoxDynDns extends FritzBoxModulBase
         }
         return false;
     }
+
     public function SetDDNSConfig(
         bool $Enable,
         string $ProviderName,
@@ -146,6 +153,7 @@ class FritzBoxDynDns extends FritzBoxModulBase
         }
         return false;
     }
+
     private function UpdateDynDnsClient()
     {
         $result = $this->GetInfo();

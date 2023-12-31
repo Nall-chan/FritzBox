@@ -57,6 +57,7 @@ trait TelHelper
         }
         return $Target;
     }
+
     protected function ArrayKeyToUpper($Source)
     {
         $Target = [];
@@ -65,6 +66,7 @@ trait TelHelper
         }
         return $Target;
     }
+
     protected function GetIconsList()
     {
         $id = IPS_GetInstanceListByModuleID(\FritzBox\GUID::UtilControl)[0];
@@ -75,6 +77,7 @@ trait TelHelper
         }
         return $Icons;
     }
+
     private function DoReverseSearch(string $Number, string $SearchMarker, string $UnknownName, int $MaxNameSize)
     {
         $ReverseSearchInstanceID = $this->ReadPropertyInteger('ReverseSearchInstanceID');
@@ -163,10 +166,12 @@ trait TelHelper
         $Name = $this->DoPhonebookSearch($Number, $this->ReadPropertyInteger('MaxNameSize'), $AreaCode, $CountryCode);
         return $Name;
     }
+
     private function GetPhoneDeviceNumberByID(int $ID)
     {
         return array_search($ID, self::$NumberToID, false);
     }
+
     private function SetPhoneDevices(array $PhoneDevices)
     {
         if (!$this->HasActiveParent()) {
@@ -214,6 +219,7 @@ trait TelHelper
         }
         return $Result;
     }
+
     private function GetPhoneDevices()
     {
         if (!$this->HasActiveParent()) {
@@ -233,6 +239,7 @@ trait TelHelper
         $this->SendDebug('Result', $Result, 0);
         return $Result;
     }
+
     private function GetPhoneBookFiles(): array
     {
         if (!$this->HasActiveParent()) {
@@ -252,6 +259,7 @@ trait TelHelper
         $this->SendDebug('Result', $Result, 0);
         return $Result;
     }
+
     private function GetAreaCodes(): array
     {
         if (!$this->HasActiveParent()) {
