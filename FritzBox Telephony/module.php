@@ -1189,7 +1189,7 @@ class FritzBoxTelephony extends FritzBoxModulBase
         $Id = IPS_GetInstanceListByModuleID(\FritzBox\GUID::Store)[0];
         $Context = stream_context_create(\FritzBox\Store::$Opts);
         $Version = urlencode('{"version":"6.4","date":' . time() . '}');
-        $Bundles = json_decode(file_get_contents('https://api.symcon.de/store/modules?language=de&search=Rückwärtssuche&compatibility=' . $Version, false, $Context), true);
+        $Bundles = json_decode(file_get_contents('https://api.symcon.de/store/modules?language=de&search=' . urlencode('Rückwärtssuche') . '&compatibility=' . $Version, false, $Context), true);
         $Bundles = array_values(array_filter($Bundles, function ($item)
         {
             return $item['bundle'] == \FritzBox\Store::BundleId;
