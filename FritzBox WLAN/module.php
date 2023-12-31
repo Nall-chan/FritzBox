@@ -93,8 +93,23 @@ class FritzBoxWLAN extends FritzBoxModulBase
     public function ApplyChanges()
     {
         $this->SetTimerInterval('RefreshState', 0);
-        $Table = $this->ReadPropertyBoolean('HostAsTable');
-        if ($Table) {
+        if (!$this->ReadPropertyBoolean('ShowWLanKeyAsVariable')) {
+            $QRCodeID = @IPS_GetObjectIDByIdent('QRCodeIMG', $this->InstanceID);
+            if ($QRCodeID !== false) {
+                IPS_DeleteMedia($QRCodeID, true);
+            }
+        }
+        if (!$this->ReadPropertyBoolean('ShowWLanKeyAsQRCode')) {
+            $this->UnregisterVariable('KeyPassphrase');
+        }
+        if (!$this->ReadPropertyBoolean('InfoVariables')) {
+            $this->UnregisterVariable('TimeoutActive');
+            $this->UnregisterVariable('TimeRemainRaw');
+            $this->UnregisterVariable('TimeRemain');
+            $this->UnregisterVariable('OffTime');
+            $this->UnregisterVariable('ForcedOff');
+        }
+        if ($this->ReadPropertyBoolean('HostAsTable')) {
             $this->RegisterVariableString('HostTable', $this->Translate('Host Table'), '~HTMLBox', -1);
         } else {
             $this->UnregisterVariable('HostTable');
@@ -140,17 +155,17 @@ class FritzBoxWLAN extends FritzBoxModulBase
     public function MessageSink($TimeStamp, $SenderID, $Message, $Data)
     {
         switch ($Message) {
-                case VM_UPDATE:
-                    if ($SenderID == $this->APEnabledId) {
-                        $this->GetTotalAssociations();
-                        return;
-                    }
-                    if ($SenderID == $this->HostNumberOfEntriesId) {
-                        $this->RefreshHostList();
-                        return;
-                    }
-                    break;
-            }
+            case VM_UPDATE:
+                if ($SenderID == $this->APEnabledId) {
+                    $this->GetTotalAssociations();
+                    return;
+                }
+                if ($SenderID == $this->HostNumberOfEntriesId) {
+                    $this->RefreshHostList();
+                    return;
+                }
+                break;
+        }
         parent::MessageSink($TimeStamp, $SenderID, $Message, $Data);
     }
 
@@ -160,44 +175,44 @@ class FritzBoxWLAN extends FritzBoxModulBase
             return true;
         }
         switch ($Ident) {
-                case 'ReloadForm':
-                    IPS_Sleep(2000);
-                    $this->ReloadForm();
-                    return;
-                case 'RefreshState':
-                    return $this->UpdateInfo();
-                case 'X_AVM_DE_APEnabled':
-                    return $this->SetEnable((bool) $Value);
-                case 'ShowWLanKeyAsQRCode':
-                    $this->UpdateFormField('QRCodeSize', 'enabled', (bool) $Value);
-                    return;
-                case 'HostAsTable':
-                    $this->UpdateFormField('Table', 'enabled', (bool) $Value);
-                    $this->UpdateFormField('Columns', 'enabled', (bool) $Value);
-                    $this->UpdateFormField('Rows', 'enabled', (bool) $Value);
-                    $this->UpdateFormField('HostAsTablePanel', 'expanded', (bool) $Value);
-                    return;
-                case 'HostAsVariable':
-                    $this->UpdateFormField('AutoAddHostVariables', 'enabled', (bool) $Value);
-                    $this->UpdateFormField('RenameHostVariables', 'enabled', (bool) $Value);
-                    $this->UpdateFormField('HostvariablesPanel', 'expanded', (bool) $Value);
-                    $this->UpdateFormField('HostVariables', 'enabled', (bool) $Value);
-                    return;
-                case 'HostvariablesPanel':
-                    if ($this->ShowVariableWarning) {
-                        $this->UpdateFormField('ErrorPopup', 'visible', true);
-                        $this->UpdateFormField('ErrorTitle', 'caption', 'Attention!');
-                        $this->UpdateFormField('ErrorText', 'caption', 'Deselecting a host causes the associated status variable to be deleted.');
-                        $this->ShowVariableWarning = false;
-                    }
-                    return;
-                case 'DelHostVariable':
-                    $ObjectId = @$this->GetIDForIdent($Value);
-                    if ($ObjectId > 0) {
-                        $this->DelSubObjects($ObjectId);
-                        $this->UnregisterVariable($Value);
-                    }
-                    return;
+            case 'ReloadForm':
+                IPS_Sleep(2000);
+                $this->ReloadForm();
+                return;
+            case 'RefreshState':
+                return $this->UpdateInfo();
+            case 'X_AVM_DE_APEnabled':
+                return $this->SetEnable((bool) $Value);
+            case 'ShowWLanKeyAsQRCode':
+                $this->UpdateFormField('QRCodeSize', 'enabled', (bool) $Value);
+                return;
+            case 'HostAsTable':
+                $this->UpdateFormField('Table', 'enabled', (bool) $Value);
+                $this->UpdateFormField('Columns', 'enabled', (bool) $Value);
+                $this->UpdateFormField('Rows', 'enabled', (bool) $Value);
+                $this->UpdateFormField('HostAsTablePanel', 'expanded', (bool) $Value);
+                return;
+            case 'HostAsVariable':
+                $this->UpdateFormField('AutoAddHostVariables', 'enabled', (bool) $Value);
+                $this->UpdateFormField('RenameHostVariables', 'enabled', (bool) $Value);
+                $this->UpdateFormField('HostvariablesPanel', 'expanded', (bool) $Value);
+                $this->UpdateFormField('HostVariables', 'enabled', (bool) $Value);
+                return;
+            case 'HostvariablesPanel':
+                if ($this->ShowVariableWarning) {
+                    $this->UpdateFormField('ErrorPopup', 'visible', true);
+                    $this->UpdateFormField('ErrorTitle', 'caption', 'Attention!');
+                    $this->UpdateFormField('ErrorText', 'caption', 'Deselecting a host causes the associated status variable to be deleted.');
+                    $this->ShowVariableWarning = false;
+                }
+                return;
+            case 'DelHostVariable':
+                $ObjectId = @$this->GetIDForIdent($Value);
+                if ($ObjectId > 0) {
+                    $this->DelSubObjects($ObjectId);
+                    $this->UnregisterVariable($Value);
+                }
+                return;
         }
         trigger_error($this->Translate('Invalid Ident.'), E_USER_NOTICE);
         return false;
@@ -429,7 +444,7 @@ class FritzBoxWLAN extends FritzBoxModulBase
     {
         $useVariable = $this->ReadPropertyBoolean('ShowWLanKeyAsVariable');
         $useQRCode = $this->ReadPropertyBoolean('ShowWLanKeyAsQRCode');
-        $SSID = $this->GetValue('SSID');
+        $SSID = (string) $this->GetValue('SSID');
         if ($useQRCode && $useVariable) {
             $KeyPassphrase = @$this->GetValue('KeyPassphrase');
             $QRCodeID = @IPS_GetObjectIDByIdent('QRCodeIMG', $this->InstanceID);
@@ -1016,7 +1031,7 @@ class FritzBoxWLAN extends FritzBoxModulBase
         }
         return true;
     }
-    
+
     private function GenerateQRCodeData(string $SSID, string $KeyPassphrase, int $size = 0)
     {
         $CodeText = 'WIFI:S:' . $SSID . ';T:WPA;P:' . $KeyPassphrase . ';;';
