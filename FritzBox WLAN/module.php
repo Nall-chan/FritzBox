@@ -673,7 +673,7 @@ class FritzBoxWLAN extends FritzBoxModulBase
 
     public function GetTotalAssociations()
     {
-        $result = $this->Send(__FUNCTION__, );
+        $result = $this->Send(__FUNCTION__);
         if ($result === false) {
             return false;
         }

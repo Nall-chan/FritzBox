@@ -659,8 +659,8 @@ class FritzBoxTelephony extends FritzBoxModulBase
             // Fax-Anruf ?
             if ((int) $CallLog->Call[$i]->Port == 5) {
                 $Data[$i]['Type'] = self::Call_Fax; //self::Call_Tam_Deleted; // vorbelegen mit Fax schon gelöscht
-            //$Data[$i]['Called'] = (string)$CallLog->Call[$i]->Device;
-            //$Data[$i]['Duration'] = "---";  // Warum auch immer ist die Dauer immer 0:01 auch bei FAX
+                //$Data[$i]['Called'] = (string)$CallLog->Call[$i]->Device;
+                //$Data[$i]['Duration'] = "---";  // Warum auch immer ist die Dauer immer 0:01 auch bei FAX
 
                 /*if (strlen((string)$CallLog->Call[$i]->Path) <> 0) {
                     $Data[$i]['Fax'] = "1"; // FAX-Eintrag ist vorhanden !

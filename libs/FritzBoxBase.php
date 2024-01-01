@@ -163,20 +163,20 @@ class FritzBoxModulBase extends IPSModule
     protected function IOChangeState($State)
     {
         switch ($State) {
-        case IS_ACTIVE:
-            $this->ApplyChanges();
-            break;
-        case IS_INACTIVE:
-        case IS_EBASE + 1:
-        case IS_EBASE + 2:
-        case IS_EBASE + 3:
-        case IS_EBASE + 4:
-            $this->SID = '';
-            $this->isSubscribed = false;
-            if (count(static::$EventSubURLArray) > 0) {
-                $this->SetTimerInterval('RenewSubscription', 0);
-            }
-            break;
+            case IS_ACTIVE:
+                $this->ApplyChanges();
+                break;
+            case IS_INACTIVE:
+            case IS_EBASE + 1:
+            case IS_EBASE + 2:
+            case IS_EBASE + 3:
+            case IS_EBASE + 4:
+                $this->SID = '';
+                $this->isSubscribed = false;
+                if (count(static::$EventSubURLArray) > 0) {
+                    $this->SetTimerInterval('RenewSubscription', 0);
+                }
+                break;
         }
     }
 
@@ -504,7 +504,7 @@ class FritzBoxModulBase extends IPSModule
                 case OBJECTTYPE_LINK:
                     IPS_DeleteLink($Id);
                     break;
-                }
+            }
         }
     }
 

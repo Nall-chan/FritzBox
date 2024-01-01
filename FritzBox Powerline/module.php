@@ -48,7 +48,7 @@ class FritzBoxPowerline extends FritzBoxModulBase
         switch ($Ident) {
             case 'RefreshInfo':
                 return $this->UpdateInfo();
-         }
+        }
         trigger_error($this->Translate('Invalid Ident.'), E_USER_NOTICE);
         return false;
     }

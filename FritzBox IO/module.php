@@ -26,12 +26,12 @@ class FritzBoxIO extends IPSModule
     use \FritzBoxIO\WebhookHelper;
     use \FritzBoxIO\Semaphore;
 
-    const isConnected = IS_ACTIVE;
-    const isInActive = IS_INACTIVE;
-    const isDisconnected = IS_EBASE + 1;
-    const isUnauthorized = IS_EBASE + 2;
-    const isURLnotValid = IS_EBASE + 3;
-    const isServicenotValid = IS_EBASE + 4;
+    public const isConnected = IS_ACTIVE;
+    public const isInActive = IS_INACTIVE;
+    public const isDisconnected = IS_EBASE + 1;
+    public const isUnauthorized = IS_EBASE + 2;
+    public const isURLnotValid = IS_EBASE + 3;
+    public const isServicenotValid = IS_EBASE + 4;
 
     private static $http_error =
         [
@@ -469,7 +469,7 @@ class FritzBoxIO extends IPSModule
     private function GetFile(string $Filename): int
     {
         $this->SendDebug('Get File: ', $Filename, 0);
-        return  $this->GetMediaObjectID($Filename);
+        return $this->GetMediaObjectID($Filename);
     }
 
     private function LoadXmls()

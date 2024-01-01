@@ -65,11 +65,6 @@ class FritzBoxMyFritz extends FritzBoxModulBase
         return $result;
     }
 
-    /*
-    todo
-     hosts can only add port mapping entries for
-     themselves and not for other hosts in the LAN.
-     */
     public function EnableService(string $Ident, bool $Value)
     {
         if (@$this->GetIDForIdent($Ident) == false) {
@@ -119,7 +114,7 @@ class FritzBoxMyFritz extends FritzBoxModulBase
 
     public function DeleteServiceByIndex(int $Index)
     {
-        return  $this->Send(__FUNCTION__, [
+        return $this->Send(__FUNCTION__, [
             'NewIndex'  => $Index
         ]) === null;
     }
@@ -205,7 +200,13 @@ class FritzBoxMyFritz extends FritzBoxModulBase
                 }
             }
         }
+        $this->ServiceIdents = $MyIdents;
         if ($NewIdent !== '') {
+
+            if (!in_array((string) $SaveResult['NewIPv4Addresses'], $MyIPs)) {
+                trigger_error($this->Translate('Only rules that target the Symcon host can be changed.'), E_USER_NOTICE);
+                return;
+            }
             if (!$this->DeleteServiceByIndex($SaveIndex)) {
                 return false;
             }
@@ -229,8 +230,6 @@ class FritzBoxMyFritz extends FritzBoxModulBase
             $Ident = $this->ConvertIdent((string) $SaveResult['NewName']);
             $this->setIPSVariable($Ident, (string) $SaveResult['NewName'], (bool) $SaveResult['NewEnabled'], VARIABLETYPE_BOOLEAN, '~Switch');
         }
-
-        $this->ServiceIdents = $MyIdents;
         return true;
     }
 }

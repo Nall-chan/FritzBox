@@ -11,7 +11,7 @@
             "Event subscribe error": "Ereignisabonnementfehler",
             "Invalid Ident.": "Ungültiger Ident.",
             "Number of port mapping": "Anzahl der Port Mappings",
-            "Only port forwarding of IP addresses of the Symcon server can be switched!": "Es können nur Portweiterleitungen von IP-Adressen des Symcon Server geschaltet werden!",
+            "Only rules that target the Symcon host can be changed.": "Nur Regeln welche den Symcon Host als Ziel haben können verändert werden.",
             "This module is free for non-commercial use,\r\nDonations in support of the author are accepted here:": "Dieses Modul ist für die nicht kommerzielle Nutzung kostenlos,\r\nSchenkungen als Unterstützung für den Autor werden hier akzeptiert:"
         }
     }

@@ -111,7 +111,7 @@ class FritzBoxWANPortMapping extends FritzBoxModulBase
 
     public function DeletePortMapping(string $RemoteHost, int $ExternalPort, string $Protocol)
     {
-        return  $this->Send(__FUNCTION__, [
+        return $this->Send(__FUNCTION__, [
             'NewRemoteHost'  => $RemoteHost,
             'NewExternalPort'=> $ExternalPort,
             'NewProtocol'    => $Protocol
@@ -145,10 +145,6 @@ class FritzBoxWANPortMapping extends FritzBoxModulBase
         return false;
     }
 
-    /*
-     hosts can only add port mapping entries for
-     themselves and not for other hosts in the LAN.
-     */
     public function EnablePortMapping(string $Ident, bool $Value)
     {
         if (@$this->GetIDForIdent($Ident) == false) {
@@ -169,6 +165,7 @@ class FritzBoxWANPortMapping extends FritzBoxModulBase
         if (IPS_GetOption('NATPublicIP') !== '') {
             $MyIPs[] = IPS_GetOption('NATPublicIP');
         }
+        $ReturnValue = true;
         $this->setIPSVariable('PortMappingNumberOfEntries', 'Number of port mapping', $NoOfMappings, VARIABLETYPE_INTEGER, '', false, -1);
         for ($i = 0; $i < $NoOfMappings; $i++) {
             $result = $this->GetGenericPortMappingEntry($i);
@@ -190,9 +187,12 @@ class FritzBoxWANPortMapping extends FritzBoxModulBase
                     );
                     if ($changeResult) {
                         $result['NewEnabled'] = $NewEnabled;
+                    } else {
+                        $ReturnValue = false;
                     }
                 } else {
-                    trigger_error($this->Translate('Only port forwarding of IP addresses of the Symcon server can be switched!'), E_USER_NOTICE);
+                    $ReturnValue = false;
+                    trigger_error($this->Translate('Only rules that target the Symcon host can be changed.'), E_USER_NOTICE);
                 }
             }
 
@@ -201,7 +201,7 @@ class FritzBoxWANPortMapping extends FritzBoxModulBase
                 $this->EnableAction($Ident);
             }
         }
-        return true;
+        return $ReturnValue;
     }
     /*
             public function GetInfo()

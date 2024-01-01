@@ -55,7 +55,7 @@ class FritzBoxNASStorage extends FritzBoxModulBase
                 return $this->SetFTPServerWAN((bool) $Value, $this->GetValue('FTPWANSSLOnly'));
             case 'FTPWANSSLOnly':
                 return $this->SetFTPServerWAN($this->GetValue('FTPWANEnable'), (bool) $Value);
-            }
+        }
         trigger_error($this->Translate('Invalid Ident.'), E_USER_NOTICE);
         return false;
     }

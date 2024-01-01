@@ -51,7 +51,7 @@ class FritzBoxUPnPMediaServer extends FritzBoxModulBase
                 return $this->EnableUPnPServer((bool) $Value, $this->GetValue('UPnPMediaServer'));
             case 'UPnPMediaServer':
                 return $this->EnableUPnPServer($this->GetValue('Enable'), (bool) $Value);
-         }
+        }
         trigger_error($this->Translate('Invalid Ident.'), E_USER_NOTICE);
 
         return false;

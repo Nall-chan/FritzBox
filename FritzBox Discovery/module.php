@@ -13,18 +13,18 @@ class FritzBoxDiscovery extends IPSModule
     /**
      * The maximum number of seconds that will be allowed for the discovery request.
      */
-    const WS_DISCOVERY_TIMEOUT = 3;
+    public const WS_DISCOVERY_TIMEOUT = 3;
 
     /**
      * The multicast address to use in the socket for the discovery request.
      */
-    const WS_DISCOVERY_MULTICAST_ADDRESS = '239.255.255.250';
-    const WS_DISCOVERY_MULTICAST_ADDRESSV6 = '[ff02::c]';
+    public const WS_DISCOVERY_MULTICAST_ADDRESS = '239.255.255.250';
+    public const WS_DISCOVERY_MULTICAST_ADDRESSV6 = '[ff02::c]';
 
     /**
      * The port that will be used in the socket for the discovery request.
      */
-    const WS_DISCOVERY_MULTICAST_PORT = 1900;
+    public const WS_DISCOVERY_MULTICAST_PORT = 1900;
 
     public function Create()
     {

@@ -106,11 +106,11 @@ class FritzBoxWANDSLLink extends FritzBoxModulBase
         $Splitter = IPS_GetInstance($this->InstanceID)['ConnectionID'];
         if (($Splitter > 1) && $this->HasActiveParent()) {
             $Ret = $this->SendDataToParent(json_encode(
-            [
-                'DataID'     => \FritzBox\GUID::SendToFritzBoxIO,
-                'Function'   => 'HasIGD2'
-            ]
-        ));
+                [
+                    'DataID'     => \FritzBox\GUID::SendToFritzBoxIO,
+                    'Function'   => 'HasIGD2'
+                ]
+            ));
             $HasIGD2 = unserialize($Ret);
             $this->SendDebug('Use IGD2', $HasIGD2, 0);
             if (!$HasIGD2) {

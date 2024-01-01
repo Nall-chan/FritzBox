@@ -162,6 +162,6 @@ class FritzBoxHomeautomationConfigurator extends FritzBoxModulBase
         if ($Result === false) {
             return false;
         }
-        return  $Result;
+        return $Result;
     }
 }

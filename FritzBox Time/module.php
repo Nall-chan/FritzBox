@@ -51,7 +51,7 @@ class FritzBoxTime extends FritzBoxModulBase
                 return $this->SetNTPServers($Value, $this->GetValue('NTPServer2'));
             case 'NTPServer2':
                 return $this->SetNTPServers($this->GetValue('NTPServer'), $Value);
-         }
+        }
         trigger_error($this->Translate('Invalid Ident.'), E_USER_NOTICE);
 
         return false;
