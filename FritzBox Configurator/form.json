@@ -2,7 +2,7 @@
     "actions": [
         {
             "type": "Configurator",
-            "name": "Discovery",
+            "name": "ConfiguratorList",
             "add": false,
             "delete": true,
             "sort": {

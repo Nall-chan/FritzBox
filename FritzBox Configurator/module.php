@@ -19,7 +19,7 @@ class FritzBoxConfigurator extends IPSModule
         //Never delete this line!
         parent::Create();
         $this->ParentID = 0;
-        $this->ConnectParent(\FritzBox\GUID::FritzBoxIO);
+        $this->RequireParent(\FritzBox\GUID::FritzBoxIO);
     }
 
     public function Destroy()
@@ -242,6 +242,9 @@ class FritzBoxConfigurator extends IPSModule
         }
         $Instance = IPS_GetInstance($InstanceID);
         if ($Instance['ModuleInfo']['ModuleID'] == \FritzBox\GUID::HomeautomationDevice) {
+            return false;
+        }
+        if ($Instance['ModuleInfo']['ModuleID'] == \FritzBox\GUID::Configurator) {
             return false;
         }
         return $Instance['ConnectionID'] == $this->ParentID;
