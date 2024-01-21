@@ -237,9 +237,6 @@ class FritzBoxConfigurator extends IPSModule
 
     private function FilterInstances(int $InstanceID)
     {
-        if ($this->InstanceID == $InstanceID) {
-            return false;
-        }
         $Instance = IPS_GetInstance($InstanceID);
         if ($Instance['ModuleInfo']['ModuleID'] == \FritzBox\GUID::HomeautomationDevice) {
             return false;
