@@ -373,10 +373,19 @@ class FritzBoxModulBase extends IPSModule
         $Result = unserialize($Ret);
         if (is_a($Result, 'SoapFault')) {
             if (property_exists($Result, 'detail')) {
-                $Details = $Result->detail->{$Result->faultstring};
-                $Detail = $Result->faultstring . '(' . $Details->errorCode . ')';
-                $this->SendDebug($Detail, $Details->errorDescription, 0);
-                trigger_error($Detail . "\r\n" . (new Exception())->getTraceAsString() . "\r\n" . $Details->errorDescription, E_USER_WARNING);
+                $Details = $Result->detail;
+                if ($Details) {
+                    if (property_exists($Details, $Result->faultstring)) {
+                        $Details = $Details->{$Result->faultstring}->errorDescription . "\r\n";
+                    } else {
+                        $Details = '';
+                    }
+                } else {
+                    $Details = '';
+                }
+                $Detail = $Result->faultstring . '(' . $Result->faultcode . ')';
+                $this->SendDebug($Detail, $Details, 0);
+                trigger_error($Detail . "\r\n" . $Details . (new Exception())->getTraceAsString(), E_USER_WARNING);
                 return false;
             }
             $this->SendDebug('SoapFault', $Result->getMessage(), 0);
