@@ -62,11 +62,11 @@ class FritzBoxModulBase extends IPSModule
 
     public function ApplyChanges()
     {
-        //Never delete this line!
         if ($this->isSubscribed) {
             $this->Unsubscribe();
         }
         $this->SetReceiveDataFilter('.*NOTHINGTORECEIVE.*');
+        //Never delete this line!
         parent::ApplyChanges();
         $this->RegisterMessage($this->InstanceID, FM_CONNECT);
         $this->RegisterMessage($this->InstanceID, FM_DISCONNECT);
@@ -74,29 +74,7 @@ class FritzBoxModulBase extends IPSModule
             $this->RegisterMessage(0, IPS_KERNELSTARTED);
             return;
         }
-        $this->RegisterParent();
-        $Index = $this->ReadPropertyInteger('Index');
-        if (count(static::$EventSubURLArray) == 0) {
-            $Index = -1;
-        }
-        if ($Index > -1) {
-            $Filter = preg_quote(substr(json_encode(static::$EventSubURLArray[$Index]), 1, -1));
-            if (static::$SecondEventGUID != '') {
-                $Filter .= '".*|.*"DataID":"' . preg_quote(static::$SecondEventGUID);
-            }
-            $this->SetReceiveDataFilter('.*"EventSubURL":"' . $Filter . '".*');
-            $this->SendDebug('Filter', '.*"EventSubURL":"' . $Filter . '".*', 0);
-        } else {
-            if (static::$SecondEventGUID != '') {
-                $Filter = '.*"DataID":"' . preg_quote(static::$SecondEventGUID) . '".*';
-                $this->SetReceiveDataFilter($Filter);
-                $this->SendDebug('FilterSecondEventGUID', $Filter, 0);
-            } else {
-                $this->SendDebug('Filter', 'NOTHINGTORECEIVE', 0);
-                $this->SetReceiveDataFilter('.*NOTHINGTORECEIVE.*');
-            }
-        }
-        $this->Subscribe();
+        $this->SetEventsFilterAndSubscribe();
     }
 
     public function RequestAction($Ident, $Value)
@@ -137,6 +115,32 @@ class FritzBoxModulBase extends IPSModule
         }
         return null;
     }
+    protected function SetEventsFilterAndSubscribe()
+    {
+        $this->RegisterParent();
+        $Index = $this->ReadPropertyInteger('Index');
+        if (count(static::$EventSubURLArray) == 0) {
+            $Index = -1;
+        }
+        if ($Index > -1) {
+            $Filter = preg_quote(substr(json_encode(static::$EventSubURLArray[$Index]), 1, -1));
+            if (static::$SecondEventGUID != '') {
+                $Filter .= '".*|.*"DataID":"' . preg_quote(static::$SecondEventGUID);
+            }
+            $this->SetReceiveDataFilter('.*"EventSubURL":"' . $Filter . '".*');
+            $this->SendDebug('Filter', '.*"EventSubURL":"' . $Filter . '".*', 0);
+        } else {
+            if (static::$SecondEventGUID != '') {
+                $Filter = '.*"DataID":"' . preg_quote(static::$SecondEventGUID) . '".*';
+                $this->SetReceiveDataFilter($Filter);
+                $this->SendDebug('FilterSecondEventGUID', $Filter, 0);
+            } else {
+                $this->SendDebug('Filter', 'NOTHINGTORECEIVE', 0);
+                $this->SetReceiveDataFilter('.*NOTHINGTORECEIVE.*');
+            }
+        }
+        $this->Subscribe();
+    }
 
     protected function DecodeEvent($Event)
     {
@@ -154,7 +158,7 @@ class FritzBoxModulBase extends IPSModule
     protected function KernelReady()
     {
         $this->UnregisterMessage(0, IPS_KERNELSTARTED);
-        $this->ApplyChanges();
+        $this->SetEventsFilterAndSubscribe();
     }
 
     /**
@@ -164,7 +168,11 @@ class FritzBoxModulBase extends IPSModule
     {
         switch ($State) {
             case IS_ACTIVE:
-                $this->ApplyChanges();
+                if ($this->isSubscribed) {
+                    $this->Unsubscribe();
+                }
+                $this->SetReceiveDataFilter('.*NOTHINGTORECEIVE.*');
+                $this->SetEventsFilterAndSubscribe();
                 break;
             case IS_INACTIVE:
             case IS_EBASE + 1:

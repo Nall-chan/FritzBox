@@ -119,55 +119,13 @@ class FritzBoxIO extends IPSModule
 
     public function ApplyChanges()
     {
-        $OldUrl = $this->Url;
-
         //Never delete this line!
         parent::ApplyChanges();
-        if (IPS_GetKernelRunlevel() != KR_READY) { // IPS läuft dann gleich Daten abholen
+        if (IPS_GetKernelRunlevel() != KR_READY) {
             return;
         }
         $this->RegisterHook('/hook/FritzBoxIO' . $this->InstanceID);
-        $this->SetStatus(IS_INACTIVE);
-        if ($this->CheckHost()) {
-            $this->SetSummary($this->Url);
-            if ($this->ReadPropertyString('Password') == '') {
-                return;
-            }
-            if (($this->Url != $OldUrl) || ($this->ForceLoadXML)) {
-                if ($this->LoadXMLs()) {
-                    $this->ForceLoadXML = false;
-                } else {
-                    $this->ShowLastError(self::$http_error[418][0]);
-                    $this->SetStatus(self::isURLnotValid);
-                    return;
-                }
-            }
-            if (!$this->GetConsumerAddress()) {
-                $this->SetStatus(self::$http_error[501][1]);
-                return;
-            }
-            if ($this->ReadPropertyString('Username') == '') {
-                $this->Username = $this->GetLastUser();
-            } else {
-                $this->Username = $this->ReadPropertyString('Username');
-            }
-            if (!$this->getWANConnectionTyp($HttpCode)) {
-                $this->SetStatus(self::$http_error[$HttpCode][1]);
-                $this->ShowLastError(self::$http_error[$HttpCode][0]);
-                return;
-            }
-            if ($this->ReadAttributeBoolean('HasTel')) {
-                $this->getAreaCodes();
-                $this->checkCallMonitorPort();
-            }
-            //Todo
-            // Eigene Events holen?
-            // Prüfen ob Antwort kommt ?
-            $this->SetStatus(IS_ACTIVE);
-        } else {
-            $this->Url = '';
-            $this->SetSummary('');
-        }
+        $this->InitConnection();
     }
 
     public function ForwardData($JSONString)
@@ -309,6 +267,51 @@ class FritzBoxIO extends IPSModule
             return false;
         }
         return true;
+    }
+    protected function InitConnection()
+    {
+        $OldUrl = $this->Url;
+        $this->SetStatus(IS_INACTIVE);
+        if ($this->CheckHost()) {
+            $this->SetSummary($this->Url);
+            if ($this->ReadPropertyString('Password') == '') {
+                return;
+            }
+            if (($this->Url != $OldUrl) || ($this->ForceLoadXML)) {
+                if ($this->LoadXMLs()) {
+                    $this->ForceLoadXML = false;
+                } else {
+                    $this->ShowLastError(self::$http_error[418][0]);
+                    $this->SetStatus(self::isURLnotValid);
+                    return;
+                }
+            }
+            if (!$this->GetConsumerAddress()) {
+                $this->SetStatus(self::$http_error[501][1]);
+                return;
+            }
+            if ($this->ReadPropertyString('Username') == '') {
+                $this->Username = $this->GetLastUser();
+            } else {
+                $this->Username = $this->ReadPropertyString('Username');
+            }
+            if (!$this->getWANConnectionTyp($HttpCode)) {
+                $this->SetStatus(self::$http_error[$HttpCode][1]);
+                $this->ShowLastError(self::$http_error[$HttpCode][0]);
+                return;
+            }
+            if ($this->ReadAttributeBoolean('HasTel')) {
+                $this->getAreaCodes();
+                $this->checkCallMonitorPort();
+            }
+            //Todo
+            // Eigene Events holen?
+            // Prüfen ob Antwort kommt ?
+            $this->SetStatus(IS_ACTIVE);
+        } else {
+            $this->Url = '';
+            $this->SetSummary('');
+        }
     }
 
     protected function ProcessHookData()
@@ -589,7 +592,7 @@ class FritzBoxIO extends IPSModule
         $this->UnregisterMessage(0, IPS_KERNELMESSAGE);
         $this->RegisterMessage($this->InstanceID, FM_CHILDADDED);
         $this->ForceLoadXML = true;
-        $this->ApplyChanges();
+        $this->InitConnection();
     }
 
     private function ShowLastError(string $ErrorMessage, string $ErrorTitle = 'Error')

@@ -292,6 +292,8 @@ class FritzBoxDiscovery extends IPSModule
         $InterfaceDescriptions = array_column($Interfaces, 'Description', 'InterfaceIndex');
         $Networks = net_get_interfaces();
         $Addresses = [];
+        $Addresses['ipv6'] = [];
+        $Addresses['ipv4'] = [];
         foreach ($Networks as $InterfaceDescription => $Interface) {
             if (!$Interface['up']) {
                 continue;
