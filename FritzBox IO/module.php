@@ -107,7 +107,8 @@ class FritzBoxIO extends IPSModule
 
     public function GetConfigurationForParent()
     {
-        return json_encode(['Host'=>parse_url($this->Url, PHP_URL_HOST), 'Port' => 1012]);
+        $Host = parse_url($this->ReadPropertyString('Host'), PHP_URL_HOST);
+        return json_encode(['Host' => ($Host ? $Host : ''), 'Port' => 1012]);
     }
 
     public function RequestAction($Ident, $Value)
@@ -360,9 +361,9 @@ class FritzBoxIO extends IPSModule
         $this->SendDataToChildren(
             json_encode(
                 [
-                    'DataID'     => \FritzBox\GUID::SendEventToChildren,
-                    'EventSubURL'=> $eventSubUrl,
-                    'EventData'  => $Propertys
+                    'DataID'      => \FritzBox\GUID::SendEventToChildren,
+                    'EventSubURL' => $eventSubUrl,
+                    'EventData'   => $Propertys
                 ]
             )
         );
@@ -386,9 +387,10 @@ class FritzBoxIO extends IPSModule
         $this->RequireParent(\FritzBox\GUID::ClientSocket);
         $ParentId = IPS_GetInstance($this->InstanceID)['ConnectionID'];
         if ($ParentId > 1) {
-            IPS_SetProperty($ParentId, 'Host', parse_url($this->Url, PHP_URL_HOST));
+            $Host = parse_url($this->ReadPropertyString('Host'), PHP_URL_HOST);
+            IPS_SetProperty($ParentId, 'Host', ($Host ? $Host : ''));
             IPS_SetProperty($ParentId, 'Port', 1012);
-            IPS_SetProperty($ParentId, 'Open', true);
+            IPS_SetProperty($ParentId, 'Open', ($Host ? true : false));
             @IPS_ApplyChanges($ParentId);
         }
     }
@@ -412,7 +414,7 @@ class FritzBoxIO extends IPSModule
         } else {
             $Url = $this->Url . $Uri;
         }
-        $Data = Sys_GetURLContentEx($Url, ['Timeout'=>10000, 'VerifyHost' => false, 'VerifyPeer' => false]);
+        $Data = Sys_GetURLContentEx($Url, ['Timeout' => 10000, 'VerifyHost' => false, 'VerifyPeer' => false]);
         if ($Data === false) {
             $this->SendDebug('File not found', $Uri, 0);
             return false;
@@ -486,7 +488,7 @@ class FritzBoxIO extends IPSModule
         $this->WriteAttributeBoolean('HasTel', false);
         $this->WriteAttributeBoolean('HasIGD2', false);
         foreach ($Xmls as $Xml) {
-            $XMLData = @Sys_GetURLContentEx($Url . '/' . $Xml, ['Timeout'=>3000, 'VerifyHost' => false, 'VerifyPeer' => false]);
+            $XMLData = @Sys_GetURLContentEx($Url . '/' . $Xml, ['Timeout' => 3000, 'VerifyHost' => false, 'VerifyPeer' => false]);
             if ($XMLData === false) {
                 $this->SendDebug('XML not found', $Xml, 0);
                 continue;
@@ -512,7 +514,7 @@ class FritzBoxIO extends IPSModule
             $SCPD_Data->registerXPathNamespace('fritzbox', $SCPD_Data->getNameSpaces(false)['']);
             $SCPDURLs = $SCPD_Data->xpath('//fritzbox:SCPDURL');
             foreach ($SCPDURLs as $SCPDURL) {
-                $XMLSCPDData = @Sys_GetURLContentEx($Url . (string) $SCPDURL, ['Timeout'=>3000, 'VerifyHost' => false, 'VerifyPeer' => false]);
+                $XMLSCPDData = @Sys_GetURLContentEx($Url . (string) $SCPDURL, ['Timeout' => 3000, 'VerifyHost' => false, 'VerifyPeer' => false]);
                 $SCPD = substr((string) $SCPDURL, 1);
                 if ($XMLSCPDData === false) {
                     $this->SendDebug('SCPD not found', $SCPD, 0);
@@ -625,7 +627,6 @@ class FritzBoxIO extends IPSModule
         if ($Port == null) {
             $Port = ($Scheme == 'https') ? 49443 : 49000;
         }
-        //$Path = parse_url($URL, PHP_URL_PATH);
         $this->Url = $Scheme . '://' . $Host . ':' . $Port;
         return true;
     }
@@ -702,6 +703,9 @@ class FritzBoxIO extends IPSModule
     private function checkCallMonitorPort()
     {
         $Host = parse_url($this->Url, PHP_URL_HOST);
+        if (!$Host) {
+            return false;
+        }
         $CallMon = @fsockopen($Host, 1012, $errno, $errstr, 0.5);
 
         if (is_resource($CallMon)) {
