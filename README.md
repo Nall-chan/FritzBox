@@ -169,8 +169,10 @@ Für das Discovery werden Pakete über die Multicast-Adresse `239.255.255.250` a
 ## Changelog
 
 Version 0.81:
-- Konfiguratoren erwarten jetzt einen eigenen FitzBox-IO und hängen sich nicht mehr an bestehende.  
+- Konfiguratoren erwarten jetzt einen eigenen FritzBox-IO und hängen sich nicht mehr an bestehende.  
 - Konfiguratoren filtern andere Konfiguratoren welche am selben IO hängen.  
+- Das erstellen von der Telefonie Instanz konnte fehlschlagen, wenn die FritzBox keine URL einer Anruferliste liefert.  
+- Der für den Anrufmonitor notwendige ClientSocket wurde unter bestimmten Umständen mit falschen/ungültigen Daten aus dem FritzBox-IO gefüttert.  
 
 Version 0.80:  
 - Fehlerhafte Übersetzungen bei DVB-C, DynDNS behoben.  

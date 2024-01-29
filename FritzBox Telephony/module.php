@@ -594,7 +594,7 @@ class FritzBoxTelephony extends FritzBoxModulBase
             return true;
         }
         $result = $this->GetCallLog();
-        if ($result === false) {
+        if (!$result) {
             return false;
         }
         $entries = $this->ReadPropertyInteger('LastEntries');
