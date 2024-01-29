@@ -44,7 +44,7 @@ class FritzBoxModulBase extends IPSModule
         $this->ParentID = 0;
         $this->ConnectParent(\FritzBox\GUID::FritzBoxIO);
         if (count(static::$EventSubURLArray) > 0) {
-            $this->RegisterTimer('RenewSubscription', 0, 'IPS_RequestAction(' . $this->InstanceID . ',"Subscribe",true);');
+            $this->RegisterTimer('RenewSubscription', 0, 'IPS_RequestAction(' . $this->InstanceID . ',"Subscribe", true);');
         }
         $this->RegisterPropertyInteger('Index', static::$DefaultIndex);
     }

@@ -70,7 +70,9 @@ class FritzBoxIO extends IPSModule
         //$this->RequireParent("{6179ED6A-FC31-413C-BB8E-1204150CF376}");
         if (IPS_GetKernelRunlevel() == KR_READY) {
             $this->ForceLoadXML = true;
-            $this->RegisterMessage($this->InstanceID, FM_CHILDADDED);
+            if (IPS_GetInstance($this->InstanceID)['ConnectionID'] < 10000) {
+                $this->RegisterMessage($this->InstanceID, FM_CHILDADDED);
+            }
             $this->CreateTempDir();
         } else {
             $this->RegisterMessage(0, IPS_KERNELMESSAGE);
@@ -381,6 +383,10 @@ class FritzBoxIO extends IPSModule
 
     private function CreateCallMonitorCS()
     {
+        if (!$this->checkCallMonitorPort()) {
+            return;
+        }
+        $this->UnregisterMessage($this->InstanceID, FM_CHILDADDED);
         if (IPS_GetInstance($this->InstanceID)['ConnectionID'] != 0) {
             return;
         }
@@ -592,7 +598,9 @@ class FritzBoxIO extends IPSModule
     private function KernelReady()
     {
         $this->UnregisterMessage(0, IPS_KERNELMESSAGE);
-        $this->RegisterMessage($this->InstanceID, FM_CHILDADDED);
+        if (IPS_GetInstance($this->InstanceID)['ConnectionID'] < 10000) {
+            $this->RegisterMessage($this->InstanceID, FM_CHILDADDED);
+        }
         $this->ForceLoadXML = true;
         $this->InitConnection();
     }
