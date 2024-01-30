@@ -42,22 +42,12 @@ class FritzBoxModulBase extends IPSModule
         parent::Create();
         $this->SID = '';
         $this->ParentID = 0;
+        $this->isSubscribed = false;
         $this->ConnectParent(\FritzBox\GUID::FritzBoxIO);
         if (count(static::$EventSubURLArray) > 0) {
             $this->RegisterTimer('RenewSubscription', 0, 'IPS_RequestAction(' . $this->InstanceID . ',"Subscribe", true);');
         }
         $this->RegisterPropertyInteger('Index', static::$DefaultIndex);
-    }
-
-    public function Destroy()
-    {
-        if (IPS_InstanceExists($this->InstanceID)) {
-            if ($this->isSubscribed) {
-                $this->Unsubscribe();
-            }
-        }
-        //Never delete this line!
-        parent::Destroy();
     }
 
     public function ApplyChanges()
@@ -70,53 +60,12 @@ class FritzBoxModulBase extends IPSModule
         parent::ApplyChanges();
         $this->RegisterMessage($this->InstanceID, FM_CONNECT);
         $this->RegisterMessage($this->InstanceID, FM_DISCONNECT);
+        $this->RegisterMessage(0, IPS_KERNELSHUTDOWN);
         if (IPS_GetKernelRunlevel() != KR_READY) {
             $this->RegisterMessage(0, IPS_KERNELSTARTED);
             return;
         }
-        $this->SetEventsFilterAndSubscribe();
-    }
 
-    public function RequestAction($Ident, $Value)
-    {
-        if ($this->IORequestAction($Ident, $Value)) {
-            return true;
-        }
-        if ($Ident == 'Subscribe') {
-            $this->Subscribe();
-            return true;
-        }
-        return false;
-    }
-
-    public function MessageSink($TimeStamp, $SenderID, $Message, $Data)
-    {
-        $this->IOMessageSink($TimeStamp, $SenderID, $Message, $Data);
-
-        switch ($Message) {
-            case IPS_KERNELSTARTED:
-                $this->KernelReady();
-                break;
-        }
-    }
-
-    public function ReceiveData($JSONString)
-    {
-        $data = json_decode($JSONString, true);
-        if ($data['DataID'] == \FritzBox\GUID::SendEventToChildren) {
-            unset($data['DataID']);
-            if (!array_key_exists('EventData', $data)) {
-                return false;
-            }
-            $this->isSubscribed = true;
-            $this->SendDebug('Event', $data['EventData'], 0);
-            $this->DecodeEvent($data['EventData']);
-            return true;
-        }
-        return null;
-    }
-    protected function SetEventsFilterAndSubscribe()
-    {
         $this->RegisterParent();
         $Index = $this->ReadPropertyInteger('Index');
         if (count(static::$EventSubURLArray) == 0) {
@@ -142,6 +91,52 @@ class FritzBoxModulBase extends IPSModule
         $this->Subscribe();
     }
 
+    public function RequestAction($Ident, $Value)
+    {
+        if ($this->IORequestAction($Ident, $Value)) {
+            return true;
+        }
+        if ($Ident == 'Subscribe') {
+            $this->Subscribe();
+            return true;
+        }
+        return false;
+    }
+
+    public function MessageSink($TimeStamp, $SenderID, $Message, $Data)
+    {
+        $this->IOMessageSink($TimeStamp, $SenderID, $Message, $Data);
+
+        switch ($Message) {
+            case IPS_KERNELSTARTED:
+                $this->KernelReady();
+                break;
+            case IPS_KERNELSHUTDOWN:
+                if (IPS_InstanceExists($this->InstanceID)) {
+                    if ($this->isSubscribed) {
+                        $this->Unsubscribe();
+                    }
+                }
+                break;
+        }
+    }
+
+    public function ReceiveData($JSONString)
+    {
+        $data = json_decode($JSONString, true);
+        if ($data['DataID'] == \FritzBox\GUID::SendEventToChildren) {
+            unset($data['DataID']);
+            if (!array_key_exists('EventData', $data)) {
+                return false;
+            }
+            $this->isSubscribed = true;
+            $this->SendDebug('Event', $data['EventData'], 0);
+            $this->DecodeEvent($data['EventData']);
+            return true;
+        }
+        return null;
+    }
+
     protected function DecodeEvent($Event)
     {
         foreach ($Event as $Ident => $EventData) {
@@ -158,7 +153,7 @@ class FritzBoxModulBase extends IPSModule
     protected function KernelReady()
     {
         $this->UnregisterMessage(0, IPS_KERNELSTARTED);
-        $this->SetEventsFilterAndSubscribe();
+        $this->ApplyChanges();
     }
 
     /**
@@ -172,7 +167,7 @@ class FritzBoxModulBase extends IPSModule
                     $this->Unsubscribe();
                 }
                 $this->SetReceiveDataFilter('.*NOTHINGTORECEIVE.*');
-                $this->SetEventsFilterAndSubscribe();
+                $this->ApplyChanges();
                 break;
             case IS_INACTIVE:
             case IS_EBASE + 1:
