@@ -450,11 +450,11 @@ class FritzBoxWLAN extends FritzBoxModulBase
             $QRCodeID = @IPS_GetObjectIDByIdent('QRCodeIMG', $this->InstanceID);
             $QRData = IPS_GetMediaContent($QRCodeID);
         } else {
-            $resultKeys = $this->GetSecurityKeys();
+            $resultKeys = $this->GetKeyPassphrase();
             if ($resultKeys === false) {
                 return false;
             }
-            $KeyPassphrase = (string) $resultKeys['NewKeyPassphrase'];
+            $KeyPassphrase = (string) $resultKeys;
             $QRData = base64_encode($this->GenerateQRCodeData($SSID, $KeyPassphrase));
         }
 
@@ -510,20 +510,15 @@ class FritzBoxWLAN extends FritzBoxModulBase
         return true;
     }
 
-    public function SetSecurityKeys(
-        string $WEPKey0,
-        string $WEPKey1,
-        string $WEPKey2,
-        string $WEPKey3,
-        bool $PreSharedKey,
+    public function SetKeyPassphrase(
         string $KeyPassphrase
     ) {
-        $result = $this->Send(__FUNCTION__, [
-            'NewWEPKey0'                    => $WEPKey0,
-            'NewWEPKey1'                    => $WEPKey1,
-            'NewWEPKey2'                    => $WEPKey2,
-            'NewWEPKey3'                    => $WEPKey3,
-            'NewPreSharedKey'               => $PreSharedKey,
+        $result = $this->Send('SetSecurityKeys', [
+            'NewWEPKey0'                    => '',
+            'NewWEPKey1'                    => '',
+            'NewWEPKey2'                    => '',
+            'NewWEPKey3'                    => '',
+            'NewPreSharedKey'               => '',
             'NewKeyPassphrase'              => $KeyPassphrase
         ]);
         if ($result === false) {
@@ -532,13 +527,13 @@ class FritzBoxWLAN extends FritzBoxModulBase
         return true;
     }
 
-    public function GetSecurityKeys()
+    public function GetKeyPassphrase()
     {
-        $result = $this->Send(__FUNCTION__);
+        $result = $this->Send('GetSecurityKeys');
         if ($result === false) {
             return false;
         }
-        return $result;
+        return (string) $result['NewKeyPassphrase'];
     }
 
     public function SetBasBeaconSecurityProperties(
@@ -1003,15 +998,15 @@ class FritzBoxWLAN extends FritzBoxModulBase
         $useQRCode = $this->ReadPropertyBoolean('ShowWLanKeyAsQRCode');
 
         if ($useQRCode || $useVariable) {
-            $resultKeys = $this->GetSecurityKeys();
+            $resultKeys = $this->GetKeyPassphrase();
             if ($resultKeys === false) {
                 return false;
             }
             if ($useVariable) {
-                $this->setIPSVariable('KeyPassphrase', 'Password', (string) $resultKeys['NewKeyPassphrase'], VARIABLETYPE_STRING, '', false, -9);
+                $this->setIPSVariable('KeyPassphrase', 'Password', (string) $resultKeys, VARIABLETYPE_STRING, '', false, -9);
             }
             if ($useQRCode) {
-                $QRData = $this->GenerateQRCodeData((string) $resultState['NewSSID'], (string) $resultKeys['NewKeyPassphrase']);
+                $QRData = $this->GenerateQRCodeData((string) $resultState['NewSSID'], (string) $resultKeys);
 
                 $QRCodeID = @IPS_GetObjectIDByIdent('QRCodeIMG', $this->InstanceID);
                 if ($QRCodeID === false) {

@@ -11,6 +11,8 @@ require_once __DIR__ . '/../libs/FritzBoxModule.php';
  * @property string $Url
  * @property string $Username
  * @property bool $ForceLoadXML
+ * @property string $SID
+ * @property bool $isSubscribed
  * @method void RegisterHook(string $WebHook)
  * @method void UnregisterHook(string $WebHook)
  * @method void RegisterAttributeArray(string $name, mixed $Value, int $Size = 0)
@@ -64,9 +66,11 @@ class FritzBoxIO extends IPSModule
         $this->RegisterAttributeBoolean('HasIGD2', false);
         $this->RegisterAttributeBoolean('HasTel', false);
         $this->RegisterAttributeInteger('NoOfWlan', 0);
-
+        $this->RegisterTimer('RenewSubscription', 0, 'IPS_RequestAction(' . $this->InstanceID . ',"Subscribe", true);');
         $this->Url = '';
         $this->Username = '';
+        $this->SID = '';
+        $this->isSubscribed = false;
         //$this->RequireParent("{6179ED6A-FC31-413C-BB8E-1204150CF376}");
         if (IPS_GetKernelRunlevel() == KR_READY) {
             $this->ForceLoadXML = true;
@@ -118,11 +122,18 @@ class FritzBoxIO extends IPSModule
         if ($Ident == 'KernelReady') {
             return $this->KernelReady();
         }
+        if ($Ident == 'Subscribe') {
+            $this->DoSubscribe();
+            return true;
+        }
     }
 
     public function ApplyChanges()
     {
         //Never delete this line!
+        if ($this->isSubscribed) {
+            $this->DoUnsubscribe();
+        }
         parent::ApplyChanges();
         if (IPS_GetKernelRunlevel() != KR_READY) {
             return;
@@ -271,6 +282,17 @@ class FritzBoxIO extends IPSModule
         }
         return true;
     }
+
+    protected function SetStatus($Status)
+    {
+        if ($Status != self::isConnected) {
+            $this->SID = '';
+            $this->isSubscribed = false;
+            $this->SetTimerInterval('RenewSubscription', 0);
+        }
+        parent::SetStatus($Status);
+    }
+
     protected function InitConnection()
     {
         $OldUrl = $this->Url;
@@ -307,10 +329,7 @@ class FritzBoxIO extends IPSModule
                 $this->getAreaCodes();
                 $this->checkCallMonitorPort();
             }
-            //Todo
-            // Eigene Events holen?
-            // Prüfen ob Antwort kommt ?
-            $this->SetStatus(IS_ACTIVE);
+            $this->DoSubscribe();
         } else {
             $this->Url = '';
             $this->SetSummary('');
@@ -360,6 +379,9 @@ class FritzBoxIO extends IPSModule
             $Propertys[str_replace('-', '_', $property->Children()->GetName())] = (string) $property->Children();
         }
         $this->SendDebug('EVENT XML', $Propertys, 0);
+        if ($eventSubUrl == '/upnp/control/layer3forwarding') {
+            $this->isSubscribed = true;
+        }
         $this->SendDataToChildren(
             json_encode(
                 [
@@ -369,6 +391,18 @@ class FritzBoxIO extends IPSModule
                 ]
             )
         );
+    }
+
+    protected function WaitForEvent()
+    {
+        for ($i = 0; $i < 1000; $i++) {
+            if ($this->isSubscribed) {
+                return true;
+            } else {
+                IPS_Sleep(5);
+            }
+        }
+        return false;
     }
 
     private function CreateTempDir()
@@ -848,6 +882,54 @@ class FritzBoxIO extends IPSModule
         }
         $this->SendDebug('Result', $Result, 0);
         return $Result;
+    }
+
+    private function DoSubscribe(): bool
+    {
+        $this->isSubscribed = false;
+        $this->SendDebug('Subscribe', $this->SID, 0);
+        $Result = @$this->Subscribe(
+            '/upnp/control/layer3forwarding',
+            $this->SID
+        );
+        if ($Result === false) {
+            $this->SID = '';
+            $this->SendDebug('Error on subscribe (Result)', 'IO', 0);
+            trigger_error('Error on subscribe (Result)', E_USER_WARNING);
+            $this->SetStatus(self::isDisconnected);
+            return false;
+        }
+        $this->SendDebug('Result', $Result, 0);
+        if ($this->SID === '') {
+            if (!$this->WaitForEvent()) {
+                $this->SID = '';
+                $this->SendDebug('No event after subscribe', 'IO', 0);
+                $this->LogMessage('No event after subscribe from IO', KL_ERROR);
+                $this->SetStatus(self::isDisconnected);
+                return false;
+            }
+            $this->SID = $Result['SID'];
+        }
+        $this->SetTimerInterval('RenewSubscription', ((int) $Result['TIMEOUT'] - 300) * 1000);
+        $this->SetStatus(self::isConnected);
+        return true;
+    }
+
+    private function DoUnsubscribe()
+    {
+        $this->SendDebug('Unsubscribe', $this->SID, 0);
+        $this->isSubscribed = false;
+        $SID = $this->SID;
+        $this->SID = '';
+        $Result = @$this->Unsubscribe(
+            '/upnp/control/layer3forwarding',
+            $SID
+        );
+        if ($Result === false) {
+            $this->SendDebug('Error on Unsubscribe (Result)', 'IO', 0);
+        }
+        $this->SendDebug('Unsubscribe', $Result, 0);
+
     }
 
     # Event Subscribe zusammenbauen, senden und Rückmeldung auswerten

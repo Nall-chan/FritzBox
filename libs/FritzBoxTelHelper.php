@@ -4,6 +4,9 @@ declare(strict_types=1);
 
 namespace FritzBoxModul;
 
+/**
+ * @method string CIRS_GetName(int $InstanzId, string $Number)
+ */
 trait TelHelper
 {
     protected static $NumberToID = [

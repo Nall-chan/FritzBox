@@ -82,6 +82,7 @@ class FritzBoxConfigurator extends IPSModule
             }
             $this->SendDebug('isCable', $IsCable, 0);
 
+            /** @var \DOMElement $xmlDevices */
             foreach ($xmlDevices as $xmlDevice) {
                 $serviceType = $xmlDevice->getElementsByTagName('serviceType')[0]->nodeValue;
                 if (($serviceType == 'urn:dslforum-org:service:WANIPConnection:1') && !$IsCable) {

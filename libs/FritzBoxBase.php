@@ -610,12 +610,10 @@ class FritzBoxModulBase extends IPSModule
             ]
         ));
         if ($Ret === false) {
-            $this->SID = '';
             $this->SendDebug('Error on Unsubscribe (parse)', static::$EventSubURLArray[$Index], 0);
         } else {
             $Result = unserialize($Ret);
             if ($Result === false) {
-                $this->SID = '';
                 $this->SendDebug('Error on Unsubscribe (Result)', static::$EventSubURLArray[$Index], 0);
             }
             $this->SendDebug('Unsubscribe', $Result, 0);
