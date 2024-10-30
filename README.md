@@ -30,10 +30,9 @@
 **Weitere Hinweise**
 1. Für die Rückwärtssuche nach Rufnummern wird das Modul hier benötigt, oder ein eigenes Script
 https://community.symcon.de/t/modul-rueckwaertssuche-von-rufnummern-ueber-das-internet/125450
-1. Das Modul enthält fast alle Funktionen des alten FritzBox-Project, teilweise aber mit anderen Leistungsmerkmalen.
-1. Die vorhandenen IPS-Variablen können teilweise von versierten Anwendern übernommen werden, eine Anleitung bzw. Beschreibung zum vorgehen folgt.
- 1. Auch wenn AVM angefangen hat die SmartHome-Geräte über diese Schnittstelle bereitzustellen, so ist der Funktionsumfang noch sehr gering. Für das **AHA-HTTP-Interface** bitte das Modul von tommi benutzen, funktionsumfang kenne ich aber nicht → [neue PHP-Module als Ersatz meiner Delphi-Module](https://community.symcon.de/t/neue-php-module-als-ersatz-meiner-delphi-module/40770)
-1. Zugriff auf eine FritzBox über das Internet ist **nicht** möglich!
+2. Das Modul enthält fast alle Funktionen des alten FritzBox-Project, teilweise aber mit anderen Leistungsmerkmalen.
+3. Auch wenn AVM angefangen hat die SmartHome-Geräte über diese Schnittstelle bereitzustellen, so ist der Funktionsumfang noch sehr gering. Für das **AHA-HTTP-Interface** bitte das Modul von tommi benutzen, funktionsumfang kenne ich aber nicht → [neue PHP-Module als Ersatz meiner Delphi-Module](https://community.symcon.de/t/neue-php-module-als-ersatz-meiner-delphi-module/40770)
+4. Zugriff auf eine FritzBox über das Internet ist **nicht** möglich!
 Siehe auch CallStranger Sicherheitslücke.
 Zitat AVM: 
 `...ist nicht betroffen, da UPnP dort nicht aus dem Internet erreicht oder genutzt werden kann.`
@@ -74,7 +73,9 @@ Bei System mit aktiven NAT-Support funktioniert die automatische Erkennung der e
   
 Sollte es nötig sein, so können bei Bedarf die eigene IP und der Port, sowie die Verwendung von https,  in den IO-Instanzen unter `Experteneinstellungen` geändert und fixiert werden.
 
-Damit Geräte über das [Discovery-Modul](FritzBox%20Discovery/README.md) gefunden werden können, müssen in gerouteten Netzen und bei NAT Systemen Multicast-Pakete korrekt weitergeleitet werden.  
+<span style="color:red">**Der Symcon Host muss sich im gleichen Subnetz befinden wie die FritzBox.**(Bei NAT, muss der NAT-Host im gleichen Subnetz sein.)</span>  
+
+Damit Geräte über das [Discovery-Modul](FritzBox%20Discovery/README.md) gefunden werden können, müssen bei NAT Systemen Multicast-Pakete korrekt weitergeleitet werden.  
 <span style="color:red">**Discovery funktioniert nicht in einem Docker Container welcher per NAT angebunden ist. Diese Konstellation wird aufgrund der fehlenden Multicast Fähigkeiten von Docker nicht unterstützt. In diesem Fall muss der [Konfigurator](FritzBox%20Configurator/README.md) manuell angelegt und der [IO](FritzBox%20IO/README.md) konfiguriert werden.**</span>  
 Für das Discovery werden Pakete über die Multicast-Adresse `239.255.255.250` auf Port `1900` gesendet und UDP Pakete auf Port `1901` empfangen.  
 
@@ -291,7 +292,7 @@ Version 0.69:
 Version 0.68:  
 
 - Ist der NATSupport von Symcon aktiviert, aber keine PublicIP konfiguriert, so wird im FritzBox-IO eine Meldung ausgegeben.  
-- NATSupport und FritzBox in anderen Subnetzen werden unterstützt (außer Discovery-Instanz!).  
+- NATSupport im IO.  
 - Fehlende Übersetzungen im Konfigurator ergänzt
 - Neue Instanz-Funktion für die Suche nach Kontakten in den Telefonbüchern (FB_GetPhonebookEntrysByNumber(12345 /* FritzBox Telefonie */, string $Number))  
 - Neue Instanz-Funktion für die Rückwärtssuche (FB_SearchNameByNumber(12345 /* FritzBox Telefonie */, string $Number, string $AreaCode))  
