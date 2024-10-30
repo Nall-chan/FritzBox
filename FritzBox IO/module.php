@@ -131,9 +131,7 @@ class FritzBoxIO extends IPSModule
     public function ApplyChanges()
     {
         //Never delete this line!
-        if ($this->isSubscribed) {
-            $this->DoUnsubscribe();
-        }
+        $this->DoUnsubscribe();
         parent::ApplyChanges();
         if (IPS_GetKernelRunlevel() != KR_READY) {
             return;
@@ -286,17 +284,17 @@ class FritzBoxIO extends IPSModule
     protected function SetStatus($Status)
     {
         if ($Status != self::isConnected) {
-            $this->SID = '';
-            $this->isSubscribed = false;
-            $this->SetTimerInterval('RenewSubscription', 0);
+            $this->DoUnsubscribe();
         }
-        parent::SetStatus($Status);
+        if ($this->GetStatus() != $Status) {
+            parent::SetStatus($Status);
+        }
     }
 
     protected function InitConnection()
     {
         $OldUrl = $this->Url;
-        $this->SetStatus(IS_INACTIVE);
+        //$this->SetStatus(IS_INACTIVE);
         if ($this->CheckHost()) {
             $this->SetSummary($this->Url);
             if ($this->ReadPropertyString('Password') == '') {
@@ -917,6 +915,10 @@ class FritzBoxIO extends IPSModule
 
     private function DoUnsubscribe()
     {
+        if (!$this->isSubscribed) {
+            return;
+        }
+        $this->SetTimerInterval('RenewSubscription', 0);
         $this->SendDebug('Unsubscribe', $this->SID, 0);
         $this->isSubscribed = false;
         $SID = $this->SID;

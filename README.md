@@ -1,5 +1,5 @@
 [![SDK](https://img.shields.io/badge/Symcon-PHPModul-red.svg)](https://www.symcon.de/service/dokumentation/entwicklerbereich/sdk-tools/sdk-php/)
-[![Version](https://img.shields.io/badge/Modul%20version-0.82-blue.svg)]()
+[![Version](https://img.shields.io/badge/Modul%20version-0.83-blue.svg)]()
 [![Version](https://img.shields.io/badge/Symcon%20Version-6.1%20%3E-green.svg)](https://www.symcon.de/de/service/dokumentation/installation/migrationen/v60-v61-q1-2022/)  
 [![License](https://img.shields.io/badge/License-CC%20BY--NC--SA%204.0-green.svg)](https://creativecommons.org/licenses/by-nc-sa/4.0/)
 [![Check Style](https://github.com/Nall-chan/FritzBox/workflows/Check%20Style/badge.svg)](https://github.com/Nall-chan/FritzBox/actions) [![Run Tests](https://github.com/Nall-chan/FritzBox/workflows/Run%20Tests/badge.svg)](https://github.com/Nall-chan/FritzBox/actions)  
@@ -167,6 +167,9 @@ Für das Discovery werden Pakete über die Multicast-Adresse `239.255.255.250` a
 ----------
 
 ## Changelog
+
+Version 0.83:
+- Fehlerhaftes Verhalten beim abonnieren von UPnP Events korrigiert.  
 
 Version 0.82:
 - Besseres verhalten bei Neustart und Verbindungsabbrüche.  
