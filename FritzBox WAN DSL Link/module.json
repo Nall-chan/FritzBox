@@ -3,10 +3,7 @@
     "name": "FritzBox WAN DSL Link",
     "type": 3,
     "vendor": "AVM",
-    "aliases": [
-        "FritzBox WAN DSL Link",
-        "FritzBox WAN DSL-Verbindung"
-    ],
+    "aliases": [],
     "parentRequirements": [
         "{D62D4515-7689-D1DB-EE97-F555AD9433F0}"
     ],

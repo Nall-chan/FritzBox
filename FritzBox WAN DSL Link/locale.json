@@ -1,6 +1,7 @@
 {
     "translations": {
         "de": {
+            "FritzBox WAN DSL Link": "FritzBox WAN DSL-Verbindung",
             "Service": "Dienst",
             "<none>": "<keiner>",
             "Refresh Interval": "Aktualisierungsintervall",

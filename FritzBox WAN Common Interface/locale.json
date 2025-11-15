@@ -1,6 +1,7 @@
 {
     "translations": {
         "de": {
+            "FritzBox WAN Common Interface": "FritzBox allgemeine WAN-Schnittstelle",
             "Service": "Dienst",
             "<none>": "<keiner>",
             "Refresh Interval": "Aktualisierungsintervall",

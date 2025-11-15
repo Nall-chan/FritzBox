@@ -214,6 +214,7 @@ class FritzBoxFileShare extends FritzBoxModulBase
         }
 
         $TableData = [];
+        /** @var \SimpleXMLElement $FileItem */
         foreach ($FileList as $FileItem) {
             $Filename = explode('/', (string) $FileItem->Path);
             $FileItem->addChild('Filename', end($Filename));

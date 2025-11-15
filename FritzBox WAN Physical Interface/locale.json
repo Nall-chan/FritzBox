@@ -1,6 +1,7 @@
 {
     "translations": {
         "de": {
+            "FritzBox WAN Physical Interface": "FritzBox physikalische WAN-Schnittstelle",
             "Service": "Dienst",
             "<none>": "<keiner>",
             "Refresh Interval": "Aktualisierungsintervall",

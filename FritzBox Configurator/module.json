@@ -3,10 +3,7 @@
     "name": "FritzBox Configurator",
     "type": 4,
     "vendor": "AVM",
-    "aliases": [
-        "FritzBox Configurator",
-        "FritzBox Konfigurator"
-    ],
+    "aliases": [],
     "parentRequirements": [
         "{D62D4515-7689-D1DB-EE97-F555AD9433F0}"
     ],

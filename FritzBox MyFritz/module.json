@@ -3,9 +3,7 @@
     "name": "FritzBox MyFritz",
     "type": 3,
     "vendor": "AVM",
-    "aliases": [
-        "FritzBox MyFritz"
-    ],
+    "aliases": [],
     "parentRequirements": [
         "{D62D4515-7689-D1DB-EE97-F555AD9433F0}"
     ],

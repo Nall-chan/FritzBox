@@ -35,9 +35,9 @@
 
  **Fehler:**
 
- - AB / (Portweiterleitung auch?) Update fehlt nach dem ein/Ausschalten  
+- AB / (Portweiterleitung auch?) Update fehlt nach dem ein/Ausschalten  
 
- - https://community.symcon.de/t/beta-modul-fritzbox-ersatz-fuer-fritzbox-project/125451/202?u=nall-chan
+- https://community.symcon.de/t/beta-modul-fritzbox-ersatz-fuer-fritzbox-project/125451/202?u=nall-chan
 
 - allgemeine WAN-Schnittstelleninstanz?  
   
@@ -54,16 +54,7 @@
  - WAN IP Connection
  - WAN Physical Interface
 
- ---
-
- **HTML-Tabelle fehlt:**
-  - NAS
-  
- **Aktionen fehlen bei folgenden Instanzen:**  
- - IO (+ Device Config Instanz ?) für Aktion Reboot
- - WebDav Client
- 
- --- 
+  --- 
 
 **Unfertig / Fehlen:**  
 
@@ -71,14 +62,12 @@
 🟩 Dect (fehlt komplett)  
 🟩 Anrufbeantworter (fehlt komplett)  
 🟩 Wählhilfe (fehlt in Telefonie, Realisierbarkeit noch nicht getestet)  
-🟩 Aktionen prüfen, vervollständigen  
-🟩 Übersetzung MyFritz fehlt.  
-🟩 File Share ohne Download Möglichkeit  
-  
+ 
 **Später/Sonstiges:**  
 🟥 Filter bei den SmartHome Geräten.  
-🟥 Parameter für die initiale Sortierung der HTML-Tabellen der   WLAN-Instanzen und der Host-Instanz fehlt.  
-✅ Instanz WAN DSL-Verbindung liefer weitere Werte  (z.B. die CRCErrors)  
+🟥 Parameter für die initiale Sortierung der HTML-Tabellen der WLAN-Instanzen und der Host-Instanz fehlt.  
+✅ Übersetzung MyFritz fehlt.  
+✅ Instanz WAN DSL-Verbindung liefert weitere Werte  (z.B. die CRCErrors)  
 ✅ Discovery-Instanz funktioniert unter Linux-OS wieder.  
 ✅ Fehlte ein Eintrag in der Host-Tabelle der FritzBox und war das automatische umbenennen von Host-Variablen in einer WLAN-Instanz aktiv, so konnte der Name der Variable gelöscht werden und wurde als unnamed Object angezeigt.  
 ✅ UpnP Unsubscribe ergänzt für das korrekte Abmelden von Events an der FritzBox.  

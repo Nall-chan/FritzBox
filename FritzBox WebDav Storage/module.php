@@ -86,7 +86,7 @@ class FritzBoxWebDavStorage extends FritzBoxModulBase
         return false;
     }
 
-    private function UpdateWebDAVClient(bool $NewEnabled = null)
+    private function UpdateWebDAVClient(?bool $NewEnabled = null)
     {
         $result = $this->GetInfo();
         if ($result === false) {

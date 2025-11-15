@@ -1,6 +1,7 @@
 {
     "translations": {
         "de": {
+            "FritzBox Hosts": "FritzBox Netzwerkgeräte",
             "Create variable per network device": "Erzeuge Variable pro Netzwerkgerät",
             "Automatically create variables for new network devices": "Automatisch Variablen für neue Netzwerkgeräte erstellen",
             "Automatically rename network device variables": "Netzwerkgeräte-Variablen automatisch umbenennen",

@@ -33,7 +33,7 @@ Konfigurator zum Anlegen von SmartHome Instanzen.
 
 ## 2. Voraussetzungen
 
-- IP-Symcon ab Version 6.0
+- Symcon ab Version 7.1
 
 ## 3. Software-Installation
 

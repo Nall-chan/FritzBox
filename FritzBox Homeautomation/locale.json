@@ -1,6 +1,7 @@
 {
     "translations": {
         "de": {
+            "FritzBox Homeautomation": "FritzBox SmartHome",
             "Device AIN": "Geräte AIN",
             "Refresh Interval": "Aktualisierungsintervall",
             "seconds": "Sekunden",

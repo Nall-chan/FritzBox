@@ -256,7 +256,7 @@ trait TelHelper
             ]
         ));
         if ($Ret === false) {
-            return false;
+            return [];
         }
         $Result = unserialize($Ret);
         $this->SendDebug('Result', $Result, 0);

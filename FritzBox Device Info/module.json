@@ -3,10 +3,7 @@
     "name": "FritzBox Device Info",
     "type": 3,
     "vendor": "AVM",
-    "aliases": [
-        "FritzBox Device Info",
-        "FritzBox Geräteinformationen"
-    ],
+    "aliases": [],
     "parentRequirements": [
         "{D62D4515-7689-D1DB-EE97-F555AD9433F0}"
     ],

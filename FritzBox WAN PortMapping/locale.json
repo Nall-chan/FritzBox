@@ -1,6 +1,7 @@
 {
     "translations": {
         "de": {
+            "FritzBox WAN Port Mapping": "FritzBox WAN Port-Weiterleitung",
             "Type": "Typ",
             "<none>": "<keiner>",
             "PPP (DSL)": "PPP (DSL)",

@@ -1,6 +1,7 @@
 {
     "translations": {
         "de": {
+            "FritzBox Configurator": "FritzBox Konfigurator",
             "Not connected!": "Nicht verbunden!",
             "The 'FritzBox IO' instance is not connected or missing.": "Die 'FritzBox IO' Instanz ist nicht verbunden oder fehlt.",
             "Call monitor not available!": "Anrufmonitor nicht verfügbar!",

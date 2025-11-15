@@ -3,10 +3,7 @@
     "name": "FritzBox Homeautomation",
     "type": 3,
     "vendor": "AVM",
-    "aliases": [
-        "FritzBox Homeautomation",
-        "FritzBox SmartHome"
-    ],
+    "aliases": [],
     "parentRequirements": [
         "{D62D4515-7689-D1DB-EE97-F555AD9433F0}"
     ],

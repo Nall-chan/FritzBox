@@ -1,6 +1,7 @@
 {
     "translations": {
         "de": {
+            "FritzBox File Share": "FritzBox Dateifreigabe",
             "Refresh Interval": "Aktualisierungsintervall",
             "seconds": "Sekunden",
             "Show shares as HTMLBox-Variable": "Zeige Freigaben als HTML-Tabelle",

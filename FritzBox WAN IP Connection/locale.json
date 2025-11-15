@@ -1,6 +1,7 @@
 {
     "translations": {
         "de": {
+            "FritzBox WAN IP Connection": "FritzBox WAN IP-Verbindung",
             "Service": "Dienst",
             "<none>": "<keiner>",
             "Refresh Interval": "Aktualisierungsintervall",

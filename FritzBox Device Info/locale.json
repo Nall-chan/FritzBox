@@ -1,6 +1,7 @@
 {
     "translations": {
         "de": {
+            "FritzBox Device Info": "FritzBox Geräteinformationen",
             "Refresh Interval": "Aktualisierungsintervall",
             "seconds": "Sekunden",
             "Update Values": "Werte aktualisieren",

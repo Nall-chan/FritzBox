@@ -1,6 +1,7 @@
 {
     "translations": {
         "de": {
+            "FritzBox Callmonitor": "FritzBox Anrufmonitor",
             "Area code": "Ortsvorwahl",
             "Country code": "Ländervorwahl",
             "Reverse Search": "Rückwärtsuche",

@@ -1,6 +1,7 @@
 {
     "translations": {
         "de": {
+            "FritzBox Telephony": "FritzBox Telefonie",
             "Reload phone book": "Telefonbuch neu laden",
             "Reload deflection list": "Rufumleitungen und Sperren neu laden",
             "Instance for reverse Search": "Instanz für Rückwärtsuche",

@@ -3,10 +3,7 @@
     "name": "FritzBox WAN Common Interface",
     "type": 3,
     "vendor": "AVM",
-    "aliases": [
-        "FritzBox WAN Common Interface",
-        "FritzBox allgemeine WAN-Schnittstelle"
-    ],
+    "aliases": [],
     "parentRequirements": [
         "{D62D4515-7689-D1DB-EE97-F555AD9433F0}"
     ],

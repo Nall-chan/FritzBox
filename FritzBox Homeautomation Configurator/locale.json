@@ -1,6 +1,7 @@
 {
     "translations": {
         "de": {
+            "FritzBox Homeautomation Configurator": "FritzBox SmartHome Konfigurator",
             "Manufacturer": "Hersteller",
             "Product": "Gerät",
             "Not connected!": "Nicht verbunden!",

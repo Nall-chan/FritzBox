@@ -170,6 +170,12 @@ Für das Discovery werden Pakete über die Multicast-Adresse `239.255.255.250` a
 
 ## Changelog
 
+Version 0.85:
+- Symcon 7.1 mit PHP 8.2 ist jetzt minimum.  
+- Submodule und Support Links aktualisiert.  
+- Workaround für FritzOS 8.10 bei der Instanz `FritzBox WAN IP-Verbindung`.  
+- Übersetzungen ergänzt.  
+  
 Version 0.83:
 - Fehlerhaftes Verhalten beim abonnieren von UPnP Events korrigiert.  
 

@@ -1,6 +1,7 @@
 {
     "translations": {
         "de": {
+            "FritzBox WebDav Storage": "FritzBox Online-Speicher",
             "Refresh Interval": "Aktualisierungsintervall",
             "seconds": "Sekunden",
             "Username": "Benutzername",

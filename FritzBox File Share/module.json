@@ -3,10 +3,7 @@
     "name": "FritzBox File Share",
     "type": 3,
     "vendor": "AVM",
-    "aliases": [
-        "FritzBox File Share",
-        "FritzBox Dateifreigabe"
-    ],
+    "aliases": [],
     "parentRequirements": [
         "{D62D4515-7689-D1DB-EE97-F555AD9433F0}"
     ],

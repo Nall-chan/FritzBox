@@ -34,7 +34,7 @@ Auslesen der aktuell genutzten WAN Verbindung.
   
 ## 2. Voraussetzungen
 
-- IP-Symcon ab Version 6.0
+- Symcon ab Version 7.1
 
 ## 3. Software-Installation
 

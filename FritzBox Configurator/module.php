@@ -6,7 +6,7 @@ eval('declare(strict_types=1);namespace FritzBoxConfigurator {?>' . file_get_con
 require_once __DIR__ . '/../libs/FritzBoxModule.php';
 
 /**
- * @property int ParentID
+ * @property int $ParentID
  * @method bool SendDebug(string $Message, mixed $Data, int $Format)
  */
 class FritzBoxConfigurator extends IPSModule

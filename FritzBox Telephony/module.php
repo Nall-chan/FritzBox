@@ -919,6 +919,7 @@ class FritzBoxTelephony extends FritzBoxModulBase
             case 'eImmediately':
                 return 'immediately';
         }
+        return '';
     }
 
     private function SetPhonebookFiles(array $Files)
