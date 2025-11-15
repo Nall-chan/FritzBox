@@ -93,7 +93,7 @@ class Services
         'urn:dslforum-org:service:X_VoIP:1'                      => [], // in OnTel enthalten ?! // todo
         'urn:dslforum-org:service:X_AVM-DE_Dect:1'               => [],
         'urn:dslforum-org:service:X_AVM-DE_TAM:1'                => [],
-        'urn:dslforum-org:service:Layer3Forwarding:1'            => [],
+        'urn:dslforum-org:service:Layer3Forwarding:1'            => [], // im IO Enthalten
         'urn:schemas-upnp-org:service:WANIPv6FirewallControl:1'  => [],
         // Ohne eigene Module
         //'urn:dslforum-org:service:LANConfigSecurity:1'           => [], // im IO Enthalten -> Fallback für User Anmeldung

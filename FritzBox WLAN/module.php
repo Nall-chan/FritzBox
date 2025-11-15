@@ -933,16 +933,7 @@ class FritzBoxWLAN extends FritzBoxModulBase
         $NoOfWlan = unserialize($result);
         for ($i = 1; $i <= $NoOfWlan; $i++) {
             $Index = $Options[$i]['value'];
-            $result = $this->SendDataToParent(json_encode(
-                [
-                    'DataID'    => \FritzBox\GUID::SendToFritzBoxIO,
-                    'ServiceTyp'=> static::$ServiceTypeArray[$Index],
-                    'ControlUrl'=> static::$ControlUrlArray[$Index],
-                    'Function'  => 'X_AVM-DE_GetWLANExtInfo',
-                    'Parameter' => []
-                ]
-            ));
-            $guest = unserialize($result);
+            $guest = $this->SendEx('X_AVM-DE_GetWLANExtInfo', $Index);
             if ($guest === false) {
                 continue;
             }
@@ -950,16 +941,7 @@ class FritzBoxWLAN extends FritzBoxModulBase
                 $Options[$i]['caption'] = $i . $this->Translate(' (Guest)');
                 continue;
             }
-            $result = $this->SendDataToParent(json_encode(
-                [
-                    'DataID'    => \FritzBox\GUID::SendToFritzBoxIO,
-                    'ServiceTyp'=> static::$ServiceTypeArray[$Index],
-                    'ControlUrl'=> static::$ControlUrlArray[$Index],
-                    'Function'  => 'GetInfo',
-                    'Parameter' => []
-                ]
-            ));
-            $info = unserialize($result);
+            $info = $this->SendEx('GetInfo', $Index);
             if ($info === false) {
                 continue;
             }
