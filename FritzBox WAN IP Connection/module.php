@@ -8,14 +8,17 @@ class FritzBoxWANIPConnection extends FritzBoxModulBase
 {
     protected static $ControlUrlArray = [
         '/igdupnp/control/WANIPConn1',
-        '/igd2upnp/control/WANIPConn1'
+        '/igd2upnp/control/WANIPConn1',
+        '/igd2upnp/control/WANIPConn2'
     ];
     protected static $EventSubURLArray = [
         '/igdupnp/control/WANIPConn1',
-        '/igd2upnp/control/WANIPConn1'
+        '/igd2upnp/control/WANIPConn1',
+        '/igd2upnp/control/WANIPConn2',
     ];
     protected static $ServiceTypeArray = [
         'urn:schemas-upnp-org:service:WANIPConnection:1',
+        'urn:schemas-upnp-org:service:WANIPConnection:2',
         'urn:schemas-upnp-org:service:WANIPConnection:2'
     ];
 
@@ -274,13 +277,13 @@ class FritzBoxWANIPConnection extends FritzBoxModulBase
         if ($result === false) {
             return false;
         }
-        $this->setIPSVariable('ExternalIPv6Address', 'External IPv6 Address', $result['NewExternalIPv6Address'], VARIABLETYPE_STRING, '', false, 10);
+        $this->setIPSVariable('ExternalIPv6Address', 'External IPv6 Address', $result['NewExternalIPv6Address'] . '/' . $result['NewPrefixLength'], VARIABLETYPE_STRING, '', false, 10);
 
         $result = $this->GetIPv6Prefix();
         if ($result === false) {
             return false;
         }
-        $this->setIPSVariable('IPv6Prefix', 'IPv6 Prefix', $result['NewIPv6Prefix'], VARIABLETYPE_STRING, '', false, 16);
+        $this->setIPSVariable('IPv6Prefix', 'IPv6 Prefix', $result['NewIPv6Prefix'] . '/' . $result['NewPrefixLength'], VARIABLETYPE_STRING, '', false, 16);
 
         $result = $this->GetIPv6DNSServer();
         if ($result === false) {

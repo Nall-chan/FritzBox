@@ -14,8 +14,12 @@
                     "value": 0
                 },
                 {
-                    "caption": "IGD2",
+                    "caption": "IGD2 (< FritzOS 8.10)",
                     "value": 1
+                },
+                {
+                    "caption": "IGD2 (> FritzOs 8.10)",
+                    "value": 2
                 }
             ]
         },
