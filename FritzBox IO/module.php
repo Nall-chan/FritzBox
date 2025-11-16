@@ -452,9 +452,9 @@ class FritzBoxIO extends IPSModule
         } else {
             $Url = $this->Url . $Uri;
         }
-        $Data = Sys_GetURLContentEx($Url, ['Timeout' => 10000, 'VerifyHost' => false, 'VerifyPeer' => false]);
+        $Data = Sys_GetURLContentEx($Url, ['Timeout' => 15000, 'VerifyHost' => false, 'VerifyPeer' => false]);
         if ($Data === false) {
-            $this->SendDebug('File not found', $Uri, 0);
+            $this->SendDebug('File not found', $Url, 0);
             return false;
         }
         $this->SendDebug('Load File: ' . $Uri, $Data, 0);
