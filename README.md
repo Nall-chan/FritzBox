@@ -1,12 +1,12 @@
 [![SDK](https://img.shields.io/badge/Symcon-PHPModul-red.svg)](https://www.symcon.de/service/dokumentation/entwicklerbereich/sdk-tools/sdk-php/)
-[![Module Version](https://img.shields.io/badge/dynamic/json?url=https%3A%2F%2Fraw.githubusercontent.com%2FNall-chan%2FFritzBox%2Frefs%2Fheads%2Fmaster%2Flibrary.json&query=%24.version&label=Modul%20Version&color=blue)]()
-[![Symcon Version](https://img.shields.io/badge/dynamic/json?url=https%3A%2F%2Fraw.githubusercontent.com%2FNall-chan%2FFritzBox%2Frefs%2Fheads%2Fmaster%2Flibrary.json&query=%24.compatibility.version&suffix=%3E&label=Symcon%20Version&color=green)
-](https://www.symcon.de/de/service/dokumentation/installation/migrationen/v80-v81-q3-2025/)  
+[![Module Version](https://img.shields.io/badge/dynamic/json?url=https%3A%2F%2Fraw.githubusercontent.com%2FNall-chan%2FFritzBox%2Frefs%2Fheads%2Fmaster%2Flibrary.json&query=%24.version&label=Modul%20Version&color=blue)](https://community.symcon.de/t/modul-fritzbox-ersatz-fuer-fritzbox-project/125451)
+[![Symcon Version](https://img.shields.io/badge/dynamic/json?url=https%3A%2F%2Fraw.githubusercontent.com%2FNall-chan%2FFritzBox%2Frefs%2Fheads%2Fmaster%2Flibrary.json&query=%24.compatibility.version&suffix=%3E&label=Symcon%20Version&color=green)](https://www.symcon.de/de/service/dokumentation/installation/migrationen/v70-v71-q1-2024/)  
 [![License](https://img.shields.io/badge/License-CC%20BY--NC--SA%204.0-green.svg)](https://creativecommons.org/licenses/by-nc-sa/4.0/)
 [![Check Style](https://github.com/Nall-chan/FritzBox/workflows/Check%20Style/badge.svg)](https://github.com/Nall-chan/FritzBox/actions)
 [![Run Tests](https://github.com/Nall-chan/FritzBox/workflows/Run%20Tests/badge.svg)](https://github.com/Nall-chan/FritzBox/actions)  
 [![PayPal.Me](https://img.shields.io/badge/PayPal-Me-lightblue.svg)](#spenden)
 [![Wunschliste](https://img.shields.io/badge/Wunschliste-Amazon-ff69fb.svg)](#spenden)  
+
 # FritzBox <!-- omit in toc -->
 
 ## Inhaltsverzeichnis <!-- omit in toc -->
@@ -28,9 +28,10 @@
 - Deaktiviert die ScriptTimer oder setzt deren Intervall hoch. Die FritzBox reagieren empfindlich auf zu viele Anfragen.
 - Schließt den Client-Socket vom Anrufmonitor in Symcon.
 
-**Weitere Hinweise**
+**Weitere Hinweise**  
+
 1. Für die Rückwärtssuche nach Rufnummern wird das Modul hier benötigt, oder ein eigenes Script
-https://community.symcon.de/t/modul-rueckwaertssuche-von-rufnummern-ueber-das-internet/125450
+[[Modul] Rückwärtssuche von Rufnummern über das Internet](https://community.symcon.de/t/modul-rueckwaertssuche-von-rufnummern-ueber-das-internet/125450)
 2. Das Modul enthält fast alle Funktionen des alten FritzBox-Project, teilweise aber mit anderen Leistungsmerkmalen.
 3. Auch wenn AVM angefangen hat die SmartHome-Geräte über diese Schnittstelle bereitzustellen, so ist der Funktionsumfang noch sehr gering. Für das **AHA-HTTP-Interface** bitte das Modul von tommi benutzen, funktionsumfang kenne ich aber nicht → [neue PHP-Module als Ersatz meiner Delphi-Module](https://community.symcon.de/t/neue-php-module-als-ersatz-meiner-delphi-module/40770)
 4. Zugriff auf eine FritzBox über das Internet ist **nicht** möglich!
@@ -69,7 +70,8 @@ Um Ereignisse von der FritzBox in Symcon zu verarbeiten wird ein Webhook pro [IO
 Hier wird beim anlegen der Instanz automatisch nur der interne WebServer von Symcon auf Port 3777 eingetragen.
 Die IP-Adresse auf welchem Symcon die Daten empfängt wird automatisch ermittelt.
 
-Bei System mit aktiven NAT-Support funktioniert die automatische Erkennung der eigenen IP-Adresse nicht. __Hier wird automatisch die NATPublicIP aus den [Symcon-Spezialschaltern](https://www.symcon.de/service/dokumentation/entwicklerbereich/spezialschalter/) benutzt.__  
+Bei System mit aktiven NAT-Support funktioniert die automatische Erkennung der eigenen IP-Adresse nicht. **Hier wird automatisch die NATPublicIP aus den [Symcon-Spezialschaltern](https://www.symcon.de/service/dokumentation/entwicklerbereich/spezialschalter/) benutzt.**  
+
 <span style="color:red">**Auch bei Systemen mit aktiven NAT-Support wird extern automatisch nur der Port 3777 beim anlegen von IO-Instanzen unterstützt.**</span>  
   
 Sollte es nötig sein, so können bei Bedarf die eigene IP und der Port, sowie die Verwendung von https,  in den IO-Instanzen unter `Experteneinstellungen` geändert und fixiert werden.
@@ -80,122 +82,133 @@ Damit Geräte über das [Discovery-Modul](FritzBox%20Discovery/README.md) gefund
 <span style="color:red">**Discovery funktioniert nicht in einem Docker Container welcher per NAT angebunden ist. Diese Konstellation wird aufgrund der fehlenden Multicast Fähigkeiten von Docker nicht unterstützt. In diesem Fall muss der [Konfigurator](FritzBox%20Configurator/README.md) manuell angelegt und der [IO](FritzBox%20IO/README.md) konfiguriert werden.**</span>  
 Für das Discovery werden Pakete über die Multicast-Adresse `239.255.255.250` auf Port `1900` gesendet und UDP Pakete auf Port `1901` empfangen.  
 
-
 ----------
 
 ## Folgende Module beinhaltet das FritzBox Repository  
 
-- __FritzBox Discovery__ ([Dokumentation](FritzBox%20Discovery/))  
-	Auffinden von FritzBox Geräten im Netzwerk.  
+- **FritzBox Discovery** ([Dokumentation](FritzBox%20Discovery/))  
+    Auffinden von FritzBox Geräten im Netzwerk.  
 
-- __FritzBox Konfigurator__ ([Dokumentation](FritzBox%20Configurator/))  
-	Konfigurator zum Anlegen von weiteren Instanzen.  
+- **FritzBox Konfigurator** ([Dokumentation](FritzBox%20Configurator/))  
+    Konfigurator zum Anlegen von weiteren Instanzen.  
 
-- __FritzBox IO__ ([Dokumentation](FritzBox%20IO/))  
-	Instanz zur Kommunikation mit der FritzBox.  
+- **FritzBox IO** ([Dokumentation](FritzBox%20IO/))  
+    Instanz zur Kommunikation mit der FritzBox.  
 
-- __FritzBox Anruf-Monitor__ ([Dokumentation](FritzBox%20Callmonitor/))  
-	Anrufmonitor welcher ankommenden und abgehenden Anrufen erkennt.  
+- **FritzBox Anruf-Monitor** ([Dokumentation](FritzBox%20Callmonitor/))  
+    Anrufmonitor welcher ankommenden und abgehenden Anrufen erkennt.  
 
-- __FritzBox DVBC__ ([Dokumentation](FritzBox%20DVBC/))  
-	DVB-C Receivers der FritzBox auslesen und steuern.  
+- **FritzBox DVBC** ([Dokumentation](FritzBox%20DVBC/))  
+    DVB-C Receivers der FritzBox auslesen und steuern.  
 
-- __FritzBox DynDNS__ ([Dokumentation](FritzBox%20DDNS/))  
-	Auslesen und steuern des Fernzugriff und der DynDNS Funktionen.  
+- **FritzBox DynDNS** ([Dokumentation](FritzBox%20DDNS/))  
+    Auslesen und steuern des Fernzugriff und der DynDNS Funktionen.  
 
-- __FritzBox Geräte Informationen__ ([Dokumentation](FritzBox%20Device%20Info/))  
-	Allgemeine Geräte Informationen abrufen.  
+- **FritzBox Geräte Informationen** ([Dokumentation](FritzBox%20Device%20Info/))  
+    Allgemeine Geräte Informationen abrufen.  
 
-- __FritzBox DHCP Server__ ([Dokumentation](FritzBox%20DHCP%20Server/))  
-	Internen DHCP-Server der FritzBox verwalten.  
+- **FritzBox DHCP Server** ([Dokumentation](FritzBox%20DHCP%20Server/))  
+    Internen DHCP-Server der FritzBox verwalten.  
 
-- __FritzBox Dateifreigabe__ ([Dokumentation](FritzBox%20File%20Share/))  
-	Dateifreigaben der FritzBox verwalten und darstellen.  
+- **FritzBox Dateifreigabe** ([Dokumentation](FritzBox%20File%20Share/))  
+    Dateifreigaben der FritzBox verwalten und darstellen.  
 
-- __FritzBox Firmware Informationen__ ([Dokumentation](FritzBox%20Firmware%20Info/))  
-	Auslesen von Informationen zur Firmware der FritzBox.  
+- **FritzBox Firmware Informationen** ([Dokumentation](FritzBox%20Firmware%20Info/))  
+    Auslesen von Informationen zur Firmware der FritzBox.  
 
-- __FritzBox Host Filter__ ([Dokumentation](FritzBox%20Host%20Filter/))  
-	Abfragen und Steuern des Zugangs von Clients zum Internet.  
+- **FritzBox Host Filter** ([Dokumentation](FritzBox%20Host%20Filter/))  
+    Abfragen und Steuern des Zugangs von Clients zum Internet.  
 
-- __FritzBox Hosts__ ([Dokumentation](FritzBox%20Hosts/))  
-	Abfragen und anzeigen von Hostnamen und Onlinestatus von Geräte im Netzwerk.  
+- **FritzBox Hosts** ([Dokumentation](FritzBox%20Hosts/))  
+    Abfragen und anzeigen von Hostnamen und Onlinestatus von Geräte im Netzwerk.  
 
-- __FritzBox MyFritz__ ([Dokumentation](FritzBox%20MyFritz/))  
-	Auslesen und darstellen der MyFritz Dienste.  
+- **FritzBox MyFritz** ([Dokumentation](FritzBox%20MyFritz/))  
+    Auslesen und darstellen der MyFritz Dienste.  
 
-- __FritzBox NAS Storage__ ([Dokumentation](FritzBox%20NAS%20Storage/))  
-	Status der Netzwerkfreigabe und des FTP Servers auslesen und setzen.  
+- **FritzBox NAS Storage** ([Dokumentation](FritzBox%20NAS%20Storage/))  
+    Status der Netzwerkfreigabe und des FTP Servers auslesen und setzen.  
 
-- __FritzBox Powerline__ ([Dokumentation](FritzBox%20Powerline/))  
-	Auslesen der Zustände von Powerline Geräten.  
+- **FritzBox Powerline** ([Dokumentation](FritzBox%20Powerline/))  
+    Auslesen der Zustände von Powerline Geräten.  
 
-- __FritzBox SmartHome__ ([Dokumentation](FritzBox%20Homeautomation/))  
-	TR64 Geräte Instanz für SmartHome Geräte der FRitzBox.  
+- **FritzBox SmartHome** ([Dokumentation](FritzBox%20Homeautomation/))  
+    TR64 Geräte Instanz für SmartHome Geräte der FRitzBox.  
 
-- __FritzBox SmartHome Konfigurator__ ([Dokumentation](FritzBox%20Homeautomation%20Configurator/))  
-	Konfigurator zum Anlegen von SmartHome Instanzen.  
+- **FritzBox SmartHome Konfigurator** ([Dokumentation](FritzBox%20Homeautomation%20Configurator/))  
+    Konfigurator zum Anlegen von SmartHome Instanzen.  
 
-- __FritzBox Telefonie__ ([Dokumentation](FritzBox%20Telephony/))  
-	Verarbeitet alle Telefonie-Funktionen.  
+- **FritzBox Telefonie** ([Dokumentation](FritzBox%20Telephony/))  
+    Verarbeitet alle Telefonie-Funktionen.  
 
-- __FritzBox NTP-Server & Systemzeit__ ([Dokumentation](FritzBox%20Time/))  
-	Auslesen und Steuern des NTP Dienst.  
+- **FritzBox NTP-Server & Systemzeit** ([Dokumentation](FritzBox%20Time/))  
+    Auslesen und Steuern des NTP Dienst.  
 
-- __FritzBox UPnP MediaServer__ ([Dokumentation](FritzBox%20UPnP%20MediaServer/))  
-	Auslesen und steuern der UPnP/DLA Funktionen.  
+- **FritzBox UPnP MediaServer** ([Dokumentation](FritzBox%20UPnP%20MediaServer/))  
+    Auslesen und steuern der UPnP/DLA Funktionen.  
 
-- __FritzBox allgemeine WAN-Schnittstelle__ ([Dokumentation](FritzBox%20WAN%20Common%20Interface/))  
-	Auslesen der aktuell genutzten WAN Verbindung.  
+- **FritzBox allgemeine WAN-Schnittstelle** ([Dokumentation](FritzBox%20WAN%20Common%20Interface/))  
+    Auslesen der aktuell genutzten WAN Verbindung.  
 
-- __FritzBox DSL-Verbindung__ ([Dokumentation](FritzBox%20WAN%20DSL%20Link/))  
-	Status der DSL Verbindung.  
+- **FritzBox DSL-Verbindung** ([Dokumentation](FritzBox%20WAN%20DSL%20Link/))  
+    Status der DSL Verbindung.  
 
-- __FritzBox WAN physikalische WAN-Schnittstelle__ ([Dokumentation](FritzBox%20WAN%20Physical%20Interface/))  
-	Status des WAN Zugang in Symcon darstellen.  
+- **FritzBox WAN physikalische WAN-Schnittstelle** ([Dokumentation](FritzBox%20WAN%20Physical%20Interface/))  
+    Status des WAN Zugang in Symcon darstellen.  
 
-- __FritzBox WAN IP-Verbindung__ ([Dokumentation](FritzBox%20WAN%20IP%20Connection/))  
-	Auslesen der WAN IP Verbindung.  
+- **FritzBox WAN IP-Verbindung** ([Dokumentation](FritzBox%20WAN%20IP%20Connection/))  
+    Auslesen der WAN IP Verbindung.  
 
-- __FritzBox WAN Port-Weiterleitung__ ([Dokumentation](FritzBox%20WAN%20PortMapping/))  
-	Auslesen und darstellen der Portweiterleitungen.  
+- **FritzBox WAN Port-Weiterleitung** ([Dokumentation](FritzBox%20WAN%20PortMapping/))  
+    Auslesen und darstellen der Portweiterleitungen.  
 
-- __FritzBox Online-Speicher__ ([Dokumentation](FritzBox%20WebDav%20Storage/))  
-	Auslesen und steuern des Online-Speichers.  
+- **FritzBox Online-Speicher** ([Dokumentation](FritzBox%20WebDav%20Storage/))  
+    Auslesen und steuern des Online-Speichers.  
 
-- __FritzBox WLAN__ ([Dokumentation](FritzBox%20WLAN/))  
-	Auslesen und steuern der WLAN Funktionen.  
+- **FritzBox WLAN** ([Dokumentation](FritzBox%20WLAN/))  
+    Auslesen und steuern der WLAN Funktionen.  
 
 ----------
 
 ## Changelog
 
-Version 0.85:
+Version 0.86:  
+
+- WiFi7 (802.11be) Unterstützung in der FritzBox WLAN Instanz hinzugefügt.  
+- Bessere Prüfung ob die FritzBox WLAN Instanz einen Parent und somit einen Konfigurator kennt.  
+- Bessere Unterdrückung von Fehlermeldungen beim ModulUpdate.  
+  
+Version 0.85:  
+
 - Symcon 7.1 mit PHP 8.2 ist jetzt minimum.  
 - Submodule und Support Links aktualisiert.  
 - Workaround für FritzOS 8.10 bei der Instanz `FritzBox WAN IP-Verbindung`.  
 - Übersetzungen ergänzt.  
   
-Version 0.83:
+Version 0.83:  
+
 - Fehlerhaftes Verhalten beim abonnieren von UPnP Events korrigiert.  
 
-Version 0.82:
+Version 0.82:  
+
 - Besseres verhalten bei Neustart und Verbindungsabbrüche.  
 - WLAN Setzen des Netzwerkschlüssel war nicht möglich.  
   
-Version 0.81:
+Version 0.81:  
+
 - Konfiguratoren erwarten jetzt einen eigenen FritzBox-IO und hängen sich nicht mehr an bestehende.  
 - Konfiguratoren filtern andere Konfiguratoren welche am selben IO hängen.  
 - Das erstellen von der Telefonie Instanz konnte fehlschlagen, wenn die FritzBox keine URL einer Anruferliste liefert.  
 - Der für den Anrufmonitor notwendige ClientSocket wurde unter bestimmten Umständen mit falschen/ungültigen Daten aus dem FritzBox-IO gefüttert.  
 
 Version 0.80:  
+
 - Fehlerhafte Übersetzungen bei DVB-C, DynDNS behoben.  
 - Diverse fehlende Übersetzungen ergänzt.
 - Dynamisches Konfigurationsformular im Anrufmonitor war nicht komplett.  
 - Dokumentation erstellt.  
 
 Version 0.79:  
+
 - WAN DSL-Verbindung funktionierte in 0.78 nicht mehr, Änderungen aktuell zurückgenommen.  
 - SOAP Fehler mit PHP 8.2 (Symcon 7.0) behoben.  
 - Dynamisches Konfigurationsformular im Anrufmonitor ergänzt.  
@@ -203,14 +216,15 @@ Version 0.79:
 - Umbenennen von Host-Variablen in einer WLAN-Instanz konnte zu Fehlern führen.  
 
 Version 0.78:  
-- <s>Instanz WAN DSL-Verbindung liefert weitere Werte  (z.B. die CRCErrors).</s>  
+
 - Instanz Port-Weiterleitung hat die eigene PublicIP bei NAT nicht berücksichtigt.  
 - Instanz Port-Weiterleitung hat Netzwerke mit 2 Ziffern im ersten Octet (z.B. 10.x.y.z) nicht unterstützt.  
 - UpnP Unsubscribe ergänzt für das korrekte Abmelden von Events an der FritzBox. (Sollte den HTTP 412 Precondition Failed Fehler beheben.)  
 - Fehlte ein Eintrag in der Host-Tabelle der FritzBox **und** war das automatische umbenennen von Host-Variablen in einer WLAN-Instanz aktiv, so wurde der Name der Variable gelöscht werden und wurde als unnamed Object angezeigt.  
-- Discovery-Instanz funktioniert unter Linux-OS wieder. 
+- Discovery-Instanz funktioniert unter Linux-OS wieder.  
 
 Version 0.77:  
+
 - Vorhandene WAN DSL-Verbindung Instanz wurde im Konfigurator nicht korrekt erkannt.  
 - Offene Konfigurationsformulare konnten beim Modul-Update Fehlermeldungen werfen und wurden geschlossen.  
 - WLAN-Instanz für das Gäste-WLAN hat immer die gleichen Geräte wie WLAN 1 angezeigt.  
@@ -225,32 +239,32 @@ Version 0.76:
 
 Version 0.75:  
 
- - Powerline-Instanz unterstützt automatisches umbenennen der Gerätevariablen.  
- - IPv6 unterstützung hinzugefügt (Betrifft sowohl Discovery-Instanz, als auch den FritzBox IO).  
- - Discovery-Instanz nutzt die UUID der Geräte um nach der Suche alle IPv4 und IPv6 Adressen korrekt den Geräten zuordnen zu können.
- - Discovery-Instanz präferiert Hostnamen vor IP-Adressen.  
- - Firmware Information Instanz, welche auch das wechseln des Updatekanal und schalten des AutoUpdate zulässt.  
- - 'Homeautomation Configurator' / 'SmartHome Konfigurator' wird unter 'Konfiguratoren' angelegt.  
- - Host-Instanz lässt das abwählen von Statusvariablen (von Netzwerkgeräten) zu.  
- - WLAN-Instanz lässt das abwählen von Statusvariablen (von Netzwerkgeräten) zu.  
- - Host-Filter Instanz lässt das abwählen von Statusvariablen (von Netzwerkgeräten) zu.   
- - Host-Filter Instanz stellt schaltbare Statusvariablen bereit, um Netzwerkgeräten den Internetzugang zu sperren.  
- - Sollen Variablen von WLAN-Instanzen automatisch umbenannt werden, so erfolgt dies jetzt auch wenn die Geräte offline sind.  
- - 5GhZ WLAN wird wieder korrekt in der Konfiguration erkannt.  
- - Viele Konfigurationsformulare überarbeitet.  
- - DVB-C Instanz war defekt.  
- - Sendersuchlauf für DVB-C kann gestartet/gestoppt werden.  
- - DVB-C kann de/-aktiviert werden. Achtung, Fritzbox startet neu!  
- - Rufumleitungen der Telefonie-Instanz waren teilweise defekt.  
- - Benennung der Rufumleitungen und Anrufsperren der Telefonie-Instanz verbessert.  
- - Anrufsperren können nicht mehr geschaltet werden.  
+- Powerline-Instanz unterstützt automatisches umbenennen der Gerätevariablen.  
+- IPv6 unterstützung hinzugefügt (Betrifft sowohl Discovery-Instanz, als auch den FritzBox IO).  
+- Discovery-Instanz nutzt die UUID der Geräte um nach der Suche alle IPv4 und IPv6 Adressen korrekt den Geräten zuordnen zu können.
+- Discovery-Instanz präferiert Hostnamen vor IP-Adressen.  
+- Firmware Information Instanz, welche auch das wechseln des Updatekanal und schalten des AutoUpdate zulässt.  
+- 'Homeautomation Configurator' / 'SmartHome Konfigurator' wird unter 'Konfiguratoren' angelegt.  
+- Host-Instanz lässt das abwählen von Statusvariablen (von Netzwerkgeräten) zu.  
+- WLAN-Instanz lässt das abwählen von Statusvariablen (von Netzwerkgeräten) zu.  
+- Host-Filter Instanz lässt das abwählen von Statusvariablen (von Netzwerkgeräten) zu.  
+- Host-Filter Instanz stellt schaltbare Statusvariablen bereit, um Netzwerkgeräten den Internetzugang zu sperren.  
+- Sollen Variablen von WLAN-Instanzen automatisch umbenannt werden, so erfolgt dies jetzt auch wenn die Geräte offline sind.  
+- 5GhZ WLAN wird wieder korrekt in der Konfiguration erkannt.  
+- Viele Konfigurationsformulare überarbeitet.  
+- DVB-C Instanz war defekt.  
+- Sendersuchlauf für DVB-C kann gestartet/gestoppt werden.  
+- DVB-C kann de/-aktiviert werden. Achtung, Fritzbox startet neu!  
+- Rufumleitungen der Telefonie-Instanz waren teilweise defekt.  
+- Benennung der Rufumleitungen und Anrufsperren der Telefonie-Instanz verbessert.  
+- Anrufsperren können nicht mehr geschaltet werden.  
 
 Version 0.74:  
 
- - Fehlermeldungen wenn die Host-Tabelle deaktiviert wurde.  
- - Neues Modul 'Homeautomation Configurator' / 'SmartHome Konfigurator'.  
- - 'Homeautomation' / 'SmartHome' Modul legt Variablen an.  
- - Durch Änderungen des HTTP-Header ab einer nicht genauer bekannten Fritz!OS Version traten 'Subscribe' Fehlermeldungen auf. Der Fehler ist behoben.  
+- Fehlermeldungen wenn die Host-Tabelle deaktiviert wurde.  
+- Neues Modul 'Homeautomation Configurator' / 'SmartHome Konfigurator'.  
+- 'Homeautomation' / 'SmartHome' Modul legt Variablen an.  
+- Durch Änderungen des HTTP-Header ab einer nicht genauer bekannten Fritz!OS Version traten 'Subscribe' Fehlermeldungen auf. Der Fehler ist behoben.  
 
 Version 0.73:  
 
@@ -301,8 +315,8 @@ Version 0.68:
 - Ist der NATSupport von Symcon aktiviert, aber keine PublicIP konfiguriert, so wird im FritzBox-IO eine Meldung ausgegeben.  
 - NATSupport im IO.  
 - Fehlende Übersetzungen im Konfigurator ergänzt
-- Neue Instanz-Funktion für die Suche nach Kontakten in den Telefonbüchern (FB_GetPhonebookEntrysByNumber(12345 /* FritzBox Telefonie */, string $Number))  
-- Neue Instanz-Funktion für die Rückwärtssuche (FB_SearchNameByNumber(12345 /* FritzBox Telefonie */, string $Number, string $AreaCode))  
+- Neue Instanz-Funktion für die Suche nach Kontakten in den Telefonbüchern (`FB_GetPhonebookEntrysByNumber(12345 /* FritzBox Telefonie */, string $Number)`)  
+- Neue Instanz-Funktion für die Rückwärtssuche (`FB_SearchNameByNumber(12345 /* FritzBox Telefonie */, string $Number, string $AreaCode)`)  
 - Neues Modul 'Host Filter' um Hosts den WAN Zugriff zu sperren (noch nicht fertig).  
 
 Version 0.62:  
@@ -340,7 +354,7 @@ Version 0.50:
 
 [![PayPal.Me](https://img.shields.io/badge/PayPal-Me-lightblue.svg)](https://paypal.me/Nall4chan)  
 
-[![Wunschliste](https://img.shields.io/badge/Wunschliste-Amazon-ff69fb.svg)](https://www.amazon.de/hz/wishlist/ls/YU4AI9AQT9F?ref_=wl_share) 
+[![Wunschliste](https://img.shields.io/badge/Wunschliste-Amazon-ff69fb.svg)](https://www.amazon.de/hz/wishlist/ls/YU4AI9AQT9F?ref_=wl_share)  
 
 ## Lizenz  
 

@@ -18,8 +18,12 @@
                     "value": 1
                 },
                 {
-                    "caption": "3 (Guest)",
+                    "caption": "3 (WiFi7 or Guest)",
                     "value": 2
+                },
+                {
+                    "caption": "4 (Guest)",
+                    "value": 3
                 }
             ]
         },

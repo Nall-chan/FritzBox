@@ -457,7 +457,7 @@ class FritzBoxIO extends IPSModule
             $this->SendDebug('File not found', $Url, 0);
             return false;
         }
-        $this->SendDebug('Load File: ' . $Uri, $Data, 0);
+        $this->SendDebug('Load File: ' . $Url, $Data, 0);
         return $Data;
     }
 

@@ -105,6 +105,11 @@ class FritzBoxModulBase extends IPSModule
 
     public function MessageSink($TimeStamp, $SenderID, $Message, $Data)
     {
+        $myState = IPS_GetInstance($this->InstanceID)['InstanceStatus']; // NICHT $this->GetStatus benutzen, da MessageSink auch aufgerufen wird, wenn die Instanz noch nicht erstellt wurde (z.B. beim Modul Update)
+        if ($myState == IS_CREATING || $myState == IS_DELETING) {
+            return;
+        }
+
         $this->IOMessageSink($TimeStamp, $SenderID, $Message, $Data);
 
         switch ($Message) {

@@ -2,8 +2,6 @@
 
 declare(strict_types=1);
 
-use JetBrains\PhpStorm\Internal\ReturnTypeContract;
-
 require_once __DIR__ . '/../libs/FritzBoxBase.php';
 require_once __DIR__ . '/../libs/FritzBoxTable.php';
 
@@ -242,11 +240,13 @@ class FritzBoxWLAN extends FritzBoxModulBase
             $Form['actions'][2]['popup']['items'][0]['caption'] = 'Hostnames not available!';
             $Form['actions'][2]['popup']['items'][1]['caption'] = 'The \'FritzBox Host\' instance is required to display hostnames.';
             $Form['actions'][2]['popup']['items'][1]['width'] = '200px';
-            $ConfiguratorID = $this->GetConfiguratorID();
-            if ($ConfiguratorID > 0) {
-                $Form['actions'][2]['popup']['items'][2]['caption'] = 'Open Configurator';
-                $Form['actions'][2]['popup']['items'][2]['visible'] = true;
-                $Form['actions'][2]['popup']['items'][2]['objectID'] = $ConfiguratorID;
+            if ($this->ParentID > 1) {
+                $ConfiguratorID = $this->GetConfiguratorID();
+                if ($ConfiguratorID > 1) {
+                    $Form['actions'][2]['popup']['items'][2]['caption'] = 'Open Configurator';
+                    $Form['actions'][2]['popup']['items'][2]['visible'] = true;
+                    $Form['actions'][2]['popup']['items'][2]['objectID'] = $ConfiguratorID;
+                }
             }
         }
         if (!$this->ReadPropertyBoolean('HostAsTable')) {
