@@ -19,17 +19,20 @@ class FritzBoxWLAN extends FritzBoxModulBase
     protected static $ControlUrlArray = [
         '/upnp/control/wlanconfig1',
         '/upnp/control/wlanconfig2',
-        '/upnp/control/wlanconfig3'
+        '/upnp/control/wlanconfig3',
+        '/upnp/control/wlanconfig4'
     ];
     protected static $EventSubURLArray = [
         '/upnp/control/wlanconfig1',
         '/upnp/control/wlanconfig2',
-        '/upnp/control/wlanconfig3'
+        '/upnp/control/wlanconfig3',
+        '/upnp/control/wlanconfig4'
     ];
     protected static $ServiceTypeArray = [
         'urn:dslforum-org:service:WLANConfiguration:1',
         'urn:dslforum-org:service:WLANConfiguration:2',
-        'urn:dslforum-org:service:WLANConfiguration:3'
+        'urn:dslforum-org:service:WLANConfiguration:3',
+        'urn:dslforum-org:service:WLANConfiguration:4'
     ];
     protected static $SecondEventGUID = \FritzBox\GUID::NewHostListEvent;
 
@@ -933,24 +936,38 @@ class FritzBoxWLAN extends FritzBoxModulBase
         $NoOfWlan = unserialize($result);
         for ($i = 1; $i <= $NoOfWlan; $i++) {
             $Index = $Options[$i]['value'];
-            $guest = $this->SendEx('X_AVM-DE_GetWLANExtInfo', $Index);
-            if ($guest === false) {
+            $ExtInfo = $this->SendEx('X_AVM-DE_GetWLANExtInfo', $Index);
+            if ($ExtInfo === false) {
                 continue;
             }
-            if ($guest['NewX_AVM-DE_APType'] == 'guest') {
+            if ($ExtInfo['NewX_AVM-DE_APType'] == 'guest') {
                 $Options[$i]['caption'] = $i . $this->Translate(' (Guest)');
                 continue;
             }
-            $info = $this->SendEx('GetInfo', $Index);
-            if ($info === false) {
-                continue;
+            switch ($ExtInfo['NewX_AVM-DE_FrequencyBand']) {
+                case 2400:
+                    $Options[$i]['caption'] = $i . $this->Translate(' (2,4 Ghz)');
+                    break;
+                case 5000:
+                    $Options[$i]['caption'] = $i . $this->Translate(' (5 Ghz)');
+                    break;
+                default:
+                    $Options[$i]['caption'] = $i . $this->Translate(' (unknown)');
+                    break;
             }
-            if ((int) $info['NewChannel'] < 14) {
-                $Options[$i]['caption'] = $i . $this->Translate(' (2,4 Ghz)');
-            } else {
-                $Options[$i]['caption'] = $i . $this->Translate(' (5 Ghz)');
-            }
+            /*            $info = $this->SendEx('GetInfo', $Index);
+                        if ($info === false) {
+                            continue;
+                        }
+                        if ((int) $info['NewChannel'] < 14) {
+                            $Options[$i]['caption'] = $i . $this->Translate(' (2,4 Ghz)');
+                        } else {
+                            $Options[$i]['caption'] = $i . $this->Translate(' (5 Ghz)');
+                        }*/
         }
+
+        $Options = array_slice($Options, 0, $i, true);
+
     }
 
     private function UpdateInfo()
