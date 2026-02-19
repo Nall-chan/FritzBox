@@ -369,17 +369,23 @@ class FritzBoxIO extends IPSModule
         $Data = file_get_contents('php://input');
         $this->SendDebug('HOOK', $eventSubUrl, 0);
         $this->SendDebug('EVENT', $Data, 0);
-        $xml = new \simpleXMLElement($Data);
-        $xml->registerXPathNamespace('event', $xml->getNameSpaces(false)['e']);
-        $xmlPropertys = $xml->xpath('//event:property');
         $Propertys = [];
-        foreach ($xmlPropertys as $property) {
-            $Propertys[str_replace('-', '_', $property->Children()->GetName())] = (string) $property->Children();
-        }
-        $this->SendDebug('EVENT XML', $Propertys, 0);
         if ($eventSubUrl == '/upnp/control/layer3forwarding') {
             $this->isSubscribed = true;
         }
+        try {
+            $xml = new \simpleXMLElement($Data);
+            $xml->registerXPathNamespace('event', $xml->getNameSpaces(false)['e']);
+            $xmlPropertys = $xml->xpath('//event:property');
+            foreach ($xmlPropertys as $property) {
+                $Propertys[str_replace('-', '_', $property->Children()->GetName())] = (string) $property->Children();
+            }
+        } catch (\Throwable $th) {
+            $this->SendDebug('EVENT DECODE ERROR', $th->getTrace(), 0);
+            $this->LogMessage($th->getMessage(), KL_ERROR);
+
+        }
+        $this->SendDebug('EVENT XML', $Propertys, 0);
         $this->SendDataToChildren(
             json_encode(
                 [
@@ -648,6 +654,7 @@ class FritzBoxIO extends IPSModule
     private function CheckHost(): bool
     {
         if (!$this->ReadPropertyBoolean('Open')) {
+            $this->SetStatus(self::isInActive);
             return false;
         }
         $URL = $this->ReadPropertyString('Host');
