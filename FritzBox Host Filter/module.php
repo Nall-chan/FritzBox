@@ -157,9 +157,12 @@ class FritzBoxHostFilter extends FritzBoxModulBase
             $this->SendDebug('XML not found', 'Hosts', 0);
             return false;
         }
-        $xmlHosts = new \simpleXMLElement($XMLData);
-        if ($xmlHosts === false) {
+        try {
+            $xmlHosts = new \simpleXMLElement(trim($XMLData));
+        } catch (\Throwable $th) {
             $this->SendDebug('XML decode error', $XMLData, 0);
+            $this->SendDebug('XML decode trace', $th->getTrace(), 0);
+            $this->LogMessage($th->getMessage(), KL_ERROR);
             return false;
         }
         $HostVariables = array_column(json_decode($this->ReadPropertyString('HostVariables'), true), 'use', 'ident');
@@ -281,9 +284,12 @@ class FritzBoxHostFilter extends FritzBoxModulBase
             $this->SendDebug('XML not found', 'Hosts', 0);
             return [];
         }
-        $xmlHosts = new \simpleXMLElement($XMLData);
-        if ($xmlHosts === false) {
+        try {
+            $xmlHosts = new \simpleXMLElement(trim($XMLData));
+        } catch (\Throwable $th) {
             $this->SendDebug('XML decode error', $XMLData, 0);
+            $this->SendDebug('XML decode trace', $th->getTrace(), 0);
+            $this->LogMessage($th->getMessage(), KL_ERROR);
             return [];
         }
         foreach ($xmlHosts as $Host) {

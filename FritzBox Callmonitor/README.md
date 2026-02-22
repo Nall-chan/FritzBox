@@ -8,9 +8,10 @@
 [![Wunschliste](https://img.shields.io/badge/Wunschliste-Amazon-ff69fb.svg)](#2-spenden)  
 
 # FritzBox Callmonitor <!-- omit in toc -->
+
 Anrufmonitor welcher ankommenden und abgehenden Anrufen erkennt.  
 
-### Inhaltsverzeichnis <!-- omit in toc -->
+## Inhaltsverzeichnis <!-- omit in toc -->
 
 - [1. Funktionsumfang](#1-funktionsumfang)
 - [2. Voraussetzungen](#2-voraussetzungen)
@@ -19,7 +20,7 @@ Anrufmonitor welcher ankommenden und abgehenden Anrufen erkennt.
 - [5. Statusvariablen und Profile](#5-statusvariablen-und-profile)
   - [Statusvariablen](#statusvariablen)
   - [Profile](#profile)
-- [6. WebFront](#6-webfront)
+- [6. Visualisierung](#6-visualisierung)
 - [7. PHP-Funktionsreferenz](#7-php-funktionsreferenz)
 - [8. Aktionen](#8-aktionen)
 - [9. Anhang](#9-anhang)
@@ -29,12 +30,12 @@ Anrufmonitor welcher ankommenden und abgehenden Anrufen erkennt.
 
 ## 1. Funktionsumfang
 
-* Auswertung von ankommenden und abgehenden Anrufen.
-* Erkennung der Gesprächspartner, sofern im Telefonbuch vorhanden.
-* Zusätzliche Rückwertssuche über externe Instanz (Modul `Rückwärtssuche`) oder individuellen Script möglich.
-* Senden von Benachrichtigungen an das WebFront.
-* Ausführen von Aktionen.
-* Darstellung der aktiven Gespräche als HTML-Tabelle.
+- Auswertung von ankommenden und abgehenden Anrufen.
+- Erkennung der Gesprächspartner, sofern im Telefonbuch vorhanden.
+- Zusätzliche Rückwertssuche über externe Instanz (Modul `Rückwärtssuche`) oder individuellen Script möglich.
+- Senden von Benachrichtigungen an das WebFront.
+- Ausführen von Aktionen.
+- Darstellung der aktiven Gespräche als HTML-Tabelle.
 
 ## 2. Voraussetzungen
 
@@ -43,18 +44,19 @@ Anrufmonitor welcher ankommenden und abgehenden Anrufen erkennt.
 
 ## 3. Software-Installation
 
-* Über den Module Store das `FritzBox`-Modul installieren.
+- Über den Module Store das `FritzBox`-Modul installieren.
 
 ## 4. Einrichten der Instanzen in IP-Symcon
 
- Es wird empfohlen Instanzen über die entsprechenden [FritzBox Konfigurator](../FritzBox%20Configurator/README.md)-Instanz zu erzeugen.  
- 
- Unter 'Instanz hinzufügen' ist das 'FritzBox Callmonitor'-Modul unter dem Hersteller 'AVM' aufgeführt.
+Es wird empfohlen Instanzen über die entsprechenden [FritzBox Konfigurator](../FritzBox%20Configurator/README.md)-Instanz zu erzeugen.  
+
+Unter 'Instanz hinzufügen' ist das 'FritzBox Callmonitor'-Modul unter dem Hersteller 'AVM' aufgeführt.
 
 Durch das hinzufügen dieser Instanz wird die entsprechende [FritzBox IO](../FritzBox%20IO/README.md)-Instanz automatisch eine eigene Client-Socket Instanz erzeugen, welche benötigt wird um die Ereignisse der FritzBox zu empfangen.  
 
-----
-__Konfigurationsseite__:  
+---  
+
+**Konfigurationsseite**:  
 
 Die Vorwahlen werden automatisch aus der FritzBox ausgelesen; im Fehlerfall wird eine Meldung erzeugt und die Eingabe muss manuell erfolgen.  
 Sind Einstellungen ausgegraut, so sind die Voraussetzungen nicht erfüllt um diese Einstellungen nutzen zu können.
@@ -63,18 +65,22 @@ Zum Beispiel das Konfigurieren der HTML-Tabelle, wen die Tabelle deaktiviert wur
 ![Config](imgs/config1.png)
 
 ---  
+
 Konfiguration Rückwärtssuche:  
 ![Config](imgs/config2.png)
 
----
+---  
+
 Konfiguration der Benachrichtigungen (WebFront):  
 ![Config](imgs/config3.png)
 
----
+---  
+
 Konfiguration der HTML Tabelle:  
 ![Config](imgs/config4.png)
 
-__Konfigurationsparameter__: 
+**Konfigurationsparameter**:  
+
 | Name                    | Typ            | Beschreibung                                                                             |
 | ----------------------- | -------------- | ---------------------------------------------------------------------------------------- |
 | AreaCode                | string         | Ortsvorwahl                                                                              |
@@ -95,28 +101,27 @@ __Konfigurationsparameter__:
 | Rows                    | string / Liste | HTML/CSS Konfiguration der Zeilen (Überschrift, gerade und ungerade)                     |
 | Icons                   | string / Liste | Icon für jedes Ereignis, wird in der Spalte Icon in der HTML Tabelle angezeigt           |
 
-
 ## 5. Statusvariablen und Profile
 
 Die Statusvariablen werden automatisch angelegt. Das Löschen einzelner kann zu Fehlfunktionen führen.
 
-### Statusvariablen
+### Statusvariablen  
+
 | Ident    | Name             | Typ    | Beschreibung                       |
 | -------- | ---------------- | ------ | ---------------------------------- |
 | CallList | Aktive Gespräche | string | HTML Tabelle der aktiven Gespräche |
-
 
 ### Profile
 
 Dieses Modul erzeugt keine Variablenprofile.  
 
-## 6. WebFront
+## 6. Visualisierung
 
 ![Webfront](imgs/webfront.png)
 
 ## 7. PHP-Funktionsreferenz
 
-Keine Funktionen verfügbar. 
+Keine Funktionen verfügbar.  
 
 ## 8. Aktionen
 
@@ -134,10 +139,9 @@ Keine Aktionen verfügbar.
 
 [![PayPal.Me](https://img.shields.io/badge/PayPal-Me-lightblue.svg)](https://paypal.me/Nall4chan)  
 
-[![Wunschliste](https://img.shields.io/badge/Wunschliste-Amazon-ff69fb.svg)](https://www.amazon.de/hz/wishlist/ls/YU4AI9AQT9F?ref_=wl_share) 
+[![Wunschliste](https://img.shields.io/badge/Wunschliste-Amazon-ff69fb.svg)](https://www.amazon.de/hz/wishlist/ls/YU4AI9AQT9F?ref_=wl_share)  
 
 ## 10. Lizenz
 
   IPS-Modul:  
   [CC BY-NC-SA 4.0](https://creativecommons.org/licenses/by-nc-sa/4.0/)  
-

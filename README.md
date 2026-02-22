@@ -36,7 +36,7 @@
 3. Auch wenn AVM angefangen hat die SmartHome-Geräte über diese Schnittstelle bereitzustellen, so ist der Funktionsumfang noch sehr gering. Für das **AHA-HTTP-Interface** bitte das Modul von tommi benutzen, funktionsumfang kenne ich aber nicht → [neue PHP-Module als Ersatz meiner Delphi-Module](https://community.symcon.de/t/neue-php-module-als-ersatz-meiner-delphi-module/40770)
 4. Zugriff auf eine FritzBox über das Internet ist **nicht** möglich!
 Siehe auch CallStranger Sicherheitslücke.
-Zitat AVM: 
+Zitat AVM:  
 `...ist nicht betroffen, da UPnP dort nicht aus dem Internet erreicht oder genutzt werden kann.`
 
 ----------
@@ -170,6 +170,10 @@ Für das Discovery werden Pakete über die Multicast-Adresse `239.255.255.250` a
 ----------
 
 ## Changelog
+
+Version 0.87:  
+
+- Die Verbindung der FritzBox-IO Instanz konnte fehlschlagen, wenn die FritzBox ein ungültiges XML gesendet hat.  
 
 Version 0.86:  
 

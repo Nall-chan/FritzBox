@@ -8,9 +8,10 @@
 [![Wunschliste](https://img.shields.io/badge/Wunschliste-Amazon-ff69fb.svg)](#2-spenden)  
 
 # FritzBox IO <!-- omit in toc -->
+
 Instanz zur Kommunikation mit der FritzBox.  
 
-### Inhaltsverzeichnis <!-- omit in toc -->
+## Inhaltsverzeichnis <!-- omit in toc -->
 
 - [1. Funktionsumfang](#1-funktionsumfang)
 - [2. Voraussetzungen](#2-voraussetzungen)
@@ -19,7 +20,7 @@ Instanz zur Kommunikation mit der FritzBox.
 - [5. Statusvariablen und Profile](#5-statusvariablen-und-profile)
   - [Statusvariablen](#statusvariablen)
   - [Profile](#profile)
-- [6. WebFront](#6-webfront)
+- [6. Visualisierung](#6-visualisierung)
 - [7. PHP-Funktionsreferenz](#7-php-funktionsreferenz)
 - [8. Aktionen](#8-aktionen)
 - [9. Anhang](#9-anhang)
@@ -29,7 +30,7 @@ Instanz zur Kommunikation mit der FritzBox.
 
 ## 1. Funktionsumfang
 
-* Instanz zur Kommunikation mit der FritzBox.  
+- Instanz zur Kommunikation mit der FritzBox.  
 
 ## 2. Voraussetzungen
 
@@ -37,23 +38,23 @@ Instanz zur Kommunikation mit der FritzBox.
 
 ## 3. Software-Installation
 
-* Über den Module Store das `FritzBox`-Modul installieren.
+- Über den Module Store das `FritzBox`-Modul installieren.
 
 ## 4. Einrichten der Instanzen in IP-Symcon
 
- Wenn eine Instanz von dem  [FritzBox Konfigurator](../FritzBox%20Configurator/README.md) über die [FritzBox Discovery](../FritzBox%20Discovery/README.md)-Instanz erstellt wird, wo wird automatisch eine `FritzBox-IO`-Instanz erzeugt.  
+Wenn eine Instanz von dem  [FritzBox Konfigurator](../FritzBox%20Configurator/README.md) über die [FritzBox Discovery](../FritzBox%20Discovery/README.md)-Instanz erstellt wird, wo wird automatisch eine `FritzBox-IO`-Instanz erzeugt.  
 
- Sollte der Bedarf bestehen eine Instanz manuell zu erzeugen, so ist unter 'Instanz hinzufügen' das 'FritzBox IO'-Modul unter dem Hersteller 'AVM' aufgeführt.  
+Sollte der Bedarf bestehen eine Instanz manuell zu erzeugen, so ist unter 'Instanz hinzufügen' das 'FritzBox IO'-Modul unter dem Hersteller 'AVM' aufgeführt.  
 
 Obwohl die Instanz sich `FritzBox-IO` nennt, so wird diese im Objektbaum unter den Splitter-Instanzen aufgelistet.
 
-__Konfigurationsseite__:
+**Konfigurationsseite**:
 
 **Zur fehlerfreien Kommunikation und korrekten Konfiguration sind die [Hinweise zum Symcon-System / Host](../README.md#hinweise-zum-symcon-system--host) der Library zu beachten!**  
 
 ![Config](imgs/config.png)  
 
-__Konfigurationsparameter__:  
+**Konfigurationsparameter**:  
 
 | Name       | Typ     | Beschreibung                                             |
 | ---------- | ------- | -------------------------------------------------------- |
@@ -80,7 +81,7 @@ Die Statusvariablen werden automatisch angelegt. Das Löschen einzelner kann zu 
 
 Dieses Modul erzeugt keine Variablenprofile.  
 
-## 6. WebFront
+## 6. Visualisierung
 
 Dieses Modul ist nicht zur Darstellung im WebFront gedacht.
 
@@ -102,14 +103,13 @@ Keine Aktionen verfügbar.
 
 ### 2. Spenden
 
-  Die Library ist für die nicht kommerzielle Nutzung kostenlos, Schenkungen als Unterstützung für den Autor werden hier akzeptiert:  
+Die Library ist für die nicht kommerzielle Nutzung kostenlos, Schenkungen als Unterstützung für den Autor werden hier akzeptiert:  
 
 [![PayPal.Me](https://img.shields.io/badge/PayPal-Me-lightblue.svg)](https://paypal.me/Nall4chan)  
 
-[![Wunschliste](https://img.shields.io/badge/Wunschliste-Amazon-ff69fb.svg)](https://www.amazon.de/hz/wishlist/ls/YU4AI9AQT9F?ref_=wl_share) 
+[![Wunschliste](https://img.shields.io/badge/Wunschliste-Amazon-ff69fb.svg)](https://www.amazon.de/hz/wishlist/ls/YU4AI9AQT9F?ref_=wl_share)  
 
 ## 10. Lizenz
 
   IPS-Modul:  
   [CC BY-NC-SA 4.0](https://creativecommons.org/licenses/by-nc-sa/4.0/)  
-

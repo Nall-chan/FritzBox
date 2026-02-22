@@ -326,9 +326,11 @@ class FritzBoxTelephony extends FritzBoxModulBase
         foreach ($Files as $File) {
             $XMLData = $this->GetFile($File);
             try {
-                $Result[substr($File, 10)] = new \simpleXMLElement($XMLData);
+                $Result[substr($File, 10)] = new \simpleXMLElement(trim($XMLData));
             } catch (\Throwable $th) {
                 $this->SendDebug('XML decode error', $XMLData, 0);
+                $this->SendDebug('XML decode trace', $th->getTrace(), 0);
+                $this->LogMessage($th->getMessage(), KL_ERROR);
             }
         }
         return $Result;
@@ -344,9 +346,11 @@ class FritzBoxTelephony extends FritzBoxModulBase
                 continue;
             }
             try {
-                $XMLPhoneBook = new \simpleXMLElement($XMLData);
+                $XMLPhoneBook = new \simpleXMLElement(trim($XMLData));
             } catch (\Throwable $th) {
                 $this->SendDebug('XML decode error', $XMLData, 0);
+                $this->SendDebug('XML decode trace', $th->getTrace(), 0);
+                $this->LogMessage($th->getMessage(), KL_ERROR);
                 continue;
             }
             $Contacts = $XMLPhoneBook->xpath("//contact[telephony/number ='" . $Number . "']");
@@ -612,9 +616,12 @@ class FritzBoxTelephony extends FritzBoxModulBase
         if ($XMLData === false) {
             return false;
         }
-        $CallLog = new \simpleXMLElement($XMLData);
-        if ($CallLog === false) {
+        try {
+            $CallLog = new \simpleXMLElement(trim($XMLData));
+        } catch (\Throwable $th) {
             $this->SendDebug('XML decode error', $XMLData, 0);
+            $this->SendDebug('XML decode trace', $th->getTrace(), 0);
+            $this->LogMessage($th->getMessage(), KL_ERROR);
             return false;
         }
         $PhoneDevices = $this->GetPhoneDevices();
@@ -752,9 +759,11 @@ class FritzBoxTelephony extends FritzBoxModulBase
         }
         $PhoneBooks = $this->GetPhoneBookFiles();
         try {
-            $DeflectionList = new \simpleXMLElement($Deflections);
+            $DeflectionList = new \simpleXMLElement(trim($Deflections));
         } catch (\Throwable $th) {
             $this->SendDebug('XML decode error', $Deflections, 0);
+            $this->SendDebug('XML decode trace', $th->getTrace(), 0);
+            $this->LogMessage($th->getMessage(), KL_ERROR);
             return false;
         }
 

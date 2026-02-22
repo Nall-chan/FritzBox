@@ -8,9 +8,10 @@
 [![Wunschliste](https://img.shields.io/badge/Wunschliste-Amazon-ff69fb.svg)](#2-spenden)  
 
 # FritzBox Konfigurator <!-- omit in toc -->
+
 Konfigurator zum Anlegen von weiteren Instanzen.  
 
-### Inhaltsverzeichnis <!-- omit in toc -->
+## Inhaltsverzeichnis <!-- omit in toc -->
 
 - [1. Funktionsumfang](#1-funktionsumfang)
 - [2. Voraussetzungen](#2-voraussetzungen)
@@ -19,7 +20,7 @@ Konfigurator zum Anlegen von weiteren Instanzen.
 - [5. Statusvariablen und Profile](#5-statusvariablen-und-profile)
   - [Statusvariablen](#statusvariablen)
   - [Profile](#profile)
-- [6. WebFront](#6-webfront)
+- [6. Visualisierung](#6-visualisierung)
 - [7. PHP-Funktionsreferenz](#7-php-funktionsreferenz)
 - [8. Aktionen](#8-aktionen)
 - [9. Anhang](#9-anhang)
@@ -29,8 +30,8 @@ Konfigurator zum Anlegen von weiteren Instanzen.
 
 ## 1. Funktionsumfang
 
-* Ermittelt alle Dienste der FritzBox.
-* Ermöglicht das anlegen von Instanzen für unterstützte Dienste.
+- Ermittelt alle Dienste der FritzBox.
+- Ermöglicht das anlegen von Instanzen für unterstützte Dienste.
 
 ## 2. Voraussetzungen
 
@@ -38,15 +39,15 @@ Konfigurator zum Anlegen von weiteren Instanzen.
 
 ## 3. Software-Installation
 
-* Über den Module Store das `FritzBox`-Modul installieren.
+- Über den Module Store das `FritzBox`-Modul installieren.
 
 ## 4. Einrichten der Instanzen in IP-Symcon
 
- Es wird empfohlen die Konfigurator-Instanz über die entsprechenden [FritzBox Discovery](../FritzBox%20Discovery/README.md)-Instanz zu erzeugen.  
- 
- Unter 'Instanz hinzufügen' ist das 'FritzBox Konfigurator'-Modul unter dem Hersteller 'AVM' aufgeführt.
+Es wird empfohlen die Konfigurator-Instanz über die entsprechenden [FritzBox Discovery](../FritzBox%20Discovery/README.md)-Instanz zu erzeugen.  
 
-__Konfigurationsseite__:
+Unter 'Instanz hinzufügen' ist das 'FritzBox Konfigurator'-Modul unter dem Hersteller 'AVM' aufgeführt.
+
+**Konfigurationsseite**:
 
 Ermöglicht das auswählen bestimmter Services der FritzBox um dann die jeweilig passende Instanz zu erstellen.  
 
@@ -62,17 +63,17 @@ Dieses Modul erzeugt keine Statusvariablen.
 
 Dieses Modul erzeugt keine Variablenprofile.  
 
-## 6. WebFront
+## 6. Visualisierung
 
 Dieses Modul ist nicht zur Darstellung im WebFront gedacht.
 
 ## 7. PHP-Funktionsreferenz
 
-Keine Funktionen verfügbar. 
+Keine Funktionen verfügbar.  
 
 ## 8. Aktionen
 
-Keine Aktionen verfügbar.
+Keine Aktionen verfügbar.  
 
 ## 9. Anhang
 
@@ -86,10 +87,9 @@ Keine Aktionen verfügbar.
 
 [![PayPal.Me](https://img.shields.io/badge/PayPal-Me-lightblue.svg)](https://paypal.me/Nall4chan)  
 
-[![Wunschliste](https://img.shields.io/badge/Wunschliste-Amazon-ff69fb.svg)](https://www.amazon.de/hz/wishlist/ls/YU4AI9AQT9F?ref_=wl_share) 
+[![Wunschliste](https://img.shields.io/badge/Wunschliste-Amazon-ff69fb.svg)](https://www.amazon.de/hz/wishlist/ls/YU4AI9AQT9F?ref_=wl_share)  
 
 ## 10. Lizenz
 
   IPS-Modul:  
   [CC BY-NC-SA 4.0](https://creativecommons.org/licenses/by-nc-sa/4.0/)  
-

@@ -8,9 +8,10 @@
 [![Wunschliste](https://img.shields.io/badge/Wunschliste-Amazon-ff69fb.svg)](#2-spenden)  
 
 # FritzBox Homeautomation <!-- omit in toc -->
+
 TR64 Geräte Instanz für SmartHome Geräte der FRitzBox.  
 
-### Inhaltsverzeichnis <!-- omit in toc -->
+## Inhaltsverzeichnis <!-- omit in toc -->
 
 - [1. Funktionsumfang](#1-funktionsumfang)
 - [2. Voraussetzungen](#2-voraussetzungen)
@@ -19,7 +20,7 @@ TR64 Geräte Instanz für SmartHome Geräte der FRitzBox.
 - [5. Statusvariablen und Profile](#5-statusvariablen-und-profile)
   - [Statusvariablen](#statusvariablen)
   - [Profile](#profile)
-- [6. WebFront](#6-webfront)
+- [6. Visualisierung](#6-visualisierung)
 - [7. PHP-Funktionsreferenz](#7-php-funktionsreferenz)
 - [8. Aktionen](#8-aktionen)
 - [9. Anhang](#9-anhang)
@@ -29,8 +30,8 @@ TR64 Geräte Instanz für SmartHome Geräte der FRitzBox.
 
 ## 1. Funktionsumfang
 
-* Auslesen und darstellen von Zuständen.  
-* Steuern von Schaltaktoren.
+- Auslesen und darstellen von Zuständen.  
+- Steuern von Schaltaktoren.
 
 **<div style="color:red">Der Funktionsumfang der TR64 Umsetzung ist sehr eingeschränkt.  
 Und entspricht nicht dem vollen Spektrum des AHA Module.</div>**
@@ -41,19 +42,19 @@ Und entspricht nicht dem vollen Spektrum des AHA Module.</div>**
 
 ## 3. Software-Installation
 
-* Über den Module Store das `FritzBox`-Modul installieren.
+- Über den Module Store das `FritzBox`-Modul installieren.
 
 ## 4. Einrichten der Instanzen in IP-Symcon
 
- Es wird empfohlen Geräte-Instanzen über die entsprechenden [FritzBox Homeautomation Konfigurator](../FritzBox%20Homeautomation%20Configurator/README.md)-Instanz zu erzeugen.  
- 
- Unter 'Instanz hinzufügen' ist das 'FritzBox Homeautomation'-Modul unter dem Hersteller 'AVM' aufgeführt.
+Es wird empfohlen Geräte-Instanzen über die entsprechenden [FritzBox Homeautomation Konfigurator](../FritzBox%20Homeautomation%20Configurator/README.md)-Instanz zu erzeugen.  
 
-__Konfigurationsseite__:
+Unter 'Instanz hinzufügen' ist das 'FritzBox Homeautomation'-Modul unter dem Hersteller 'AVM' aufgeführt.
+
+**Konfigurationsseite**:
 
 ![Config](imgs/config.png)  
 
-__Konfigurationsparameter__:  
+**Konfigurationsparameter**:  
 
 | Name            | Typ     | Beschreibung                         |
 | --------------- | ------- | ------------------------------------ |
@@ -87,7 +88,6 @@ Die Statusvariablen werden automatisch angelegt. Das Löschen einzelner kann zu 
 | HkrComfortTemperature  | Heizungsthermostat (Komforttemperatur)      | float   |
 | HkrComfortVentilStatus | Heizungsthermostat (Ventilstatus Komfort)   | integer |
 
-
 ### Profile
 
 | Name               | Typ    |
@@ -98,8 +98,7 @@ Die Statusvariablen werden automatisch angelegt. Das Löschen einzelner kann zu 
 | FB.AHA.State       | string |
 | FB.AHA.VentilState | string |
 
-
-## 6. WebFront
+## 6. Visualisierung
 
 Die Angezeigten Variablen hängen von den Fähigkeiten des Gerätes ab.  
 
@@ -129,14 +128,13 @@ Keine Aktionen verfügbar.
 
 ### 2. Spenden
 
-  Die Library ist für die nicht kommerzielle Nutzung kostenlos, Schenkungen als Unterstützung für den Autor werden hier akzeptiert:  
+Die Library ist für die nicht kommerzielle Nutzung kostenlos, Schenkungen als Unterstützung für den Autor werden hier akzeptiert:  
 
 [![PayPal.Me](https://img.shields.io/badge/PayPal-Me-lightblue.svg)](https://paypal.me/Nall4chan)  
 
-[![Wunschliste](https://img.shields.io/badge/Wunschliste-Amazon-ff69fb.svg)](https://www.amazon.de/hz/wishlist/ls/YU4AI9AQT9F?ref_=wl_share) 
+[![Wunschliste](https://img.shields.io/badge/Wunschliste-Amazon-ff69fb.svg)](https://www.amazon.de/hz/wishlist/ls/YU4AI9AQT9F?ref_=wl_share)  
 
 ## 10. Lizenz
 
   IPS-Modul:  
   [CC BY-NC-SA 4.0](https://creativecommons.org/licenses/by-nc-sa/4.0/)  
-

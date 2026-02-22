@@ -8,9 +8,10 @@
 [![Wunschliste](https://img.shields.io/badge/Wunschliste-Amazon-ff69fb.svg)](#2-spenden)  
 
 # FritzBox NAS Storage <!-- omit in toc -->
+
 Status der Netzwerkfreigabe und des FTP Servers auslesen und setzen.  
 
-### Inhaltsverzeichnis <!-- omit in toc -->
+## Inhaltsverzeichnis <!-- omit in toc -->
 
 - [1. Funktionsumfang](#1-funktionsumfang)
 - [2. Voraussetzungen](#2-voraussetzungen)
@@ -19,7 +20,7 @@ Status der Netzwerkfreigabe und des FTP Servers auslesen und setzen.
 - [5. Statusvariablen und Profile](#5-statusvariablen-und-profile)
   - [Statusvariablen](#statusvariablen)
   - [Profile](#profile)
-- [6. WebFront](#6-webfront)
+- [6. Visualisierung](#6-visualisierung)
 - [7. PHP-Funktionsreferenz](#7-php-funktionsreferenz)
 - [8. Aktionen](#8-aktionen)
 - [9. Anhang](#9-anhang)
@@ -29,9 +30,9 @@ Status der Netzwerkfreigabe und des FTP Servers auslesen und setzen.
 
 ## 1. Funktionsumfang
 
-* Alte Variablen vom FB-Project **sind** kompatibel.
-* Status der Netzwerkfreigabe und des FTP Servers auslesen.  
-* Aktivieren und deaktivieren der Netzwerkfreigabe und des FTP-Servers.  
+- Alte Variablen vom FB-Project **sind** kompatibel.
+- Status der Netzwerkfreigabe und des FTP Servers auslesen.  
+- Aktivieren und deaktivieren der Netzwerkfreigabe und des FTP-Servers.  
 
 ## 2. Voraussetzungen
 
@@ -39,24 +40,23 @@ Status der Netzwerkfreigabe und des FTP Servers auslesen und setzen.
 
 ## 3. Software-Installation
 
-* Über den Module Store das `FritzBox`-Modul installieren.
+- Über den Module Store das `FritzBox`-Modul installieren.
 
 ## 4. Einrichten der Instanzen in IP-Symcon
 
- Es wird empfohlen Instanzen über die entsprechenden [FritzBox Konfigurator](../FritzBox%20Configurator/README.md)-Instanz zu erzeugen.  
- 
- Unter 'Instanz hinzufügen' ist das 'FritzBox NAS Storage'-Modul unter dem Hersteller 'AVM' aufgeführt.
+Es wird empfohlen Instanzen über die entsprechenden [FritzBox Konfigurator](../FritzBox%20Configurator/README.md)-Instanz zu erzeugen.  
 
-__Konfigurationsseite__:
+Unter 'Instanz hinzufügen' ist das 'FritzBox NAS Storage'-Modul unter dem Hersteller 'AVM' aufgeführt.
+
+**Konfigurationsseite**:
 
 ![Config](imgs/config.png)  
 
-__Konfigurationsparameter__:  
+**Konfigurationsparameter**:  
 
 | Name            | Typ     | Beschreibung                         |
 | --------------- | ------- | ------------------------------------ |
 | RefreshInterval | integer | Aktualisierungsintervall in Sekunden |
-
 
 ## 5. Statusvariablen und Profile
 
@@ -73,12 +73,11 @@ Die Statusvariablen werden automatisch angelegt. Das Löschen einzelner kann zu 
 | FTPWANSSLOnly | WAN FTP nur SSL   | boolean |
 | FTPWANPort    | WAN FTP Port      | integer |
 
-
 ### Profile
 
 Dieses Modul erzeugt keine Variablenprofile.  
 
-## 6. WebFront
+## 6. Visualisierung
 
 ![WebFront](imgs/webfront.png)  
 
@@ -97,18 +96,21 @@ Folgende Aktionen sind Verfügbar:
 
 ActionId: `{A686F0FC-12D3-D82B-7237-04718B5CDAAF}`  
 SMB Freigabe steuern  
-- Aktiviert oder deaktiviert die SMB Freigabe der FritzBox 
+
+- Aktiviert oder deaktiviert die SMB Freigabe der FritzBox  
 
 ---  
 
 ActionId: `{FEE9B3A7-1853-6914-EE2E-4A11D79A57A8}`  
 FTP-Dienst steuern  
+
 - Aktiviert oder deaktiviert den FTP Dienst der FritzBox  
 
 ---  
 
 ActionId: `{C0F2E8C9-7841-57B8-5D4E-ADC1A14E6F92}`  
 WAN FTP-Dienst steuern  
+
 - Aktiviert oder deaktiviert den WAN FTP Dienst der FritzBox  
 
 ## 9. Anhang
@@ -119,14 +121,13 @@ WAN FTP-Dienst steuern
 
 ### 2. Spenden
 
-  Die Library ist für die nicht kommerzielle Nutzung kostenlos, Schenkungen als Unterstützung für den Autor werden hier akzeptiert:  
+Die Library ist für die nicht kommerzielle Nutzung kostenlos, Schenkungen als Unterstützung für den Autor werden hier akzeptiert:  
 
 [![PayPal.Me](https://img.shields.io/badge/PayPal-Me-lightblue.svg)](https://paypal.me/Nall4chan)  
 
-[![Wunschliste](https://img.shields.io/badge/Wunschliste-Amazon-ff69fb.svg)](https://www.amazon.de/hz/wishlist/ls/YU4AI9AQT9F?ref_=wl_share) 
+[![Wunschliste](https://img.shields.io/badge/Wunschliste-Amazon-ff69fb.svg)](https://www.amazon.de/hz/wishlist/ls/YU4AI9AQT9F?ref_=wl_share)  
 
 ## 10. Lizenz
 
   IPS-Modul:  
   [CC BY-NC-SA 4.0](https://creativecommons.org/licenses/by-nc-sa/4.0/)  
-

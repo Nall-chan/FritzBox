@@ -8,9 +8,10 @@
 [![Wunschliste](https://img.shields.io/badge/Wunschliste-Amazon-ff69fb.svg)](#2-spenden)  
 
 # FritzBox Dateifreigabe <!-- omit in toc -->
+
 Dateifreigaben der FritzBox verwalten und darstellen.  
 
-### Inhaltsverzeichnis <!-- omit in toc -->
+## Inhaltsverzeichnis <!-- omit in toc -->
 
 - [1. Funktionsumfang](#1-funktionsumfang)
 - [2. Voraussetzungen](#2-voraussetzungen)
@@ -19,7 +20,7 @@ Dateifreigaben der FritzBox verwalten und darstellen.
 - [5. Statusvariablen und Profile](#5-statusvariablen-und-profile)
   - [Statusvariablen](#statusvariablen)
   - [Profile](#profile)
-- [6. WebFront](#6-webfront)
+- [6. Visualisierung](#6-visualisierung)
 - [7. PHP-Funktionsreferenz](#7-php-funktionsreferenz)
 - [8. Aktionen](#8-aktionen)
 - [9. Anhang](#9-anhang)
@@ -29,8 +30,8 @@ Dateifreigaben der FritzBox verwalten und darstellen.
 
 ## 1. Funktionsumfang
 
-* Darstellung der Dateifreigaben als HTML-Tabelle.
-* Diverse Instanz-Funktionen zum verwalten der Freigaben.
+- Darstellung der Dateifreigaben als HTML-Tabelle.
+- Diverse Instanz-Funktionen zum verwalten der Freigaben.
 
 ## 2. Voraussetzungen
 
@@ -38,19 +39,20 @@ Dateifreigaben der FritzBox verwalten und darstellen.
 
 ## 3. Software-Installation
 
-* Über den Module Store das `FritzBox`-Modul installieren.
+- Über den Module Store das `FritzBox`-Modul installieren.
 
 ## 4. Einrichten der Instanzen in IP-Symcon
 
- Es wird empfohlen Instanzen über die entsprechenden [FritzBox Konfigurator](../FritzBox%20Configurator/README.md)-Instanz zu erzeugen.  
- 
- Unter 'Instanz hinzufügen' ist das 'FritzBox Dateifreigabe'-Modul unter dem Hersteller 'AVM' aufgeführt.
+Es wird empfohlen Instanzen über die entsprechenden [FritzBox Konfigurator](../FritzBox%20Configurator/README.md)-Instanz zu erzeugen.  
 
-__Konfigurationsseite__:
+Unter 'Instanz hinzufügen' ist das 'FritzBox Dateifreigabe'-Modul unter dem Hersteller 'AVM' aufgeführt.
+
+**Konfigurationsseite**:
 
 ![Config](imgs/config.png)  
 
-__Konfigurationsparameter__: 
+**Konfigurationsparameter**:  
+
 | Name          | Typ            | Beschreibung                                                         |
 | ------------- | -------------- | -------------------------------------------------------------------- |
 | SharesAsTable | boolean        | Ausgabe der Dateifreigaben als HTML-Tabelle in einer String-Variable |
@@ -59,22 +61,21 @@ __Konfigurationsparameter__:
 | Rows          | string / Liste | HTML/CSS Konfiguration der Zeilen (Überschrift, gerade und ungerade) |
 | Icons         | string / Liste | Icon für die Spalten Icon und Valid                                  |
 
-
 ## 5. Statusvariablen und Profile
 
 Die Statusvariablen werden automatisch angelegt. Das Löschen einzelner kann zu Fehlfunktionen führen.
 
-### Statusvariablen
+### Statusvariablen  
+
 | Ident       | Name           | Typ    | Beschreibung                    |
 | ----------- | -------------- | ------ | ------------------------------- |
 | SharesTable | Dateifreigaben | string | HTML Tabelle der Dateifreigaben |
-
 
 ### Profile
 
 Dieses Modul erzeugt keine Variablenprofile.  
 
-## 6. WebFront
+## 6. Visualisierung
 
 ![Webfront](imgs/webfront.png)  
 
@@ -103,14 +104,13 @@ Keine Aktionen verfügbar.
 
 ### 2. Spenden
 
-  Die Library ist für die nicht kommerzielle Nutzung kostenlos, Schenkungen als Unterstützung für den Autor werden hier akzeptiert:  
+Die Library ist für die nicht kommerzielle Nutzung kostenlos, Schenkungen als Unterstützung für den Autor werden hier akzeptiert:  
 
 [![PayPal.Me](https://img.shields.io/badge/PayPal-Me-lightblue.svg)](https://paypal.me/Nall4chan)  
 
-[![Wunschliste](https://img.shields.io/badge/Wunschliste-Amazon-ff69fb.svg)](https://www.amazon.de/hz/wishlist/ls/YU4AI9AQT9F?ref_=wl_share) 
+[![Wunschliste](https://img.shields.io/badge/Wunschliste-Amazon-ff69fb.svg)](https://www.amazon.de/hz/wishlist/ls/YU4AI9AQT9F?ref_=wl_share)  
 
 ## 10. Lizenz
 
   IPS-Modul:  
   [CC BY-NC-SA 4.0](https://creativecommons.org/licenses/by-nc-sa/4.0/)  
-

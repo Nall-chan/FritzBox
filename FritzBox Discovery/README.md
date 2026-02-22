@@ -8,9 +8,10 @@
 [![Wunschliste](https://img.shields.io/badge/Wunschliste-Amazon-ff69fb.svg)](#2-spenden)  
 
 # FritzBox Discovery <!-- omit in toc -->
+
 Auffinden von FritzBox Geräten im Netzwerk.  
 
-### Inhaltsverzeichnis <!-- omit in toc -->
+## Inhaltsverzeichnis <!-- omit in toc -->
 
 - [1. Funktionsumfang](#1-funktionsumfang)
 - [2. Voraussetzungen](#2-voraussetzungen)
@@ -19,7 +20,7 @@ Auffinden von FritzBox Geräten im Netzwerk.
 - [5. Statusvariablen und Profile](#5-statusvariablen-und-profile)
   - [Statusvariablen](#statusvariablen)
   - [Profile](#profile)
-- [6. WebFront](#6-webfront)
+- [6. Visualisierung](#6-visualisierung)
 - [7. PHP-Funktionsreferenz](#7-php-funktionsreferenz)
 - [8. Aktionen](#8-aktionen)
 - [9. Anhang](#9-anhang)
@@ -29,8 +30,8 @@ Auffinden von FritzBox Geräten im Netzwerk.
 
 ## 1. Funktionsumfang
 
-* Ermittelt im lokalen Netzwerk vorhandenen FritzBox Geräte.
-* Unterstützt beim Erstellen des benötigten FritzBox-Konfigurators mit dazugehörigen FritzBox-IO.
+- Ermittelt im lokalen Netzwerk vorhandenen FritzBox Geräte.
+- Unterstützt beim Erstellen des benötigten FritzBox-Konfigurators mit dazugehörigen FritzBox-IO.
 
 ## 2. Voraussetzungen
 
@@ -38,15 +39,15 @@ Auffinden von FritzBox Geräten im Netzwerk.
 
 ## 3. Software-Installation
 
-* Über den Module Store das `FritzBox`-Modul installieren.
+- Über den Module Store das `FritzBox`-Modul installieren.
 
 ## 4. Einrichten der Instanzen in IP-Symcon
 
- Nach der installation über den Module Store wird die Discovery Instanz auf Anforderung automatisch erzeugt.  
+Nach der installation über den Module Store wird die Discovery Instanz auf Anforderung automatisch erzeugt.  
 
- Sollte die Instanz gelöscht worden sein, oder wurde sie nicht bei der Installation erstellt, so ist unter 'Instanz hinzufügen' das 'FritzBox Discovery'-Modul unter dem Hersteller 'AVM' aufgeführt.  
+Sollte die Instanz gelöscht worden sein, oder wurde sie nicht bei der Installation erstellt, so ist unter 'Instanz hinzufügen' das 'FritzBox Discovery'-Modul unter dem Hersteller 'AVM' aufgeführt.  
 
-__Konfigurationsseite__:
+**Konfigurationsseite**:
 
 Durch das öffnen der Konfiguration wird eine Netzwerksuche durchgeführt, welche ca 5. Sekunden dauert.  
 Anschließend können über den Erstellen Button die ausgewählte FritzBox als Konfigurator und IO Instanz in Symcon erzeugt werden.  
@@ -67,13 +68,13 @@ Dieses Modul erzeugt keine Statusvariablen.
 
 Dieses Modul erzeugt keine Variablenprofile.  
 
-## 6. WebFront
+## 6. Visualisierung
 
 Dieses Modul ist nicht zur Darstellung im WebFront gedacht.
 
 ## 7. PHP-Funktionsreferenz
 
-Keine Funktionen verfügbar. 
+Keine Funktionen verfügbar.  
 
 ## 8. Aktionen
 
@@ -87,14 +88,13 @@ Keine Aktionen verfügbar.
 
 ### 2. Spenden
 
-  Die Library ist für die nicht kommerzielle Nutzung kostenlos, Schenkungen als Unterstützung für den Autor werden hier akzeptiert:  
+Die Library ist für die nicht kommerzielle Nutzung kostenlos, Schenkungen als Unterstützung für den Autor werden hier akzeptiert:  
 
 [![PayPal.Me](https://img.shields.io/badge/PayPal-Me-lightblue.svg)](https://paypal.me/Nall4chan)  
 
-[![Wunschliste](https://img.shields.io/badge/Wunschliste-Amazon-ff69fb.svg)](https://www.amazon.de/hz/wishlist/ls/YU4AI9AQT9F?ref_=wl_share) 
+[![Wunschliste](https://img.shields.io/badge/Wunschliste-Amazon-ff69fb.svg)](https://www.amazon.de/hz/wishlist/ls/YU4AI9AQT9F?ref_=wl_share)  
 
 ## 10. Lizenz
 
   IPS-Modul:  
   [CC BY-NC-SA 4.0](https://creativecommons.org/licenses/by-nc-sa/4.0/)  
-

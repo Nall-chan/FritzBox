@@ -374,7 +374,7 @@ class FritzBoxIO extends IPSModule
             $this->isSubscribed = true;
         }
         try {
-            $xml = new \simpleXMLElement($Data);
+            $xml = new \simpleXMLElement(trim($Data));
             $xml->registerXPathNamespace('event', $xml->getNameSpaces(false)['e']);
             $xmlPropertys = $xml->xpath('//event:property');
             foreach ($xmlPropertys as $property) {
@@ -474,7 +474,14 @@ class FritzBoxIO extends IPSModule
             return false;
         }
         if (strpos($Filename, 'Phonebook_') === 0) {
-            $xml = new SimpleXMLElement($Data);
+            try {
+                $xml = new \simpleXMLElement(trim($Data));
+            } catch (\Throwable $th) {
+                $this->SendDebug('XML decode error', $Data, 0);
+                $this->SendDebug('XML decode trace', $th->getTrace(), 0);
+                $this->LogMessage($th->getMessage(), KL_ERROR);
+                return false;
+            }
             $Numbers = $xml->xpath('//number');
             foreach ($Numbers as &$Number) {
                 $Number[0] = preg_replace('/[^0-9+*]+/i', '', (string) $Number[0]);
@@ -550,9 +557,14 @@ class FritzBoxIO extends IPSModule
                 $this->WriteAttributeInteger('NoOfWlan', $i);
             }
             //Nur bei Bedarf laden?
-
-            $SCPD_Data = new \simpleXMLElement($XMLData);
-
+            try {
+                $SCPD_Data = new \simpleXMLElement(trim($XMLData));
+            } catch (\Throwable $th) {
+                $this->SendDebug('XML decode error', $SCPD_Data, 0);
+                $this->SendDebug('XML decode trace', $th->getTrace(), 0);
+                $this->LogMessage($th->getMessage(), KL_ERROR);
+                continue;
+            }
             $Services = [];
             // service mit xpath suchen !
             $SCPD_Data->registerXPathNamespace('fritzbox', $SCPD_Data->getNameSpaces(false)['']);
@@ -689,9 +701,12 @@ class FritzBoxIO extends IPSModule
         if (is_a($result, 'SoapFault')) {
             return '';
         }
-        $xml = new \simpleXMLElement($result);
-        if ($xml === false) {
+        try {
+            $xml = new \simpleXMLElement(trim($result));
+        } catch (\Throwable $th) {
             $this->SendDebug('XML decode error', $result, 0);
+            $this->SendDebug('XML decode trace', $th->getTrace(), 0);
+            $this->LogMessage($th->getMessage(), KL_ERROR);
             return '';
         }
         $Xpath = $xml->xpath('/List/Username[@last_user="1"]');

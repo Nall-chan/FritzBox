@@ -140,6 +140,8 @@ trait TelHelper
                 $XMLPhoneBook = new \simpleXMLElement($XMLData);
             } catch (\Throwable $th) {
                 $this->SendDebug('XML decode error', $XMLData, 0);
+                $this->SendDebug('XML decode trace', $th->getTrace(), 0);
+                $this->LogMessage($th->getMessage(), KL_ERROR);
                 continue;
             }
             foreach ($SerachNumbers as $SerachNumber) {
@@ -283,29 +285,29 @@ trait TelHelper
         return $Result;
     }
     /**
-     * @param SimpleXMLElement $xml
+     * @param \SimpleXMLElement $xml
      * @return array
      */
     private function xmlToArray(\SimpleXMLElement $xml): array
     {
-        $parser = function (\SimpleXMLElement $xml, array $collection = []) use (&$parser)
+        $parser = function (\SimpleXMLElement $xml, array $collection = []) use (&$parser): array
         {
             $nodes = $xml->children();
             $attributes = $xml->attributes();
 
-            if (0 !== count($attributes)) {
+            if (0 !== \count($attributes)) {
                 foreach ($attributes as $attrName => $attrValue) {
-                    $collection['attributes'][$attrName] = strval($attrValue);
+                    $collection['attributes'][$attrName] = \strval($attrValue);
                 }
             }
 
             if (0 === $nodes->count()) {
-                $collection['value'] = strval($xml);
+                $collection['value'] = \strval($xml);
                 return $collection;
             }
 
             foreach ($nodes as $nodeName => $nodeValue) {
-                if (count($nodeValue->xpath('../' . $nodeName)) < 2) {
+                if (\count($nodeValue->xpath('../' . $nodeName)) < 2) {
                     $collection[$nodeName] = $parser($nodeValue);
                     continue;
                 }

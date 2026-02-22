@@ -8,9 +8,10 @@
 [![Wunschliste](https://img.shields.io/badge/Wunschliste-Amazon-ff69fb.svg)](#2-spenden)  
 
 # FritzBox Hosts <!-- omit in toc -->
+
 Abfragen und anzeigen von Hostnamen und Onlinestatus von Geräte im Netzwerk.  
 
-### Inhaltsverzeichnis <!-- omit in toc -->
+## Inhaltsverzeichnis <!-- omit in toc -->
 
 - [1. Funktionsumfang](#1-funktionsumfang)
 - [2. Voraussetzungen](#2-voraussetzungen)
@@ -19,7 +20,7 @@ Abfragen und anzeigen von Hostnamen und Onlinestatus von Geräte im Netzwerk.
 - [5. Statusvariablen und Profile](#5-statusvariablen-und-profile)
   - [Statusvariablen](#statusvariablen)
   - [Profile](#profile)
-- [6. WebFront](#6-webfront)
+- [6. Visualisierung](#6-visualisierung)
 - [7. PHP-Funktionsreferenz](#7-php-funktionsreferenz)
 - [8. Aktionen](#8-aktionen)
 - [9. Anhang](#9-anhang)
@@ -29,11 +30,11 @@ Abfragen und anzeigen von Hostnamen und Onlinestatus von Geräte im Netzwerk.
 
 ## 1. Funktionsumfang
 
-* Alte Variablen vom FB-Project sind **nicht** kompatibel.
-* Ermöglicht das auslesen alle der FritzBox bekannten Netzwerkgeräte.  
-* Darstellung alle Hosts und des jeweiligen Onlinezustand als Symcon Variable.  
-* Darstellung alle Hosts und des jeweiligen Onlinezustand als HTML Tabelle.  
-* Möglichkeit WOL an Hosts zu senden.  
+- Alte Variablen vom FB-Project sind **nicht** kompatibel.
+- Ermöglicht das auslesen alle der FritzBox bekannten Netzwerkgeräte.  
+- Darstellung alle Hosts und des jeweiligen Onlinezustand als Symcon Variable.  
+- Darstellung alle Hosts und des jeweiligen Onlinezustand als HTML Tabelle.  
+- Möglichkeit WOL an Hosts zu senden.  
 
 ## 2. Voraussetzungen
 
@@ -41,19 +42,19 @@ Abfragen und anzeigen von Hostnamen und Onlinestatus von Geräte im Netzwerk.
 
 ## 3. Software-Installation
 
-* Über den Module Store das `FritzBox`-Modul installieren.
+- Über den Module Store das `FritzBox`-Modul installieren.
 
 ## 4. Einrichten der Instanzen in IP-Symcon
 
- Es wird empfohlen Instanzen über die entsprechenden [FritzBox Konfigurator](../FritzBox%20Configurator/README.md)-Instanz zu erzeugen.  
- 
- Unter 'Instanz hinzufügen' ist das 'FritzBox Hosts'-Modul unter dem Hersteller 'AVM' aufgeführt.
+Es wird empfohlen Instanzen über die entsprechenden [FritzBox Konfigurator](../FritzBox%20Configurator/README.md)-Instanz zu erzeugen.  
 
-__Konfigurationsseite__:
+Unter 'Instanz hinzufügen' ist das 'FritzBox Hosts'-Modul unter dem Hersteller 'AVM' aufgeführt.
+
+**Konfigurationsseite**:
 
 ![Config](imgs/config1.png)  
 
-__Konfigurationsparameter__:  
+**Konfigurationsparameter**:  
 
 | Name                 | Typ            | Beschreibung                                                         |
 | -------------------- | -------------- | -------------------------------------------------------------------- |
@@ -83,7 +84,7 @@ Die Statusvariablen werden automatisch angelegt. Das Löschen einzelner kann zu 
 
 Dieses Modul erzeugt keine Variablenprofile.  
 
-## 6. WebFront
+## 6. Visualisierung
 
 HTML Tabelle:  
 ![Webfront](imgs/webfront1.png)  
@@ -127,14 +128,13 @@ Host mit WOL aufwecken
 
 ### 2. Spenden
 
-  Die Library ist für die nicht kommerzielle Nutzung kostenlos, Schenkungen als Unterstützung für den Autor werden hier akzeptiert:  
+Die Library ist für die nicht kommerzielle Nutzung kostenlos, Schenkungen als Unterstützung für den Autor werden hier akzeptiert:  
 
 [![PayPal.Me](https://img.shields.io/badge/PayPal-Me-lightblue.svg)](https://paypal.me/Nall4chan)  
 
-[![Wunschliste](https://img.shields.io/badge/Wunschliste-Amazon-ff69fb.svg)](https://www.amazon.de/hz/wishlist/ls/YU4AI9AQT9F?ref_=wl_share) 
+[![Wunschliste](https://img.shields.io/badge/Wunschliste-Amazon-ff69fb.svg)](https://www.amazon.de/hz/wishlist/ls/YU4AI9AQT9F?ref_=wl_share)  
 
 ## 10. Lizenz
 
   IPS-Modul:  
   [CC BY-NC-SA 4.0](https://creativecommons.org/licenses/by-nc-sa/4.0/)  
-

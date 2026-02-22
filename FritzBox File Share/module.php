@@ -206,13 +206,14 @@ class FritzBoxFileShare extends FritzBoxModulBase
         if ($XMLData === false) {
             return false;
         }
-
-        $FileList = new \simpleXMLElement($XMLData);
-        if ($FileList === false) {
+        try {
+            $FileList = new \simpleXMLElement(trim($XMLData));
+        } catch (\Throwable $th) {
             $this->SendDebug('XML decode error', $XMLData, 0);
+            $this->SendDebug('XML decode trace', $th->getTrace(), 0);
+            $this->LogMessage($th->getMessage(), KL_ERROR);
             return false;
         }
-
         $TableData = [];
         /** @var \SimpleXMLElement $FileItem */
         foreach ($FileList as $FileItem) {

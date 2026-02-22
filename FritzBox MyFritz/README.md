@@ -8,9 +8,10 @@
 [![Wunschliste](https://img.shields.io/badge/Wunschliste-Amazon-ff69fb.svg)](#2-spenden)  
 
 # FritzBox MyFritz <!-- omit in toc -->
+
 Auslesen und darstellen der MyFritz Dienste.  
 
-### Inhaltsverzeichnis <!-- omit in toc -->
+## Inhaltsverzeichnis <!-- omit in toc -->
 
 - [1. Funktionsumfang](#1-funktionsumfang)
 - [2. Voraussetzungen](#2-voraussetzungen)
@@ -19,7 +20,7 @@ Auslesen und darstellen der MyFritz Dienste.
 - [5. Statusvariablen und Profile](#5-statusvariablen-und-profile)
   - [Statusvariablen](#statusvariablen)
   - [Profile](#profile)
-- [6. WebFront](#6-webfront)
+- [6. Visualisierung](#6-visualisierung)
 - [7. PHP-Funktionsreferenz](#7-php-funktionsreferenz)
 - [8. Aktionen](#8-aktionen)
 - [9. Anhang](#9-anhang)
@@ -29,10 +30,10 @@ Auslesen und darstellen der MyFritz Dienste.
 
 ## 1. Funktionsumfang
 
-* Alte Variablen vom FB-Project sind **nicht** kompatibel.
-* Auslesen und darstellen der MyFritz Registrierung.  
-* Auslesen und darstellen der MyFritz Dienste.  
-* Steuern von MyFritz Freigaben, **sofern es sich bei dem Ziel um den Symcon Host handelt.**  
+- Alte Variablen vom FB-Project sind **nicht** kompatibel.
+- Auslesen und darstellen der MyFritz Registrierung.  
+- Auslesen und darstellen der MyFritz Dienste.  
+- Steuern von MyFritz Freigaben, **sofern es sich bei dem Ziel um den Symcon Host handelt.**  
 
 ## 2. Voraussetzungen
 
@@ -40,25 +41,23 @@ Auslesen und darstellen der MyFritz Dienste.
 
 ## 3. Software-Installation
 
-* Über den Module Store das `FritzBox`-Modul installieren.
+- Über den Module Store das `FritzBox`-Modul installieren.
 
 ## 4. Einrichten der Instanzen in IP-Symcon
 
- Es wird empfohlen Instanzen über die entsprechenden [FritzBox Konfigurator](../FritzBox%20Configurator/README.md)-Instanz zu erzeugen.  
- 
- Unter 'Instanz hinzufügen' ist das 'FritzBox MyFritz'-Modul unter dem Hersteller 'AVM' aufgeführt.
+Es wird empfohlen Instanzen über die entsprechenden [FritzBox Konfigurator](../FritzBox%20Configurator/README.md)-Instanz zu erzeugen.  
 
-__Konfigurationsseite__:
+Unter 'Instanz hinzufügen' ist das 'FritzBox MyFritz'-Modul unter dem Hersteller 'AVM' aufgeführt.
+
+**Konfigurationsseite**:
 
 ![Config](imgs/config.png)  
 
-__Konfigurationsparameter__:  
+**Konfigurationsparameter**:  
 
 | Name            | Typ     | Beschreibung                         |
 | --------------- | ------- | ------------------------------------ |
 | RefreshInterval | integer | Aktualisierungsintervall in Sekunden |
-
-
 
 ## 5. Statusvariablen und Profile
 
@@ -78,7 +77,7 @@ Die Statusvariablen werden automatisch angelegt. Das Löschen einzelner kann zu 
 
 Dieses Modul erzeugt keine Variablenprofile.  
 
-## 6. WebFront
+## 6. Visualisierung
 
 ![WebFront](imgs/webfront.png)  
 
@@ -114,8 +113,8 @@ Folgende Aktion ist Verfügbar:
 
 ActionId: `{54D0B9F7-56A0-7B32-97CC-DCF15E601F2F}`  
 MyFritz Dienst steuern  
-- Aktiviert oder deaktiviert einen MyFritz Dienst  
 
+- Aktiviert oder deaktiviert einen MyFritz Dienst  
 
 ## 9. Anhang
 
@@ -125,14 +124,13 @@ MyFritz Dienst steuern
 
 ### 2. Spenden
 
-  Die Library ist für die nicht kommerzielle Nutzung kostenlos, Schenkungen als Unterstützung für den Autor werden hier akzeptiert:  
+Die Library ist für die nicht kommerzielle Nutzung kostenlos, Schenkungen als Unterstützung für den Autor werden hier akzeptiert:  
 
 [![PayPal.Me](https://img.shields.io/badge/PayPal-Me-lightblue.svg)](https://paypal.me/Nall4chan)  
 
-[![Wunschliste](https://img.shields.io/badge/Wunschliste-Amazon-ff69fb.svg)](https://www.amazon.de/hz/wishlist/ls/YU4AI9AQT9F?ref_=wl_share) 
+[![Wunschliste](https://img.shields.io/badge/Wunschliste-Amazon-ff69fb.svg)](https://www.amazon.de/hz/wishlist/ls/YU4AI9AQT9F?ref_=wl_share)  
 
 ## 10. Lizenz
 
   IPS-Modul:  
   [CC BY-NC-SA 4.0](https://creativecommons.org/licenses/by-nc-sa/4.0/)  
-

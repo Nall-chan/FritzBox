@@ -324,10 +324,13 @@ class FritzBoxWLAN extends FritzBoxModulBase
         if ($XMLData === false) {
             $this->SendDebug('XML not found', 'Hosts', 0);
         } else {
-            $xmlHosts = new \simpleXMLElement($XMLData);
-            if ($xmlHosts === false) {
-                unset($xmlHosts);
+            try {
+                $xmlHosts = new \simpleXMLElement(trim($XMLData));
+            } catch (\Throwable $th) {
                 $this->SendDebug('XML decode error', $XMLData, 0);
+                $this->SendDebug('XML decode trace', $th->getTrace(), 0);
+                $this->LogMessage($th->getMessage(), KL_ERROR);
+                unset($xmlHosts);
             }
         }
         // WLAN Daten holen
@@ -341,9 +344,12 @@ class FritzBoxWLAN extends FritzBoxModulBase
             $this->SendDebug('XML not found', 'WLAN', 0);
             return false;
         }
-        $xmlWLAN = new \simpleXMLElement($XMLData);
-        if ($xmlWLAN === false) {
+        try {
+            $xmlWLAN = new \simpleXMLElement(trim($XMLData));
+        } catch (\Throwable $th) {
             $this->SendDebug('XML decode error', $XMLData, 0);
+            $this->SendDebug('XML decode trace', $th->getTrace(), 0);
+            $this->LogMessage($th->getMessage(), KL_ERROR);
             return false;
         }
         // WLAN Daten filtern auf unseren Channel
@@ -786,12 +792,14 @@ class FritzBoxWLAN extends FritzBoxModulBase
             $this->SendDebug('XML not found', 'Hosts', 0);
             return [];
         }
-        $xmlHosts = new \simpleXMLElement($XMLData);
-        if ($xmlHosts === false) {
+        try {
+            $xmlHosts = new \simpleXMLElement(trim($XMLData));
+        } catch (\Throwable $th) {
             $this->SendDebug('XML decode error', $XMLData, 0);
+            $this->SendDebug('XML decode trace', $th->getTrace(), 0);
+            $this->LogMessage($th->getMessage(), KL_ERROR);
             return [];
         }
-
         // WLAN Daten holen
         $Uri = $this->GetWLANDeviceListPath();
         if ($Uri === false) {
@@ -803,12 +811,14 @@ class FritzBoxWLAN extends FritzBoxModulBase
             $this->SendDebug('XML not found', 'WLAN', 0);
             return [];
         }
-        $xmlWLAN = new \simpleXMLElement($XMLData);
-        if ($xmlWLAN === false) {
+        try {
+            $xmlWLAN = new \simpleXMLElement(trim($XMLData));
+        } catch (\Throwable $th) {
             $this->SendDebug('XML decode error', $XMLData, 0);
+            $this->SendDebug('XML decode trace', $th->getTrace(), 0);
+            $this->LogMessage($th->getMessage(), KL_ERROR);
             return [];
         }
-
         $KnownVariableIDs = array_filter(IPS_GetChildrenIDs($this->InstanceID), function ($VariableID)
         {
             $Ident = IPS_GetObject($VariableID)['ObjectIdent'];
