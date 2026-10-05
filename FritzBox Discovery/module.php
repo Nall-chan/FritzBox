@@ -302,6 +302,10 @@ class FritzBoxDiscovery extends IPSModule
                 $InterfaceDescription = array_search($Interface['description'], $InterfaceDescriptions);
             }
             foreach ($Interface['unicast'] as $Address) {
+                // Einträge ohne Adresse (z.B. WireGuard/tun unter Linux) enthalten nur 'flags'
+                if (!isset($Address['family'], $Address['address'])) {
+                    continue;
+                }
                 switch ($Address['family']) {
                     case AF_INET6:
                         if ($Address['address'] == '::1') {

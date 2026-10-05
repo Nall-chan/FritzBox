@@ -458,9 +458,14 @@ class FritzBoxIO extends IPSModule
         } else {
             $Url = $this->Url . $Uri;
         }
-        $Data = Sys_GetURLContentEx($Url, ['Timeout' => 15000, 'VerifyHost' => false, 'VerifyPeer' => false]);
+        // Fehler (z.B. Timeout bei langsamer FritzBox) nicht als Warnung durchreichen, der Aufrufer wertet false aus
+        $Data = @Sys_GetURLContentEx($Url, ['Timeout' => 15000, 'VerifyHost' => false, 'VerifyPeer' => false]);
         if ($Data === false) {
-            $this->SendDebug('File not found', $Url, 0);
+            $this->SendDebug('Error on load file', $Url, 0);
+            $Error = error_get_last();
+            if ($Error !== null) {
+                $this->SendDebug('Error on load file', $Error['message'], 0);
+            }
             return false;
         }
         $this->SendDebug('Load File: ' . $Url, $Data, 0);
@@ -920,15 +925,17 @@ class FritzBoxIO extends IPSModule
             return false;
         }
         $this->SendDebug('Result', $Result, 0);
-        if ($this->SID === '') {
+        $isNewSubscription = ($this->SID === '');
+        // SID sofort merken, damit sie auch bei fehlendem Event wieder abgemeldet werden kann
+        $this->SID = $Result['SID'];
+        if ($isNewSubscription) {
             if (!$this->WaitForEvent()) {
-                $this->SID = '';
                 $this->SendDebug('No event after subscribe', 'IO', 0);
                 $this->LogMessage('No event after subscribe from IO', KL_ERROR);
+                // SetStatus meldet das Abo über DoUnsubscribe wieder ab
                 $this->SetStatus(self::isDisconnected);
                 return false;
             }
-            $this->SID = $Result['SID'];
         }
         $this->SetTimerInterval('RenewSubscription', ((int) $Result['TIMEOUT'] - 300) * 1000);
         $this->SetStatus(self::isConnected);
@@ -937,7 +944,7 @@ class FritzBoxIO extends IPSModule
 
     private function DoUnsubscribe()
     {
-        if (!$this->isSubscribed) {
+        if ($this->SID === '') {
             return;
         }
         $this->SetTimerInterval('RenewSubscription', 0);

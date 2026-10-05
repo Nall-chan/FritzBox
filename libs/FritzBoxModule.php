@@ -66,6 +66,7 @@ class Services
         'urn:dslforum-org:service:WLANConfiguration:1'           => [GUID::WLAN=>0], // WLAN
         'urn:dslforum-org:service:WLANConfiguration:2'           => [GUID::WLAN=>1], // WLAN
         'urn:dslforum-org:service:WLANConfiguration:3'           => [GUID::WLAN=>2], // WLAN
+        'urn:dslforum-org:service:WLANConfiguration:4'           => [GUID::WLAN=>3], // WLAN
         'urn:dslforum-org:service:Hosts:1'                       => [GUID::Hosts=>0], // Hosts
         'urn:dslforum-org:service:LANHostConfigManagement:1'     => [GUID::DHCPServer=>0],
         'urn:dslforum-org:service:DeviceInfo:1'                  => [GUID::DeviceInfo=>0], // Geräteinformationen

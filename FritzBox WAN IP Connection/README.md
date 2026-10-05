@@ -38,6 +38,10 @@ Auslesen der WAN IP Verbindung.
 
 - Symcon ab Version 7.1
 
+> [!IMPORTANT]
+> Ab FRITZ!OS 8.25 darf ein Heimnetzgerät die Internetverbindung nur noch trennen bzw. neu verbinden (`FB_ForceTermination` und die Statusvariable zum Steuern der Verbindung), wenn in der FritzBox für das Symcon-Gerät die Einstellung **Selbstständige Portfreigaben** erlaubt ist.  
+> Ist sie nicht erlaubt, antwortet die FritzBox mit einem `UPnPError`.  
+
 ## 3. Software-Installation
 
 - Über den Module Store das `FritzBox`-Modul installieren.

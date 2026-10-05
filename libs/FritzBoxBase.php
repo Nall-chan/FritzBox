@@ -52,7 +52,7 @@ class FritzBoxModulBase extends IPSModule
 
     public function ApplyChanges()
     {
-        if ($this->isSubscribed) {
+        if ($this->SID !== '') {
             $this->Unsubscribe();
         }
         $this->SetReceiveDataFilter('.*NOTHINGTORECEIVE.*');
@@ -118,7 +118,7 @@ class FritzBoxModulBase extends IPSModule
                 break;
             case IPS_KERNELSHUTDOWN:
                 if (IPS_InstanceExists($this->InstanceID)) {
-                    if ($this->isSubscribed) {
+                    if ($this->SID !== '') {
                         $this->Unsubscribe();
                     }
                 }
@@ -168,7 +168,7 @@ class FritzBoxModulBase extends IPSModule
     {
         switch ($State) {
             case IS_ACTIVE:
-                if ($this->isSubscribed) {
+                if ($this->SID !== '') {
                     $this->Unsubscribe();
                 }
                 $this->SetReceiveDataFilter('.*NOTHINGTORECEIVE.*');
@@ -239,15 +239,17 @@ class FritzBoxModulBase extends IPSModule
             return false;
         }
         $this->SendDebug('Result', $Result, 0);
-        if ($this->SID === '') {
+        $isNewSubscription = ($this->SID === '');
+        // SID sofort merken, damit sie auch bei fehlendem Event wieder abgemeldet werden kann
+        $this->SID = $Result['SID'];
+        if ($isNewSubscription) {
             if (!$this->WaitForEvent()) {
-                $this->SID = '';
                 $this->SendDebug('No event after subscribe', static::$EventSubURLArray[$Index], 0);
                 $this->LogMessage('No event after subscribe', KL_ERROR);
+                $this->Unsubscribe();
                 $this->SetTimerInterval('RenewSubscription', 60000);
                 return false;
             }
-            $this->SID = $Result['SID'];
         }
         $this->SetTimerInterval('RenewSubscription', ((int) $Result['TIMEOUT'] - 300) * 1000);
         return true;
@@ -384,7 +386,9 @@ class FritzBoxModulBase extends IPSModule
                 $Details = $Result->detail;
                 if ($Details) {
                     if (property_exists($Details, $Result->faultstring)) {
-                        $Details = $Details->{$Result->faultstring}->errorDescription . "\r\n";
+                        $UPnPError = $Details->{$Result->faultstring};
+                        $Details = (property_exists($UPnPError, 'errorCode') ? 'Error code ' . $UPnPError->errorCode . ': ' : '') .
+                            (property_exists($UPnPError, 'errorDescription') ? $UPnPError->errorDescription : '') . "\r\n";
                     } else {
                         $Details = '';
                     }
