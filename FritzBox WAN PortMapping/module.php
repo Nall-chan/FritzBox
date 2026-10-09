@@ -192,7 +192,7 @@ class FritzBoxWANPortMapping extends FritzBoxModulBase
                     }
                 } else {
                     $ReturnValue = false;
-                    trigger_error($this->Translate('Only rules that target the Symcon host can be changed.'), E_USER_NOTICE);
+                    $this->ReportError($this->Translate('Only rules that target the Symcon host can be changed.'));
                 }
             }
 

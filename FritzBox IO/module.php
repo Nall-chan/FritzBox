@@ -32,8 +32,10 @@ class FritzBoxIO extends IPSModule
     public const isInActive = IS_INACTIVE;
     public const isDisconnected = IS_EBASE + 1;
     public const isUnauthorized = IS_EBASE + 2;
-    public const isURLnotValid = IS_EBASE + 3;
+    public const isNotReachable = IS_EBASE + 3;
     public const isServicenotValid = IS_EBASE + 4;
+    public const isPasswordMissing = IS_EBASE + 5;
+    public const isURLnotValid = IS_EBASE + 6;
 
     private static $http_error =
         [
@@ -74,7 +76,7 @@ class FritzBoxIO extends IPSModule
         //$this->RequireParent("{6179ED6A-FC31-413C-BB8E-1204150CF376}");
         if (IPS_GetKernelRunlevel() == KR_READY) {
             $this->ForceLoadXML = true;
-            if (IPS_GetInstance($this->InstanceID)['ConnectionID'] < 10000) {
+            if (!$this->IsCallMonitorSocketOpen()) {
                 $this->RegisterMessage($this->InstanceID, FM_CHILDADDED);
             }
             $this->CreateTempDir();
@@ -255,7 +257,7 @@ class FritzBoxIO extends IPSModule
         }
         $ConsumerAddress = $this->ReadAttributeString('ConsumerAddress');
         if (!$Form['actions'][1]['visible']) {
-            if (($ConsumerAddress == 'Invalid') && ($this->GetStatus() != 203) && ($this->ReadPropertyBoolean('Open')) && ($this->ReadPropertyString('Password') != '')) {
+            if (($ConsumerAddress == 'Invalid') && (!in_array($this->GetStatus(), [self::isNotReachable, self::isURLnotValid])) && ($this->ReadPropertyBoolean('Open')) && ($this->ReadPropertyString('Password') != '')) {
                 $Form['actions'][1]['visible'] = true;
                 $Form['actions'][1]['popup']['items'][0]['caption'] = $this->Translate('Error');
                 $Form['actions'][1]['popup']['items'][1]['caption'] = $this->Translate('Couldn\'t determine webhook');
@@ -298,6 +300,7 @@ class FritzBoxIO extends IPSModule
         if ($this->CheckHost()) {
             $this->SetSummary($this->Url);
             if ($this->ReadPropertyString('Password') == '') {
+                $this->SetStatus(self::isPasswordMissing);
                 return;
             }
             if (($this->Url != $OldUrl) || ($this->ForceLoadXML)) {
@@ -305,7 +308,7 @@ class FritzBoxIO extends IPSModule
                     $this->ForceLoadXML = false;
                 } else {
                     $this->ShowLastError(self::$http_error[418][0]);
-                    $this->SetStatus(self::isURLnotValid);
+                    $this->SetStatus(self::isNotReachable);
                     return;
                 }
             }
@@ -368,7 +371,7 @@ class FritzBoxIO extends IPSModule
         $this->SendHeaders();
         $Data = file_get_contents('php://input');
         $this->SendDebug('HOOK', $eventSubUrl, 0);
-        $this->SendDebug('EVENT', $Data, 0);
+        $this->SendDebug('EVENT', \FritzBox\DebugMask::Xml($Data), 0);
         $Propertys = [];
         if ($eventSubUrl == '/upnp/control/layer3forwarding') {
             $this->isSubscribed = true;
@@ -385,7 +388,7 @@ class FritzBoxIO extends IPSModule
             $this->LogMessage($th->getMessage(), KL_ERROR);
 
         }
-        $this->SendDebug('EVENT XML', $Propertys, 0);
+        $this->SendDebug('EVENT XML', \FritzBox\DebugMask::Values($Propertys), 0);
         $this->SendDataToChildren(
             json_encode(
                 [
@@ -425,12 +428,15 @@ class FritzBoxIO extends IPSModule
             return;
         }
         $this->UnregisterMessage($this->InstanceID, FM_CHILDADDED);
-        if (IPS_GetInstance($this->InstanceID)['ConnectionID'] != 0) {
+        $ParentId = IPS_GetInstance($this->InstanceID)['ConnectionID'];
+        if ($ParentId == 0) {
+            $this->RequireParent(\FritzBox\GUID::ClientSocket);
+            $ParentId = IPS_GetInstance($this->InstanceID)['ConnectionID'];
+        } elseif ($this->IsCallMonitorSocketOpen()) {
             return;
         }
-        $this->RequireParent(\FritzBox\GUID::ClientSocket);
-        $ParentId = IPS_GetInstance($this->InstanceID)['ConnectionID'];
-        if ($ParentId > 1) {
+        // Neu angelegten oder geschlossenen Client Socket (z.B. aus der Discovery) für den Anrufmonitor konfigurieren und öffnen
+        if (($ParentId > 1) && (IPS_GetInstance($ParentId)['ModuleInfo']['ModuleID'] == \FritzBox\GUID::ClientSocket)) {
             $Host = parse_url($this->ReadPropertyString('Host'), PHP_URL_HOST);
             IPS_SetProperty($ParentId, 'Host', ($Host ? $Host : ''));
             IPS_SetProperty($ParentId, 'Port', 1012);
@@ -461,14 +467,14 @@ class FritzBoxIO extends IPSModule
         // Fehler (z.B. Timeout bei langsamer FritzBox) nicht als Warnung durchreichen, der Aufrufer wertet false aus
         $Data = @Sys_GetURLContentEx($Url, ['Timeout' => 15000, 'VerifyHost' => false, 'VerifyPeer' => false]);
         if ($Data === false) {
-            $this->SendDebug('Error on load file', $Url, 0);
+            $this->SendDebug('Error on load file', \FritzBox\DebugMask::Url($Url), 0);
             $Error = error_get_last();
             if ($Error !== null) {
-                $this->SendDebug('Error on load file', $Error['message'], 0);
+                $this->SendDebug('Error on load file', \FritzBox\DebugMask::Url($Error['message']), 0);
             }
             return false;
         }
-        $this->SendDebug('Load File: ' . $Url, $Data, 0);
+        $this->SendDebug('Load File: ' . \FritzBox\DebugMask::Url($Url), $Data, 0);
         return $Data;
     }
 
@@ -653,7 +659,7 @@ class FritzBoxIO extends IPSModule
     private function KernelReady()
     {
         $this->UnregisterMessage(0, IPS_KERNELMESSAGE);
-        if (IPS_GetInstance($this->InstanceID)['ConnectionID'] < 10000) {
+        if (!$this->IsCallMonitorSocketOpen()) {
             $this->RegisterMessage($this->InstanceID, FM_CHILDADDED);
         }
         $this->ForceLoadXML = true;
@@ -676,6 +682,7 @@ class FritzBoxIO extends IPSModule
         }
         $URL = $this->ReadPropertyString('Host');
         if ($URL == 'http://') {
+            $this->SetStatus(self::isURLnotValid);
             return false;
         }
         $Scheme = parse_url($URL, PHP_URL_SCHEME);
@@ -765,6 +772,23 @@ class FritzBoxIO extends IPSModule
         ];
         $this->WriteAttributeArray('AreaCodes', $Areas);
         return true;
+    }
+
+    /**
+     * Prüft, ob ein geöffneter Client Socket für den Anrufmonitor als Parent vorhanden ist.
+     *
+     * @return bool
+     */
+    private function IsCallMonitorSocketOpen(): bool
+    {
+        $ParentId = IPS_GetInstance($this->InstanceID)['ConnectionID'];
+        if ($ParentId < 10000) {
+            return false;
+        }
+        if (IPS_GetInstance($ParentId)['ModuleInfo']['ModuleID'] != \FritzBox\GUID::ClientSocket) {
+            return true; // fremder Parent, nicht anfassen
+        }
+        return (bool) IPS_GetProperty($ParentId, 'Open');
     }
 
     private function checkCallMonitorPort()
@@ -864,11 +888,11 @@ class FritzBoxIO extends IPSModule
                 $Result = $client->__soapCall($function, $SoapParams);
             }
             $Response = $client->__getLastResponse();
-            $this->SendDebug('Soap Request Header', $client->__getLastRequestHeaders(), 0);
-            $this->SendDebug('Soap Request', $client->__getLastRequest(), 0);
+            $this->SendDebug('Soap Request Header', \FritzBox\DebugMask::Headers($client->__getLastRequestHeaders()), 0);
+            $this->SendDebug('Soap Request', \FritzBox\DebugMask::Xml($client->__getLastRequest()), 0);
             $ResponseHeaders = $client->__getLastResponseHeaders();
             $this->SendDebug('Soap Response Headers', $ResponseHeaders, 0);
-            $this->SendDebug('Soap Response', $Response, 0);
+            $this->SendDebug('Soap Response', \FritzBox\DebugMask::Xml($Response), 0);
             if ($ResponseHeaders == null) {
                 $HttpCode = 418;
             } else {
@@ -877,11 +901,11 @@ class FritzBoxIO extends IPSModule
             $this->SendDebug('Soap Response Code', $HttpCode, 0);
         } catch (\SoapFault $e) {
             $Response = $client->__getLastResponse();
-            $this->SendDebug('Soap Request Headers', $client->__getLastRequestHeaders(), 0);
-            $this->SendDebug('Soap Request', $client->__getLastRequest(), 0);
+            $this->SendDebug('Soap Request Headers', \FritzBox\DebugMask::Headers($client->__getLastRequestHeaders()), 0);
+            $this->SendDebug('Soap Request', \FritzBox\DebugMask::Xml($client->__getLastRequest()), 0);
             $ResponseHeaders = $client->__getLastResponseHeaders();
             $this->SendDebug('Soap Response Error Header', $ResponseHeaders, 0);
-            $this->SendDebug('Soap Response Error', $Response, 0);
+            $this->SendDebug('Soap Response Error', \FritzBox\DebugMask::Xml($Response), 0);
             if (property_exists($e, 'detail')) {
                 $Details = $e->detail;
                 $Detail = $e->faultstring . '(' . $e->faultcode . ')';
@@ -905,7 +929,7 @@ class FritzBoxIO extends IPSModule
             }
             return $e;
         }
-        $this->SendDebug('Result', $Result, 0);
+        $this->SendDebug('Result', \FritzBox\DebugMask::Values($Result), 0);
         return $Result;
     }
 
@@ -920,7 +944,7 @@ class FritzBoxIO extends IPSModule
         if ($Result === false) {
             $this->SID = '';
             $this->SendDebug('Error on subscribe (Result)', 'IO', 0);
-            trigger_error('Error on subscribe (Result)', E_USER_WARNING);
+            trigger_error($this->Translate('Error on subscribe (Result)'), E_USER_NOTICE);
             $this->SetStatus(self::isDisconnected);
             return false;
         }

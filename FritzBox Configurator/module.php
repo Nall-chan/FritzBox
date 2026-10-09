@@ -45,8 +45,18 @@ class FritzBoxConfigurator extends IPSModule
         if (($Splitter == 0) || (IPS_GetInstance($Splitter)['InstanceStatus'] != IS_ACTIVE)) {
             $Form['actions'][1]['visible'] = true;
             $Form['actions'][1]['popup']['items'][0]['caption'] = 'Not connected!';
-            $Form['actions'][1]['popup']['items'][1]['caption'] = 'The \'FritzBox IO\' instance is not connected or missing.';
-            $Form['actions'][1]['popup']['items'][1]['width'] = '200px';
+            if ($Splitter == 0) {
+                $Form['actions'][1]['popup']['items'][1]['caption'] = 'The \'FritzBox IO\' instance is not connected or missing.';
+                $Form['actions'][1]['popup']['items'][1]['width'] = '200px';
+            } else {
+                $Form['actions'][1]['popup']['items'][1]['caption'] = "The 'FritzBox IO' instance is not active.\r\nPlease check its configuration (e.g. username and password).";
+                $Form['actions'][1]['popup']['items'][1]['width'] = '450px';
+                $Form['actions'][1]['popup']['items'][] = [
+                    'type'     => 'OpenObjectButton',
+                    'caption'  => 'Open FritzBox IO',
+                    'objectID' => $Splitter
+                ];
+            }
 
             return json_encode($Form);
         }

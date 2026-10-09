@@ -133,7 +133,7 @@ class FritzBoxDynDns extends FritzBoxModulBase
             case 'ddns_together':
                 break;
             default:
-                trigger_error($this->Translate('Invalid value for $Mode'), E_USER_NOTICE);
+                $this->ReportError($this->Translate('Invalid value for $Mode'));
                 return false;
 
         }

@@ -68,7 +68,7 @@ class FritzBoxMyFritz extends FritzBoxModulBase
     public function EnableService(string $Ident, bool $Value)
     {
         if (@$this->GetIDForIdent($Ident) == false) {
-            trigger_error('Invalid ident.', E_USER_NOTICE);
+            $this->ReportError($this->Translate('Invalid Ident.'));
             return false;
         }
 
@@ -204,8 +204,8 @@ class FritzBoxMyFritz extends FritzBoxModulBase
         if ($NewIdent !== '') {
 
             if (!in_array((string) $SaveResult['NewIPv4Addresses'], $MyIPs)) {
-                trigger_error($this->Translate('Only rules that target the Symcon host can be changed.'), E_USER_NOTICE);
-                return;
+                $this->ReportError($this->Translate('Only rules that target the Symcon host can be changed.'));
+                return false;
             }
             if (!$this->DeleteServiceByIndex($SaveIndex)) {
                 return false;

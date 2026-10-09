@@ -4,6 +4,8 @@
             "FritzBox Configurator": "FritzBox Konfigurator",
             "Not connected!": "Nicht verbunden!",
             "The 'FritzBox IO' instance is not connected or missing.": "Die 'FritzBox IO' Instanz ist nicht verbunden oder fehlt.",
+            "The 'FritzBox IO' instance is not active.\r\nPlease check its configuration (e.g. username and password).": "Die 'FritzBox IO' Instanz ist nicht aktiv.\r\nBitte deren Konfiguration prüfen (z.B. Benutzername und Passwort).",
+            "Open FritzBox IO": "FritzBox IO öffnen",
             "Call monitor not available!": "Anrufmonitor nicht verfügbar!",
             "The call monitor is not activated on the FritzBox, or is blocked by something.\r\nDial #96*5* from a phone to activate the feature.": "Der Anrufmonitor ist auf der FritzBox nicht aktiviert, oder durch irgendetwas blockiert.\r\nVon einem Telefon die #96*5* wählen um die Funktion zu aktivieren.",
             "FritzBox Telephony": "FritzBox Telefonie",

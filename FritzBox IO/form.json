@@ -141,6 +141,16 @@
         {
             "code": 204,
             "icon": "error",
+            "caption": "Service not Found"
+        },
+        {
+            "code": 205,
+            "icon": "error",
+            "caption": "Password missing"
+        },
+        {
+            "code": 206,
+            "icon": "error",
             "caption": "URL not valid"
         }
     ]

@@ -87,6 +87,16 @@ class FritzBoxDiscovery extends IPSModule
                     unset($DevicesAddress[$InstanceIDConfigurator]);
                 }
 
+                // Die IO fordert einen Client Socket als Parent (nur für den Anrufmonitor).
+                // Er wird geschlossen angelegt und erst geöffnet, wenn ein Anrufmonitor angelegt wird.
+                $CallMonitorSocket = [
+                    'moduleID'      => \FritzBox\GUID::ClientSocket,
+                    'configuration' => [
+                        'Host' => trim($Host, '[]'),
+                        'Port' => 1012,
+                        'Open' => false
+                    ]
+                ];
                 $AddDevice['create']['https://' . $Host] = [
                     [
                         'moduleID'      => \FritzBox\GUID::Configurator,
@@ -98,7 +108,8 @@ class FritzBoxDiscovery extends IPSModule
                             'Host'     => 'https://' .
                             $Host
                         ]
-                    ]
+                    ],
+                    $CallMonitorSocket
                 ];
                 $AddDevice['create']['http://' . $Host] = [
                     [
@@ -111,8 +122,8 @@ class FritzBoxDiscovery extends IPSModule
                             'Host'     => 'http://' .
                             $Host
                         ]
-                    ]
-
+                    ],
+                    $CallMonitorSocket
                 ];
             }
             $DeviceValues[] = $AddDevice;
@@ -135,142 +146,185 @@ class FritzBoxDiscovery extends IPSModule
         return json_encode($Form);
     }
 
+    /**
+     * Sucht per SSDP auf allen lokalen Adressen gleichzeitig nach FritzBoxen.
+     *
+     * Erst werden alle Sockets geöffnet und die M-SEARCH gesendet, danach wird
+     * auf allen Sockets gemeinsam bis zum Timeout auf Antworten gewartet.
+     * So hängt die Laufzeit nicht von der Anzahl der lokalen Adressen ab
+     * (Skript-Limit von 30 Sekunden unter Symcon 9.1).
+     */
     protected function Discover(): array
     {
         $Interfaces = $this->getIPAdresses();
-        $DevicesData = [];
-        $Index = 0;
-        foreach ($Interfaces['ipv6'] as $IP => $Interface) {
-            $socket = socket_create(AF_INET6, SOCK_DGRAM, SOL_UDP);
-            if ($socket) {
-                socket_set_option($socket, SOL_SOCKET, SO_RCVTIMEO, ['sec' => 2, 'usec' => 100000]);
-                socket_set_option($socket, SOL_SOCKET, SO_REUSEADDR, 1);
-                socket_set_option($socket, IPPROTO_IPV6, IPV6_MULTICAST_HOPS, 4);
-                socket_set_option($socket, IPPROTO_IPV6, IPV6_MULTICAST_IF, $Interface);
-                socket_set_option($socket, SOL_SOCKET, SO_BROADCAST, 1);
-                if (@socket_bind($socket, $IP, 1901) == false) {
-                    continue;
+        $Sockets = [];
+        $SocketFamily = [];
+        foreach (['ipv6', 'ipv4'] as $Family) {
+            foreach ($Interfaces[$Family] as $IP => $Interface) {
+                $Socket = $this->SendSearch($Family, (string) $IP, $Interface);
+                if ($Socket !== false) {
+                    $Sockets[] = $Socket;
+                    $SocketFamily[] = $Family;
                 }
-                $discoveryTimeout = time() + self::WS_DISCOVERY_TIMEOUT;
-                $message = [
-                    'M-SEARCH * HTTP/1.1',
-                    'ST: urn:dslforum-org:device:InternetGatewayDevice:1',
-                    'MAN: "ssdp:discover"',
-                    'MX: 5',
-                    'HOST: ' . self::WS_DISCOVERY_MULTICAST_ADDRESSV6 . ':1900',
-                    'Content-Length: 0'
-                ];
-                $SendData = implode("\r\n", $message) . "\r\n\r\n";
-                $this->SendDebug('Start Discovery(' . $Interface . ')', $IP, 0);
-                $this->SendDebug('Search', $SendData, 0);
-                if (@socket_sendto($socket, $SendData, strlen($SendData), 0, self::WS_DISCOVERY_MULTICAST_ADDRESSV6, self::WS_DISCOVERY_MULTICAST_PORT) === false) {
-                    $this->SendDebug('Error on send discovery message', $IP, 0);
-                    @socket_close($socket);
-                    continue;
-                }
-                $response = '';
-                $IPAddress = '';
-                $Port = 0;
-                do {
-                    if (0 == @socket_recvfrom($socket, $response, 2048, 0, $IPAddress, $Port)) {
-                        continue;
-                    }
-                    $this->SendDebug('Receive (' . $IPAddress . ')', $response, 0);
-                    $Data = $this->parseHeader($response);
-                    if (!array_key_exists('SERVER', $Data)) {
-                        continue;
-                    }
-                    if (!array_key_exists('USN', $Data)) {
-                        continue;
-                    }
-                    if (strpos($Data['SERVER'], 'AVM') === false) {
-                        continue;
-                    }
-                    if (!in_array(parse_url($Data['LOCATION'], PHP_URL_PATH), ['/igddesc.xml', '/igd2desc.xml', '/tr64desc.xml'])) {
-                        continue;
-                    }
-                    $USN = explode(':', $Data['USN'])[1];
-                    $IPAddress = parse_url($Data['LOCATION'], PHP_URL_HOST);
-                    $this->AddDiscoveryEntry($DevicesData, $USN, $Data['SERVER'], $IPAddress, 20 + $Index);
-                    $Host = gethostbyaddr(substr($IPAddress, 1, -1));
-                    if ($Host != substr($IPAddress, 1, -1)) {
-                        $this->AddDiscoveryEntry($DevicesData, $USN, $Data['SERVER'], $Host, $Index);
-                    }
-                    $this->SendDebug('Receive (' . explode(':', $Data['USN'])[1] . ')', ['SERVER' => $Data['SERVER'], 'HOST' => $Host], 0);
-                    $Index++;
-                } while (time() < $discoveryTimeout);
-                socket_close($socket);
-            } else {
-                $this->SendDebug('Error on create Socket ipv6', $IP, 0);
             }
         }
-        $Index = 0;
-        foreach ($Interfaces['ipv4'] as $IP => $Interface) {
-            $socket = socket_create(AF_INET, SOCK_DGRAM, SOL_UDP);
-            if ($socket) {
-                socket_set_option($socket, SOL_SOCKET, SO_RCVTIMEO, ['sec' => 2, 'usec' => 100000]);
-                socket_set_option($socket, SOL_SOCKET, SO_REUSEADDR, 1);
-                socket_set_option($socket, IPPROTO_IP, IP_MULTICAST_TTL, 4);
-                socket_set_option($socket, IPPROTO_IP, IP_MULTICAST_IF, $Interface);
-                socket_set_option($socket, SOL_SOCKET, SO_BROADCAST, 1);
-                if (@socket_bind($socket, $IP, 1901) == false) {
-                    continue;
-                }
-                $discoveryTimeout = time() + self::WS_DISCOVERY_TIMEOUT;
-                $message = [
-                    'M-SEARCH * HTTP/1.1',
-                    'ST: urn:dslforum-org:device:InternetGatewayDevice:1',
-                    'MAN: "ssdp:discover"',
-                    'MX: 5',
-                    'HOST: ' . self::WS_DISCOVERY_MULTICAST_ADDRESS . ':1900',
-                    'Content-Length: 0'
-                ];
-                $SendData = implode("\r\n", $message) . "\r\n\r\n";
-                $this->SendDebug('Start Discovery(' . $Interface . ')', $IP, 0);
-                $this->SendDebug('Search', $SendData, 0);
-                if (@socket_sendto($socket, $SendData, strlen($SendData), 0, self::WS_DISCOVERY_MULTICAST_ADDRESS, self::WS_DISCOVERY_MULTICAST_PORT) === false) {
-                    $this->SendDebug('Error on send discovery message', $IP, 0);
-                    @socket_close($socket);
-                    continue;
-                }
-                $response = '';
-                $IPAddress = '';
-                $Port = 0;
-                do {
-                    if (0 == @socket_recvfrom($socket, $response, 2048, 0, $IPAddress, $Port)) {
-                        continue;
-                    }
-                    $this->SendDebug('Receive (' . $IPAddress . ')', $response, 0);
-                    $Data = $this->parseHeader($response);
-                    if (!array_key_exists('SERVER', $Data)) {
-                        continue;
-                    }
-                    if (!array_key_exists('USN', $Data)) {
-                        continue;
-                    }
-                    if (strpos($Data['SERVER'], 'AVM') === false) {
-                        continue;
-                    }
-                    if (!in_array(parse_url($Data['LOCATION'], PHP_URL_PATH), ['/igddesc.xml', '/igd2desc.xml', '/tr64desc.xml'])) {
-                        continue;
-                    }
-                    $USN = explode(':', $Data['USN'])[1];
-                    $IPAddress = parse_url($Data['LOCATION'], PHP_URL_HOST);
-                    $this->AddDiscoveryEntry($DevicesData, $USN, $Data['SERVER'], $IPAddress, 60 + $Index);
-                    $Host = gethostbyaddr($IPAddress);
-                    if ($Host != $IPAddress) {
-                        $this->AddDiscoveryEntry($DevicesData, $USN, $Data['SERVER'], $Host, 40 + $Index);
-                    }
-                    $this->SendDebug('Receive (' . explode(':', $Data['USN'])[1] . ')', ['SERVER' => $Data['SERVER'], 'HOST' => $Host], 0);
-                    $Index++;
-                } while (time() < $discoveryTimeout);
-                socket_close($socket);
-            } else {
-                $this->SendDebug('Error on create Socket ipv4', $IP, 0);
+        $Responses = $this->ReceiveResponses($Sockets, $SocketFamily);
+        foreach ($Sockets as $Socket) {
+            socket_close($Socket);
+        }
+
+        $DevicesData = [];
+        $HostNames = [];
+        $Index = ['ipv6' => 0, 'ipv4' => 0];
+        foreach ($Responses as $Response) {
+            $Family = $Response['Family'];
+            $Data = $Response['Data'];
+            $USN = explode(':', $Data['USN'])[1];
+            $IPAddress = parse_url($Data['LOCATION'], PHP_URL_HOST);
+            $PlainIP = ($Family == 'ipv6') ? substr($IPAddress, 1, -1) : $IPAddress;
+            // Link-local (fe80::/10) ist ohne Zonen-ID als Host nicht nutzbar.
+            if (($Family == 'ipv6') && $this->IsLinkLocalIPv6($PlainIP)) {
+                $this->SendDebug('Skip link-local', $PlainIP, 0);
+                continue;
             }
+            // Rückwärtsauflösung nur einmal je Adresse, sie kann bei fehlendem DNS-Eintrag lange dauern.
+            if (!array_key_exists($PlainIP, $HostNames)) {
+                $HostNames[$PlainIP] = gethostbyaddr($PlainIP);
+            }
+            $Host = $HostNames[$PlainIP];
+            $i = $Index[$Family]++;
+            if ($Family == 'ipv6') {
+                $this->AddDiscoveryEntry($DevicesData, $USN, $Data['SERVER'], $IPAddress, 20 + $i);
+                if ($Host != $PlainIP) {
+                    $this->AddDiscoveryEntry($DevicesData, $USN, $Data['SERVER'], $Host, $i);
+                }
+            } else {
+                $this->AddDiscoveryEntry($DevicesData, $USN, $Data['SERVER'], $IPAddress, 60 + $i);
+                if ($Host != $PlainIP) {
+                    $this->AddDiscoveryEntry($DevicesData, $USN, $Data['SERVER'], $Host, 40 + $i);
+                }
+            }
+            $this->SendDebug('Receive (' . $USN . ')', ['SERVER' => $Data['SERVER'], 'HOST' => $Host], 0);
         }
         $this->SendDebug('DevicesData', $DevicesData, 0);
         return $DevicesData;
+    }
+
+    /**
+     * Öffnet einen Socket auf der lokalen Adresse und sendet die M-SEARCH.
+     *
+     * @param string $Family    'ipv6' oder 'ipv4'
+     * @param string $IP        Lokale Adresse (IPv6 in eckigen Klammern)
+     * @param mixed  $Interface Index der Netzwerkschnittstelle
+     *
+     * @return \Socket|false Der Socket, oder false bei einem Fehler
+     */
+    private function SendSearch(string $Family, string $IP, mixed $Interface): \Socket|false
+    {
+        $IsV6 = ($Family == 'ipv6');
+        $Socket = socket_create($IsV6 ? AF_INET6 : AF_INET, SOCK_DGRAM, SOL_UDP);
+        if (!$Socket) {
+            $this->SendDebug('Error on create Socket ' . $Family, $IP, 0);
+            return false;
+        }
+        socket_set_option($Socket, SOL_SOCKET, SO_REUSEADDR, 1);
+        if ($IsV6) {
+            socket_set_option($Socket, IPPROTO_IPV6, IPV6_MULTICAST_HOPS, 4);
+            socket_set_option($Socket, IPPROTO_IPV6, IPV6_MULTICAST_IF, $Interface);
+        } else {
+            socket_set_option($Socket, IPPROTO_IP, IP_MULTICAST_TTL, 4);
+            socket_set_option($Socket, IPPROTO_IP, IP_MULTICAST_IF, $Interface);
+        }
+        socket_set_option($Socket, SOL_SOCKET, SO_BROADCAST, 1);
+        if (@socket_bind($Socket, $IP, 1901) == false) {
+            socket_close($Socket);
+            return false;
+        }
+        $MulticastAddress = $IsV6 ? self::WS_DISCOVERY_MULTICAST_ADDRESSV6 : self::WS_DISCOVERY_MULTICAST_ADDRESS;
+        $Message = [
+            'M-SEARCH * HTTP/1.1',
+            'ST: urn:dslforum-org:device:InternetGatewayDevice:1',
+            'MAN: "ssdp:discover"',
+            'MX: 5',
+            'HOST: ' . $MulticastAddress . ':1900',
+            'Content-Length: 0'
+        ];
+        $SendData = implode("\r\n", $Message) . "\r\n\r\n";
+        $this->SendDebug('Start Discovery(' . $Interface . ')', $IP, 0);
+        $this->SendDebug('Search', $SendData, 0);
+        if (@socket_sendto($Socket, $SendData, strlen($SendData), 0, $MulticastAddress, self::WS_DISCOVERY_MULTICAST_PORT) === false) {
+            $this->SendDebug('Error on send discovery message', $IP, 0);
+            socket_close($Socket);
+            return false;
+        }
+        socket_set_nonblock($Socket);
+        return $Socket;
+    }
+
+    /**
+     * Wartet auf allen Sockets gemeinsam bis zum Timeout auf Antworten von FritzBoxen.
+     *
+     * @param array $Sockets      Die Sockets aus SendSearch
+     * @param array $SocketFamily 'ipv6' oder 'ipv4' je Socket (gleicher Index)
+     *
+     * @return array Liste mit ['Family' => ..., 'Data' => Header der Antwort]
+     */
+    private function ReceiveResponses(array $Sockets, array $SocketFamily): array
+    {
+        $Responses = [];
+        $DiscoveryTimeout = microtime(true) + self::WS_DISCOVERY_TIMEOUT;
+        while (count($Sockets) > 0) {
+            $Remaining = $DiscoveryTimeout - microtime(true);
+            if ($Remaining <= 0) {
+                break;
+            }
+            $Read = $Sockets;
+            $Write = null;
+            $Except = null;
+            $Seconds = (int) $Remaining;
+            if (@socket_select($Read, $Write, $Except, $Seconds, (int) (($Remaining - $Seconds) * 1000000)) < 1) {
+                continue;
+            }
+            foreach ($Read as $Socket) {
+                $Key = array_search($Socket, $Sockets, true);
+                $Response = '';
+                $IPAddress = '';
+                $Port = 0;
+                while (@socket_recvfrom($Socket, $Response, 2048, 0, $IPAddress, $Port) > 0) {
+                    $this->SendDebug('Receive (' . $IPAddress . ')', $Response, 0);
+                    $Data = $this->parseHeader($Response);
+                    if (!array_key_exists('SERVER', $Data)) {
+                        continue;
+                    }
+                    if (!array_key_exists('USN', $Data)) {
+                        continue;
+                    }
+                    if (!array_key_exists('LOCATION', $Data)) {
+                        continue;
+                    }
+                    if (strpos($Data['SERVER'], 'AVM') === false) {
+                        continue;
+                    }
+                    if (!in_array(parse_url($Data['LOCATION'], PHP_URL_PATH), ['/igddesc.xml', '/igd2desc.xml', '/tr64desc.xml'])) {
+                        continue;
+                    }
+                    $Responses[] = ['Family' => $SocketFamily[$Key], 'Data' => $Data];
+                }
+            }
+        }
+        return $Responses;
+    }
+
+    /**
+     * Prüft, ob eine IPv6-Adresse (ohne eckige Klammern) im Bereich fe80::/10 liegt.
+     */
+    private function IsLinkLocalIPv6(string $IP): bool
+    {
+        $Binary = @inet_pton($IP);
+        if (($Binary === false) || (strlen($Binary) != 16)) {
+            return false;
+        }
+        return (ord($Binary[0]) == 0xFE) && ((ord($Binary[1]) & 0xC0) == 0x80);
     }
 
     private function parseHeader(string $Data): array

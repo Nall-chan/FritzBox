@@ -77,22 +77,22 @@ class FritzBoxCallmonitor extends FritzBoxModulBase
         if (IPS_GetKernelRunlevel() != KR_READY) {
             return;
         }
-        $AreaCodes = @$this->GetAreaCodes();
-        if (array_key_exists('OKZ', $AreaCodes)) {
-            $HasChanges = false;
-            $AreaCode = $AreaCodes['OKZPrefix'] . $AreaCodes['OKZ'];
-            $CountryCode = '+' . $AreaCodes['LKZ'];
-            if ($AreaCode != $this->ReadPropertyString('AreaCode')) {
-                IPS_SetProperty($this->InstanceID, 'AreaCode', $AreaCode);
-                $HasChanges = true;
-            }
-            if ($CountryCode != $this->ReadPropertyString('CountryCode')) {
-                IPS_SetProperty($this->InstanceID, 'CountryCode', $CountryCode);
-                $HasChanges = true;
-            }
-            if ($HasChanges) {
-                IPS_ApplyChanges($this->InstanceID);
-                return;
+        // Vorwahlen nur einmalig aus der FritzBox übernehmen, solange sie leer sind (z.B. neue Instanz).
+        // Spätere Änderungen erfolgen nur durch den Nutzer über das Konfigurationsformular.
+        if (($this->ReadPropertyString('AreaCode') == '') || ($this->ReadPropertyString('CountryCode') == '')) {
+            $Codes = $this->ReadAreaCodes();
+            if ($Codes !== false) {
+                $HasChanges = false;
+                foreach ($Codes as $Property => $Value) {
+                    if ($this->ReadPropertyString($Property) == '') {
+                        IPS_SetProperty($this->InstanceID, $Property, $Value);
+                        $HasChanges = true;
+                    }
+                }
+                if ($HasChanges) {
+                    IPS_ApplyChanges($this->InstanceID);
+                    return;
+                }
             }
         }
         foreach ($this->GetReferenceList() as $Reference) {
@@ -122,6 +122,20 @@ class FritzBoxCallmonitor extends FritzBoxModulBase
         switch ($Ident) {
             case 'RefreshCallList':
                 return $this->RebuildTable();
+            case 'ReadAreaCodes':
+                $Codes = $this->ReadAreaCodes();
+                if ($Codes === false) {
+                    $this->ReportError($this->Translate('The dialing codes could not be read from the FRITZ!Box.'));
+                    return false;
+                }
+                foreach ($Codes as $Property => $Value) {
+                    $this->UpdateFormField($Property, 'value', $Value);
+                }
+                return true;
+            case 'EditAreaCodes':
+                $this->UpdateFormField('CountryCode', 'enabled', true);
+                $this->UpdateFormField('AreaCode', 'enabled', true);
+                return true;
             case 'SendNotification':
                 return $this->SendNotification(unserialize($Value));
             case 'RunActions':
@@ -182,8 +196,9 @@ class FritzBoxCallmonitor extends FritzBoxModulBase
         if ($this->GetStatus() == IS_CREATING) {
             return json_encode($Form);
         }
-        if ($this->ReadPropertyString('AreaCode') == '') {
+        if (($this->ReadPropertyString('AreaCode') == '') || ($this->ReadPropertyString('CountryCode') == '')) {
             $Form['elements'][0]['items'][0]['items'][0]['enabled'] = true;
+            $Form['elements'][0]['items'][0]['items'][1]['enabled'] = true;
             $Form['actions'][2]['visible'] = true;
             $Form['actions'][2]['popup']['items'][0]['caption'] = 'Areacode not found!';
             $Form['actions'][2]['popup']['items'][1]['caption'] = "The area code could not be determined automatically.\r\nPlease specify manually.";
@@ -303,6 +318,23 @@ class FritzBoxCallmonitor extends FritzBoxModulBase
             IPS_RunScriptText('IPS_RequestAction(' . $this->InstanceID . ',\'RunActions\',\'' . serialize($NotifyData) . '\');');
         }
         return true;
+    }
+
+    /**
+     * Liest Länder- und Ortsvorwahl aus der FritzBox.
+     *
+     * @return array|false ['CountryCode' => '+49', 'AreaCode' => '030'] oder false, wenn die FritzBox keine Vorwahlen liefert.
+     */
+    private function ReadAreaCodes(): array|false
+    {
+        $AreaCodes = @$this->GetAreaCodes();
+        if (!array_key_exists('OKZ', $AreaCodes)) {
+            return false;
+        }
+        return [
+            'CountryCode' => '+' . $AreaCodes['LKZ'],
+            'AreaCode'    => $AreaCodes['OKZPrefix'] . $AreaCodes['OKZ']
+        ];
     }
 
     private function SendNotification(array $NotifyData)

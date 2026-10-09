@@ -1,7 +1,7 @@
 [![SDK](https://img.shields.io/badge/Symcon-PHPModul-red.svg)](https://www.symcon.de/service/dokumentation/entwicklerbereich/sdk-tools/sdk-php/)
 [![Module Version](https://img.shields.io/badge/dynamic/json?url=https%3A%2F%2Fraw.githubusercontent.com%2FNall-chan%2FFritzBox%2Frefs%2Fheads%2Fmaster%2Flibrary.json&query=%24.version&label=Modul%20Version&color=blue)](https://community.symcon.de/t/modul-fritzbox-ersatz-fuer-fritzbox-project/125451)
 [![Symcon Version](https://img.shields.io/badge/dynamic/json?url=https%3A%2F%2Fraw.githubusercontent.com%2FNall-chan%2FFritzBox%2Frefs%2Fheads%2Fmaster%2Flibrary.json&query=%24.compatibility.version&suffix=%3E&label=Symcon%20Version&color=green)](https://www.symcon.de/de/service/dokumentation/installation/migrationen/v70-v71-q1-2024/)  
-[![License](https://img.shields.io/badge/License-CC%20BY--NC--SA%204.0-green.svg)](https://creativecommons.org/licenses/by-nc-sa/4.0/)
+[![License](https://img.shields.io/badge/License-Custom--NC--SA-green.svg)](#lizenz)
 [![Check Style](https://github.com/Nall-chan/FritzBox/workflows/Check%20Style/badge.svg)](https://github.com/Nall-chan/FritzBox/actions)
 [![Run Tests](https://github.com/Nall-chan/FritzBox/workflows/Run%20Tests/badge.svg)](https://github.com/Nall-chan/FritzBox/actions)  
 [![PayPal.Me](https://img.shields.io/badge/PayPal-Me-lightblue.svg)](#spenden)
@@ -61,6 +61,8 @@ Es wird dringend empfohlen einen eigenen Benutzer mit Passwort in der FritzBox a
 Unter Heimnetz / Netzwerk / Netzwerkeinstellungen / weitere Einstellungen bitte folgende Einstellungen setzen (Neustart der Box nicht vergessen):  
 
 ![Heimnetz](imgs/heimnetz.png)
+
+Soll Symcon die Internetverbindung trennen bzw. neu verbinden können ([WAN IP Connection](FritzBox%20WAN%20IP%20Connection/README.md)), muss ab FRITZ!OS 8.25 für das Symcon-Gerät in der FritzBox die Einstellung **Selbstständige Portfreigaben** erlaubt sein.  
 
 ----------
 
@@ -170,6 +172,28 @@ Für das Discovery werden Pakete über die Multicast-Adresse `239.255.255.250` a
 ----------
 
 ## Changelog
+
+Version 0.88:  
+
+- Kam nach dem Anmelden der Ereignisse (Subscribe) kein Ereignis von der FritzBox an, wurde die Anmeldung nicht wieder abgemeldet. Beim nächsten Verbindungsaufbau antwortete die FritzBox dann mit `412 Precondition Failed`.  
+- Die FritzBox Discovery Instanz meldete `Undefined array key "family"`, wenn das System Netzwerkschnittstellen ohne Adresse hat (z.B. WireGuard- oder VPN-Schnittstellen unter Linux).  
+- Der FritzBox Konfigurator zeigt jetzt auch das vierte WLAN (`WLANConfiguration:4`) an, z.B. bei der FRITZ!Box 5690 Pro.  
+- Konnte eine Datei (z.B. die Host-Liste) wegen eines Timeouts nicht von der FritzBox geladen werden, wurde eine Warnung im Log ausgegeben. Der Fehler steht jetzt nur noch im Debug der FritzBox IO Instanz.  
+- UPnP-Fehlermeldungen der FritzBox enthalten jetzt auch den Fehlercode.  
+- FritzBox Discovery: Das Erstellen meldete „Die Erstellungs-Kette für FritzBox IO ist unvollständig“. Die Discovery legt jetzt zusätzlich den Client Socket für den Anrufmonitor an (geschlossen). Er wird automatisch geöffnet, sobald ein Anrufmonitor angelegt wird.  
+- FritzBox Discovery: Die Suche lief nacheinander über alle Adressen des Systems und konnte bei vielen Adressen (z.B. IPv6) das Zeitlimit von 30 Sekunden überschreiten. Jetzt wird auf allen Adressen gleichzeitig gesucht.  
+- FritzBox Discovery: Link-local IPv6-Adressen (`fe80::`) werden beim Erstellen nicht mehr angeboten, da sie ohne Zonen-ID nicht nutzbar sind.  
+- FritzBox IO: Ohne Passwort meldete die Instanz „Verbindung hergestellt“, obwohl keine Verbindung aufgebaut wurde. Jetzt wird der Status „Passwort fehlt“ angezeigt.  
+- FritzBox IO: Statusmeldungen korrigiert. Eine ungültige URL wurde als „Gerät nicht erreichbar“ und ein nicht gefundener Dienst als „URL ist ungültig“ angezeigt. Eine ungültige URL hat jetzt den eigenen Status 206.  
+- Dokumentation FritzBox IO und Discovery: Hinweis auf den Client Socket für den Anrufmonitor und die Meldung „Eine übergeordnete Instanz ist inaktiv“, solange kein Anrufmonitor existiert.  
+- FritzBox Konfigurator: Ist die FritzBox IO nicht aktiv, weist der Konfigurator auf deren Konfiguration hin und bietet einen Button zum Öffnen der IO an.  
+- FritzBox Telefonie: Die Anrufliste wird nur noch dann ausschließlich über den Anrufmonitor aktualisiert, wenn dessen Client Socket aktiv ist. Bisher reichte ein vorhandener Client Socket.  
+- FritzBox Anrufmonitor: Länder- und Ortsvorwahl werden nur noch einmalig beim Anlegen der Instanz aus der FritzBox übernommen und danach nicht mehr bei jedem Übernehmen überschrieben. Neuer Button `Vorwahlen ändern` zum erneuten Auslesen oder manuellen Bearbeiten. Fehlte die Ortsvorwahl, wurde bisher nur das Feld der Ländervorwahl freigegeben.  
+- Der Debug der Instanzen enthält keine Zugangsdaten und Schlüssel mehr im Klartext. Der `Authorization`-Header sowie Passwörter, WLAN-Passphrase, PSK, WEP-Schlüssel, PINs und die Session-ID (`sid`) in URLs der FritzBox werden als `***` ausgegeben.  
+- Hinweise wie „Nur Regeln welche den Symcon Host als Ziel haben können verändert werden.“ (MyFritz, WAN Port-Weiterleitung) werden beim Schalten jetzt direkt in der Visualisierung angezeigt. Fehler beim Anmelden der Ereignisse werden übersetzt und als Notice statt als Warning gemeldet.  
+- Fehler beim Schalten von Statusvariablen werden jetzt direkt in der Visualisierung angezeigt. Bei Aufrufen aus Skripten werden sie als Notice ohne Stacktrace gemeldet (bisher Warning mit Stacktrace).  
+- Dokumentation FritzBox WAN IP Connection: Hinweis auf die ab FRITZ!OS 8.25 notwendige Einstellung „Selbstständige Portfreigaben“ zum Trennen der Internetverbindung, auch in dieser README unter „Vorbereitungen in der FritzBox“.  
+- Lizenz geändert: Statt CC BY-NC-SA 4.0 gilt jetzt die eigene Lizenz „Custom NC-SA“ (siehe [LICENSE](LICENSE)), wie bei der Kodi-Library. Nutzung und Weitergabe bleiben frei, Änderungen müssen unter derselben Lizenz weitergegeben werden, der Verkauf der Software ist nicht erlaubt. Dienstleistungen wie Installation und Einrichtung sind ausdrücklich erlaubt.  
 
 Version 0.87:  
 
@@ -362,4 +386,8 @@ Version 0.50:
 
 ## Lizenz  
 
-[CC BY-NC-SA 4.0](https://creativecommons.org/licenses/by-nc-sa/4.0/)  
+[Custom NC-SA](LICENSE)  
+
+Verwendete Fremdbibliothek:  
+[PHP QR Code](https://sourceforge.net/projects/phpqrcode/) (`libs/phpqrcode`, QR-Code der WLAN-Zugangsdaten im Modul FritzBox WLAN)  
+Copyright (C) 2010 Dominik Dzienia, [LGPL 3](https://www.gnu.org/licenses/lgpl-3.0.html)  

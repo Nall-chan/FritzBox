@@ -36,6 +36,12 @@ class FritzBoxModulBase extends IPSModule
     protected static $SecondEventGUID = '';
     protected static $DefaultIndex = -1;
 
+    /**
+     * true, solange der aktuelle Aufruf über RequestAction läuft.
+     * Bewusst kein Buffer: Symcon erzeugt je Aufruf ein neues Objekt.
+     */
+    private bool $IsRequestAction = false;
+
     public function Create()
     {
         //Never delete this line!
@@ -93,6 +99,7 @@ class FritzBoxModulBase extends IPSModule
 
     public function RequestAction($Ident, $Value)
     {
+        $this->IsRequestAction = true;
         if ($this->IORequestAction($Ident, $Value)) {
             return true;
         }
@@ -135,7 +142,7 @@ class FritzBoxModulBase extends IPSModule
                 return false;
             }
             $this->isSubscribed = true;
-            $this->SendDebug('Event', $data['EventData'], 0);
+            $this->SendDebug('Event', \FritzBox\DebugMask::Values($data['EventData']), 0);
             $this->DecodeEvent($data['EventData']);
             return true;
         }
@@ -179,6 +186,8 @@ class FritzBoxModulBase extends IPSModule
             case IS_EBASE + 2:
             case IS_EBASE + 3:
             case IS_EBASE + 4:
+            case IS_EBASE + 5:
+            case IS_EBASE + 6:
                 $this->SID = '';
                 $this->isSubscribed = false;
                 if (count(static::$EventSubURLArray) > 0) {
@@ -226,7 +235,7 @@ class FritzBoxModulBase extends IPSModule
         if ($Ret === false) {
             $this->SID = '';
             $this->SendDebug('Error on subscribe (parse)', static::$EventSubURLArray[$Index], 0);
-            trigger_error('Error on subscribe (parse)' . "\r\n" . static::$EventSubURLArray[$Index], E_USER_WARNING);
+            trigger_error($this->Translate('Error on subscribe (parse)') . "\r\n" . static::$EventSubURLArray[$Index], E_USER_NOTICE);
             $this->SetTimerInterval('RenewSubscription', 60000);
             return false;
         }
@@ -234,7 +243,7 @@ class FritzBoxModulBase extends IPSModule
         if ($Result === false) {
             $this->SID = '';
             $this->SendDebug('Error on subscribe (Result)', static::$EventSubURLArray[$Index], 0);
-            trigger_error('Error on subscribe (Result)' . "\r\n" . static::$EventSubURLArray[$Index], E_USER_WARNING);
+            trigger_error($this->Translate('Error on subscribe (Result)') . "\r\n" . static::$EventSubURLArray[$Index], E_USER_NOTICE);
             $this->SetTimerInterval('RenewSubscription', 60000);
             return false;
         }
@@ -305,7 +314,7 @@ class FritzBoxModulBase extends IPSModule
             return false;
         }
         $this->SendDebug('Function', 'Load', 0);
-        $this->SendDebug('Uri', $Uri, 0);
+        $this->SendDebug('Uri', \FritzBox\DebugMask::Url($Uri), 0);
         $this->SendDebug('Filename', $Filename, 0);
         $Ret = $this->SendDataToParent(json_encode(
             [
@@ -367,7 +376,7 @@ class FritzBoxModulBase extends IPSModule
             return false;
         }
         $this->SendDebug('Function', $Function, 0);
-        $this->SendDebug('Params', $Parameter, 0);
+        $this->SendDebug('Params', \FritzBox\DebugMask::Values($Parameter), 0);
         $Ret = $this->SendDataToParent(json_encode(
             [
                 'DataID'    => \FritzBox\GUID::SendToFritzBoxIO,
@@ -397,15 +406,31 @@ class FritzBoxModulBase extends IPSModule
                 }
                 $Detail = $Result->faultstring . '(' . $Result->faultcode . ')';
                 $this->SendDebug($Detail, $Details, 0);
-                trigger_error($Detail . "\r\n" . $Details . (new Exception())->getTraceAsString(), E_USER_WARNING);
+                $this->ReportError($Detail . "\r\n" . $Details);
                 return false;
             }
             $this->SendDebug('SoapFault', $Result->getMessage(), 0);
-            trigger_error($Result->getMessage(), E_USER_WARNING);
+            $this->ReportError($Result->getMessage());
             return false;
         }
-        $this->SendDebug('Result', $Result, 0);
+        $this->SendDebug('Result', \FritzBox\DebugMask::Values($Result), 0);
         return $Result;
+    }
+
+    /**
+     * Meldet einen Fehler an den Aufrufer.
+     * Aufrufe über RequestAction (Bedienung aus der Visualisierung) erhalten die Meldung per echo,
+     * alle anderen Aufrufer (Skripte, Instanz-Funktionen) per trigger_error.
+     *
+     * @param string $Message Fehlermeldung
+     */
+    protected function ReportError(string $Message): void
+    {
+        if ($this->IsRequestAction) {
+            echo $Message;
+            return;
+        }
+        trigger_error($Message, E_USER_NOTICE);
     }
 
     protected function setIPSVariable(string $ident, string $name, $value, $type, string $profile = '', bool $action = false, int $pos = 0)

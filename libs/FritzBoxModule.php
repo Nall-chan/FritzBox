@@ -57,6 +57,105 @@ class Store
     ];
 }
 
+/**
+ * Maskiert Zugangsdaten und Schlüssel in Debug-Ausgaben.
+ * Leere Werte bleiben sichtbar, damit erkennbar ist, ob ein Wert gesetzt ist.
+ */
+class DebugMask
+{
+    public const Mask = '***';
+
+    /** Namen von UPnP-Argumenten mit sensiblen Werten (z.B. NewPassword, NewKeyPassphrase, NewPreSharedKey, NewWEPKey0). */
+    private const SensitiveName = '[\w-]*(?:Password|Passphrase|PreSharedKey|WEPKey\d*|PIN)';
+
+    /** Session-ID der FritzBox als URL-Parameter (auch HTML-kodiert als &amp;sid=). */
+    private const SessionId = '/([?&;]sid=)[^&\s<>"\']+/i';
+
+    /**
+     * Maskiert den Wert des Authorization-Headers (Basic und Digest).
+     *
+     * @param mixed $Headers HTTP-Header
+     *
+     * @return mixed
+     */
+    public static function Headers(mixed $Headers): mixed
+    {
+        if (!is_string($Headers)) {
+            return $Headers;
+        }
+        return preg_replace('/^(Authorization:[ \t]*[\w-]+)[ \t][^\r\n]*/mi', '$1 ' . self::Mask, $Headers);
+    }
+
+    /**
+     * Maskiert den Inhalt sensibler XML-Elemente (SOAP-Request, -Response, Events).
+     *
+     * @param mixed $Xml XML
+     *
+     * @return mixed
+     */
+    public static function Xml(mixed $Xml): mixed
+    {
+        if (!is_string($Xml)) {
+            return $Xml;
+        }
+        $Xml = preg_replace(
+            '/(<(?:[\w-]+:)?(' . self::SensitiveName . ')(?:\s[^>]*)?>)[^<]+(<\/(?:[\w-]+:)?\2>)/',
+            '$1' . self::Mask . '$3',
+            $Xml
+        );
+        return self::Url($Xml);
+    }
+
+    /**
+     * Maskiert die Session-ID (sid) in URLs.
+     *
+     * @param mixed $Url URL oder Text mit URLs
+     *
+     * @return mixed
+     */
+    public static function Url(mixed $Url): mixed
+    {
+        if (!is_string($Url)) {
+            return $Url;
+        }
+        return preg_replace(self::SessionId, '$1' . self::Mask, $Url);
+    }
+
+    /**
+     * Maskiert sensible Werte in Arrays und Objekten anhand des Schlüssels, rekursiv.
+     * Strings werden zusätzlich auf eine Session-ID in URLs geprüft.
+     *
+     * @param mixed $Data Daten
+     *
+     * @return mixed
+     */
+    public static function Values(mixed $Data): mixed
+    {
+        if (is_object($Data)) {
+            $Data = clone $Data;
+        }
+        if (is_string($Data)) {
+            return self::Url($Data);
+        }
+        if (!is_array($Data) && !($Data instanceof \stdClass)) {
+            return $Data;
+        }
+        foreach ($Data as $Key => $Value) {
+            if (is_string($Key) && preg_match('/^' . self::SensitiveName . '$/', $Key) && is_scalar($Value) && (string) $Value !== '') {
+                $Value = self::Mask;
+            } else {
+                $Value = self::Values($Value);
+            }
+            if (is_array($Data)) {
+                $Data[$Key] = $Value;
+            } else {
+                $Data->{$Key} = $Value;
+            }
+        }
+        return $Data;
+    }
+}
+
 class Services
 {
     public static $Data = [

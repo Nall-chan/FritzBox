@@ -179,7 +179,7 @@ class FritzBoxTelephony extends FritzBoxModulBase
                 $this->UpdateFormField('HTMLExpansionPanel', 'expanded', $Value);
                 $CallMonitorOpen = false;
                 if ($this->ParentID) {
-                    $CallMonitorOpen = (IPS_GetInstance($this->ParentID)['ConnectionID'] > 1);
+                    $CallMonitorOpen = $this->IsCallMonitorActive();
                 }
                 $this->UpdateFormField('RefreshIntervalCallLog', 'enabled', ($CallMonitorOpen ? false : $Value));
                 return;
@@ -231,7 +231,7 @@ class FritzBoxTelephony extends FritzBoxModulBase
             $Form['actions'][0]['enabled'] = false;
         } else {
             if ($this->ParentID) {
-                $CallMonitorOpen = (IPS_GetInstance($this->ParentID)['ConnectionID'] > 1);
+                $CallMonitorOpen = $this->IsCallMonitorActive();
                 if ($CallMonitorOpen) {
                     $Form['elements'][0]['items'][0]['items'][2]['enabled'] = false;
                     $Form['elements'][0]['items'][0]['items'][3] = [
@@ -574,18 +574,31 @@ class FritzBoxTelephony extends FritzBoxModulBase
         }*/
     }
 
+    /**
+     * Prüft, ob der Anrufmonitor (Client Socket der IO) aktiv ist.
+     * Dann wird die Anrufliste bei Gesprächsende automatisch neu geladen.
+     *
+     * @return bool
+     */
+    private function IsCallMonitorActive(): bool
+    {
+        if ($this->ParentID < 10000) {
+            return false;
+        }
+        $CallMonitorSocket = IPS_GetInstance($this->ParentID)['ConnectionID'];
+        if ($CallMonitorSocket < 10000) {
+            return false;
+        }
+        return IPS_GetInstance($CallMonitorSocket)['InstanceStatus'] == IS_ACTIVE;
+    }
+
     private function SetNewCallLogRefreshTimer()
     {
         $Interval = $this->ReadPropertyInteger('RefreshIntervalCallLog') * 60000;
-        if ($this->ParentID > 1) {
-            $Splitter = IPS_GetInstance($this->ParentID);
-            if ($Splitter['ConnectionID'] > 1) {
-                if (IPS_GetInstance($Splitter['ConnectionID'])['InstanceStatus'] == IS_ACTIVE) {
-                    $now = gmdate('U', time());
-                    $tomorrow = gmdate('U', strtotime('tomorrow'));
-                    $Interval = (($tomorrow - $now) + 10) * 1000;
-                }
-            }
+        if ($this->IsCallMonitorActive()) {
+            $now = gmdate('U', time());
+            $tomorrow = gmdate('U', strtotime('tomorrow'));
+            $Interval = (($tomorrow - $now) + 10) * 1000;
         }
         $this->SendDebug('NewCallLogRefreshTimer', $Interval, 0);
         $this->SetTimerInterval('RefreshCallLog', $Interval);

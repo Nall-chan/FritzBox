@@ -1,6 +1,8 @@
 {
     "translations": {
         "de": {
+            "Error on subscribe (parse)": "Fehler beim Anmelden der Ereignisse (Verarbeitung)",
+            "Error on subscribe (Result)": "Fehler beim Anmelden der Ereignisse (Ergebnis)",
             "Index of WiFi interface": "Index der WLAN-Schnittstelle",
             "<none>": "<keins>",
             "2 (5 Ghz or Guest)": "2 (5 Ghz oder Gast)",

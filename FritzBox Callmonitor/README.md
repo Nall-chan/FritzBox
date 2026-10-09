@@ -1,7 +1,7 @@
 [![SDK](https://img.shields.io/badge/Symcon-PHPModul-red.svg)](https://www.symcon.de/service/dokumentation/entwicklerbereich/sdk-tools/sdk-php/)
 [![Module Version](https://img.shields.io/badge/dynamic/json?url=https%3A%2F%2Fraw.githubusercontent.com%2FNall-chan%2FFritzBox%2Frefs%2Fheads%2Fmaster%2Flibrary.json&query=%24.version&label=Modul%20Version&color=blue)](https://community.symcon.de/t/modul-fritzbox-ersatz-fuer-fritzbox-project/125451)
 [![Symcon Version](https://img.shields.io/badge/dynamic/json?url=https%3A%2F%2Fraw.githubusercontent.com%2FNall-chan%2FFritzBox%2Frefs%2Fheads%2Fmaster%2Flibrary.json&query=%24.compatibility.version&suffix=%3E&label=Symcon%20Version&color=green)](https://www.symcon.de/de/service/dokumentation/installation/migrationen/v70-v71-q1-2024/)  
-[![License](https://img.shields.io/badge/License-CC%20BY--NC--SA%204.0-green.svg)](https://creativecommons.org/licenses/by-nc-sa/4.0/)
+[![License](https://img.shields.io/badge/License-Custom--NC--SA-green.svg)](#10-lizenz)
 [![Check Style](https://github.com/Nall-chan/FritzBox/workflows/Check%20Style/badge.svg)](https://github.com/Nall-chan/FritzBox/actions)
 [![Run Tests](https://github.com/Nall-chan/FritzBox/workflows/Run%20Tests/badge.svg)](https://github.com/Nall-chan/FritzBox/actions)  
 [![PayPal.Me](https://img.shields.io/badge/PayPal-Me-lightblue.svg)](#2-spenden)
@@ -90,6 +90,8 @@ Konfiguration der HTML Tabelle:
 | MaxNameSize             | integer        | Einkürzen von Namen der Gesprächspartner auf MaxNameSize Zeichen                         |
 | SearchMarker            | string         | Marker welche dem Namen vorangestellt wird, wenn der Name aus einer Rückwärtssuche kommt |
 | UnknownNumberName       | string         | Zeichenkette welche angezeigt wird, wenn kein Name bekannt ist                           |
+
+Länder- und Ortsvorwahl werden beim Anlegen der Instanz einmalig aus der FritzBox gelesen. Danach überschreibt die Instanz sie nicht mehr. Über den Button `Vorwahlen ändern` können sie erneut aus der FritzBox gelesen oder manuell bearbeitet werden. Die Änderung wird erst mit `Änderungen übernehmen` gespeichert.  
 | NotShowWarning          | boolean        | Warnmeldung abschalten, wenn das Rückwärtssuche Modul nicht installiert ist              |
 | CallsAsTable            | boolean        | Ausgabe der Gespräche als HTML-Tabelle in einer String-Variable                          |
 | CallsAsNotification     | boolean        | Änderungen von Anrufen/Gesprächen als Benachrichtigung an WebFront senden                |
@@ -144,4 +146,4 @@ Keine Aktionen verfügbar.
 ## 10. Lizenz
 
   IPS-Modul:  
-  [CC BY-NC-SA 4.0](https://creativecommons.org/licenses/by-nc-sa/4.0/)  
+  [Custom NC-SA](../LICENSE)  

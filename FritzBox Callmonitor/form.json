@@ -19,6 +19,31 @@
                             "caption": "Area code",
                             "width": "300px",
                             "enabled": false
+                        },
+                        {
+                            "name": "AreaCodesPopup",
+                            "type": "PopupButton",
+                            "caption": "Change dialing codes",
+                            "width": "300px",
+                            "popup": {
+                                "caption": "Change dialing codes",
+                                "items": [
+                                    {
+                                        "type": "Label",
+                                        "caption": "The dialing codes are read once from the FRITZ!Box when the instance is created.\r\nThey can be read again or edited manually. Changes are saved with 'Apply changes'."
+                                    }
+                                ],
+                                "buttons": [
+                                    {
+                                        "caption": "Read from FRITZ!Box",
+                                        "onClick": "IPS_RequestAction($id, 'ReadAreaCodes', true);"
+                                    },
+                                    {
+                                        "caption": "Edit manually",
+                                        "onClick": "IPS_RequestAction($id, 'EditAreaCodes', true);"
+                                    }
+                                ]
+                            }
                         }
                     ]
                 },
