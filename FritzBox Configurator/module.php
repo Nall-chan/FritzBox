@@ -143,6 +143,29 @@ class FritzBoxConfigurator extends IPSModule
                             $index++;
                         }
                         $AddService['type'] = $AddService['type'] . ' (' . $this->Translate(IPS_GetModule($guid)['ModuleName']) . ')';
+                        if ($guid == \FritzBox\GUID::AnsweringMachine) {
+                            // Ein Service für alle Anrufbeantworter, je Anrufbeantworter eine Instanz
+                            foreach ($this->GetAnsweringMachines($serviceType, $AddService['url']) as $TAMIndex => $TAMName) {
+                                $AddTAM = $AddService;
+                                $AddTAM['create'] = [
+                                    'moduleID'      => $guid,
+                                    'configuration' => [
+                                        \FritzBox\Base\Property::Index                => $index,
+                                        \FritzBox\AnsweringMachine\Property::TAMIndex => $TAMIndex
+                                    ]
+                                ];
+                                $Key = array_search([$guid => 'TAM' . $TAMIndex], $KnownInstances);
+                                if ($Key === false) {
+                                    $AddTAM['name'] = $TAMName;
+                                } else {
+                                    $AddTAM['name'] = IPS_GetName($Key);
+                                    $AddTAM['instanceID'] = $Key;
+                                    unset($KnownInstances[$Key]);
+                                }
+                                $ServiceValues[] = $AddTAM;
+                            }
+                            continue;
+                        }
                         if (IPS_GetModule($guid)['ModuleType'] == 3) {
                             $AddService['create'] = [
                                 'moduleID'      => $guid,
@@ -246,6 +269,43 @@ class FritzBoxConfigurator extends IPSModule
         return json_encode($Form);
     }
 
+    /**
+     * Liefert die in der FritzBox angezeigten Anrufbeantworter [Index => Name].
+     */
+    private function GetAnsweringMachines(string $ServiceType, string $ControlUrl): array
+    {
+        $Ret = @$this->SendDataToParent(json_encode(
+            [
+                'DataID'     => \FritzBox\GUID::SendToFritzBoxIO,
+                'ServiceTyp' => $ServiceType,
+                'ControlUrl' => $ControlUrl,
+                'Function'   => 'GetList',
+                'Parameter'  => []
+            ]
+        ));
+        if ($Ret === false) {
+            return [];
+        }
+        $List = unserialize($Ret);
+        if (!is_string($List)) {
+            $this->SendDebug('GetList', 'failed', 0);
+            return [];
+        }
+        try {
+            $Xml = new \SimpleXMLElement(trim($List));
+        } catch (\Throwable $th) {
+            $this->SendDebug('GetList', $List, 0);
+            return [];
+        }
+        $Result = [];
+        foreach ($Xml->Item as $Item) {
+            if ((int) $Item->Display === 1) {
+                $Result[(int) $Item->Index] = (string) $Item->Name;
+            }
+        }
+        return $Result;
+    }
+
     private function FilterInstances(int $InstanceID)
     {
         $Instance = IPS_GetInstance($InstanceID);
@@ -262,7 +322,13 @@ class FritzBoxConfigurator extends IPSModule
     {
         $AllInstancesOfParent = array_flip(array_filter(IPS_GetInstanceList(), [$this, 'FilterInstances']));
         foreach ($AllInstancesOfParent as $key => &$value) {
-            $value = [IPS_GetInstance($key)['ModuleInfo']['ModuleID'] => IPS_GetProperty($key, \FritzBox\Base\Property::Index)];
+            $ModuleID = IPS_GetInstance($key)['ModuleInfo']['ModuleID'];
+            if ($ModuleID == \FritzBox\GUID::AnsweringMachine) {
+                // Anrufbeantworter teilen sich einen Service, unterschieden wird am TAMIndex
+                $value = [$ModuleID => 'TAM' . IPS_GetProperty($key, \FritzBox\AnsweringMachine\Property::TAMIndex)];
+                continue;
+            }
+            $value = [$ModuleID => IPS_GetProperty($key, \FritzBox\Base\Property::Index)];
         }
         return $AllInstancesOfParent;
     }

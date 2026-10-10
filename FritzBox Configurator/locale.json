@@ -35,7 +35,11 @@
             "unknown": "Unbekannt",
             "no": "Nein",
             "yes": "Ja",
-            "This module is free for non-commercial use,\r\nDonations in support of the author are accepted here:": "Dieses Modul ist für die nicht kommerzielle Nutzung kostenlos,\r\nSchenkungen als Unterstützung für den Autor werden hier akzeptiert:"
+            "This module is free for non-commercial use,\r\nDonations in support of the author are accepted here:": "Dieses Modul ist für die nicht kommerzielle Nutzung kostenlos,\r\nSchenkungen als Unterstützung für den Autor werden hier akzeptiert:",
+            "FritzBox Answering Machine": "FritzBox Anrufbeantworter",
+            "FritzBox DECT": "FritzBox DECT-Geräte",
+            "FritzBox DSL Interface": "FritzBox DSL-Schnittstelle",
+            "FritzBox Mobile Connection": "FritzBox Mobilfunk"
         }
     }
 }

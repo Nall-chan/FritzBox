@@ -1,0 +1,19 @@
+{
+    "translations": {
+        "de": {
+            "Refresh Interval": "Aktualisierungsintervall",
+            "seconds": "Sekunden",
+            "Update Values": "Werte aktualisieren",
+            "Event subscribe error": "Ereignisabonnementfehler",
+            "Invalid Ident.": "Ungültiger Ident.",
+            "This module is free for non-commercial use,\r\nDonations in support of the author are accepted here:": "Dieses Modul ist für die nicht kommerzielle Nutzung kostenlos,\r\nSchenkungen als Unterstützung für den Autor werden hier akzeptiert:",
+            "FritzBox Mobile Connection": "FritzBox Mobilfunk",
+            "Mobile connection active": "Mobilfunk aktiv",
+            "SIM status": "SIM-Status",
+            "Current access technology": "Aktuelle Zugangstechnik",
+            "Roaming": "Roaming",
+            "Signal RSRP antenna 1": "Signal RSRP Antenne 1",
+            "Signal RSRP antenna 2": "Signal RSRP Antenne 2"
+        }
+    }
+}

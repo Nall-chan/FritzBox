@@ -128,6 +128,12 @@ Für das Discovery werden Pakete über die Multicast-Adresse `239.255.255.250` a
 - **FritzBox Anruf-Monitor** ([Dokumentation](FritzBox%20Callmonitor/))  
     Anrufmonitor welcher ankommenden und abgehenden Anrufen erkennt.  
 
+- **FritzBox Anrufbeantworter** ([Dokumentation](FritzBox%20Answering%20Machine/))  
+    Anrufbeantworter schalten, Nachrichten anzeigen, abspielen, markieren und löschen (je Anrufbeantworter eine Instanz).  
+
+- **FritzBox DECT-Geräte** ([Dokumentation](FritzBox%20DECT/))  
+    Auslesen der angemeldeten DECT-Geräte.  
+
 - **FritzBox DVBC** ([Dokumentation](FritzBox%20DVBC/))  
     DVB-C Receivers der FritzBox auslesen und steuern.  
 
@@ -182,6 +188,12 @@ Für das Discovery werden Pakete über die Multicast-Adresse `239.255.255.250` a
 - **FritzBox DSL-Verbindung** ([Dokumentation](FritzBox%20WAN%20DSL%20Link/))  
     Status der DSL Verbindung.  
 
+- **FritzBox DSL-Schnittstelle** ([Dokumentation](FritzBox%20DSL%20Interface/))  
+    Datenraten, Störabstand, Dämpfung und Fehlerzähler der DSL-Leitung (nur DSL-Boxen).  
+
+- **FritzBox Mobilfunk** ([Dokumentation](FritzBox%20Mobile%20Connection/))  
+    Auslesen der Mobilfunk-Verbindung (LTE/5G-Modem oder USB-Stick).  
+
 - **FritzBox WAN physikalische WAN-Schnittstelle** ([Dokumentation](FritzBox%20WAN%20Physical%20Interface/))  
     Status des WAN Zugang in Symcon darstellen.  
 
@@ -205,12 +217,15 @@ Für das Discovery werden Pakete über die Multicast-Adresse `239.255.255.250` a
 
 | Modul                                | Typ          | GUID                                   |
 | ------------------------------------ | ------------ | -------------------------------------- |
+| FritzBox Answering Machine           | Gerät        | {63B1641C-78C2-46D1-B994-1BD673CCC496} |
 | FritzBox Callmonitor                 | Gerät        | {5B5C7F75-E7FE-AE5C-6A51-8252688CBF4D} |
 | FritzBox Configurator                | Konfigurator | {32CF40DC-51DA-6C63-8BD7-55E82F64B9E7} |
+| FritzBox DECT                        | Gerät        | {4446C104-4F20-486A-AC47-096E4B1DBAA4} |
 | FritzBox DHCP Server                 | Gerät        | {BDD8382D-00EF-4D84-8B3E-795584ABEB12} |
 | FritzBox DVBC                        | Gerät        | {DF0D838F-C5B4-43D4-A95B-CBCF2A05138E} |
 | FritzBox Device Info                 | Gerät        | {0E5BA3F0-4622-4C96-8D5F-F28DAB051C2F} |
 | FritzBox Discovery                   | Discovery    | {569B01DC-C23F-CE15-D47C-136BD8120470} |
+| FritzBox DSL Interface               | Gerät        | {D42F6309-DE5D-4EA3-90E6-4B9AA1942D77} |
 | FritzBox DynDns                      | Gerät        | {A3828BD1-B487-1860-2812-36E8DA0D358E} |
 | FritzBox File Share                  | Gerät        | {E9B51A32-A87F-8E47-34E8-594535C7D42A} |
 | FritzBox Firmware Info               | Gerät        | {802BCC3D-7144-4803-8886-0F5A08E2BF5D} |
@@ -219,6 +234,7 @@ Für das Discovery werden Pakete über die Multicast-Adresse `239.255.255.250` a
 | FritzBox Host Filter                 | Gerät        | {6E830782-BB60-4E2E-B6FD-8937BEAE2B46} |
 | FritzBox Hosts                       | Gerät        | {66495783-EAEF-7A90-B13C-399045E4790B} |
 | FritzBox IO                          | Splitter     | {6FF9A05D-4E49-4371-23F1-7F58283FB1D9} |
+| FritzBox Mobile Connection           | Gerät        | {E9F671F4-64AE-4AA3-83FF-B654F85D3718} |
 | FritzBox MyFritz                     | Gerät        | {D8AA1AB8-0FCE-56F9-FE36-E0D49878FB75} |
 | FritzBox NAS Storage                 | Gerät        | {14588B6C-6F13-A3C1-0C79-88B6624E1D87} |
 | FritzBox Powerline                   | Gerät        | {B1B43095-2B0A-4C85-A4DE-E962404201C7} |
@@ -234,6 +250,15 @@ Für das Discovery werden Pakete über die Multicast-Adresse `239.255.255.250` a
 | FritzBox WebDav Storage              | Gerät        | {EA069D88-287E-9F08-DB85-799EBA7A2678} |
 
 ### 2. Changelog
+
+Version 0.90:  
+
+- Neue Module:
+  - FritzBox Anrufbeantworter: je Anrufbeantworter eine Instanz mit Schalter, Anzahl neuer und aller Nachrichten und einer HTML-Box mit den Nachrichten. Nachrichten können aus der HTML-Box abgespielt, als gelesen markiert und gelöscht werden. Der Konfigurator bietet jeden Anrufbeantworter einzeln an.  
+  - FritzBox DECT-Geräte: angemeldete DECT-Geräte mit Modell und verfügbarem Update.  
+  - FritzBox DSL-Schnittstelle: Datenraten, Störabstand, Dämpfung und Fehlerzähler der DSL-Leitung (nicht live getestet).  
+  - FritzBox Mobilfunk: SIM-Status, Zugangstechnik, Roaming und Signalstärke (nur ohne Mobilfunk-Verbindung getestet).  
+- Debug: Die IMSI der SIM-Karte wird als `***` ausgegeben.  
 
 Version 0.89:  
 

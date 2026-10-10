@@ -1,0 +1,26 @@
+{
+    "translations": {
+        "de": {
+            "Refresh Interval": "Aktualisierungsintervall",
+            "seconds": "Sekunden",
+            "Update Values": "Werte aktualisieren",
+            "Event subscribe error": "Ereignisabonnementfehler",
+            "Invalid Ident.": "Ungültiger Ident.",
+            "This module is free for non-commercial use,\r\nDonations in support of the author are accepted here:": "Dieses Modul ist für die nicht kommerzielle Nutzung kostenlos,\r\nSchenkungen als Unterstützung für den Autor werden hier akzeptiert:",
+            "FritzBox DSL Interface": "FritzBox DSL-Schnittstelle",
+            "DSL Status": "DSL-Status",
+            "Downstream current rate": "Downstream aktuelle Rate",
+            "Upstream current rate": "Upstream aktuelle Rate",
+            "Downstream max rate": "Downstream maximale Rate",
+            "Upstream max rate": "Upstream maximale Rate",
+            "Downstream noise margin": "Downstream Störabstand",
+            "Upstream noise margin": "Upstream Störabstand",
+            "Downstream attenuation": "Downstream Dämpfung",
+            "Upstream attenuation": "Upstream Dämpfung",
+            "FEC errors": "FEC-Fehler",
+            "CRC errors": "CRC-Fehler",
+            "Errored seconds": "Fehlerhafte Sekunden",
+            "Severely errored seconds": "Stark fehlerhafte Sekunden"
+        }
+    }
+}

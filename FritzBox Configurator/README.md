@@ -50,6 +50,7 @@ Unter 'Instanz hinzufügen' ist das 'FritzBox Konfigurator'-Modul unter dem Hers
 **Konfigurationsseite**:
 
 Ermöglicht das auswählen bestimmter Services der FritzBox um dann die jeweilig passende Instanz zu erstellen.  
+Für Anrufbeantworter gibt es nur einen Service; der Konfigurator bietet deshalb jeden in der FritzBox angezeigten Anrufbeantworter als eigene Zeile an.  
 
 ![Config](imgs/config.png)  
 

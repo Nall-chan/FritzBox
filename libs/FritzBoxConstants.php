@@ -583,3 +583,76 @@ namespace FritzBox\WebDavStorage {
         public const Enable = 'Enable';
     }
 }
+
+namespace FritzBox\AnsweringMachine {
+    class Property
+    {
+        public const TAMIndex = 'TAMIndex';
+        public const MessagesAsTable = 'MessagesAsTable';
+    }
+
+    class Variables
+    {
+        public const Enable = 'Enable';
+        public const Messages = 'Messages';
+        public const NewMessages = 'NewMessages';
+        public const TotalMessages = 'TotalMessages';
+    }
+
+    class Attribute
+    {
+        public const HookSecret = 'HookSecret';
+    }
+
+    class Hook
+    {
+        public const Prefix = '/hook/FritzBoxTAM';
+        public const Play = 'Play';
+        public const Mark = 'Mark';
+        public const Delete = 'Delete';
+    }
+}
+
+namespace FritzBox\DECT {
+    class Property
+    {
+        public const RenameDeviceVariables = 'RenameDeviceVariables';
+    }
+
+    class Variables
+    {
+        public const Model = 'Model';
+        public const UpdateAvailable = 'UpdateAvailable';
+    }
+}
+
+namespace FritzBox\DSLInterface {
+    class Variables
+    {
+        public const Status = 'Status';
+        public const UpstreamCurrRate = 'UpstreamCurrRate';
+        public const DownstreamCurrRate = 'DownstreamCurrRate';
+        public const UpstreamMaxRate = 'UpstreamMaxRate';
+        public const DownstreamMaxRate = 'DownstreamMaxRate';
+        public const UpstreamNoiseMargin = 'UpstreamNoiseMargin';
+        public const DownstreamNoiseMargin = 'DownstreamNoiseMargin';
+        public const UpstreamAttenuation = 'UpstreamAttenuation';
+        public const DownstreamAttenuation = 'DownstreamAttenuation';
+        public const FECErrors = 'FECErrors';
+        public const CRCErrors = 'CRCErrors';
+        public const ErroredSecs = 'ErroredSecs';
+        public const SeverelyErroredSecs = 'SeverelyErroredSecs';
+    }
+}
+
+namespace FritzBox\MobileConnection {
+    class Variables
+    {
+        public const Enabled = 'Enabled';
+        public const Status = 'Status';
+        public const CurrentAccessTechnology = 'CurrentAccessTechnology';
+        public const Roaming = 'Roaming';
+        public const SignalRSRP0 = 'SignalRSRP0';
+        public const SignalRSRP1 = 'SignalRSRP1';
+    }
+}

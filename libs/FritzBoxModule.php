@@ -37,6 +37,10 @@ class GUID
     public const WANDSLLink = '{061AEAF5-ADCD-AD9E-9BF9-AD40DF364EB6}';
     public const WANPhysicalInterface = '{C1A97F94-EE83-0553-5F42-FA242F406B1E}';
     public const Telephony = '{AD0B22A7-C71C-71DD-A40B-B70334C5AB3C}';
+    public const AnsweringMachine = '{63B1641C-78C2-46D1-B994-1BD673CCC496}';
+    public const DECT = '{4446C104-4F20-486A-AC47-096E4B1DBAA4}';
+    public const DSLInterface = '{D42F6309-DE5D-4EA3-90E6-4B9AA1942D77}';
+    public const MobileConnection = '{E9F671F4-64AE-4AA3-83FF-B654F85D3718}';
     public const ClientSocket = '{3CFF0FD9-E306-41DB-9B5A-9D06D38576C3}';
     public const UtilControl = '{B69010EA-96D5-46DF-B885-24821B8C8DBD}';
     public const Store = '{F45B5D1F-56AE-4C61-9AB2-C87C63149EC3}';
@@ -69,10 +73,10 @@ class DebugMask
 
     /**
      * Namen von UPnP-Argumenten mit sensiblen Werten (z.B. NewPassword, NewKeyPassphrase, NewPreSharedKey, NewWEPKey0,
-     * EncryptionSecret, NewToken, NewX_AVM-DE_UrlSID). Quelle: SCPD-Beschreibungen mehrerer FritzBoxen.
+     * EncryptionSecret, NewToken, NewX_AVM-DE_UrlSID, NewIMSI). Quelle: SCPD-Beschreibungen mehrerer FritzBoxen.
      * Ausgenommen sind Längen- und Zeichenvorgaben wie NewMaxCharsPassword oder NewAllowedCharsIPSecPreSharedKey.
      */
-    private const SensitiveName = '(?![\w-]*(?:AllowedChars|MaxChars|MinChars))[\w-]*(?:Password|PasswordHash|Passphrase|PreSharedKey|WEPKey\d*|PIN|Secret|Token|SessionID|UrlSID)';
+    private const SensitiveName = '(?![\w-]*(?:AllowedChars|MaxChars|MinChars))[\w-]*(?:Password|PasswordHash|Passphrase|PreSharedKey|WEPKey\d*|PIN|Secret|Token|SessionID|UrlSID|IMSI)';
 
     /**
      * Aktionen, deren einziger Rückgabewert sensibel ist. Die IO liefert bei genau einem
@@ -217,13 +221,14 @@ class Services
         'callmonitor'                                            => [GUID::CallMonitor=>0], // Anrufmonitor
         'urn:schemas-upnp-org:service:WANDSLLinkConfig:1'        => [GUID::WANDSLLink=>0],
         //'urn:dslforum-org:service:WANDSLLinkConfig:1'            => [], // unnötig? DSL Daten?
-        //'urn:dslforum-org:service:WANDSLInterfaceConfig:1'       => [], // später, zusätzlich zu WANDSLLinkConfig
+        'urn:dslforum-org:service:WANDSLInterfaceConfig:1'       => [GUID::DSLInterface=>0], // nur DSL
         'urn:dslforum-org:service:WANCommonInterfaceConfig:1'    => [GUID::WANPhysicalInterface=>0],
         //todo (jetzt)
         'urn:dslforum-org:service:X_AVM-DE_OnTel:1'              => [GUID::Telephony =>0], // todo Telefonie
         'urn:dslforum-org:service:X_VoIP:1'                      => [], // in OnTel enthalten ?! // todo
-        'urn:dslforum-org:service:X_AVM-DE_Dect:1'               => [],
-        'urn:dslforum-org:service:X_AVM-DE_TAM:1'                => [],
+        'urn:dslforum-org:service:X_AVM-DE_Dect:1'               => [GUID::DECT=>0], // DECT-Geräte
+        'urn:dslforum-org:service:X_AVM-DE_TAM:1'                => [GUID::AnsweringMachine=>0], // Anrufbeantworter
+        'urn:dslforum-org:service:X_AVM-DE_WANMobileConnection:1'=> [GUID::MobileConnection=>0], // Mobilfunk
         'urn:dslforum-org:service:Layer3Forwarding:1'            => [], // im IO Enthalten
         'urn:schemas-upnp-org:service:WANIPv6FirewallControl:1'  => [],
         // Ohne eigene Module

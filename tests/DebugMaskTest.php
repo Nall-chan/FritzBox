@@ -124,6 +124,18 @@ class DebugMaskTest extends TestCase
         }
     }
 
+    public function testValuesMobileIdentity(): void
+    {
+        $Masked = \FritzBox\DebugMask::Values([
+            'NewIMSI'               => '262011234567890',
+            'NewPINFailureCount'    => 0,
+            'NewSerialNumber'       => 'ABC123'
+        ]);
+        $this->assertSame('***', $Masked['NewIMSI']);
+        $this->assertSame(0, $Masked['NewPINFailureCount']);
+        $this->assertSame('ABC123', $Masked['NewSerialNumber']);
+    }
+
     public function testValuesCharLimitsAreNotMasked(): void
     {
         $Data = [
