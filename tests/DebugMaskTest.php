@@ -108,4 +108,48 @@ class DebugMaskTest extends TestCase
         $this->assertSame('text', \FritzBox\DebugMask::Values('text'));
         $this->assertSame(5, \FritzBox\DebugMask::Values(5));
     }
+
+    public function testValuesSecretsTokensSessionIds(): void
+    {
+        $Masked = \FritzBox\DebugMask::Values([
+            'EncryptionSecret'      => 'abc',
+            'NewAppAVMPasswordHash' => 'def',
+            'NewToken'              => 'ghi',
+            'NewX_AVM-DE_SessionID' => 'jkl',
+            'NewX_AVM-DE_UrlSID'    => 'sid=mno',
+            'NewSessionID'          => 'pqr'
+        ]);
+        foreach ($Masked as $Key => $Value) {
+            $this->assertSame('***', $Value, $Key);
+        }
+    }
+
+    public function testValuesCharLimitsAreNotMasked(): void
+    {
+        $Data = [
+            'NewMaxCharsPassword'              => 32,
+            'NewMinCharsIPSecPreSharedKey'     => 8,
+            'NewAllowedCharsPassword'          => '0123456789ABC',
+            'NewAllowedCharsIPSecXauthPassword'=> 'abc',
+            'NewDefaultWEPKeyIndex'            => 1,
+            'NewPINFailureCount'               => 0
+        ];
+        $this->assertSame($Data, \FritzBox\DebugMask::Values($Data));
+    }
+
+    public function testXmlUrlSid(): void
+    {
+        $Xml = '<u:X_AVM-DE_CreateUrlSIDResponse xmlns:u="urn:dslforum-org:service:DeviceConfig:1"><NewX_AVM-DE_UrlSID>sid=0123456789abcdef</NewX_AVM-DE_UrlSID></u:X_AVM-DE_CreateUrlSIDResponse>';
+        $Masked = \FritzBox\DebugMask::Xml($Xml);
+        $this->assertStringNotContainsString('0123456789abcdef', $Masked);
+        $this->assertStringContainsString('<NewX_AVM-DE_UrlSID>***</NewX_AVM-DE_UrlSID>', $Masked);
+    }
+
+    public function testResultScalarByAction(): void
+    {
+        $this->assertSame('***', \FritzBox\DebugMask::Result('X_AVM-DE_CreateUrlSID', 'sid=0123456789abcdef'));
+        $this->assertSame('', \FritzBox\DebugMask::Result('X_AVM-DE_CreateUrlSID', ''));
+        $this->assertSame('MeinWLAN', \FritzBox\DebugMask::Result('GetSSID', 'MeinWLAN'));
+        $this->assertSame(['NewPreSharedKey' => '***', 'NewSSID' => 'x'], \FritzBox\DebugMask::Result('GetSecurityKeys', ['NewPreSharedKey' => 'k', 'NewSSID' => 'x']));
+    }
 }

@@ -168,9 +168,9 @@ function sortTable' . $this->InstanceID . '(column) {
      */
     protected function GetTable(array $Data, string $HookPrefix = '', string $HookType = '', string $HookId = '', int $CurrentLine = -1, bool $Sortable = false)
     {
-        $Config_Table = array_column(json_decode($this->ReadPropertyString('Table'), true), 'style', 'tag');
-        $Config_Columns = json_decode($this->ReadPropertyString('Columns'), true);
-        $Config_Rows = json_decode($this->ReadPropertyString('Rows'), true);
+        $Config_Table = array_column(json_decode($this->ReadPropertyString(\FritzBox\Table\Property::Table), true), 'style', 'tag');
+        $Config_Columns = json_decode($this->ReadPropertyString(\FritzBox\Table\Property::Columns), true);
+        $Config_Rows = json_decode($this->ReadPropertyString(\FritzBox\Table\Property::Rows), true);
         $Config_Rows_BgColor = array_column($Config_Rows, 'bgcolor', 'row');
         $Config_Rows_Color = array_column($Config_Rows, 'color', 'row');
         $Config_Rows_Style = array_column($Config_Rows, 'style', 'row');

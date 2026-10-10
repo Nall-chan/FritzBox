@@ -17,11 +17,11 @@ Allgemeine Geräte Informationen abrufen.
 - [2. Voraussetzungen](#2-voraussetzungen)
 - [3. Software-Installation](#3-software-installation)
 - [4. Einrichten der Instanzen in IP-Symcon](#4-einrichten-der-instanzen-in-ip-symcon)
-- [5. Statusvariablen und Profile](#5-statusvariablen-und-profile)
-  - [Statusvariablen](#statusvariablen)
-  - [Profile](#profile)
+- [5. Statusvariablen](#5-statusvariablen)
 - [6. Visualisierung](#6-visualisierung)
-- [7. PHP-Funktionsreferenz](#7-php-funktionsreferenz)
+  - [Kachel Visualisierung](#kachel-visualisierung)
+  - [WebFront Visualisierung](#webfront-visualisierung)
+- [7. PHP-Befehlsreferenz](#7-php-befehlsreferenz)
 - [8. Aktionen](#8-aktionen)
 - [9. Anhang](#9-anhang)
   - [1. Changelog](#1-changelog)
@@ -53,15 +53,20 @@ Unter 'Instanz hinzufügen' ist das 'FritzBox Geräte Informationen'-Modul unter
 
 **Konfigurationsparameter**:  
 
-| Name            | Typ     | Beschreibung                         |
-| --------------- | ------- | ------------------------------------ |
-| RefreshInterval | integer | Aktualisierungsintervall in Sekunden |
+| Eigenschaft              | Name            | Typ     | Standardwert | Beschreibung                                                        |
+| ------------------------ | --------------- | ------- | ------------ | ------------------------------------------------------------------- |
+| Aktualisierungsintervall | RefreshInterval | integer | 60           | Intervall in Sekunden, in dem die Werte abgefragt werden; `0` = aus |
 
-## 5. Statusvariablen und Profile
+Beispiel:  
+
+```php
+IPS_SetProperty(12345, 'RefreshInterval', 300);
+IPS_ApplyChanges(12345);
+```
+
+## 5. Statusvariablen
 
 Die Statusvariablen werden automatisch angelegt. Das Löschen einzelner kann zu Fehlfunktionen führen.
-
-### Statusvariablen
 
 | Ident           | Name                | Typ     | Beschreibung                       |
 | --------------- | ------------------- | ------- | ---------------------------------- |
@@ -74,19 +79,45 @@ Die Statusvariablen werden automatisch angelegt. Das Löschen einzelner kann zu 
 | Runtime         | Laufzeit            | string  | Laufzeit als Klartext              |
 | DeviceLog       | Letzte Ereignisse   | string  | Die letzten Ereignisse             |
 
-### Profile
-
-Dieses Modul erzeugt keine Variablenprofile.  
-
 ## 6. Visualisierung
+
+### Kachel Visualisierung
+
+Die Instanz wird als Kachel in der Darstellung `Liste` angezeigt. Das Bild zeigt die maximierte Kachel mit allen Variablen.  
+Alle Werte werden als Text dargestellt, `Letzter Neustart` als Datum/Uhrzeit. `Letzte Ereignisse` öffnet über das Symbol den mehrzeiligen Text. Keine der Variablen ist bedienbar.  
+
+![Kachel Liste](imgs/tile_list.png)  
+
+### WebFront Visualisierung
 
 ![Webfront](imgs/webfront.png)
 
-## 7. PHP-Funktionsreferenz
+## 7. PHP-Befehlsreferenz
+
+Alle Funktionen liefern `false`, wenn die Instanz nicht aktiv ist oder die FritzBox einen Fehler meldet. Meldet die FritzBox einen Fehler, wird zusätzlich eine Meldung ausgegeben.  
+
+---
 
 ```php
-array|false FB_GetInfo(integer $InstanceID);
-```  
+array|false FB_GetInfo(integer $InstanzID);
+```
+
+Liefert die Geräteinformationen der FritzBox als Array. Alle Werte sind Strings.  
+
+| Schlüssel           | Beschreibung                                      |
+| ------------------- | ------------------------------------------------- |
+| NewManufacturerName | Hersteller                                        |
+| NewManufacturerOUI  | Herstellerkennung (OUI)                           |
+| NewModelName        | Modell                                            |
+| NewDescription      | Modell und Firmware-Version                       |
+| NewProductClass     | Produktklasse                                     |
+| NewSerialNumber     | Seriennummer                                      |
+| NewSoftwareVersion  | Firmware-Version                                  |
+| NewHardwareVersion  | Hardware-Version                                  |
+| NewSpecVersion      | Version der Spezifikation                         |
+| NewProvisioningCode | Provisionierungscode                              |
+| NewUpTime           | Laufzeit seit dem letzten Neustart in Sekunden    |
+| NewDeviceLog        | Die letzten Ereignisse aus dem Ereignisprotokoll  |
 
 Beispiel:  
 
@@ -124,7 +155,30 @@ array(12) {
   ["NewDeviceLog"]=>
   string() "19.12.23 19:30:49 Internettelefonie mit ....
 }
+```
 
+---
+
+```php
+integer|false FB_GetSecurityPort(integer $InstanzID);
+```
+
+Liefert den Port der TR-064-Schnittstelle für verschlüsselte Verbindungen (https).  
+
+```php
+var_dump(FB_GetSecurityPort(12345)); // int(49443)
+```
+
+---
+
+```php
+string|false FB_GetDeviceLogPath(integer $InstanzID);
+```
+
+Liefert den Pfad (inklusive Sitzungs-ID) zum vollständigen Ereignisprotokoll der FritzBox. `NewDeviceLog` von `FB_GetInfo` enthält dagegen nur die letzten Ereignisse.  
+
+```php
+var_dump(FB_GetDeviceLogPath(12345)); // string(...) "/devicelog.lua?sid=xxxxxxxxxxxxxxxx"
 ```
 
 ## 8. Aktionen
@@ -135,7 +189,7 @@ Keine Aktionen verfügbar.
 
 ### 1. Changelog
 
-[Changelog der Library](../README.md#changelog)
+[Changelog der Library](../README.md#2-changelog)
 
 ### 2. Spenden
 

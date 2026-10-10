@@ -52,23 +52,23 @@ class FritzBoxIO extends IPSModule
         //Never delete this line!
         parent::Create();
 
-        $this->RegisterPropertyBoolean('Open', true);
-        $this->RegisterPropertyString('Host', 'http://');
-        $this->RegisterPropertyString('Username', '');
-        $this->RegisterPropertyString('Password', '');
-        $this->RegisterPropertyString('ReturnIP', '');
-        $this->RegisterPropertyInteger('ReturnPort', 3777);
+        $this->RegisterPropertyBoolean(\FritzBox\IO\Property::Open, true);
+        $this->RegisterPropertyString(\FritzBox\IO\Property::Host, 'http://');
+        $this->RegisterPropertyString(\FritzBox\IO\Property::Username, '');
+        $this->RegisterPropertyString(\FritzBox\IO\Property::Password, '');
+        $this->RegisterPropertyString(\FritzBox\IO\Property::ReturnIP, '');
+        $this->RegisterPropertyInteger(\FritzBox\IO\Property::ReturnPort, 3777);
 
-        $this->RegisterAttributeString('ConsumerAddress', 'Invalid');
-        $this->RegisterAttributeArray('Events', []);
-        $this->RegisterAttributeArray('PhoneBooks', []);
-        $this->RegisterAttributeArray('PhoneDevices', []);
-        $this->RegisterAttributeArray('AreaCodes', []);
-        $this->RegisterAttributeBoolean('usePPP', false);
-        $this->RegisterAttributeBoolean('HasIGD2', false);
-        $this->RegisterAttributeBoolean('HasTel', false);
-        $this->RegisterAttributeInteger('NoOfWlan', 0);
-        $this->RegisterTimer('RenewSubscription', 0, 'IPS_RequestAction(' . $this->InstanceID . ',"Subscribe", true);');
+        $this->RegisterAttributeString(\FritzBox\IO\Attribute::ConsumerAddress, 'Invalid');
+        $this->RegisterAttributeArray(\FritzBox\IO\Attribute::Events, []);
+        $this->RegisterAttributeArray(\FritzBox\IO\Attribute::PhoneBooks, []);
+        $this->RegisterAttributeArray(\FritzBox\IO\Attribute::PhoneDevices, []);
+        $this->RegisterAttributeArray(\FritzBox\IO\Attribute::AreaCodes, []);
+        $this->RegisterAttributeBoolean(\FritzBox\IO\Attribute::UsePPP, false);
+        $this->RegisterAttributeBoolean(\FritzBox\IO\Attribute::HasIGD2, false);
+        $this->RegisterAttributeBoolean(\FritzBox\IO\Attribute::HasTel, false);
+        $this->RegisterAttributeInteger(\FritzBox\IO\Attribute::NoOfWlan, 0);
+        $this->RegisterTimer(\FritzBox\IO\Timer::RenewSubscription, 0, 'IPS_RequestAction(' . $this->InstanceID . ',"' . \FritzBox\IO\Action::Subscribe . '", true);');
         $this->Url = '';
         $this->Username = '';
         $this->SID = '';
@@ -102,7 +102,7 @@ class FritzBoxIO extends IPSModule
         switch ($Message) {
             case IPS_KERNELMESSAGE:
                 if ($Data[0] == KR_READY) {
-                    IPS_RequestAction($this->InstanceID, 'KernelReady', true);
+                    IPS_RequestAction($this->InstanceID, \FritzBox\IO\Action::KernelReady, true);
                 }
                 break;
             case FM_CHILDADDED:
@@ -115,16 +115,16 @@ class FritzBoxIO extends IPSModule
 
     public function GetConfigurationForParent()
     {
-        $Host = parse_url($this->ReadPropertyString('Host'), PHP_URL_HOST);
-        return json_encode(['Host' => ($Host ? $Host : ''), 'Port' => 1012]);
+        $Host = parse_url($this->ReadPropertyString(\FritzBox\IO\Property::Host), PHP_URL_HOST);
+        return json_encode([\FritzBox\ClientSocket\Property::Host => ($Host ? $Host : ''), \FritzBox\ClientSocket\Property::Port => 1012]);
     }
 
     public function RequestAction($Ident, $Value)
     {
-        if ($Ident == 'KernelReady') {
+        if ($Ident == \FritzBox\IO\Action::KernelReady) {
             return $this->KernelReady();
         }
-        if ($Ident == 'Subscribe') {
+        if ($Ident == \FritzBox\IO\Action::Subscribe) {
             $this->DoSubscribe();
             return true;
         }
@@ -146,31 +146,31 @@ class FritzBoxIO extends IPSModule
     {
         $data = json_decode($JSONString, true);
         switch ($data['Function']) {
-            case 'SCPD':
-                $ret = $this->ReadAttributeArray('Events');
+            case \FritzBox\IOFunction::Scpd:
+                $ret = $this->ReadAttributeArray(\FritzBox\IO\Attribute::Events);
                 break;
-            case 'SUBSCRIBE':
+            case \FritzBox\IOFunction::Subscribe:
                 $ret = $this->Subscribe($data['EventSubURL'], $data['SID']);
                 break;
-            case 'UNSUBSCRIBE':
+            case \FritzBox\IOFunction::Unsubscribe:
                 $ret = $this->Unsubscribe($data['EventSubURL'], $data['SID']);
                 break;
-            case 'ISPPP':
-                $ret = $this->ReadAttributeBoolean('usePPP');
+            case \FritzBox\IOFunction::IsPPP:
+                $ret = $this->ReadAttributeBoolean(\FritzBox\IO\Attribute::UsePPP);
                 break;
-            case 'HasIGD2':
-                $ret = $this->ReadAttributeBoolean('HasIGD2');
+            case \FritzBox\IOFunction::HasIGD2:
+                $ret = $this->ReadAttributeBoolean(\FritzBox\IO\Attribute::HasIGD2);
                 break;
-            case 'HasTel':
-                $ret = $this->ReadAttributeBoolean('HasTel');
+            case \FritzBox\IOFunction::HasTel:
+                $ret = $this->ReadAttributeBoolean(\FritzBox\IO\Attribute::HasTel);
                 break;
-            case 'CallMonitorOpen':
+            case \FritzBox\IOFunction::CallMonitorOpen:
                 $ret = $this->checkCallMonitorPort();
                 break;
-            case 'GetMaxWLANs':
-                $ret = $this->ReadAttributeInteger('NoOfWlan');
+            case \FritzBox\IOFunction::GetMaxWLANs:
+                $ret = $this->ReadAttributeInteger(\FritzBox\IO\Attribute::NoOfWlan);
                 break;
-            case 'RefreshHostList':
+            case \FritzBox\IOFunction::RefreshHostList:
                 $data['DataID'] = \FritzBox\GUID::RefreshHostListRequest;
                 $result = $this->SendDataToChildren(json_encode($data));
                 $ret = false;
@@ -179,47 +179,47 @@ class FritzBoxIO extends IPSModule
                 }
                 if ($ret) {
                     $data['DataID'] = \FritzBox\GUID::NewHostListEvent;
-                    $data['Function'] = 'NewHostListEvent';
+                    $data['Function'] = \FritzBox\IOFunction::NewHostListEvent;
                     $ret = $this->SendDataToChildren(json_encode($data));
                 }
                 break;
-            case 'NewHostListEvent':
+            case \FritzBox\IOFunction::NewHostListEvent:
                 $data['DataID'] = \FritzBox\GUID::NewHostListEvent;
                 $ret = $this->SendDataToChildren(json_encode($data));
                 break;
-            case 'LoadAndGetData':
+            case \FritzBox\IOFunction::LoadAndGetData:
                 $ret = $this->LoadAndGetData($data['Uri']);
                 break;
-            case 'LoadAndSaveFile':
+            case \FritzBox\IOFunction::LoadAndSaveFile:
                 $ret = $this->LoadAndSaveFile($data['Uri'], $data['Filename']);
                 break;
-            case 'GetFile':
+            case \FritzBox\IOFunction::GetFile:
                 $ret = $this->GetFile($data['Filename']);
                 break;
-            case 'GetAreaCodes':
-                $ret = $this->ReadAttributeArray('AreaCodes');
+            case \FritzBox\IOFunction::GetAreaCodes:
+                $ret = $this->ReadAttributeArray(\FritzBox\IO\Attribute::AreaCodes);
                 break;
-            case 'SetPhonebooks':
-                $this->WriteAttributeArray('PhoneBooks', $data['Files']);
+            case \FritzBox\IOFunction::SetPhonebooks:
+                $this->WriteAttributeArray(\FritzBox\IO\Attribute::PhoneBooks, $data['Files']);
                 $ret = true;
                 break;
-            case 'GetPhonebooks':
-                $ret = $this->ReadAttributeArray('PhoneBooks');
+            case \FritzBox\IOFunction::GetPhonebooks:
+                $ret = $this->ReadAttributeArray(\FritzBox\IO\Attribute::PhoneBooks);
                 break;
-            case 'SetPhoneDevices':
-                $this->WriteAttributeArray('PhoneDevices', $data['Devices']);
+            case \FritzBox\IOFunction::SetPhoneDevices:
+                $this->WriteAttributeArray(\FritzBox\IO\Attribute::PhoneDevices, $data['Devices']);
                 $ret = true;
                 break;
-            case 'GetPhoneDevice':
-                $Devices = $this->ReadAttributeArray('PhoneDevices');
+            case \FritzBox\IOFunction::GetPhoneDevice:
+                $Devices = $this->ReadAttributeArray(\FritzBox\IO\Attribute::PhoneDevices);
                 if (array_key_exists($data['DeviceID'], $Devices)) {
                     $ret = $Devices[$data['DeviceID']];
                 } else {
                     $ret = '';
                 }
                 break;
-            case 'GetPhoneDevices':
-                $ret = $this->ReadAttributeArray('PhoneDevices');
+            case \FritzBox\IOFunction::GetPhoneDevices:
+                $ret = $this->ReadAttributeArray(\FritzBox\IO\Attribute::PhoneDevices);
                 break;
             default:
                 $ret = $this->CallSoapAction($HttpCode, $data['ServiceTyp'], $data['ControlUrl'], $data['Function'], $data['Parameter']);
@@ -242,22 +242,22 @@ class FritzBoxIO extends IPSModule
         if ($this->GetStatus() == IS_CREATING) {
             return json_encode($Form);
         }
-        if ($this->ReadPropertyString('Username') == '') {
+        if ($this->ReadPropertyString(\FritzBox\IO\Property::Username) == '') {
             $Form['elements'][2]['visible'] = true;
         }
 
         if (IPS_GetOption('NATSupport')) {
             if (IPS_GetOption('NATPublicIP') == '') {
-                if ($this->ReadPropertyString('ReturnIP') == '') {
+                if ($this->ReadPropertyString(\FritzBox\IO\Property::ReturnIP) == '') {
                     $Form['actions'][1]['visible'] = true;
                     $Form['actions'][1]['popup']['items'][0]['caption'] = $this->Translate('Error');
                     $Form['actions'][1]['popup']['items'][1]['caption'] = $this->Translate('NAT support is active, but no public address is set.');
                 }
             }
         }
-        $ConsumerAddress = $this->ReadAttributeString('ConsumerAddress');
+        $ConsumerAddress = $this->ReadAttributeString(\FritzBox\IO\Attribute::ConsumerAddress);
         if (!$Form['actions'][1]['visible']) {
-            if (($ConsumerAddress == 'Invalid') && (!in_array($this->GetStatus(), [self::isNotReachable, self::isURLnotValid])) && ($this->ReadPropertyBoolean('Open')) && ($this->ReadPropertyString('Password') != '')) {
+            if (($ConsumerAddress == 'Invalid') && (!in_array($this->GetStatus(), [self::isNotReachable, self::isURLnotValid])) && ($this->ReadPropertyBoolean(\FritzBox\IO\Property::Open)) && ($this->ReadPropertyString(\FritzBox\IO\Property::Password) != '')) {
                 $Form['actions'][1]['visible'] = true;
                 $Form['actions'][1]['popup']['items'][0]['caption'] = $this->Translate('Error');
                 $Form['actions'][1]['popup']['items'][1]['caption'] = $this->Translate('Couldn\'t determine webhook');
@@ -299,7 +299,7 @@ class FritzBoxIO extends IPSModule
         //$this->SetStatus(IS_INACTIVE);
         if ($this->CheckHost()) {
             $this->SetSummary($this->Url);
-            if ($this->ReadPropertyString('Password') == '') {
+            if ($this->ReadPropertyString(\FritzBox\IO\Property::Password) == '') {
                 $this->SetStatus(self::isPasswordMissing);
                 return;
             }
@@ -316,17 +316,17 @@ class FritzBoxIO extends IPSModule
                 $this->SetStatus(self::$http_error[501][1]);
                 return;
             }
-            if ($this->ReadPropertyString('Username') == '') {
+            if ($this->ReadPropertyString(\FritzBox\IO\Property::Username) == '') {
                 $this->Username = $this->GetLastUser();
             } else {
-                $this->Username = $this->ReadPropertyString('Username');
+                $this->Username = $this->ReadPropertyString(\FritzBox\IO\Property::Username);
             }
             if (!$this->getWANConnectionTyp($HttpCode)) {
                 $this->SetStatus(self::$http_error[$HttpCode][1]);
                 $this->ShowLastError(self::$http_error[$HttpCode][0]);
                 return;
             }
-            if ($this->ReadAttributeBoolean('HasTel')) {
+            if ($this->ReadAttributeBoolean(\FritzBox\IO\Attribute::HasTel)) {
                 $this->getAreaCodes();
                 $this->checkCallMonitorPort();
             }
@@ -339,7 +339,7 @@ class FritzBoxIO extends IPSModule
 
     protected function ProcessHookData()
     {
-        if ($this->ReadPropertyBoolean('Open') == false) {
+        if ($this->ReadPropertyBoolean(\FritzBox\IO\Property::Open) == false) {
             http_response_code(404);
             $this->SendHeaders();
             echo 'File not found!';
@@ -437,10 +437,10 @@ class FritzBoxIO extends IPSModule
         }
         // Neu angelegten oder geschlossenen Client Socket (z.B. aus der Discovery) für den Anrufmonitor konfigurieren und öffnen
         if (($ParentId > 1) && (IPS_GetInstance($ParentId)['ModuleInfo']['ModuleID'] == \FritzBox\GUID::ClientSocket)) {
-            $Host = parse_url($this->ReadPropertyString('Host'), PHP_URL_HOST);
-            IPS_SetProperty($ParentId, 'Host', ($Host ? $Host : ''));
-            IPS_SetProperty($ParentId, 'Port', 1012);
-            IPS_SetProperty($ParentId, 'Open', ($Host ? true : false));
+            $Host = parse_url($this->ReadPropertyString(\FritzBox\IO\Property::Host), PHP_URL_HOST);
+            IPS_SetProperty($ParentId, \FritzBox\ClientSocket\Property::Host, ($Host ? $Host : ''));
+            IPS_SetProperty($ParentId, \FritzBox\ClientSocket\Property::Port, 1012);
+            IPS_SetProperty($ParentId, \FritzBox\ClientSocket\Property::Open, ($Host ? true : false));
             @IPS_ApplyChanges($ParentId);
         }
     }
@@ -547,8 +547,8 @@ class FritzBoxIO extends IPSModule
         $Xmls = ['tr64desc.xml', 'igd2desc.xml', 'igddesc.xml'];
         $Result = false;
         $Events = [];
-        $this->WriteAttributeBoolean('HasTel', false);
-        $this->WriteAttributeBoolean('HasIGD2', false);
+        $this->WriteAttributeBoolean(\FritzBox\IO\Attribute::HasTel, false);
+        $this->WriteAttributeBoolean(\FritzBox\IO\Attribute::HasIGD2, false);
         foreach ($Xmls as $Xml) {
             $XMLData = @Sys_GetURLContentEx($Url . '/' . $Xml, ['Timeout' => 3000, 'VerifyHost' => false, 'VerifyPeer' => false]);
             if ($XMLData === false) {
@@ -565,7 +565,7 @@ class FritzBoxIO extends IPSModule
                     }
                 }
                 $this->SendDebug('No of WLANs', $i, 0);
-                $this->WriteAttributeInteger('NoOfWlan', $i);
+                $this->WriteAttributeInteger(\FritzBox\IO\Attribute::NoOfWlan, $i);
             }
             //Nur bei Bedarf laden?
             try {
@@ -588,7 +588,7 @@ class FritzBoxIO extends IPSModule
                     continue;
                 }
                 if ($SCPDURL == '/x_contactSCPD.xml') {
-                    $this->WriteAttributeBoolean('HasTel', true);
+                    $this->WriteAttributeBoolean(\FritzBox\IO\Attribute::HasTel, true);
                 }
                 $this->SendDebug('Load SCPD: ' . $SCPD, $XMLSCPDData, 0);
                 file_put_contents(IPS_GetKErnelDir() . 'FritzBoxTemp/' . $this->InstanceID . '/' . $SCPD, $XMLSCPDData);
@@ -596,33 +596,33 @@ class FritzBoxIO extends IPSModule
             }
             if ($Xml == 'igd2desc.xml') {
                 $this->SendDebug('Use IGD2', 'true', 0);
-                $this->WriteAttributeBoolean('HasIGD2', true);
+                $this->WriteAttributeBoolean(\FritzBox\IO\Attribute::HasIGD2, true);
                 break;
             }
             $Result = true;
         }
-        $this->WriteAttributeArray('Events', $Events);
+        $this->WriteAttributeArray(\FritzBox\IO\Attribute::Events, $Events);
         return $Result;
     }
 
     private function GetConsumerAddress()
     {
-        $Port = $this->ReadPropertyInteger('ReturnPort');
+        $Port = $this->ReadPropertyInteger(\FritzBox\IO\Property::ReturnPort);
         if (IPS_GetOption('NATSupport')) {
-            $ip = $this->ReadPropertyString('ReturnIP');
+            $ip = $this->ReadPropertyString(\FritzBox\IO\Property::ReturnIP);
             if ($ip == '') {
                 $ip = IPS_GetOption('NATPublicIP');
                 if ($ip == '') {
                     $this->SendDebug('NAT enabled ConsumerAddress', 'Invalid', 0);
                     $this->UpdateFormField('EventHook', 'caption', $this->Translate('NATPublicIP is missing in special switches!'));
-                    $this->WriteAttributeString('ConsumerAddress', 'Invalid');
+                    $this->WriteAttributeString(\FritzBox\IO\Attribute::ConsumerAddress, 'Invalid');
                     $this->ShowLastError('Error', $this->Translate('NAT support is active, but no public address is set.'));
                     return false;
                 }
             }
             $Debug = 'NAT enabled ConsumerAddress';
         } else {
-            $ip = $this->ReadPropertyString('ReturnIP');
+            $ip = $this->ReadPropertyString(\FritzBox\IO\Property::ReturnIP);
             if ($ip == '') {
                 $sock = socket_create(AF_INET6, SOCK_STREAM, SOL_TCP);
                 $Host = parse_url($this->Url);
@@ -640,7 +640,7 @@ class FritzBoxIO extends IPSModule
                     if (($result == false) || ($ip == '0.0.0.0')) {
                         $this->SendDebug('ConsumerAddress', 'Invalid', 0);
                         $this->UpdateFormField('EventHook', 'caption', $this->Translate('Invalid'));
-                        $this->WriteAttributeString('ConsumerAddress', 'Invalid');
+                        $this->WriteAttributeString(\FritzBox\IO\Attribute::ConsumerAddress, 'Invalid');
                         return false;
                     }
                 } else {
@@ -652,7 +652,7 @@ class FritzBoxIO extends IPSModule
         $Url = 'http://' . $ip . ':' . $Port . '/hook/FritzBoxIO' . $this->InstanceID;
         $this->SendDebug($Debug, $Url, 0);
         $this->UpdateFormField('EventHook', 'caption', $Url);
-        $this->WriteAttributeString('ConsumerAddress', $Url);
+        $this->WriteAttributeString(\FritzBox\IO\Attribute::ConsumerAddress, $Url);
         return true;
     }
 
@@ -676,11 +676,11 @@ class FritzBoxIO extends IPSModule
 
     private function CheckHost(): bool
     {
-        if (!$this->ReadPropertyBoolean('Open')) {
+        if (!$this->ReadPropertyBoolean(\FritzBox\IO\Property::Open)) {
             $this->SetStatus(self::isInActive);
             return false;
         }
-        $URL = $this->ReadPropertyString('Host');
+        $URL = $this->ReadPropertyString(\FritzBox\IO\Property::Host);
         if ($URL == 'http://') {
             $this->SetStatus(self::isURLnotValid);
             return false;
@@ -739,8 +739,8 @@ class FritzBoxIO extends IPSModule
         if (is_a($result, 'SoapFault')) {
             return false;
         }
-        $this->WriteAttributeBoolean('usePPP', strpos($result, 'WANIPConnection') === false);
-        $this->setIPSVariable('ConnectionType', 'Connection Type', (string) $result, VARIABLETYPE_STRING);
+        $this->WriteAttributeBoolean(\FritzBox\IO\Attribute::UsePPP, strpos($result, 'WANIPConnection') === false);
+        $this->setIPSVariable(\FritzBox\IO\Variables::ConnectionType, 'Connection Type', (string) $result, VARIABLETYPE_STRING);
         return true;
     }
 
@@ -770,7 +770,7 @@ class FritzBoxIO extends IPSModule
             'LKZ'       => $Country['NewX_AVM-DE_LKZ'],
             'LKZPrefix' => $Country['NewX_AVM-DE_LKZPrefix']
         ];
-        $this->WriteAttributeArray('AreaCodes', $Areas);
+        $this->WriteAttributeArray(\FritzBox\IO\Attribute::AreaCodes, $Areas);
         return true;
     }
 
@@ -788,7 +788,7 @@ class FritzBoxIO extends IPSModule
         if (IPS_GetInstance($ParentId)['ModuleInfo']['ModuleID'] != \FritzBox\GUID::ClientSocket) {
             return true; // fremder Parent, nicht anfassen
         }
-        return (bool) IPS_GetProperty($ParentId, 'Open');
+        return (bool) IPS_GetProperty($ParentId, \FritzBox\ClientSocket\Property::Open);
     }
 
     private function checkCallMonitorPort()
@@ -859,7 +859,7 @@ class FritzBoxIO extends IPSModule
             'default_socket_timeout' => 10,
             'keep_alive'             => true,
             'login'                  => $this->Username,
-            'password'               => $this->ReadPropertyString('Password'),
+            'password'               => $this->ReadPropertyString(\FritzBox\IO\Property::Password),
             'authentication'         => SOAP_AUTHENTICATION_DIGEST,
             'compression'            => SOAP_COMPRESSION_ACCEPT | SOAP_COMPRESSION_GZIP,
             'stream_context'         => stream_context_create(
@@ -929,7 +929,7 @@ class FritzBoxIO extends IPSModule
             }
             return $e;
         }
-        $this->SendDebug('Result', \FritzBox\DebugMask::Values($Result), 0);
+        $this->SendDebug('Result', \FritzBox\DebugMask::Result((string) $function, $Result), 0);
         return $Result;
     }
 
@@ -961,7 +961,7 @@ class FritzBoxIO extends IPSModule
                 return false;
             }
         }
-        $this->SetTimerInterval('RenewSubscription', ((int) $Result['TIMEOUT'] - 300) * 1000);
+        $this->SetTimerInterval(\FritzBox\IO\Timer::RenewSubscription, ((int) $Result['TIMEOUT'] - 300) * 1000);
         $this->SetStatus(self::isConnected);
         return true;
     }
@@ -971,7 +971,7 @@ class FritzBoxIO extends IPSModule
         if ($this->SID === '') {
             return;
         }
-        $this->SetTimerInterval('RenewSubscription', 0);
+        $this->SetTimerInterval(\FritzBox\IO\Timer::RenewSubscription, 0);
         $this->SendDebug('Unsubscribe', $this->SID, 0);
         $this->isSubscribed = false;
         $SID = $this->SID;
@@ -990,8 +990,8 @@ class FritzBoxIO extends IPSModule
     # Event Subscribe zusammenbauen, senden und Rückmeldung auswerten
     private function Subscribe(string $Uri, string $SID)
     {
-        if ($this->ReadAttributeString('ConsumerAddress') == 'Invalid') {
-            $this->LogMessage('ConsumerAddress Invalid' . "\r\n" . $this->ReadAttributeString('ConsumerAddress'), KL_ERROR);
+        if ($this->ReadAttributeString(\FritzBox\IO\Attribute::ConsumerAddress) == 'Invalid') {
+            $this->LogMessage('ConsumerAddress Invalid' . "\r\n" . $this->ReadAttributeString(\FritzBox\IO\Attribute::ConsumerAddress), KL_ERROR);
             return false;
         }
         $stream = stream_context_create(
@@ -1005,7 +1005,7 @@ class FritzBoxIO extends IPSModule
         );
 
         if ($SID == '') {
-            $SID = 'CALLBACK: <' . $this->ReadAttributeString('ConsumerAddress') . $Uri . ">\r\n" .
+            $SID = 'CALLBACK: <' . $this->ReadAttributeString(\FritzBox\IO\Attribute::ConsumerAddress) . $Uri . ">\r\n" .
                         "NT: upnp:event\r\n";
         } else {
             $SID = 'SID: ' . $SID . "\r\n";

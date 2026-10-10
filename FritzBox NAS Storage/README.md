@@ -17,11 +17,11 @@ Status der Netzwerkfreigabe und des FTP Servers auslesen und setzen.
 - [2. Voraussetzungen](#2-voraussetzungen)
 - [3. Software-Installation](#3-software-installation)
 - [4. Einrichten der Instanzen in IP-Symcon](#4-einrichten-der-instanzen-in-ip-symcon)
-- [5. Statusvariablen und Profile](#5-statusvariablen-und-profile)
-  - [Statusvariablen](#statusvariablen)
-  - [Profile](#profile)
+- [5. Statusvariablen](#5-statusvariablen)
 - [6. Visualisierung](#6-visualisierung)
-- [7. PHP-Funktionsreferenz](#7-php-funktionsreferenz)
+  - [Kachel Visualisierung](#kachel-visualisierung)
+  - [WebFront Visualisierung](#webfront-visualisierung)
+- [7. PHP-Befehlsreferenz](#7-php-befehlsreferenz)
 - [8. Aktionen](#8-aktionen)
 - [9. Anhang](#9-anhang)
   - [1. Changelog](#1-changelog)
@@ -54,45 +54,126 @@ Unter 'Instanz hinzufügen' ist das 'FritzBox NAS Storage'-Modul unter dem Herst
 
 **Konfigurationsparameter**:  
 
-| Name            | Typ     | Beschreibung                         |
-| --------------- | ------- | ------------------------------------ |
-| RefreshInterval | integer | Aktualisierungsintervall in Sekunden |
+| Eigenschaft              | Name            | Typ     | Standardwert | Beschreibung                                                        |
+| ------------------------ | --------------- | ------- | ------------ | ------------------------------------------------------------------- |
+| Aktualisierungsintervall | RefreshInterval | integer | 3600         | Intervall in Sekunden, in dem die Werte abgefragt werden; `0` = aus |
 
-## 5. Statusvariablen und Profile
+Beispiel:  
+
+```php
+IPS_SetProperty(12345, 'RefreshInterval', 600);
+IPS_ApplyChanges(12345);
+```
+
+## 5. Statusvariablen
 
 Die Statusvariablen werden automatisch angelegt. Das Löschen einzelner kann zu Fehlfunktionen führen.
 
-### Statusvariablen
-
-| Ident         | Name              | Typ     |
-| ------------- | ----------------- | ------- |
-| SMBEnable     | SMB Server        | boolean |
-| FTPEnable     | FTP Server        | boolean |
-| FTPStatus     | FTP Server Status | string  |
-| FTPWANEnable  | WAN FTP Server    | boolean |
-| FTPWANSSLOnly | WAN FTP nur SSL   | boolean |
-| FTPWANPort    | WAN FTP Port      | integer |
-
-### Profile
-
-Dieses Modul erzeugt keine Variablenprofile.  
+| Ident         | Name              | Typ     | Beschreibung                                         |
+| ------------- | ----------------- | ------- | ---------------------------------------------------- |
+| SMBEnable     | SMB Server        | boolean | Netzwerkfreigabe (SMB) im Heimnetz aktiv             |
+| FTPEnable     | FTP Server        | boolean | FTP-Server im Heimnetz aktiv                         |
+| FTPStatus     | FTP Server Status | string  | Zustand des FTP-Servers, z.B. `Enabled`              |
+| FTPWANEnable  | WAN FTP Server    | boolean | FTP-Zugriff aus dem Internet aktiv                   |
+| FTPWANSSLOnly | WAN FTP nur SSL   | boolean | FTP-Zugriff aus dem Internet nur verschlüsselt       |
+| FTPWANPort    | WAN FTP Port      | integer | Port für den FTP-Zugriff aus dem Internet            |
 
 ## 6. Visualisierung
 
+### Kachel Visualisierung
+
+Die Instanz wird als Kachel in der Darstellung `Liste` angezeigt. Das Bild zeigt die maximierte Kachel mit allen Variablen.  
+Die Zustände werden als Schalter, `FTP Server Status` als Text und `WAN FTP Port` als Zahl dargestellt.  
+`SMB Server`, `FTP Server`, `WAN FTP Server` und `WAN FTP nur SSL` können direkt in der Kachel geschaltet werden.  
+
+![Kachel Liste](imgs/tile_list.png)  
+
+### WebFront Visualisierung
+
 ![WebFront](imgs/webfront.png)  
 
-## 7. PHP-Funktionsreferenz
+## 7. PHP-Befehlsreferenz
+
+Alle Funktionen liefern `false`, wenn die Instanz nicht aktiv ist oder die FritzBox einen Fehler meldet. Meldet die FritzBox einen Fehler, wird zusätzlich eine Meldung ausgegeben.  
+Die Set-Funktionen lesen nach dem Schalten alle Werte neu und führen die Statusvariablen nach.  
+
+---
 
 ```php
 array|false FB_GetInfo(integer $InstanzID);
-bool FB_SetSMBServer(integer $InstanzID, boolean $Enable);
-bool FB_SetFTPServer(integer $InstanzID, boolean $Enable);
-bool FB_SetFTPServerWAN(integer $InstanzID, boolean $Enable, boolean $SSLOnly);
+```
+
+Liefert den Zustand von SMB- und FTP-Server als Array. Alle Werte sind Strings.  
+
+| Schlüssel        | Beschreibung                                        |
+| ---------------- | --------------------------------------------------- |
+| NewSMBEnable     | `1` = SMB-Server aktiv                              |
+| NewFTPEnable     | `1` = FTP-Server im Heimnetz aktiv                  |
+| NewFTPStatus     | Zustand des FTP-Servers, z.B. `Enabled`             |
+| NewFTPWANEnable  | `1` = FTP-Zugriff aus dem Internet aktiv            |
+| NewFTPWANSSLOnly | `1` = FTP-Zugriff aus dem Internet nur mit SSL      |
+| NewFTPWANPort    | Port für den FTP-Zugriff aus dem Internet           |
+
+```php
+var_dump(FB_GetInfo(12345));
+/*
+array(6) {
+  ["NewFTPEnable"]=> string(1) "1"
+  ["NewFTPStatus"]=> string(7) "Enabled"
+  ["NewFTPWANEnable"]=> string(1) "0"
+  ["NewFTPWANPort"]=> string(5) "42343"
+  ["NewFTPWANSSLOnly"]=> string(1) "0"
+  ["NewSMBEnable"]=> string(1) "1"
+}
+*/
+```
+
+---
+
+```php
+bool FB_SetFTPServer(integer $InstanzID, bool $Enable);
+```
+
+Schaltet den FTP-Server im Heimnetz ein (`true`) oder aus (`false`). Liefert `true` bei Erfolg.  
+
+```php
+var_dump(FB_SetFTPServer(12345, false)); // bool(true)
+```
+
+---
+
+```php
+bool FB_SetSMBServer(integer $InstanzID, bool $Enable);
+```
+
+Schaltet die Netzwerkfreigabe (SMB) ein (`true`) oder aus (`false`). Liefert `true` bei Erfolg.  
+*Nicht live getestet.*  
+
+```php
+FB_SetSMBServer(12345, true);
+```
+
+---
+
+```php
+bool FB_SetFTPServerWAN(integer $InstanzID, bool $Enable, bool $SSLOnly);
+```
+
+Schaltet den FTP-Zugriff aus dem Internet ein oder aus. `$SSLOnly` = `true` erlaubt nur verschlüsselte Verbindungen. Liefert `true` bei Erfolg.  
+*Nicht live getestet.*  
+
+> [!IMPORTANT]
+> Mit `$Enable` = `true` ist der Speicher der FritzBox aus dem Internet erreichbar.
+
+```php
+FB_SetFTPServerWAN(12345, true, true);
 ```
 
 ## 8. Aktionen
 
-Folgende Aktionen sind Verfügbar:
+**Grundsätzlich können alle bedienbaren Statusvariablen als Ziel einer [`Aktion`](https://www.symcon.de/service/dokumentation/konzepte/automationen/ablaufplaene/aktionen/) mit `Auf Wert schalten` angesteuert werden, so dass hier keine speziellen Aktionen benutzt werden müssen.**
+
+Zusätzlich sind folgende Aktionen verfügbar:
 
 ActionId: `{A686F0FC-12D3-D82B-7237-04718B5CDAAF}`  
 SMB Freigabe steuern  
@@ -117,7 +198,7 @@ WAN FTP-Dienst steuern
 
 ### 1. Changelog
 
-[Changelog der Library](../README.md#changelog)
+[Changelog der Library](../README.md#2-changelog)
 
 ### 2. Spenden
 

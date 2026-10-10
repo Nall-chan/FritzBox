@@ -20,8 +20,8 @@ class FritzBoxFirmwareInfo extends FritzBoxModulBase
         //Never delete this line!
         parent::Create();
 
-        $this->RegisterPropertyInteger('RefreshInterval', 60);
-        $this->RegisterTimer('RefreshState', 0, 'IPS_RequestAction(' . $this->InstanceID . ',"RefreshState",true);');
+        $this->RegisterPropertyInteger(\FritzBox\Base\Property::RefreshInterval, 60);
+        $this->RegisterTimer(\FritzBox\Base\Timer::RefreshState, 0, 'IPS_RequestAction(' . $this->InstanceID . ',"' . \FritzBox\Base\Action::RefreshState . '",true);');
     }
 
     public function Destroy()
@@ -73,7 +73,7 @@ class FritzBoxFirmwareInfo extends FritzBoxModulBase
             ['failed', $this->Translate('Failed'), '', -1],
             ['succeeded', $this->Translate('Succeeded'), '', -1]
         ]);
-        $this->SetTimerInterval('RefreshState', $this->ReadPropertyInteger('RefreshInterval') * 1000);
+        $this->SetTimerInterval(\FritzBox\Base\Timer::RefreshState, $this->ReadPropertyInteger(\FritzBox\Base\Property::RefreshInterval) * 1000);
         if (IPS_GetKernelRunlevel() != KR_READY) {
             return;
         }
@@ -87,9 +87,9 @@ class FritzBoxFirmwareInfo extends FritzBoxModulBase
             return true;
         }
         switch ($Ident) {
-            case 'RefreshState':
+            case \FritzBox\Base\Action::RefreshState:
                 return $this->UpdateInfo();
-            case 'AutoUpdateMode':
+            case \FritzBox\FirmwareInfo\Variables::AutoUpdateMode:
                 return $this->SetAutoUpdateMode((string) $Value);
         }
         trigger_error($this->Translate('Invalid Ident.'), E_USER_NOTICE);
@@ -123,7 +123,7 @@ class FritzBoxFirmwareInfo extends FritzBoxModulBase
         if ($result === false) {
             return false;
         }
-        $this->setIPSVariable('AutoUpdateMode', 'Autoupdate Mode', $Mode, VARIABLETYPE_STRING, 'FB.AutoUpdateMode', true);
+        $this->setIPSVariable(\FritzBox\FirmwareInfo\Variables::AutoUpdateMode, 'Autoupdate Mode', $Mode, VARIABLETYPE_STRING, 'FB.AutoUpdateMode', true);
         return true;
     }
 
@@ -148,10 +148,7 @@ class FritzBoxFirmwareInfo extends FritzBoxModulBase
     public function DoUpdate()
     {
         $result = $this->Send('X_AVM-DE_DoUpdate');
-        if ($result === false) {
-            return false;
-        }
-        return $result;
+        return $result !== false;
     }
 
     private function UpdateInfo()
@@ -160,25 +157,25 @@ class FritzBoxFirmwareInfo extends FritzBoxModulBase
         if ($result === false) {
             return false;
         }
-        $this->setIPSVariable('UpgradeAvailable', 'Upgrade Available', ((int) $result['NewUpgradeAvailable'] == 1), VARIABLETYPE_BOOLEAN);
+        $this->setIPSVariable(\FritzBox\FirmwareInfo\Variables::UpgradeAvailable, 'Upgrade Available', ((int) $result['NewUpgradeAvailable'] == 1), VARIABLETYPE_BOOLEAN);
         $VarTime = new DateTime((string) $result['NewWarrantyDate']);
         $Timestamp = $VarTime->getTimestamp();
         if ($Timestamp < 6900) {
             $Timestamp = 0;
         }
-        $this->setIPSVariable('WarrantyDate', 'Warranty Date', $Timestamp, VARIABLETYPE_INTEGER, '~UnixTimestampDate');
-        $this->setIPSVariable('UpdateState', 'Update State', (string) $result['NewX_AVM-DE_UpdateState'], VARIABLETYPE_STRING, 'FB.UpdateState');
-        $this->setIPSVariable('BuildType', 'Build Type', (string) $result['NewX_AVM-DE_BuildType'], VARIABLETYPE_STRING, 'FB.BuildType');
+        $this->setIPSVariable(\FritzBox\FirmwareInfo\Variables::WarrantyDate, 'Warranty Date', $Timestamp, VARIABLETYPE_INTEGER, '~UnixTimestampDate');
+        $this->setIPSVariable(\FritzBox\FirmwareInfo\Variables::UpdateState, 'Update State', (string) $result['NewX_AVM-DE_UpdateState'], VARIABLETYPE_STRING, 'FB.UpdateState');
+        $this->setIPSVariable(\FritzBox\FirmwareInfo\Variables::BuildType, 'Build Type', (string) $result['NewX_AVM-DE_BuildType'], VARIABLETYPE_STRING, 'FB.BuildType');
         $result = $this->GetInfoEx();
         if ($result === false) {
             return false;
         }
-        $this->setIPSVariable('AutoUpdateMode', 'Autoupdate Mode', (string) $result['NewX_AVM-DE_AutoUpdateMode'], VARIABLETYPE_STRING, 'FB.AutoUpdateMode', true);
+        $this->setIPSVariable(\FritzBox\FirmwareInfo\Variables::AutoUpdateMode, 'Autoupdate Mode', (string) $result['NewX_AVM-DE_AutoUpdateMode'], VARIABLETYPE_STRING, 'FB.AutoUpdateMode', true);
         $VarTime = new DateTime((string) $result['NewX_AVM-DE_UpdateTime']);
-        $this->setIPSVariable('UpdateTime', 'Update Time', $VarTime->getTimestamp(), VARIABLETYPE_INTEGER, '~UnixTimestamp');
-        $this->setIPSVariable('LastFwVersion', 'Last Firmware Version', (string) $result['NewX_AVM-DE_LastFwVersion'], VARIABLETYPE_STRING);
-        $this->setIPSVariable('CurrentFwVersion', 'Current Firmware Version', (string) $result['NewX_AVM-DE_CurrentFwVersion'], VARIABLETYPE_STRING);
-        $this->setIPSVariable('UpdateSuccessful', 'Update Successful', (string) $result['NewX_AVM-DE_UpdateSuccessful'], VARIABLETYPE_STRING, 'FB.UpdateSuccessful');
+        $this->setIPSVariable(\FritzBox\FirmwareInfo\Variables::UpdateTime, 'Update Time', $VarTime->getTimestamp(), VARIABLETYPE_INTEGER, '~UnixTimestamp');
+        $this->setIPSVariable(\FritzBox\FirmwareInfo\Variables::LastFwVersion, 'Last Firmware Version', (string) $result['NewX_AVM-DE_LastFwVersion'], VARIABLETYPE_STRING);
+        $this->setIPSVariable(\FritzBox\FirmwareInfo\Variables::CurrentFwVersion, 'Current Firmware Version', (string) $result['NewX_AVM-DE_CurrentFwVersion'], VARIABLETYPE_STRING);
+        $this->setIPSVariable(\FritzBox\FirmwareInfo\Variables::UpdateSuccessful, 'Update Successful', (string) $result['NewX_AVM-DE_UpdateSuccessful'], VARIABLETYPE_STRING, 'FB.UpdateSuccessful');
         return true;
     }
 }

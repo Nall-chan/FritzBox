@@ -17,8 +17,8 @@ class FritzBoxDynDns extends FritzBoxModulBase
         //Never delete this line!
         parent::Create();
 
-        $this->RegisterPropertyInteger('RefreshInterval', 60);
-        $this->RegisterTimer('RefreshInfo', 0, 'IPS_RequestAction(' . $this->InstanceID . ',"RefreshInfo",true);');
+        $this->RegisterPropertyInteger(\FritzBox\Base\Property::RefreshInterval, 60);
+        $this->RegisterTimer(\FritzBox\Base\Timer::RefreshInfo, 0, 'IPS_RequestAction(' . $this->InstanceID . ',"' . \FritzBox\Base\Action::RefreshInfo . '",true);');
     }
 
     public function Destroy()
@@ -32,7 +32,7 @@ class FritzBoxDynDns extends FritzBoxModulBase
 
     public function ApplyChanges()
     {
-        $this->SetTimerInterval('RefreshInfo', 0);
+        $this->SetTimerInterval(\FritzBox\Base\Timer::RefreshInfo, 0);
 
         $this->RegisterProfileStringEx('FB.DynDnyState', 'Network', '', '', [
             ['offline', $this->Translate('offline'), '', -1],
@@ -53,7 +53,7 @@ class FritzBoxDynDns extends FritzBoxModulBase
             return;
         }
         $this->UpdateDynDnsClient();
-        $this->SetTimerInterval('RefreshInfo', $this->ReadPropertyInteger('RefreshInterval') * 1000);
+        $this->SetTimerInterval(\FritzBox\Base\Timer::RefreshInfo, $this->ReadPropertyInteger(\FritzBox\Base\Property::RefreshInterval) * 1000);
     }
 
     public function RequestAction($Ident, $Value)
@@ -62,9 +62,9 @@ class FritzBoxDynDns extends FritzBoxModulBase
             return true;
         }
         switch ($Ident) {
-            case 'RefreshInfo':
+            case \FritzBox\Base\Action::RefreshInfo:
                 return $this->UpdateDynDnsClient();
-            case 'Enable':
+            case \FritzBox\DynDNS\Variables::Enable:
                 return $this->EnableRemoteAccess((bool) $Value);
         }
         trigger_error($this->Translate('Invalid Ident.'), E_USER_NOTICE);
@@ -88,6 +88,16 @@ class FritzBoxDynDns extends FritzBoxModulBase
             return false;
         }
         return $result;
+    }
+
+    /**
+     * Liefert die Liste der von der FritzBox unterstützten DynDNS-Anbieter (XML).
+     *
+     * @return string|false
+     */
+    public function GetDDNSProviders()
+    {
+        return $this->Send(__FUNCTION__);
     }
 
     public function EnableRemoteAccess(bool $Enable)
@@ -160,17 +170,17 @@ class FritzBoxDynDns extends FritzBoxModulBase
         if ($result === false) {
             return false;
         }
-        $this->setIPSVariable('Enable', 'Remote access active', (bool) $result['NewEnabled'], VARIABLETYPE_BOOLEAN, '~Switch', true, 1);
+        $this->setIPSVariable(\FritzBox\DynDNS\Variables::Enable, 'Remote access active', (bool) $result['NewEnabled'], VARIABLETYPE_BOOLEAN, '~Switch', true, 1);
 
         $result = $this->GetDDNSInfo();
         if ($result === false) {
             return false;
         }
-        $this->setIPSVariable('EnableDDNS', 'DynDns active', (bool) $result['NewEnabled'], VARIABLETYPE_BOOLEAN, '~Switch', false, 2);
-        $this->setIPSVariable('ProviderName', 'Provider', (string) $result['NewProviderName'], VARIABLETYPE_STRING, '', false, 3);
-        $this->setIPSVariable('Domain', 'Domain', (string) $result['NewDomain'], VARIABLETYPE_STRING, '', false, 4);
-        $this->setIPSVariable('IPv4State', 'IPv4 State', (string) $result['NewStatusIPv4'], VARIABLETYPE_STRING, 'FB.DynDnyState', false, 5);
-        $this->setIPSVariable('IPv6State', 'IPv6 State', (string) $result['NewStatusIPv6'], VARIABLETYPE_STRING, 'FB.DynDnyState', false, 6);
+        $this->setIPSVariable(\FritzBox\DynDNS\Variables::EnableDDNS, 'DynDns active', (bool) $result['NewEnabled'], VARIABLETYPE_BOOLEAN, '~Switch', false, 2);
+        $this->setIPSVariable(\FritzBox\DynDNS\Variables::ProviderName, 'Provider', (string) $result['NewProviderName'], VARIABLETYPE_STRING, '', false, 3);
+        $this->setIPSVariable(\FritzBox\DynDNS\Variables::Domain, 'Domain', (string) $result['NewDomain'], VARIABLETYPE_STRING, '', false, 4);
+        $this->setIPSVariable(\FritzBox\DynDNS\Variables::IPv4State, 'IPv4 State', (string) $result['NewStatusIPv4'], VARIABLETYPE_STRING, 'FB.DynDnyState', false, 5);
+        $this->setIPSVariable(\FritzBox\DynDNS\Variables::IPv6State, 'IPv6 State', (string) $result['NewStatusIPv6'], VARIABLETYPE_STRING, 'FB.DynDnyState', false, 6);
         return true;
     }
 }

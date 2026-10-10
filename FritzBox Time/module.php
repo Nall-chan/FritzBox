@@ -18,8 +18,8 @@ class FritzBoxTime extends FritzBoxModulBase
         //Never delete this line!
         parent::Create();
 
-        $this->RegisterPropertyInteger('RefreshInterval', 60);
-        $this->RegisterTimer('RefreshInfo', 0, 'IPS_RequestAction(' . $this->InstanceID . ',"RefreshInfo",true);');
+        $this->RegisterPropertyInteger(\FritzBox\Base\Property::RefreshInterval, 60);
+        $this->RegisterTimer(\FritzBox\Base\Timer::RefreshInfo, 0, 'IPS_RequestAction(' . $this->InstanceID . ',"' . \FritzBox\Base\Action::RefreshInfo . '",true);');
     }
 
     public function Destroy()
@@ -30,9 +30,9 @@ class FritzBoxTime extends FritzBoxModulBase
 
     public function ApplyChanges()
     {
-        $this->SetTimerInterval('RefreshInfo', 0);
+        $this->SetTimerInterval(\FritzBox\Base\Timer::RefreshInfo, 0);
         parent::ApplyChanges();
-        $this->SetTimerInterval('RefreshInfo', $this->ReadPropertyInteger('RefreshInterval') * 1000);
+        $this->SetTimerInterval(\FritzBox\Base\Timer::RefreshInfo, $this->ReadPropertyInteger(\FritzBox\Base\Property::RefreshInterval) * 1000);
         if (IPS_GetKernelRunlevel() != KR_READY) {
             return;
         }
@@ -45,12 +45,12 @@ class FritzBoxTime extends FritzBoxModulBase
             return true;
         }
         switch ($Ident) {
-            case 'RefreshInfo':
+            case \FritzBox\Base\Action::RefreshInfo:
                 return $this->UpdateInfo();
-            case 'NTPServer':
-                return $this->SetNTPServers($Value, $this->GetValue('NTPServer2'));
-            case 'NTPServer2':
-                return $this->SetNTPServers($this->GetValue('NTPServer'), $Value);
+            case \FritzBox\Time\Variables::NTPServer:
+                return $this->SetNTPServers($Value, $this->GetValue(\FritzBox\Time\Variables::NTPServer2));
+            case \FritzBox\Time\Variables::NTPServer2:
+                return $this->SetNTPServers($this->GetValue(\FritzBox\Time\Variables::NTPServer), $Value);
         }
         trigger_error($this->Translate('Invalid Ident.'), E_USER_NOTICE);
 
@@ -86,9 +86,9 @@ class FritzBoxTime extends FritzBoxModulBase
             return false;
         }
         $VarTime = new DateTime((string) $result['NewCurrentLocalTime']);
-        $this->setIPSVariable('CurrentLocalTime', 'Current system clock', $VarTime->getTimestamp(), VARIABLETYPE_INTEGER, '~UnixTimestamp');
-        $this->setIPSVariable('NTPServer', 'NTP-Server 1', $result['NewNTPServer1'], VARIABLETYPE_STRING, '', true);
-        $this->setIPSVariable('NTPServer2', 'NTP-Server 2', $result['NewNTPServer2'], VARIABLETYPE_STRING, '', true);
+        $this->setIPSVariable(\FritzBox\Time\Variables::CurrentLocalTime, 'Current system clock', $VarTime->getTimestamp(), VARIABLETYPE_INTEGER, '~UnixTimestamp');
+        $this->setIPSVariable(\FritzBox\Time\Variables::NTPServer, 'NTP-Server 1', $result['NewNTPServer1'], VARIABLETYPE_STRING, '', true);
+        $this->setIPSVariable(\FritzBox\Time\Variables::NTPServer2, 'NTP-Server 2', $result['NewNTPServer2'], VARIABLETYPE_STRING, '', true);
         return true;
     }
 }

@@ -17,11 +17,12 @@ TR64 Geräte Instanz für SmartHome Geräte der FRitzBox.
 - [2. Voraussetzungen](#2-voraussetzungen)
 - [3. Software-Installation](#3-software-installation)
 - [4. Einrichten der Instanzen in IP-Symcon](#4-einrichten-der-instanzen-in-ip-symcon)
-- [5. Statusvariablen und Profile](#5-statusvariablen-und-profile)
-  - [Statusvariablen](#statusvariablen)
+- [5. Statusvariablen](#5-statusvariablen)
   - [Profile](#profile)
 - [6. Visualisierung](#6-visualisierung)
-- [7. PHP-Funktionsreferenz](#7-php-funktionsreferenz)
+  - [Kachel Visualisierung](#kachel-visualisierung)
+  - [WebFront Visualisierung](#webfront-visualisierung)
+- [7. PHP-Befehlsreferenz](#7-php-befehlsreferenz)
 - [8. Aktionen](#8-aktionen)
 - [9. Anhang](#9-anhang)
   - [1. Changelog](#1-changelog)
@@ -56,16 +57,24 @@ Unter 'Instanz hinzufügen' ist das 'FritzBox Homeautomation'-Modul unter dem He
 
 **Konfigurationsparameter**:  
 
-| Name            | Typ     | Beschreibung                         |
-| --------------- | ------- | ------------------------------------ |
-| RefreshInterval | integer | Aktualisierungsintervall in Sekunden |
-| AIN             | string  | Adresse vom Gerät                    |
+| Eigenschaft              | Name            | Typ     | Standardwert | Beschreibung                                                                                   |
+| ------------------------ | --------------- | ------- | ------------ | ---------------------------------------------------------------------------------------------- |
+| Geräte AIN               | AIN             | string  |              | AIN (Aktor-Identifikationsnummer) des Gerätes, wie sie in der FritzBox angezeigt wird          |
+| Aktualisierungsintervall | RefreshInterval | integer | 5            | Intervall in Sekunden, in dem die Werte abgefragt werden; `0` = aus                            |
 
-## 5. Statusvariablen und Profile
+Die AIN wird vom [FritzBox SmartHome Konfigurator](../FritzBox%20Homeautomation%20Configurator/README.md) automatisch eingetragen.  
+
+Beispiel:  
+
+```php
+IPS_SetProperty(12345, 'AIN', '11657 0272633');
+IPS_SetProperty(12345, 'RefreshInterval', 10);
+IPS_ApplyChanges(12345);
+```
+
+## 5. Statusvariablen
 
 Die Statusvariablen werden automatisch angelegt. Das Löschen einzelner kann zu Fehlfunktionen führen.
-
-### Statusvariablen
 
 | Ident                  | Name                                        | Typ     |
 | ---------------------- | ------------------------------------------- | ------- |
@@ -90,15 +99,23 @@ Die Statusvariablen werden automatisch angelegt. Das Löschen einzelner kann zu 
 
 ### Profile
 
-| Name               | Typ    |
-| ------------------ | ------ |
-| FB.AHA.Present     | string |
-| FB.AHA.Valid       | string |
-| FB.AHA.Mode        | string |
-| FB.AHA.State       | string |
-| FB.AHA.VentilState | string |
+| Name               | Typ    | Werte                                          |
+| ------------------ | ------ | ---------------------------------------------- |
+| FB.AHA.Present     | string | `DISCONNECTED`, `REGISTRERED`, `CONNECTED`     |
+| FB.AHA.Valid       | string | `INVALID`, `VALID`, `UNDEFINED`                |
+| FB.AHA.Mode        | string | `AUTO`, `MANUAL`, `UNDEFINED`                  |
+| FB.AHA.State       | string | `OFF`, `ON`, `TOGGLE`                          |
+| FB.AHA.VentilState | string | `CLOSED`, `OPEN`, `TEMP` (temperaturgeregelt)  |
 
 ## 6. Visualisierung
+
+### Kachel Visualisierung
+
+Welche Variablen angelegt werden, hängt von den Fähigkeiten des Gerätes ab.  
+Leistung, Energie und Temperaturen werden als Messwerte mit Einheit dargestellt, die Zustände als Text. Nur `Schalter (Zustand)` ist als Auswahl (`OFF`, `ON`, `TOGGLE`) bedienbar.  
+*Nicht live geprüft, da kein SmartHome-Gerät zum Testen vorhanden war.*  
+
+### WebFront Visualisierung
 
 Die Angezeigten Variablen hängen von den Fähigkeiten des Gerätes ab.  
 
@@ -106,25 +123,71 @@ Die Angezeigten Variablen hängen von den Fähigkeiten des Gerätes ab.
 
 ![Webfront](imgs/webfront.png)  
 
-## 7. PHP-Funktionsreferenz
+## 7. PHP-Befehlsreferenz
+
+Alle Funktionen liefern `false`, wenn die Instanz nicht aktiv ist oder die FritzBox einen Fehler meldet. Meldet die FritzBox einen Fehler, wird zusätzlich eine Meldung ausgegeben.  
+Die Funktionen wurden nicht live getestet, da kein SmartHome-Gerät zum Testen vorhanden war.  
+
+---
 
 ```php
+array|false FB_GetInfo(integer $InstanzID);
+```
 
-array|false FB_GetInfo(integer $InstanceID);
-array|false FB_GetSpecificDeviceInfos(integer $InstanceID);
-boolean FB_SetDeviceName(integer $InstanceID, string $Name);
-boolean FB_SetSwitch(integer $InstanceID, string $State);
+Liefert allgemeine Angaben der SmartHome-Schnittstelle der FritzBox als Array (z.B. erlaubte Zeichen und Länge von AIN und Gerätenamen). Die Schlüssel entsprechen der AVM-Dokumentation zu `X_AVM-DE_Homeauto` → `GetInfo`.  
+
+```php
+var_dump(FB_GetInfo(12345));
+```
+
+---
+
+```php
+array|false FB_GetSpecificDeviceInfos(integer $InstanzID);
+```
+
+Liefert alle Werte des Gerätes mit der eingetragenen AIN als Array, z.B. `NewDeviceName`, `NewPresent`, `NewSwitchState`, `NewMultimeterPower` (in 1/100 Watt) oder `NewTemperatureCelsius` (in 1/10 °C). Die Schlüssel entsprechen der AVM-Dokumentation zu `X_AVM-DE_Homeauto` → `GetSpecificDeviceInfos`.  
+
+```php
+$Result = FB_GetSpecificDeviceInfos(12345);
+echo $Result['NewDeviceName'];
+```
+
+---
+
+```php
+bool FB_SetDeviceName(integer $InstanzID, string $Name);
+```
+
+Ändert den Namen des Gerätes in der FritzBox. Der Name der Instanz in Symcon bleibt unverändert. Liefert `true` bei Erfolg.  
+
+```php
+FB_SetDeviceName(12345, 'Steckdose Wohnzimmer');
+```
+
+---
+
+```php
+bool FB_SetSwitch(integer $InstanzID, string $State);
+```
+
+Schaltet eine schaltbare Steckdose: `ON` (ein), `OFF` (aus) oder `TOGGLE` (umschalten). Liefert `true` bei Erfolg.  
+
+```php
+FB_SetSwitch(12345, 'ON');
 ```
 
 ## 8. Aktionen
 
-Keine Aktionen verfügbar.
+**Grundsätzlich können alle bedienbaren Statusvariablen als Ziel einer [`Aktion`](https://www.symcon.de/service/dokumentation/konzepte/automationen/ablaufplaene/aktionen/) mit `Auf Wert schalten` angesteuert werden, so dass hier keine speziellen Aktionen benutzt werden müssen.**
+
+Darüber hinaus bietet das Modul keine speziellen Aktionen.
 
 ## 9. Anhang
 
 ### 1. Changelog
 
-[Changelog der Library](../README.md#changelog)
+[Changelog der Library](../README.md#2-changelog)
 
 ### 2. Spenden
 

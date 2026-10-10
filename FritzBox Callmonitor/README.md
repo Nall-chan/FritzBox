@@ -17,11 +17,11 @@ Anrufmonitor welcher ankommenden und abgehenden Anrufen erkennt.
 - [2. Voraussetzungen](#2-voraussetzungen)
 - [3. Software-Installation](#3-software-installation)
 - [4. Einrichten der Instanzen in IP-Symcon](#4-einrichten-der-instanzen-in-ip-symcon)
-- [5. Statusvariablen und Profile](#5-statusvariablen-und-profile)
-  - [Statusvariablen](#statusvariablen)
-  - [Profile](#profile)
+- [5. Statusvariablen](#5-statusvariablen)
 - [6. Visualisierung](#6-visualisierung)
-- [7. PHP-Funktionsreferenz](#7-php-funktionsreferenz)
+  - [Kachel Visualisierung](#kachel-visualisierung)
+  - [WebFront Visualisierung](#webfront-visualisierung)
+- [7. PHP-Befehlsreferenz](#7-php-befehlsreferenz)
 - [8. Aktionen](#8-aktionen)
 - [9. Anhang](#9-anhang)
   - [1. Changelog](#1-changelog)
@@ -58,9 +58,10 @@ Durch das hinzufügen dieser Instanz wird die entsprechende [FritzBox IO](../Fri
 
 **Konfigurationsseite**:  
 
-Die Vorwahlen werden automatisch aus der FritzBox ausgelesen; im Fehlerfall wird eine Meldung erzeugt und die Eingabe muss manuell erfolgen.  
-Sind Einstellungen ausgegraut, so sind die Voraussetzungen nicht erfüllt um diese Einstellungen nutzen zu können.
-Zum Beispiel das Konfigurieren der HTML-Tabelle, wen die Tabelle deaktiviert wurde.  
+Länder- und Ortsvorwahl werden beim Anlegen der Instanz einmalig aus der FritzBox gelesen. Liefert die FritzBox keine Vorwahlen, wird eine Meldung angezeigt und die Vorwahlen müssen manuell eingetragen werden.  
+Danach überschreibt die Instanz die Vorwahlen nicht mehr. Über den Button `Vorwahlen ändern` können sie erneut aus der FritzBox gelesen oder manuell bearbeitet werden. Die Änderung wird erst mit `Änderungen übernehmen` gespeichert.  
+
+Ausgegraute Einstellungen können erst genutzt werden, wenn ihre Voraussetzung erfüllt ist. Zum Beispiel lässt sich die HTML-Tabelle nur konfigurieren, wenn sie aktiviert ist.  
 
 ![Config](imgs/config1.png)
 
@@ -81,47 +82,115 @@ Konfiguration der HTML Tabelle:
 
 **Konfigurationsparameter**:  
 
-| Name                    | Typ            | Beschreibung                                                                             |
-| ----------------------- | -------------- | ---------------------------------------------------------------------------------------- |
-| AreaCode                | string         | Ortsvorwahl                                                                              |
-| CountryCode             | string         | Ländervorwahl                                                                            |
-| ReverseSearchInstanceID | integer        | InstanzID einer Rückwärtssuche-Instanz                                                   |
-| CustomSearchScriptID    | integer        | ObjectID eines eigenen Skriptes für individuelle Rückwärtssuche                          |
-| MaxNameSize             | integer        | Einkürzen von Namen der Gesprächspartner auf MaxNameSize Zeichen                         |
-| SearchMarker            | string         | Marker welche dem Namen vorangestellt wird, wenn der Name aus einer Rückwärtssuche kommt |
-| UnknownNumberName       | string         | Zeichenkette welche angezeigt wird, wenn kein Name bekannt ist                           |
+| Eigenschaft                                | Name                    | Typ     | Standardwert   | Beschreibung                                                                                                  |
+| ------------------------------------------ | ----------------------- | ------- | -------------- | ------------------------------------------------------------------------------------------------------------- |
+| Ländervorwahl                              | CountryCode             | string  | (aus FritzBox) | Ländervorwahl mit `+`, z.B. `+49`                                                                             |
+| Ortsvorwahl                                | AreaCode                | string  | (aus FritzBox) | Ortsvorwahl mit führender `0`, z.B. `030`                                                                     |
+| Instanz für Rückwärtsuche                  | ReverseSearchInstanceID | integer | 0              | ObjektID einer Instanz des Moduls `Rückwärtssuche`, `0` = keine                                               |
+| kürze Namen auf                            | MaxNameSize             | integer | 30             | Namen der Gesprächspartner werden auf diese Anzahl Zeichen gekürzt (mindestens 5)                             |
+| Suffix für Treffer Rückwärtssuche          | SearchMarker            | string  | `(*) `         | Zeichenkette, die dem Namen vorangestellt wird, wenn der Name aus der Rückwärtssuche stammt                    |
+| Anzeigename für unbekannte Nummern         | UnknownNumberName       | string  | `(unbekannt)`  | Wird bei unterdrückter Rufnummer angezeigt. Nicht gefundene Rufnummern werden als `(Rufnummer)` angezeigt     |
+| Skript für eigene Rückwärtsuche            | CustomSearchScriptID    | integer | 0              | ObjektID eines eigenen Skriptes für die Rückwärtssuche, `0` = keines (siehe unten)                             |
+| Meldung nicht erneut anzeigen              | NotShowWarning          | boolean | false          | Warnmeldung abschalten, wenn das Modul `Rückwärtssuche` nicht installiert ist                                 |
+| Sende Benachrichtigung                     | CallsAsNotification     | boolean | true           | Änderungen von Anrufen/Gesprächen als Benachrichtigung an WebFronts senden                                     |
+| WebFronts für Benachrichtigung             | Targets                 | string  | `[]`           | Liste der WebFront-Instanzen, welche eine Benachrichtigung erhalten                                           |
+| Konfiguration WebFront Benachrichtigung    | Notification            | string  | je Ereignis    | Titel, Text, Icon und Anzeigedauer der Benachrichtigung je Ereignis; Platzhalter wie `{NAME}` sind möglich     |
+| Zeige alle Gespräche als HTML-Tabelle      | CallsAsTable            | boolean | true           | Ausgabe der aktiven Gespräche als HTML-Tabelle in der Statusvariable `Aktive Gespräche`                        |
+| Icon für Typ des Anrufes                   | Icons                   | string  | vordefiniert   | Icon je Ereignis für die Spalte Icon der HTML-Tabelle                                                          |
+| Darstellung Tabelle                        | Table                   | string  | vordefiniert   | HTML/CSS Konfiguration der HTML-Tabelle                                                                       |
+| Spalten                                    | Columns                 | string  | vordefiniert   | HTML/CSS Konfiguration der Spalten (pro Spalte)                                                               |
+| Zeilen                                     | Rows                    | string  | vordefiniert   | HTML/CSS Konfiguration der Zeilen (Überschrift, gerade und ungerade)                                          |
+| Aktionen für Ereignisse                    | Actions                 | string  | `[]`           | Liste von Aktionen, welche bei Ereignissen ausgeführt werden (siehe unten)                                    |
 
-Länder- und Ortsvorwahl werden beim Anlegen der Instanz einmalig aus der FritzBox gelesen. Danach überschreibt die Instanz sie nicht mehr. Über den Button `Vorwahlen ändern` können sie erneut aus der FritzBox gelesen oder manuell bearbeitet werden. Die Änderung wird erst mit `Änderungen übernehmen` gespeichert.  
-| NotShowWarning          | boolean        | Warnmeldung abschalten, wenn das Rückwärtssuche Modul nicht installiert ist              |
-| CallsAsTable            | boolean        | Ausgabe der Gespräche als HTML-Tabelle in einer String-Variable                          |
-| CallsAsNotification     | boolean        | Änderungen von Anrufen/Gesprächen als Benachrichtigung an WebFront senden                |
-| Targets                 | string / Liste | WebFronts welche eine Benachrichtigung erhalten sollen                                   |
-| Notification            | string / Liste | Konfiguration der Benachrichtigungen (Titel, Inhalt, Icon, Timeout)                      |
-| Actions                 | string / Liste | Liste von Aktionen welche bei Ereignissen ausgeführt werden sollen                       |
-| Table                   | string / Liste | HTML/CSS Konfiguration der HTML-Tabelle                                                  |
-| Columns                 | string / Liste | HTML/CSS Konfiguration der Spalten (pro Spalte)                                          |
-| Rows                    | string / Liste | HTML/CSS Konfiguration der Zeilen (Überschrift, gerade und ungerade)                     |
-| Icons                   | string / Liste | Icon für jedes Ereignis, wird in der Spalte Icon in der HTML Tabelle angezeigt           |
+Die Listen (`Targets`, `Notification`, `Icons`, `Table`, `Columns`, `Rows`, `Actions`) werden als JSON-String gespeichert und sollten über die Konsole bearbeitet werden.  
 
-## 5. Statusvariablen und Profile
+Beispiel zum Setzen der Vorwahlen per Skript:  
+
+```php
+IPS_SetProperty(12345, 'CountryCode', '+49');
+IPS_SetProperty(12345, 'AreaCode', '030');
+IPS_ApplyChanges(12345);
+```
+
+**Eigenes Skript für die Rückwärtssuche**:  
+
+Ist ein Skript in `Skript für eigene Rückwärtsuche` eingetragen, wird es für jede Rufnummer ausgeführt, die nicht im Telefonbuch der FritzBox gefunden wurde. Die Instanz für die Rückwärtssuche und `Suffix für Treffer Rückwärtssuche` werden dann nicht verwendet, der Name aus dem Skript wird nicht gekürzt.  
+Im Skript stehen `$_IPS['SENDER']` (immer `FritzBox`) und `$_IPS['NUMBER']` (gesuchte Rufnummer) zur Verfügung. Die Ausgabe des Skriptes (`echo`) wird als Name verwendet.  
+
+```php
+if ($_IPS['SENDER'] == 'FritzBox') {
+    echo ($_IPS['NUMBER'] == '0301234567') ? 'Pizzeria' : 'Unbekannt';
+}
+```
+
+**Aktionen bei Ereignissen**:  
+
+In der Liste `Aktionen für Ereignisse` (Bereich `Benutzerdefinierte Aktionen`) wird jeder Aktion ein Ereignis zugeordnet (`Alle` oder eines der Ereignisse aus der Tabelle unten). Tritt das Ereignis ein, wird die Aktion ausgeführt.  
+Wird als Aktion ein Skript ausgeführt, stehen im Skript folgende Werte in `$_IPS` zur Verfügung:  
+
+| Index        | Typ     | Beschreibung                                                                                    |
+| ------------ | ------- | ----------------------------------------------------------------------------------------------- |
+| SENDER       | string  | Immer `FritzBox`                                                                                |
+| PARENT       | integer | ObjektID der Anrufmonitor-Instanz                                                               |
+| EVENT        | integer | Ereignis als Zahl (siehe unten)                                                                 |
+| TYPE         | string  | Richtung des Gesprächs: `CALLIN` (ankommend) oder `CALLOUT` (abgehend)                          |
+| STATUS       | string  | Meldung der FritzBox: `CONNECT` oder `DISCONNECT`; nur bei Ereignis 3 bis 6 vorhanden            |
+| DEVICE       | string  | Name des Endgeräts im Klartext; bei klingelnden Anrufen `*** RING ***`                          |
+| DEVICEID     | integer | Interne ID des Endgeräts in der FritzBox; `0`, solange noch kein Endgerät beteiligt ist          |
+| LOCAL        | string  | Eigene Rufnummer                                                                                |
+| REMOTE       | string  | Rufnummer der Gegenstelle; leer bei unterdrückter Rufnummer                                     |
+| NAME         | string  | Name der Gegenstelle (Telefonbuch oder Rückwärtssuche)                                          |
+| LINE         | string  | Genutzte Leitung, wie von der FritzBox gemeldet (z.B. `SIP0`)                                   |
+| DURATION_RAW | integer | Gesprächsdauer in Sekunden; `0` bis zum Ende des Gesprächs                                      |
+| DURATION     | string  | Gesprächsdauer im Klartext (z.B. `1 Min 5 Sek`)                                                 |
+| TIME         | string  | Zeitpunkt des Anrufs bzw. der Verbindung, wie von der FritzBox gemeldet (`TT.MM.JJ hh:mm:ss`)   |
+
+Werte von `EVENT`:  
+
+| Wert | Ereignis              |
+| ---- | --------------------- |
+| 1    | Ankommend             |
+| 2    | Abgehend              |
+| 3    | Ankommend verbunden   |
+| 4    | Abgehend verbunden    |
+| 5    | Ankommend getrennt    |
+| 6    | Abgehend getrennt     |
+
+Je nach Stand des Gesprächs können einzelne Felder leer sein oder `0` enthalten.  
+Zusätzlich können die Platzhalter `{DEVICE}`, `{NAME}`, `{REMOTE}` usw. (Index in geschweiften Klammern) in den Text-Parametern einer Aktion verwendet werden; sie werden vor dem Ausführen durch die aktuellen Werte ersetzt.  
+
+Beispiel für ein Skript als Aktion:  
+
+```php
+if ($_IPS['SENDER'] == 'FritzBox') {
+    IPS_LogMessage('Anrufmonitor', $_IPS['NAME'] . ' (' . $_IPS['REMOTE'] . ') an ' . $_IPS['DEVICE']);
+}
+```
+
+## 5. Statusvariablen
 
 Die Statusvariablen werden automatisch angelegt. Das Löschen einzelner kann zu Fehlfunktionen führen.
-
-### Statusvariablen  
 
 | Ident    | Name             | Typ    | Beschreibung                       |
 | -------- | ---------------- | ------ | ---------------------------------- |
 | CallList | Aktive Gespräche | string | HTML Tabelle der aktiven Gespräche |
 
-### Profile
-
-Dieses Modul erzeugt keine Variablenprofile.  
+Die Variable `Aktive Gespräche` wird nur angelegt, wenn `Zeige alle Gespräche als HTML-Tabelle` aktiviert ist.  
 
 ## 6. Visualisierung
 
+### Kachel Visualisierung
+
+Die Instanz hat nur die Variable `Aktive Gespräche`. Sie ist eine HTML-Box mit der Tabelle der aktiven Gespräche; das Bild zeigt sie als einzelne Kachel (ohne laufendes Gespräch).  
+Benachrichtigungen (`Sende Benachrichtigung`) werden nur an WebFront-Instanzen gesendet.  
+
+![Kachel HTML-Box](imgs/tile_html.png)  
+
+### WebFront Visualisierung
+
 ![Webfront](imgs/webfront.png)
 
-## 7. PHP-Funktionsreferenz
+## 7. PHP-Befehlsreferenz
 
 Keine Funktionen verfügbar.  
 
@@ -133,7 +202,7 @@ Keine Aktionen verfügbar.
 
 ### 1. Changelog
 
-[Changelog der Library](../README.md#changelog)
+[Changelog der Library](../README.md#2-changelog)
 
 ### 2. Spenden
 

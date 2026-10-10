@@ -65,7 +65,7 @@ class FritzBoxDiscovery extends IPSModule
         foreach ($InstanceIDListConfigurators as $InstanceIDConfigurator) {
             $Splitter = IPS_GetInstance($InstanceIDConfigurator)['ConnectionID'];
             if ($Splitter > 0) {
-                $Url = parse_url(IPS_GetProperty($Splitter, 'Host'), PHP_URL_HOST);
+                $Url = parse_url(IPS_GetProperty($Splitter, \FritzBox\IO\Property::Host), PHP_URL_HOST);
                 $DevicesAddress[$InstanceIDConfigurator] = ($Url ? $Url : '');
             }
         }
@@ -92,9 +92,9 @@ class FritzBoxDiscovery extends IPSModule
                 $CallMonitorSocket = [
                     'moduleID'      => \FritzBox\GUID::ClientSocket,
                     'configuration' => [
-                        'Host' => trim($Host, '[]'),
-                        'Port' => 1012,
-                        'Open' => false
+                        \FritzBox\ClientSocket\Property::Host => trim($Host, '[]'),
+                        \FritzBox\ClientSocket\Property::Port => 1012,
+                        \FritzBox\ClientSocket\Property::Open => false
                     ]
                 ];
                 $AddDevice['create']['https://' . $Host] = [
@@ -105,7 +105,7 @@ class FritzBoxDiscovery extends IPSModule
                     [
                         'moduleID'      => \FritzBox\GUID::FritzBoxIO,
                         'configuration' => [
-                            'Host'     => 'https://' .
+                            \FritzBox\IO\Property::Host     => 'https://' .
                             $Host
                         ]
                     ],
@@ -119,7 +119,7 @@ class FritzBoxDiscovery extends IPSModule
                     [
                         'moduleID'      => \FritzBox\GUID::FritzBoxIO,
                         'configuration' => [
-                            'Host'     => 'http://' .
+                            \FritzBox\IO\Property::Host     => 'http://' .
                             $Host
                         ]
                     ],

@@ -25,14 +25,14 @@ class FritzBoxFileShare extends FritzBoxModulBase
     {
         //Never delete this line!
         parent::Create();
-        $this->RegisterPropertyInteger('RefreshInterval', 3600);
-        $this->RegisterPropertyBoolean('SharesAsTable', false);
+        $this->RegisterPropertyInteger(\FritzBox\Base\Property::RefreshInterval, 3600);
+        $this->RegisterPropertyBoolean(\FritzBox\FileShare\Property::SharesAsTable, false);
         $Style = $this->GenerateHTMLStyleProperty();
-        $this->RegisterPropertyString('Table', json_encode($Style['Table']));
-        $this->RegisterPropertyString('Columns', json_encode($Style['Columns']));
-        $this->RegisterPropertyString('Rows', json_encode($Style['Rows']));
-        $this->RegisterPropertyString('Icons', json_encode($Style['Icons']));
-        $this->RegisterTimer('RefreshState', 0, 'IPS_RequestAction(' . $this->InstanceID . ',"RefreshState",true);');
+        $this->RegisterPropertyString(\FritzBox\Table\Property::Table, json_encode($Style['Table']));
+        $this->RegisterPropertyString(\FritzBox\Table\Property::Columns, json_encode($Style['Columns']));
+        $this->RegisterPropertyString(\FritzBox\Table\Property::Rows, json_encode($Style['Rows']));
+        $this->RegisterPropertyString(\FritzBox\FileShare\Property::Icons, json_encode($Style['Icons']));
+        $this->RegisterTimer(\FritzBox\Base\Timer::RefreshState, 0, 'IPS_RequestAction(' . $this->InstanceID . ',"' . \FritzBox\Base\Action::RefreshState . '",true);');
     }
 
     public function Destroy()
@@ -42,19 +42,19 @@ class FritzBoxFileShare extends FritzBoxModulBase
 
     public function ApplyChanges()
     {
-        $this->SetTimerInterval('RefreshState', 0);
+        $this->SetTimerInterval(\FritzBox\Base\Timer::RefreshState, 0);
         parent::ApplyChanges();
         if (IPS_GetKernelRunlevel() != KR_READY) {
             return;
         }
-        if ($this->ReadPropertyBoolean('SharesAsTable')) {
-            $this->RegisterVariableString('SharesTable', $this->Translate('File shares'), '~HTMLBox', -3);
+        if ($this->ReadPropertyBoolean(\FritzBox\FileShare\Property::SharesAsTable)) {
+            $this->RegisterVariableString(\FritzBox\FileShare\Variables::SharesTable, $this->Translate('File shares'), '~HTMLBox', -3);
 
             $this->RefreshFileShareTable();
-            $this->SetTimerInterval('RefreshState', $this->ReadPropertyInteger('RefreshInterval') * 1000);
+            $this->SetTimerInterval(\FritzBox\Base\Timer::RefreshState, $this->ReadPropertyInteger(\FritzBox\Base\Property::RefreshInterval) * 1000);
         } else {
-            $this->UnregisterVariable('SharesTable');
-            $this->SetTimerInterval('RefreshState', 0);
+            $this->UnregisterVariable(\FritzBox\FileShare\Variables::SharesTable);
+            $this->SetTimerInterval(\FritzBox\Base\Timer::RefreshState, 0);
         }
     }
 
@@ -64,9 +64,9 @@ class FritzBoxFileShare extends FritzBoxModulBase
             return true;
         }
         switch ($Ident) {
-            case 'RefreshState':
+            case \FritzBox\Base\Action::RefreshState:
                 return $this->RefreshFileShareTable();
-            case 'SharesAsTable':
+            case \FritzBox\FileShare\Action::SharesAsTable:
                 $this->UpdateFormField('RefreshInterval', 'enabled', $Value);
                 $this->UpdateFormField('Icons', 'enabled', $Value);
                 $this->UpdateFormField('ShowImage', 'enabled', $Value);
@@ -87,7 +87,7 @@ class FritzBoxFileShare extends FritzBoxModulBase
             return json_encode($Form);
         }
 
-        if (!$this->ReadPropertyBoolean('SharesAsTable')) {
+        if (!$this->ReadPropertyBoolean(\FritzBox\FileShare\Property::SharesAsTable)) {
             $Form['elements'][1]['items'][0]['enabled'] = false;
             $Form['elements'][1]['items'][1]['items'][0]['items'][0]['enabled'] = false;
             $Form['elements'][1]['items'][1]['items'][0]['items'][1]['enabled'] = false;
@@ -102,7 +102,7 @@ class FritzBoxFileShare extends FritzBoxModulBase
 
     public function RefreshFileShareTable()
     {
-        $Table = $this->ReadPropertyBoolean('SharesAsTable');
+        $Table = $this->ReadPropertyBoolean(\FritzBox\FileShare\Property::SharesAsTable);
         if (!$Table) {
             return false;
         }
@@ -146,7 +146,7 @@ class FritzBoxFileShare extends FritzBoxModulBase
             'NewAccessCountLimit'      => $AccessCountLimit,
             'NewExpire'                => $Expire
         ]);
-        return $result;
+        return $result !== false;
     }
 
     public function GetGenericFilelinkEntry(int $Index)
@@ -176,10 +176,7 @@ class FritzBoxFileShare extends FritzBoxModulBase
         $result = $this->Send(__FUNCTION__, [
             'NewID'=> $Id
         ]);
-        if ($result === false) {
-            return false;
-        }
-        return $result;
+        return $result !== false;
     }
 
     public function GetFilelinkListPath()
@@ -252,7 +249,7 @@ class FritzBoxFileShare extends FritzBoxModulBase
         array_multisort($Path, SORT_ASC, SORT_LOCALE_STRING, $TableData);
         $HTML = $this->GetTable($TableData, '', '', '', -1, true);
 
-        $Config_Icons = json_decode($this->ReadPropertyString('Icons'), true);
+        $Config_Icons = json_decode($this->ReadPropertyString(\FritzBox\FileShare\Property::Icons), true);
         $Icon_CSS = '<div id="scoped-content"><style type="text/css" scoped>' . "\r\n";
         foreach ($Config_Icons as $Config_Icon) {
             $ImageData = @getimagesize('data://text/plain;base64,' . $Config_Icon['icon']);
@@ -263,7 +260,7 @@ class FritzBoxFileShare extends FritzBoxModulBase
         }
         $Icon_CSS .= '</style>';
 
-        $this->SetValue('SharesTable', $Icon_CSS . $HTML);
+        $this->SetValue(\FritzBox\FileShare\Variables::SharesTable, $Icon_CSS . $HTML);
         return true;
     }
 

@@ -44,7 +44,7 @@ class FritzBoxWLAN extends FritzBoxModulBase
         $this->HostNumberOfEntriesId = 0;
         $this->APisGuest = false;
 
-        $this->RegisterPropertyBoolean('HostAsVariable', false);
+        $this->RegisterPropertyBoolean(\FritzBox\WLAN\Property::HostAsVariable, false);
         $UsedVariableIdents = array_map(function ($VariableID)
         {
             $Ident = IPS_GetObject($VariableID)['ObjectIdent'];
@@ -62,28 +62,28 @@ class FritzBoxWLAN extends FritzBoxModulBase
             }
             return true;
         });
-        $this->RegisterPropertyString('HostVariables', json_encode(array_values($UsedVariableIdents)));
-        $this->RegisterPropertyBoolean('InfoVariables', false);
-        $this->RegisterPropertyBoolean('AutoAddHostVariables', true);
-        $this->RegisterPropertyBoolean('RenameHostVariables', false);
-        $this->RegisterPropertyBoolean('ShowWLanKeyAsVariable', false);
-        $this->RegisterPropertyBoolean('ShowWLanKeyAsQRCode', false);
-        $this->RegisterPropertyInteger('QRCodeSize', 20);
-        $this->RegisterPropertyInteger('RefreshInterval', 60);
-        $this->RegisterPropertyBoolean('HostAsTable', false);
+        $this->RegisterPropertyString(\FritzBox\WLAN\Property::HostVariables, json_encode(array_values($UsedVariableIdents)));
+        $this->RegisterPropertyBoolean(\FritzBox\WLAN\Property::InfoVariables, false);
+        $this->RegisterPropertyBoolean(\FritzBox\WLAN\Property::AutoAddHostVariables, true);
+        $this->RegisterPropertyBoolean(\FritzBox\WLAN\Property::RenameHostVariables, false);
+        $this->RegisterPropertyBoolean(\FritzBox\WLAN\Property::ShowWLanKeyAsVariable, false);
+        $this->RegisterPropertyBoolean(\FritzBox\WLAN\Property::ShowWLanKeyAsQRCode, false);
+        $this->RegisterPropertyInteger(\FritzBox\WLAN\Property::QRCodeSize, 20);
+        $this->RegisterPropertyInteger(\FritzBox\Base\Property::RefreshInterval, 60);
+        $this->RegisterPropertyBoolean(\FritzBox\WLAN\Property::HostAsTable, false);
         $Style = $this->GenerateHTMLStyleProperty();
-        $this->RegisterPropertyString('Table', json_encode($Style['Table']));
-        $this->RegisterPropertyString('Columns', json_encode($Style['Columns']));
-        $this->RegisterPropertyString('Rows', json_encode($Style['Rows']));
+        $this->RegisterPropertyString(\FritzBox\Table\Property::Table, json_encode($Style['Table']));
+        $this->RegisterPropertyString(\FritzBox\Table\Property::Columns, json_encode($Style['Columns']));
+        $this->RegisterPropertyString(\FritzBox\Table\Property::Rows, json_encode($Style['Rows']));
 
-        $this->RegisterTimer('RefreshState', 0, 'IPS_RequestAction(' . $this->InstanceID . ',"RefreshState",true);');
+        $this->RegisterTimer(\FritzBox\Base\Timer::RefreshState, 0, 'IPS_RequestAction(' . $this->InstanceID . ',"' . \FritzBox\Base\Action::RefreshState . '",true);');
     }
 
     public function Destroy()
     {
         if (!IPS_InstanceExists($this->InstanceID)) {
             $this->UnregisterProfile('FB.MBits');
-            $QRCodeID = @IPS_GetObjectIDByIdent('QRCodeIMG', $this->InstanceID);
+            $QRCodeID = @IPS_GetObjectIDByIdent(\FritzBox\WLAN\Media::QRCodeIMG, $this->InstanceID);
             if ($QRCodeID > 0) {
                 @IPS_DeleteMedia($QRCodeID, true);
             }
@@ -93,34 +93,34 @@ class FritzBoxWLAN extends FritzBoxModulBase
 
     public function ApplyChanges()
     {
-        $this->SetTimerInterval('RefreshState', 0);
-        if (!$this->ReadPropertyBoolean('ShowWLanKeyAsVariable')) {
-            $QRCodeID = @IPS_GetObjectIDByIdent('QRCodeIMG', $this->InstanceID);
+        $this->SetTimerInterval(\FritzBox\Base\Timer::RefreshState, 0);
+        if (!$this->ReadPropertyBoolean(\FritzBox\WLAN\Property::ShowWLanKeyAsVariable)) {
+            $QRCodeID = @IPS_GetObjectIDByIdent(\FritzBox\WLAN\Media::QRCodeIMG, $this->InstanceID);
             if ($QRCodeID !== false) {
                 IPS_DeleteMedia($QRCodeID, true);
             }
         }
-        if (!$this->ReadPropertyBoolean('ShowWLanKeyAsQRCode')) {
-            $this->UnregisterVariable('KeyPassphrase');
+        if (!$this->ReadPropertyBoolean(\FritzBox\WLAN\Property::ShowWLanKeyAsQRCode)) {
+            $this->UnregisterVariable(\FritzBox\WLAN\Variables::KeyPassphrase);
         }
-        if (!$this->ReadPropertyBoolean('InfoVariables')) {
-            $this->UnregisterVariable('TimeoutActive');
-            $this->UnregisterVariable('TimeRemainRaw');
-            $this->UnregisterVariable('TimeRemain');
-            $this->UnregisterVariable('OffTime');
-            $this->UnregisterVariable('ForcedOff');
+        if (!$this->ReadPropertyBoolean(\FritzBox\WLAN\Property::InfoVariables)) {
+            $this->UnregisterVariable(\FritzBox\WLAN\Variables::TimeoutActive);
+            $this->UnregisterVariable(\FritzBox\WLAN\Variables::TimeRemainRaw);
+            $this->UnregisterVariable(\FritzBox\WLAN\Variables::TimeRemain);
+            $this->UnregisterVariable(\FritzBox\WLAN\Variables::OffTime);
+            $this->UnregisterVariable(\FritzBox\WLAN\Variables::ForcedOff);
         }
-        if ($this->ReadPropertyBoolean('HostAsTable')) {
-            $this->RegisterVariableString('HostTable', $this->Translate('Host Table'), '~HTMLBox', -1);
+        if ($this->ReadPropertyBoolean(\FritzBox\WLAN\Property::HostAsTable)) {
+            $this->RegisterVariableString(\FritzBox\WLAN\Variables::HostTable, $this->Translate('Host Table'), '~HTMLBox', -1);
         } else {
-            $this->UnregisterVariable('HostTable');
+            $this->UnregisterVariable(\FritzBox\WLAN\Variables::HostTable);
         }
         $this->RegisterProfileInteger('FB.MBits', '', '', ' MBit/s', 0, 0, 0);
-        $this->APEnabledId = $this->RegisterVariableBoolean('X_AVM_DE_APEnabled', $this->Translate('WLAN state'), '~Switch', -11);
-        $this->EnableAction('X_AVM_DE_APEnabled');
+        $this->APEnabledId = $this->RegisterVariableBoolean(\FritzBox\WLAN\Variables::X_AVM_DE_APEnabled, $this->Translate('WLAN state'), '~Switch', -11);
+        $this->EnableAction(\FritzBox\WLAN\Variables::X_AVM_DE_APEnabled);
         $this->UnregisterMessage($this->APEnabledId, VM_UPDATE);
         usleep(5);
-        $HostVariables = json_decode($this->ReadPropertyString('HostVariables'), true);
+        $HostVariables = json_decode($this->ReadPropertyString(\FritzBox\WLAN\Property::HostVariables), true);
         foreach ($HostVariables as $HostVariable) {
             if (!$HostVariable['use']) {
                 $Ident = $HostVariable['ident'];
@@ -131,23 +131,23 @@ class FritzBoxWLAN extends FritzBoxModulBase
                 }
             }
         }
-        $Index = $this->ReadPropertyInteger('Index');
+        $Index = $this->ReadPropertyInteger(\FritzBox\Base\Property::Index);
         if ($Index == -1) {
             $this->SetStatus(IS_INACTIVE);
             return;
         }
         if (IPS_GetKernelRunlevel() == KR_READY) {
             @$this->UpdateInfo();
-            if (!$this->ReadPropertyBoolean('InfoVariables')) {
+            if (!$this->ReadPropertyBoolean(\FritzBox\WLAN\Property::InfoVariables)) {
                 $result = $this->GetWLANExtInfo();
                 if ($result !== false) {
                     $this->APisGuest = ((string) $result['NewX_AVM-DE_APType'] == 'guest');
                 }
             }
         }
-        $this->SetTimerInterval('RefreshState', $this->ReadPropertyInteger('RefreshInterval') * 1000);
+        $this->SetTimerInterval(\FritzBox\Base\Timer::RefreshState, $this->ReadPropertyInteger(\FritzBox\Base\Property::RefreshInterval) * 1000);
         $this->RegisterMessage($this->APEnabledId, VM_UPDATE);
-        $this->HostNumberOfEntriesId = $this->RegisterVariableInteger('HostNumberOfEntries', $this->Translate('Number of active WLAN devices'), '', -2);
+        $this->HostNumberOfEntriesId = $this->RegisterVariableInteger(\FritzBox\WLAN\Variables::HostNumberOfEntries, $this->Translate('Number of active WLAN devices'), '', -2);
         $this->RegisterMessage($this->HostNumberOfEntriesId, VM_UPDATE);
         usleep(5);
         parent::ApplyChanges();
@@ -176,30 +176,30 @@ class FritzBoxWLAN extends FritzBoxModulBase
             return true;
         }
         switch ($Ident) {
-            case 'ReloadForm':
+            case \FritzBox\WLAN\Action::ReloadForm:
                 IPS_Sleep(2000);
                 $this->ReloadForm();
                 return;
-            case 'RefreshState':
+            case \FritzBox\Base\Action::RefreshState:
                 return $this->UpdateInfo();
-            case 'X_AVM_DE_APEnabled':
+            case \FritzBox\WLAN\Variables::X_AVM_DE_APEnabled:
                 return $this->SetEnable((bool) $Value);
-            case 'ShowWLanKeyAsQRCode':
+            case \FritzBox\WLAN\Action::ShowWLanKeyAsQRCode:
                 $this->UpdateFormField('QRCodeSize', 'enabled', (bool) $Value);
                 return;
-            case 'HostAsTable':
+            case \FritzBox\WLAN\Action::HostAsTable:
                 $this->UpdateFormField('Table', 'enabled', (bool) $Value);
                 $this->UpdateFormField('Columns', 'enabled', (bool) $Value);
                 $this->UpdateFormField('Rows', 'enabled', (bool) $Value);
                 $this->UpdateFormField('HostAsTablePanel', 'expanded', (bool) $Value);
                 return;
-            case 'HostAsVariable':
+            case \FritzBox\WLAN\Action::HostAsVariable:
                 $this->UpdateFormField('AutoAddHostVariables', 'enabled', (bool) $Value);
                 $this->UpdateFormField('RenameHostVariables', 'enabled', (bool) $Value);
                 $this->UpdateFormField('HostvariablesPanel', 'expanded', (bool) $Value);
                 $this->UpdateFormField('HostVariables', 'enabled', (bool) $Value);
                 return;
-            case 'HostvariablesPanel':
+            case \FritzBox\WLAN\Action::HostvariablesPanel:
                 if ($this->ShowVariableWarning) {
                     $this->UpdateFormField('ErrorPopup', 'visible', true);
                     $this->UpdateFormField('ErrorTitle', 'caption', 'Attention!');
@@ -207,7 +207,7 @@ class FritzBoxWLAN extends FritzBoxModulBase
                     $this->ShowVariableWarning = false;
                 }
                 return;
-            case 'DelHostVariable':
+            case \FritzBox\WLAN\Action::DelHostVariable:
                 $ObjectId = @$this->GetIDForIdent($Value);
                 if ($ObjectId > 0) {
                     $this->DelSubObjects($ObjectId);
@@ -232,7 +232,7 @@ class FritzBoxWLAN extends FritzBoxModulBase
         if (($Splitter > 1) && $this->HasActiveParent()) {
             $this->GetWLANForm($Form['elements'][0]['options']);
         }
-        $Index = $this->ReadPropertyInteger('Index');
+        $Index = $this->ReadPropertyInteger(\FritzBox\Base\Property::Index);
         $Summary = $Form['elements'][0]['options'][$Index + 1]['caption'];
         if ($Index != -1) {
             $Summary = 'WLAN ' . $Summary;
@@ -252,14 +252,14 @@ class FritzBoxWLAN extends FritzBoxModulBase
                 }
             }
         }
-        if (!$this->ReadPropertyBoolean('HostAsTable')) {
+        if (!$this->ReadPropertyBoolean(\FritzBox\WLAN\Property::HostAsTable)) {
             $Form['elements'][6]['items'][0]['enabled'] = false;
             $Form['elements'][6]['items'][1]['enabled'] = false;
             $Form['elements'][6]['items'][2]['enabled'] = false;
         }
 
-        if ($this->ReadPropertyBoolean('ShowWLanKeyAsQRCode')) {
-            $QRCodeID = @IPS_GetObjectIDByIdent('QRCodeIMG', $this->InstanceID);
+        if ($this->ReadPropertyBoolean(\FritzBox\WLAN\Property::ShowWLanKeyAsQRCode)) {
+            $QRCodeID = @IPS_GetObjectIDByIdent(\FritzBox\WLAN\Media::QRCodeIMG, $this->InstanceID);
             if ($QRCodeID > 0) {
                 $Image =
                     [
@@ -272,7 +272,7 @@ class FritzBoxWLAN extends FritzBoxModulBase
             $Form['elements'][3]['items'][1]['enabled'] = false;
         }
 
-        if (!$this->ReadPropertyBoolean('HostAsVariable')) {
+        if (!$this->ReadPropertyBoolean(\FritzBox\WLAN\Property::HostAsVariable)) {
             $this->ShowVariableWarning = false;
             $Form['elements'][4]['items'][0]['items'][1]['enabled'] = false;
             $Form['elements'][4]['items'][0]['items'][2]['enabled'] = false;
@@ -285,7 +285,7 @@ class FritzBoxWLAN extends FritzBoxModulBase
         $Values = $this->GetHostVariables();
         if (count($Values) == 0) {
             // Fallback für konfigurierte Statusvariablen der Hosts, wenn Abfrage fehlschlägt; z.B. wenn IO offline
-            $Values = json_decode($this->ReadPropertyString('HostVariables'), true);
+            $Values = json_decode($this->ReadPropertyString(\FritzBox\WLAN\Property::HostVariables), true);
         }
         $Form['elements'][4]['items'][1]['items'][0]['values'] = $Values;
         $this->SendDebug('FORM', json_encode($Form), 0);
@@ -301,7 +301,7 @@ class FritzBoxWLAN extends FritzBoxModulBase
         }
         $data = json_decode($JSONString, true);
         unset($data['DataID']);
-        if ($data['Function'] == 'NewHostListEvent') {
+        if ($data['Function'] == \FritzBox\IOFunction::NewHostListEvent) {
             $this->SendDebug('NewHostListEvent', '', 0);
             $this->RefreshHostList();
         }
@@ -313,9 +313,9 @@ class FritzBoxWLAN extends FritzBoxModulBase
         if ($this->ParentID == 0) {
             return false;
         }
-        $Table = $this->ReadPropertyBoolean('HostAsTable');
-        $Variable = $this->ReadPropertyBoolean('HostAsVariable');
-        $Rename = $this->ReadPropertyBoolean('RenameHostVariables');
+        $Table = $this->ReadPropertyBoolean(\FritzBox\WLAN\Property::HostAsTable);
+        $Variable = $this->ReadPropertyBoolean(\FritzBox\WLAN\Property::HostAsVariable);
+        $Rename = $this->ReadPropertyBoolean(\FritzBox\WLAN\Property::RenameHostVariables);
         if (!($Variable || ($Table))) {
             return true;
         }
@@ -360,7 +360,7 @@ class FritzBoxWLAN extends FritzBoxModulBase
         }
 
         // Konfigurierte Statusvariablen für Hosts
-        $HostVariables = array_column(json_decode($this->ReadPropertyString('HostVariables'), true), 'use', 'ident');
+        $HostVariables = array_column(json_decode($this->ReadPropertyString(\FritzBox\WLAN\Property::HostVariables), true), 'use', 'ident');
 
         $TableData = [];
 
@@ -389,7 +389,7 @@ class FritzBoxWLAN extends FritzBoxModulBase
                 if (array_key_exists($Ident, $HostVariables)) {
                     $Used = $HostVariables[$Ident];
                 } else {
-                    $Used = $this->ReadPropertyBoolean('AutoAddHostVariables');
+                    $Used = $this->ReadPropertyBoolean(\FritzBox\WLAN\Property::AutoAddHostVariables);
                 }
                 if ($Used) {
                     $this->setIPSVariable($Ident, $Hostname, true, VARIABLETYPE_BOOLEAN, '~Switch', false);
@@ -413,7 +413,7 @@ class FritzBoxWLAN extends FritzBoxModulBase
                     if (array_key_exists($Ident, $HostVariables)) {
                         $Used = $HostVariables[$Ident];
                     } else {
-                        $Used = $this->ReadPropertyBoolean('AutoAddHostVariables');
+                        $Used = $this->ReadPropertyBoolean(\FritzBox\WLAN\Property::AutoAddHostVariables);
                     }
                     if ($Used) {
                         if (isset($xmlHosts)) {
@@ -451,12 +451,12 @@ class FritzBoxWLAN extends FritzBoxModulBase
 
     public function GetHTMLQRCode()
     {
-        $useVariable = $this->ReadPropertyBoolean('ShowWLanKeyAsVariable');
-        $useQRCode = $this->ReadPropertyBoolean('ShowWLanKeyAsQRCode');
-        $SSID = (string) $this->GetValue('SSID');
+        $useVariable = $this->ReadPropertyBoolean(\FritzBox\WLAN\Property::ShowWLanKeyAsVariable);
+        $useQRCode = $this->ReadPropertyBoolean(\FritzBox\WLAN\Property::ShowWLanKeyAsQRCode);
+        $SSID = (string) $this->GetValue(\FritzBox\WLAN\Variables::SSID);
         if ($useQRCode && $useVariable) {
-            $KeyPassphrase = @$this->GetValue('KeyPassphrase');
-            $QRCodeID = @IPS_GetObjectIDByIdent('QRCodeIMG', $this->InstanceID);
+            $KeyPassphrase = @$this->GetValue(\FritzBox\WLAN\Variables::KeyPassphrase);
+            $QRCodeID = @IPS_GetObjectIDByIdent(\FritzBox\WLAN\Media::QRCodeIMG, $this->InstanceID);
             $QRData = IPS_GetMediaContent($QRCodeID);
         } else {
             $resultKeys = $this->GetKeyPassphrase();
@@ -543,6 +543,78 @@ class FritzBoxWLAN extends FritzBoxModulBase
             return false;
         }
         return (string) $result['NewKeyPassphrase'];
+    }
+
+    /**
+     * Liefert Modus und Status von WPS für dieses WLAN.
+     *
+     * @return array|false ['NewX_AVM-DE_WPSMode' => other|stop|pbc, 'NewX_AVM-DE_WPSStatus' => off|inactive|active|success|err_…]
+     */
+    public function GetWPSInfo()
+    {
+        $result = $this->Send('X_AVM-DE_GetWPSInfo');
+        if ($result === false) {
+            return false;
+        }
+        return $result;
+    }
+
+    /**
+     * Aktiviert oder deaktiviert WPS für dieses WLAN.
+     *
+     * @param bool $Enable true = WPS aktivieren
+     *
+     * @return bool
+     */
+    public function SetWPSEnable(bool $Enable)
+    {
+        $result = $this->Send('X_AVM-DE_SetWPSEnable', [
+            'NewX_AVM-DE_WPSEnable'=> (int) $Enable
+        ]);
+        return $result !== false;
+    }
+
+    /**
+     * Schaltet alle WLAN-Funknetze der FritzBox gemeinsam ein oder aus.
+     *
+     * @param bool $Enable true = WLAN global einschalten
+     *
+     * @return bool
+     */
+    public function SetWLANGlobalEnable(bool $Enable)
+    {
+        $result = $this->Send('X_AVM-DE_SetWLANGlobalEnable', [
+            'NewX_AVM-DE_WLANGlobalEnable'=> (int) $Enable
+        ]);
+        return $result !== false;
+    }
+
+    /**
+     * Liefert Informationen zur WLAN-Verbindung, wenn die FritzBox selbst als WLAN-Client verbunden ist (z.B. als Repeater).
+     *
+     * @return array|false
+     */
+    public function GetWLANConnectionInfo()
+    {
+        $result = $this->Send('X_AVM-DE_GetWLANConnectionInfo');
+        if ($result === false) {
+            return false;
+        }
+        return $result;
+    }
+
+    /**
+     * Liefert, ob die Optimierung für IPTV in diesem WLAN aktiv ist.
+     *
+     * @return int|false 1 = aktiv, 0 = nicht aktiv, false bei Fehler
+     */
+    public function GetIPTVOptimized()
+    {
+        $result = $this->Send('X_AVM-DE_GetIPTVOptimized');
+        if ($result === false) {
+            return false;
+        }
+        return (int) $result;
     }
 
     public function SetBasBeaconSecurityProperties(
@@ -681,7 +753,7 @@ class FritzBoxWLAN extends FritzBoxModulBase
         if ($result === false) {
             return false;
         }
-        $this->setIPSVariable('HostNumberOfEntries', 'Number of active WLAN devices', (int) $result, VARIABLETYPE_INTEGER, '', false, -2);
+        $this->setIPSVariable(\FritzBox\WLAN\Variables::HostNumberOfEntries, 'Number of active WLAN devices', (int) $result, VARIABLETYPE_INTEGER, '', false, -2);
         return (int) $result;
     }
 
@@ -778,7 +850,7 @@ class FritzBoxWLAN extends FritzBoxModulBase
         $HostName = array_column($TableData, 'Hostname');
         array_multisort($HostName, SORT_ASC, SORT_LOCALE_STRING, $TableData);
         $HTML = $this->GetTable($TableData, '', '', '', -1, true);
-        $this->SetValue('HostTable', $HTML);
+        $this->SetValue(\FritzBox\WLAN\Variables::HostTable, $HTML);
     }
 
     private function GetHostVariables(): array
@@ -828,7 +900,7 @@ class FritzBoxWLAN extends FritzBoxModulBase
             return false;
         });
         // Konfigurierte Statusvariablen für Hosts
-        $HostVariables = json_decode($this->ReadPropertyString('HostVariables'), true);
+        $HostVariables = json_decode($this->ReadPropertyString(\FritzBox\WLAN\Property::HostVariables), true);
         // Property durchgehen und Werte ergänzen. Alle Idents merken
         $FoundIdents = array_column($HostVariables, 'ident');
         foreach ($HostVariables as &$HostVariable) {
@@ -937,7 +1009,7 @@ class FritzBoxWLAN extends FritzBoxModulBase
         $result = $this->SendDataToParent(json_encode(
             [
                 'DataID'     => \FritzBox\GUID::SendToFritzBoxIO,
-                'Function'   => 'GetMaxWLANs'
+                'Function'   => \FritzBox\IOFunction::GetMaxWLANs
             ]
         ));
         if ($result === false) {
@@ -987,24 +1059,24 @@ class FritzBoxWLAN extends FritzBoxModulBase
             return false;
         }
         $this->Channel = (int) $resultState['NewChannel'];
-        $this->setIPSVariable('X_AVM_DE_APEnabled', 'WLAN state', (int) $resultState['NewEnable'] !== 0, VARIABLETYPE_BOOLEAN, '~Switch', false, -11);
-        $this->setIPSVariable('SSID', 'SSID Name', (string) $resultState['NewSSID'], VARIABLETYPE_STRING, '', false, -10);
-        if ($this->ReadPropertyBoolean('InfoVariables')) {
+        $this->setIPSVariable(\FritzBox\WLAN\Variables::X_AVM_DE_APEnabled, 'WLAN state', (int) $resultState['NewEnable'] !== 0, VARIABLETYPE_BOOLEAN, '~Switch', false, -11);
+        $this->setIPSVariable(\FritzBox\WLAN\Variables::SSID, 'SSID Name', (string) $resultState['NewSSID'], VARIABLETYPE_STRING, '', false, -10);
+        if ($this->ReadPropertyBoolean(\FritzBox\WLAN\Property::InfoVariables)) {
             $result = $this->GetWLANExtInfo();
             if ($result === false) {
                 return false;
             }
             $this->APisGuest = ((string) $result['NewX_AVM-DE_APType'] == 'guest');
             if ((string) $result['NewX_AVM-DE_APType'] == 'guest') {
-                $this->setIPSVariable('TimeoutActive', 'Timeout active', $result['NewX_AVM-DE_TimeoutActive'], VARIABLETYPE_BOOLEAN, '~Switch', false, -7);
-                $this->setIPSVariable('TimeRemainRaw', 'Remain time in minutes', (int) $result['NewX_AVM-DE_TimeRemain'], VARIABLETYPE_INTEGER, '', false, -6);
-                $this->setIPSVariable('TimeRemain', 'Remain time', $this->ConvertRuntime(((int) $result['NewX_AVM-DE_TimeRemain']) * 60), VARIABLETYPE_STRING, '', false, -5);
-                $this->setIPSVariable('OffTime', 'Scheduled shutdown', time() + ((int) $result['NewX_AVM-DE_TimeRemain'] * 60), VARIABLETYPE_INTEGER, '~UnixTimestamp', false, -4);
-                $this->setIPSVariable('ForcedOff', 'No shutdown when guest is active', $result['NewX_AVM-DE_NoForcedOff'], VARIABLETYPE_BOOLEAN, '~Switch', false, -3);
+                $this->setIPSVariable(\FritzBox\WLAN\Variables::TimeoutActive, 'Timeout active', $result['NewX_AVM-DE_TimeoutActive'], VARIABLETYPE_BOOLEAN, '~Switch', false, -7);
+                $this->setIPSVariable(\FritzBox\WLAN\Variables::TimeRemainRaw, 'Remain time in minutes', (int) $result['NewX_AVM-DE_TimeRemain'], VARIABLETYPE_INTEGER, '', false, -6);
+                $this->setIPSVariable(\FritzBox\WLAN\Variables::TimeRemain, 'Remain time', $this->ConvertRuntime(((int) $result['NewX_AVM-DE_TimeRemain']) * 60), VARIABLETYPE_STRING, '', false, -5);
+                $this->setIPSVariable(\FritzBox\WLAN\Variables::OffTime, 'Scheduled shutdown', time() + ((int) $result['NewX_AVM-DE_TimeRemain'] * 60), VARIABLETYPE_INTEGER, '~UnixTimestamp', false, -4);
+                $this->setIPSVariable(\FritzBox\WLAN\Variables::ForcedOff, 'No shutdown when guest is active', $result['NewX_AVM-DE_NoForcedOff'], VARIABLETYPE_BOOLEAN, '~Switch', false, -3);
             }
         }
-        $useVariable = $this->ReadPropertyBoolean('ShowWLanKeyAsVariable');
-        $useQRCode = $this->ReadPropertyBoolean('ShowWLanKeyAsQRCode');
+        $useVariable = $this->ReadPropertyBoolean(\FritzBox\WLAN\Property::ShowWLanKeyAsVariable);
+        $useQRCode = $this->ReadPropertyBoolean(\FritzBox\WLAN\Property::ShowWLanKeyAsQRCode);
 
         if ($useQRCode || $useVariable) {
             $resultKeys = $this->GetKeyPassphrase();
@@ -1012,16 +1084,16 @@ class FritzBoxWLAN extends FritzBoxModulBase
                 return false;
             }
             if ($useVariable) {
-                $this->setIPSVariable('KeyPassphrase', 'Password', (string) $resultKeys, VARIABLETYPE_STRING, '', false, -9);
+                $this->setIPSVariable(\FritzBox\WLAN\Variables::KeyPassphrase, 'Password', (string) $resultKeys, VARIABLETYPE_STRING, '', false, -9);
             }
             if ($useQRCode) {
                 $QRData = $this->GenerateQRCodeData((string) $resultState['NewSSID'], (string) $resultKeys);
 
-                $QRCodeID = @IPS_GetObjectIDByIdent('QRCodeIMG', $this->InstanceID);
+                $QRCodeID = @IPS_GetObjectIDByIdent(\FritzBox\WLAN\Media::QRCodeIMG, $this->InstanceID);
                 if ($QRCodeID === false) {
                     $QRCodeID = IPS_CreateMedia(1);
                     IPS_SetParent($QRCodeID, $this->InstanceID);
-                    IPS_SetIdent($QRCodeID, 'QRCodeIMG');
+                    IPS_SetIdent($QRCodeID, \FritzBox\WLAN\Media::QRCodeIMG);
                     IPS_SetName($QRCodeID, 'QR-Code');
                     IPS_SetPosition($QRCodeID, -8);
                     IPS_SetMediaCached($QRCodeID, true);
@@ -1039,7 +1111,7 @@ class FritzBoxWLAN extends FritzBoxModulBase
     private function GenerateQRCodeData(string $SSID, string $KeyPassphrase, int $size = 0)
     {
         $CodeText = 'WIFI:S:' . $SSID . ';T:WPA;P:' . $KeyPassphrase . ';;';
-        $Size = $this->ReadPropertyInteger('QRCodeSize');
+        $Size = $this->ReadPropertyInteger(\FritzBox\WLAN\Property::QRCodeSize);
         include __DIR__ . '/../libs/phpqrcode/qrlib.php';
         ob_start();
         QRcode::png($CodeText, null, QR_ECLEVEL_L, $Size);

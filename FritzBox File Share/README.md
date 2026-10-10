@@ -17,11 +17,11 @@ Dateifreigaben der FritzBox verwalten und darstellen.
 - [2. Voraussetzungen](#2-voraussetzungen)
 - [3. Software-Installation](#3-software-installation)
 - [4. Einrichten der Instanzen in IP-Symcon](#4-einrichten-der-instanzen-in-ip-symcon)
-- [5. Statusvariablen und Profile](#5-statusvariablen-und-profile)
-  - [Statusvariablen](#statusvariablen)
-  - [Profile](#profile)
+- [5. Statusvariablen](#5-statusvariablen)
 - [6. Visualisierung](#6-visualisierung)
-- [7. PHP-Funktionsreferenz](#7-php-funktionsreferenz)
+  - [Kachel Visualisierung](#kachel-visualisierung)
+  - [WebFront Visualisierung](#webfront-visualisierung)
+- [7. PHP-Befehlsreferenz](#7-php-befehlsreferenz)
 - [8. Aktionen](#8-aktionen)
 - [9. Anhang](#9-anhang)
   - [1. Changelog](#1-changelog)
@@ -53,43 +53,167 @@ Unter 'Instanz hinzufügen' ist das 'FritzBox Dateifreigabe'-Modul unter dem Her
 
 **Konfigurationsparameter**:  
 
-| Name          | Typ            | Beschreibung                                                         |
-| ------------- | -------------- | -------------------------------------------------------------------- |
-| SharesAsTable | boolean        | Ausgabe der Dateifreigaben als HTML-Tabelle in einer String-Variable |
-| Table         | string / Liste | HTML/CSS Konfiguration der HTML-Tabelle                              |
-| Columns       | string / Liste | HTML/CSS Konfiguration der Spalten (pro Spalte)                      |
-| Rows          | string / Liste | HTML/CSS Konfiguration der Zeilen (Überschrift, gerade und ungerade) |
-| Icons         | string / Liste | Icon für die Spalten Icon und Valid                                  |
+| Eigenschaft                      | Name            | Typ     | Standardwert | Beschreibung                                                                          |
+| -------------------------------- | --------------- | ------- | ------------ | ------------------------------------------------------------------------------------- |
+| Zeige Freigaben als HTML-Tabelle | SharesAsTable   | boolean | false        | Ausgabe der Dateifreigaben als HTML-Tabelle in der Statusvariable `Dateifreigaben`     |
+| Aktualisierungsintervall         | RefreshInterval | integer | 3600         | Intervall in Sekunden, in dem die Tabelle neu erzeugt wird; `0` = aus                 |
+| Icon für Typ des Anrufes         | Icons           | string  | vordefiniert | Icons für die Spalten Icon und Valid (die Beschriftung im Formular ist irreführend)   |
+| Darstellung Tabelle              | Table           | string  | vordefiniert | HTML/CSS Konfiguration der HTML-Tabelle                                               |
+| Spalten                          | Columns         | string  | vordefiniert | HTML/CSS Konfiguration der Spalten (pro Spalte)                                       |
+| Zeilen                           | Rows            | string  | vordefiniert | HTML/CSS Konfiguration der Zeilen (Überschrift, gerade und ungerade)                  |
 
-## 5. Statusvariablen und Profile
+Die Listen (`Icons`, `Table`, `Columns`, `Rows`) werden als JSON-String gespeichert und sollten über die Konsole bearbeitet werden.  
+
+> [!WARNING]
+> Wird `Zeige Freigaben als HTML-Tabelle` deaktiviert, wird die Statusvariable `Dateifreigaben` gelöscht.
+
+Beispiel:  
+
+```php
+IPS_SetProperty(12345, 'SharesAsTable', true);
+IPS_SetProperty(12345, 'RefreshInterval', 600);
+IPS_ApplyChanges(12345);
+```
+
+## 5. Statusvariablen
 
 Die Statusvariablen werden automatisch angelegt. Das Löschen einzelner kann zu Fehlfunktionen führen.
-
-### Statusvariablen  
 
 | Ident       | Name           | Typ    | Beschreibung                    |
 | ----------- | -------------- | ------ | ------------------------------- |
 | SharesTable | Dateifreigaben | string | HTML Tabelle der Dateifreigaben |
 
-### Profile
-
-Dieses Modul erzeugt keine Variablenprofile.  
+Die Variable `Dateifreigaben` wird nur angelegt, wenn `Zeige Freigaben als HTML-Tabelle` aktiviert ist.  
 
 ## 6. Visualisierung
 
+### Kachel Visualisierung
+
+Die Instanz hat nur eine Variable und wird deshalb als `Einzelnes Element` angezeigt: Die Kachel zeigt direkt die HTML-Box mit der Tabelle der Dateifreigaben.  
+
+![Kachel](imgs/tile_instance.png)  
+
+### WebFront Visualisierung
+
 ![Webfront](imgs/webfront.png)  
 
-## 7. PHP-Funktionsreferenz
+## 7. PHP-Befehlsreferenz
+
+Alle Funktionen liefern `false`, wenn die Instanz nicht aktiv ist oder die FritzBox einen Fehler meldet. Meldet die FritzBox einen Fehler, wird zusätzlich eine Meldung ausgegeben.  
+
+---
 
 ```php
-boolean FB_RefreshFileShareTable(integer $InstanceID);
-string|false FB_GetFilelinkListPath(inintegert $InstanceID);
-integer|false FB_GetNumberOfFilelinkEntries(integer $InstanceID);
-array|false FB_GetGenericFilelinkEntry(integer $InstanceID, integer $Index);
-array|false FB_GetSpecificFilelinkEntry(integer $InstanceID, string $Id);
-boolean FB_NewFilelinkEntry(integer $InstanceID, string $Path, integer $AccessCountLimit, integer $Expire);
-boolean FB_SetFilelinkEntry(integer $InstanceID, string $ID, integer $AccessCountLimit, integer $Expire);
-boolean FB_DeleteFilelinkEntry(integer $InstanceID, string $Id);
+bool FB_RefreshFileShareTable(integer $InstanzID);
+```
+
+Erzeugt die HTML-Tabelle in der Statusvariable `Dateifreigaben` neu. Liefert `false`, wenn `Zeige Freigaben als HTML-Tabelle` deaktiviert ist.  
+
+```php
+var_dump(FB_RefreshFileShareTable(12345)); // bool(true)
+```
+
+---
+
+```php
+string|false FB_GetNumberOfFilelinkEntries(integer $InstanzID);
+```
+
+Liefert die Anzahl der Dateifreigaben als String.  
+
+```php
+var_dump(FB_GetNumberOfFilelinkEntries(12345)); // string(1) "7"
+```
+
+---
+
+```php
+array|false FB_GetGenericFilelinkEntry(integer $InstanzID, integer $Index);
+```
+
+Liefert eine Dateifreigabe über ihre Position. `$Index` beginnt bei `0` und ist kleiner als `FB_GetNumberOfFilelinkEntries`. Alle Werte sind Strings.  
+
+| Schlüssel           | Beschreibung                                                 |
+| ------------------- | ------------------------------------------------------------ |
+| NewID               | ID der Freigabe (für die übrigen Funktionen)                 |
+| NewPath             | Pfad der Datei bzw. des Ordners auf dem Speicher der FritzBox |
+| NewIsDirectory      | `1` = Ordner, `0` = Datei                                    |
+| NewUrl              | Link der Freigabe                                            |
+| NewUsername         | FritzBox-Benutzer, der die Freigabe angelegt hat             |
+| NewValid            | `1` = Freigabe ist gültig                                    |
+| NewAccessCount      | Anzahl der bisherigen Zugriffe                               |
+| NewAccessCountLimit | Maximale Anzahl Zugriffe, `0` = unbegrenzt                   |
+| NewExpire           | Gültigkeit in Tagen, `0` = unbegrenzt                        |
+| NewExpireDate       | Ablaufdatum (`0001-01-01T00:00:00` = keines)                 |
+
+```php
+$Entry = FB_GetGenericFilelinkEntry(12345, 0);
+echo $Entry['NewPath']; // /Dokumente/FRITZ-NAS.txt
+```
+
+---
+
+```php
+array|false FB_GetSpecificFilelinkEntry(integer $InstanzID, string $Id);
+```
+
+Liefert eine Dateifreigabe über ihre ID (`NewID` aus `FB_GetGenericFilelinkEntry` oder Rückgabe von `FB_NewFilelinkEntry`). Das Array enthält dieselben Schlüssel wie bei `FB_GetGenericFilelinkEntry`, aber ohne `NewID`.  
+
+```php
+$Entry = FB_GetSpecificFilelinkEntry(12345, '0123456789abcdef');
+echo $Entry['NewAccessCountLimit'];
+```
+
+---
+
+```php
+string|false FB_GetFilelinkListPath(integer $InstanzID);
+```
+
+Liefert den Pfad (inklusive Sitzungs-ID) der Liste aller Dateifreigaben auf der FritzBox.  
+
+```php
+var_dump(FB_GetFilelinkListPath(12345)); // string(38) "/filelinklist.lua?sid=xxxxxxxxxxxxxxxx"
+```
+
+---
+
+```php
+string|false FB_NewFilelinkEntry(integer $InstanzID, string $Path, integer $AccessCountLimit, integer $Expire);
+```
+
+Legt eine neue Dateifreigabe an und liefert deren ID.  
+
+- `$Path`: Pfad auf dem Speicher der FritzBox, wie er in `NewPath` angezeigt wird (z.B. `/Dokumente/FRITZ-NAS.txt`)
+- `$AccessCountLimit`: maximale Anzahl Zugriffe, `0` = unbegrenzt
+- `$Expire`: Gültigkeit in Tagen, `0` = unbegrenzt
+
+```php
+$Id = FB_NewFilelinkEntry(12345, '/Dokumente/FRITZ-NAS.txt', 3, 1);
+```
+
+---
+
+```php
+bool FB_SetFilelinkEntry(integer $InstanzID, string $ID, integer $AccessCountLimit, integer $Expire);
+```
+
+Ändert Zugriffsbegrenzung und Gültigkeit einer Dateifreigabe. Parameter wie bei `FB_NewFilelinkEntry`. Liefert `true` bei Erfolg.  
+
+```php
+FB_SetFilelinkEntry(12345, $Id, 5, 2);
+```
+
+---
+
+```php
+bool FB_DeleteFilelinkEntry(integer $InstanzID, string $Id);
+```
+
+Löscht eine Dateifreigabe. Liefert `true` bei Erfolg.  
+
+```php
+FB_DeleteFilelinkEntry(12345, $Id);
 ```
 
 ## 8. Aktionen
@@ -100,7 +224,7 @@ Keine Aktionen verfügbar.
 
 ### 1. Changelog
 
-[Changelog der Library](../README.md#changelog)
+[Changelog der Library](../README.md#2-changelog)
 
 ### 2. Spenden
 

@@ -25,8 +25,8 @@ class FritzBoxWANDSLLink extends FritzBoxModulBase
         //Never delete this line!
         parent::Create();
 
-        $this->RegisterPropertyInteger('RefreshInterval', 60);
-        $this->RegisterTimer('RefreshInfo', 0, 'IPS_RequestAction(' . $this->InstanceID . ',"RefreshInfo",true);');
+        $this->RegisterPropertyInteger(\FritzBox\Base\Property::RefreshInterval, 60);
+        $this->RegisterTimer(\FritzBox\Base\Timer::RefreshInfo, 0, 'IPS_RequestAction(' . $this->InstanceID . ',"' . \FritzBox\Base\Action::RefreshInfo . '",true);');
     }
 
     public function Destroy()
@@ -37,9 +37,9 @@ class FritzBoxWANDSLLink extends FritzBoxModulBase
 
     public function ApplyChanges()
     {
-        $this->SetTimerInterval('RefreshInfo', 0);
+        $this->SetTimerInterval(\FritzBox\Base\Timer::RefreshInfo, 0);
         parent::ApplyChanges();
-        $Index = $this->ReadPropertyInteger('Index');
+        $Index = $this->ReadPropertyInteger(\FritzBox\Base\Property::Index);
         if ($Index == -1) {
             $this->SetStatus(IS_INACTIVE);
             return;
@@ -47,7 +47,7 @@ class FritzBoxWANDSLLink extends FritzBoxModulBase
         if (IPS_GetKernelRunlevel() != KR_READY) {
             return;
         }
-        $this->SetTimerInterval('RefreshInfo', $this->ReadPropertyInteger('RefreshInterval') * 1000);
+        $this->SetTimerInterval(\FritzBox\Base\Timer::RefreshInfo, $this->ReadPropertyInteger(\FritzBox\Base\Property::RefreshInterval) * 1000);
     }
 
     public function RequestAction($Ident, $Value)
@@ -56,7 +56,7 @@ class FritzBoxWANDSLLink extends FritzBoxModulBase
             return true;
         }
         switch ($Ident) {
-            case 'RefreshInfo':
+            case \FritzBox\Base\Action::RefreshInfo:
                 return $this->UpdateInfo();
         }
         trigger_error($this->Translate('Invalid Ident.'), E_USER_NOTICE);
@@ -108,7 +108,7 @@ class FritzBoxWANDSLLink extends FritzBoxModulBase
             $Ret = $this->SendDataToParent(json_encode(
                 [
                     'DataID'     => \FritzBox\GUID::SendToFritzBoxIO,
-                    'Function'   => 'HasIGD2'
+                    'Function'   => \FritzBox\IOFunction::HasIGD2
                 ]
             ));
             $HasIGD2 = unserialize($Ret);
@@ -125,7 +125,7 @@ class FritzBoxWANDSLLink extends FritzBoxModulBase
     protected function DecodeEvent($Event)
     {
         if (array_key_exists('LinkStatus', $Event)) {
-            $this->setIPSVariable('LinkStatus', 'DSL Link Status', (string) $Event['LinkStatus'], VARIABLETYPE_STRING);
+            $this->setIPSVariable(\FritzBox\WANDSLLink\Variables::LinkStatus, 'DSL Link Status', (string) $Event['LinkStatus'], VARIABLETYPE_STRING);
             unset($Event['LinkStatus']);
             $this->UpdateInfo();
         }
@@ -136,37 +136,37 @@ class FritzBoxWANDSLLink extends FritzBoxModulBase
     {
         $result = $this->GetDSLLinkInfo();
         if ($result !== false) {
-            $this->setIPSVariable('LinkType', 'DSL Link Type', $result['NewLinkType'], VARIABLETYPE_STRING);
-            $this->setIPSVariable('LinkStatus', 'DSL Link Status', (string) $result['NewLinkStatus'], VARIABLETYPE_STRING);
+            $this->setIPSVariable(\FritzBox\WANDSLLink\Variables::LinkType, 'DSL Link Type', $result['NewLinkType'], VARIABLETYPE_STRING);
+            $this->setIPSVariable(\FritzBox\WANDSLLink\Variables::LinkStatus, 'DSL Link Status', (string) $result['NewLinkStatus'], VARIABLETYPE_STRING);
         }
         $result = $this->GetAutoConfig();
         if ($result !== false) {
-            $this->setIPSVariable('AutoConfig', 'DSL Auto Config', (bool) $result, VARIABLETYPE_BOOLEAN);
+            $this->setIPSVariable(\FritzBox\WANDSLLink\Variables::AutoConfig, 'DSL Auto Config', (bool) $result, VARIABLETYPE_BOOLEAN);
         }
 
         $result = $this->GetModulationType();
         if ($result !== false) {
-            $this->setIPSVariable('ModulationType', 'Modulation Type', $result, VARIABLETYPE_STRING);
+            $this->setIPSVariable(\FritzBox\WANDSLLink\Variables::ModulationType, 'Modulation Type', $result, VARIABLETYPE_STRING);
         }
         $result = $this->GetDestinationAddress();
         if ($result !== false) {
-            $this->setIPSVariable('DestinationAddress', 'Destination Address', $result, VARIABLETYPE_STRING);
+            $this->setIPSVariable(\FritzBox\WANDSLLink\Variables::DestinationAddress, 'Destination Address', $result, VARIABLETYPE_STRING);
         }
         $result = $this->GetATMEncapsulation();
         if ($result !== false) {
-            $this->setIPSVariable('ATMEncapsulation', 'ATM Encapsulation', $result, VARIABLETYPE_STRING);
+            $this->setIPSVariable(\FritzBox\WANDSLLink\Variables::ATMEncapsulation, 'ATM Encapsulation', $result, VARIABLETYPE_STRING);
         }
         $result = $this->GetFCSPreserved();
         if ($result !== false) {
-            $this->setIPSVariable('FCSPreserved', 'FCS Preserved', (bool) $result, VARIABLETYPE_BOOLEAN);
+            $this->setIPSVariable(\FritzBox\WANDSLLink\Variables::FCSPreserved, 'FCS Preserved', (bool) $result, VARIABLETYPE_BOOLEAN);
         }
         // todo
         /*$result = $this->GetStatistics();
         if ($result !== false) {
-            $this->setIPSVariable('ATMTransmittedBlocks', 'ATMTransmittedBlocks', (int) $result['NewATMTransmittedBlocks'], VARIABLETYPE_INTEGER);
-            $this->setIPSVariable('ATMReceivedBlocks', 'ATMReceivedBlocks', (int) $result['NewATMReceivedBlocks'], VARIABLETYPE_INTEGER);
-            $this->setIPSVariable('AAL5CRCErrors', 'AAL5CRCErrors', (int) $result['NewAAL5CRCErrors'], VARIABLETYPE_INTEGER);
-            $this->setIPSVariable('ATMCRCErrors', 'ATMCRCErrors', (int) $result['NewATMCRCErrors'], VARIABLETYPE_INTEGER);
+            $this->setIPSVariable(\FritzBox\WANDSLLink\Variables::ATMTransmittedBlocks, 'ATMTransmittedBlocks', (int) $result['NewATMTransmittedBlocks'], VARIABLETYPE_INTEGER);
+            $this->setIPSVariable(\FritzBox\WANDSLLink\Variables::ATMReceivedBlocks, 'ATMReceivedBlocks', (int) $result['NewATMReceivedBlocks'], VARIABLETYPE_INTEGER);
+            $this->setIPSVariable(\FritzBox\WANDSLLink\Variables::AAL5CRCErrors, 'AAL5CRCErrors', (int) $result['NewAAL5CRCErrors'], VARIABLETYPE_INTEGER);
+            $this->setIPSVariable(\FritzBox\WANDSLLink\Variables::ATMCRCErrors, 'ATMCRCErrors', (int) $result['NewATMCRCErrors'], VARIABLETYPE_INTEGER);
         }*/
     }
 }

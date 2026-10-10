@@ -17,11 +17,11 @@ Auslesen und steuern des Online-Speichers.
 - [2. Voraussetzungen](#2-voraussetzungen)
 - [3. Software-Installation](#3-software-installation)
 - [4. Einrichten der Instanzen in IP-Symcon](#4-einrichten-der-instanzen-in-ip-symcon)
-- [5. Statusvariablen und Profile](#5-statusvariablen-und-profile)
-  - [Statusvariablen](#statusvariablen)
-  - [Profile](#profile)
+- [5. Statusvariablen](#5-statusvariablen)
 - [6. Visualisierung](#6-visualisierung)
-- [7. PHP-Funktionsreferenz](#7-php-funktionsreferenz)
+  - [Kachel Visualisierung](#kachel-visualisierung)
+  - [WebFront Visualisierung](#webfront-visualisierung)
+- [7. PHP-Befehlsreferenz](#7-php-befehlsreferenz)
 - [8. Aktionen](#8-aktionen)
 - [9. Anhang](#9-anhang)
   - [1. Changelog](#1-changelog)
@@ -53,47 +53,89 @@ Unter 'Instanz hinzufügen' ist das 'FritzBox Online-Speicher'-Modul unter dem H
 
 **Konfigurationsparameter**:  
 
-| Name            | Typ     | Beschreibung                         |
-| --------------- | ------- | ------------------------------------ |
-| RefreshInterval | integer | Aktualisierungsintervall in Sekunden |
-| Username        | string  | Benutzername des WebDAV-Anbieter     |
-| Password        | string  | Passwort zum Benutzernamen           |
+| Eigenschaft              | Name            | Typ     | Standardwert | Beschreibung                                                        |
+| ------------------------ | --------------- | ------- | ------------ | ------------------------------------------------------------------- |
+| Aktualisierungsintervall | RefreshInterval | integer | 3600         | Intervall in Sekunden, in dem die Werte abgefragt werden; `0` = aus |
+| Benutzername             | Username        | string  |              | Benutzername beim WebDAV-Anbieter                                   |
+| Passwort                 | Password        | string  |              | Passwort zum Benutzernamen                                          |
 
-## 5. Statusvariablen und Profile
+> [!IMPORTANT]
+> Beim Schalten des Online-Speichers überträgt die Instanz Benutzername und Passwort aus ihrer Konfiguration an die FritzBox. Sind sie hier nicht eingetragen, werden die Zugangsdaten in der FritzBox mit leeren Werten überschrieben.
+
+Beispiel:  
+
+```php
+IPS_SetProperty(12345, 'Username', 'benutzer');
+IPS_SetProperty(12345, 'Password', 'GeheimesPasswort');
+IPS_ApplyChanges(12345);
+```
+
+## 5. Statusvariablen
 
 Die Statusvariablen werden automatisch angelegt. Das Löschen einzelner kann zu Fehlfunktionen führen.
 
-### Statusvariablen
-
-| Ident           | Name                   | Typ     |
-| --------------- | ---------------------- | ------- |
-| Enable          | UPnP Protokoll aktiv   | boolean |
-| UPnPMediaServer | UPnP Mediaserver aktiv | boolean |
-
-### Profile
-
-Dieses Modul erzeugt keine Variablenprofile.  
+| Ident  | Name                | Typ     | Beschreibung                                      |
+| ------ | ------------------- | ------- | ------------------------------------------------- |
+| Enable | WebDav Client Aktiv | boolean | Online-Speicher (WebDAV-Client) der FritzBox aktiv |
 
 ## 6. Visualisierung
 
+### Kachel Visualisierung
+
+Die Instanz hat nur eine Variable und wird deshalb als `Einzelnes Element` angezeigt: Die Kachel zeigt direkt den Schalter `WebDav Client Aktiv`, der in der Kachel geschaltet werden kann.  
+
+![Kachel](imgs/tile_instance.png)  
+
+In der Darstellung `Liste` (maximierte Kachel, Umschalten über das Tabellen-Symbol) erscheint die Variable als Schalter mit Beschriftung.  
+
+![Kachel Liste](imgs/tile_list.png)  
+
+### WebFront Visualisierung
+
 ![WebFront](imgs/webfront.png)  
 
-## 7. PHP-Funktionsreferenz
+## 7. PHP-Befehlsreferenz
+
+Alle Funktionen liefern `false`, wenn die Instanz nicht aktiv ist oder die FritzBox einen Fehler meldet. Meldet die FritzBox einen Fehler, wird zusätzlich eine Meldung ausgegeben.  
+
+---
 
 ```php
 array|false FB_GetInfo(integer $InstanzID);
-boolean FB_EnableWebDAVClient(integer $InstanzID, boolean $Enable, string $HostURL, string $MountpointName);
+```
+
+Liefert die Einstellungen des Online-Speichers als Array mit den Schlüsseln `NewEnable` (`1` = aktiv), `NewHostURL` (Adresse des WebDAV-Anbieters), `NewUsername` und `NewMountpointName` (Name des Speichers in der FritzBox). Das Passwort wird nicht geliefert.  
+
+```php
+$Result = FB_GetInfo(12345);
+echo $Result['NewMountpointName']; // Online-Speicher
+```
+
+---
+
+```php
+bool FB_EnableWebDAVClient(integer $InstanzID, bool $Enable, string $HostURL, string $NewMountpointName);
+```
+
+Schaltet den Online-Speicher ein (`true`) oder aus (`false`) und setzt dabei Adresse und Namen des Speichers. Benutzername und Passwort werden aus der Konfiguration der Instanz übernommen. Für unveränderte Werte `NewHostURL` und `NewMountpointName` aus `FB_GetInfo` übergeben. Liefert `true` bei Erfolg.  
+*Nicht live getestet.*  
+
+```php
+$Info = FB_GetInfo(12345);
+FB_EnableWebDAVClient(12345, true, $Info['NewHostURL'], $Info['NewMountpointName']);
 ```
 
 ## 8. Aktionen
 
-Keine Aktionen verfügbar.
+**Grundsätzlich können alle bedienbaren Statusvariablen als Ziel einer [`Aktion`](https://www.symcon.de/service/dokumentation/konzepte/automationen/ablaufplaene/aktionen/) mit `Auf Wert schalten` angesteuert werden, so dass hier keine speziellen Aktionen benutzt werden müssen.**
+
+Darüber hinaus bietet das Modul keine speziellen Aktionen.
 
 ## 9. Anhang
 
 ### 1. Changelog
 
-[Changelog der Library](../README.md#changelog)
+[Changelog der Library](../README.md#2-changelog)
 
 ### 2. Spenden
 

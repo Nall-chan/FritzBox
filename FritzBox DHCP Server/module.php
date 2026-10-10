@@ -18,8 +18,8 @@ class FritzBoxDHCPServer extends FritzBoxModulBase
     {
         //Never delete this line!
         parent::Create();
-        $this->RegisterPropertyInteger('RefreshInterval', 3600);
-        $this->RegisterTimer('RefreshState', 0, 'IPS_RequestAction(' . $this->InstanceID . ',"RefreshState",true);');
+        $this->RegisterPropertyInteger(\FritzBox\Base\Property::RefreshInterval, 3600);
+        $this->RegisterTimer(\FritzBox\Base\Timer::RefreshState, 0, 'IPS_RequestAction(' . $this->InstanceID . ',"' . \FritzBox\Base\Action::RefreshState . '",true);');
     }
 
     public function Destroy()
@@ -32,7 +32,7 @@ class FritzBoxDHCPServer extends FritzBoxModulBase
     {
         //Never delete this line!
         parent::ApplyChanges();
-        $this->SetTimerInterval('RefreshState', $this->ReadPropertyInteger('RefreshInterval') * 1000);
+        $this->SetTimerInterval(\FritzBox\Base\Timer::RefreshState, $this->ReadPropertyInteger(\FritzBox\Base\Property::RefreshInterval) * 1000);
         if (IPS_GetKernelRunlevel() != KR_READY) {
             return;
         }
@@ -46,17 +46,17 @@ class FritzBoxDHCPServer extends FritzBoxModulBase
             return true;
         }
         switch ($Ident) {
-            case 'RefreshState':
+            case \FritzBox\Base\Action::RefreshState:
                 return $this->UpdateInfo();
-            case 'DHCPServerEnable':
+            case \FritzBox\DHCPServer\Variables::DHCPServerEnable:
                 return $this->SetDHCPServerEnable((bool) $Value);
-            case 'MinAddress':
-                return $this->SetAddressRange($Value, $this->GetValue('MaxAddress'));
-            case 'MaxAddress':
-                return $this->SetAddressRange($this->GetValue('MinAddress'), $Value);
-            case 'SubnetMask':
+            case \FritzBox\DHCPServer\Variables::MinAddress:
+                return $this->SetAddressRange($Value, $this->GetValue(\FritzBox\DHCPServer\Variables::MaxAddress));
+            case \FritzBox\DHCPServer\Variables::MaxAddress:
+                return $this->SetAddressRange($this->GetValue(\FritzBox\DHCPServer\Variables::MinAddress), $Value);
+            case \FritzBox\DHCPServer\Variables::SubnetMask:
                 return $this->SetSubnetMask($Value);
-            case 'IPRouters':
+            case \FritzBox\DHCPServer\Variables::IPRouters:
                 return $this->SetIPRouter($Value);
         }
         trigger_error($this->Translate('Invalid Ident.'), E_USER_NOTICE);
@@ -191,13 +191,13 @@ class FritzBoxDHCPServer extends FritzBoxModulBase
         if ($result === false) {
             return false;
         }
-        $this->setIPSVariable('DHCPServerEnable', 'DHCP active', (bool) $result['NewDHCPServerEnable'], VARIABLETYPE_BOOLEAN, '~Switch', true, 1);
-        $this->setIPSVariable('MinAddress', 'IP-Adresse Start', $result['NewMinAddress'], VARIABLETYPE_STRING, '', true, 2);
-        $this->setIPSVariable('MaxAddress', 'IP-Adresse End', $result['NewMaxAddress'], VARIABLETYPE_STRING, '', true, 3);
-        $this->setIPSVariable('SubnetMask', 'Subnet Mask', $result['NewSubnetMask'], VARIABLETYPE_STRING, '', true, 4);
-        $this->setIPSVariable('IPRouters', 'Gateway', $result['NewIPRouters'], VARIABLETYPE_STRING, '', true, 5);
-        $this->setIPSVariable('DNSServers', 'DNS-Server', $result['NewDNSServers'], VARIABLETYPE_STRING, '', false, 6);
-        $this->setIPSVariable('DomainName', 'Domain', $result['NewDomainName'], VARIABLETYPE_STRING, '', false, 7);
+        $this->setIPSVariable(\FritzBox\DHCPServer\Variables::DHCPServerEnable, 'DHCP active', (bool) $result['NewDHCPServerEnable'], VARIABLETYPE_BOOLEAN, '~Switch', true, 1);
+        $this->setIPSVariable(\FritzBox\DHCPServer\Variables::MinAddress, 'IP-Adresse Start', $result['NewMinAddress'], VARIABLETYPE_STRING, '', true, 2);
+        $this->setIPSVariable(\FritzBox\DHCPServer\Variables::MaxAddress, 'IP-Adresse End', $result['NewMaxAddress'], VARIABLETYPE_STRING, '', true, 3);
+        $this->setIPSVariable(\FritzBox\DHCPServer\Variables::SubnetMask, 'Subnet Mask', $result['NewSubnetMask'], VARIABLETYPE_STRING, '', true, 4);
+        $this->setIPSVariable(\FritzBox\DHCPServer\Variables::IPRouters, 'Gateway', $result['NewIPRouters'], VARIABLETYPE_STRING, '', true, 5);
+        $this->setIPSVariable(\FritzBox\DHCPServer\Variables::DNSServers, 'DNS-Server', $result['NewDNSServers'], VARIABLETYPE_STRING, '', false, 6);
+        $this->setIPSVariable(\FritzBox\DHCPServer\Variables::DomainName, 'Domain', $result['NewDomainName'], VARIABLETYPE_STRING, '', false, 7);
         return true;
     }
 }

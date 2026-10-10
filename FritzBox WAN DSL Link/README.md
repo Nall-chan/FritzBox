@@ -17,11 +17,11 @@ Status der DSL Verbindung.
 - [2. Voraussetzungen](#2-voraussetzungen)
 - [3. Software-Installation](#3-software-installation)
 - [4. Einrichten der Instanzen in IP-Symcon](#4-einrichten-der-instanzen-in-ip-symcon)
-- [5. Statusvariablen und Profile](#5-statusvariablen-und-profile)
-  - [Statusvariablen](#statusvariablen)
-  - [Profile](#profile)
+- [5. Statusvariablen](#5-statusvariablen)
 - [6. Visualisierung](#6-visualisierung)
-- [7. PHP-Funktionsreferenz](#7-php-funktionsreferenz)
+  - [Kachel Visualisierung](#kachel-visualisierung)
+  - [WebFront Visualisierung](#webfront-visualisierung)
+- [7. PHP-Befehlsreferenz](#7-php-befehlsreferenz)
 - [8. Aktionen](#8-aktionen)
 - [9. Anhang](#9-anhang)
   - [1. Changelog](#1-changelog)
@@ -53,16 +53,23 @@ Unter 'Instanz hinzufügen' ist das 'FritzBox DSL-Verbindung'-Modul unter dem He
 
 **Konfigurationsparameter**:  
 
-| Name            | Typ     | Beschreibung                         |
-| --------------- | ------- | ------------------------------------ |
-| Index           | integer | Dienst (Service Index)               |
-| RefreshInterval | integer | Aktualisierungsintervall in Sekunden |
+| Eigenschaft              | Name            | Typ     | Standardwert | Beschreibung                                                                                    |
+| ------------------------ | --------------- | ------- | ------------ | ----------------------------------------------------------------------------------------------- |
+| Dienst                   | Index           | integer | -1           | Genutzter Dienst der FritzBox: `-1` = keiner, `0` = IGD, `1` = IGD2 (nur wenn die FritzBox IGD2 anbietet) |
+| Aktualisierungsintervall | RefreshInterval | integer | 60           | Intervall in Sekunden, in dem die Werte abgefragt werden; `0` = aus                             |
 
-## 5. Statusvariablen und Profile
+Der Dienst wird vom [FritzBox Konfigurator](../FritzBox%20Configurator/README.md) automatisch eingetragen.  
+
+Beispiel:  
+
+```php
+IPS_SetProperty(12345, 'RefreshInterval', 300);
+IPS_ApplyChanges(12345);
+```
+
+## 5. Statusvariablen
 
 Die Statusvariablen werden automatisch angelegt. Das Löschen einzelner kann zu Fehlfunktionen führen.
-
-### Statusvariablen
 
 | Ident              | Name                | Typ     |
 | ------------------ | ------------------- | ------- |
@@ -74,24 +81,77 @@ Die Statusvariablen werden automatisch angelegt. Das Löschen einzelner kann zu 
 | ATMEncapsulation   | ATM Encapsulation   | string  |
 | FCSPreserved       | FCS Preserved       | boolean |
 
-### Profile
-
-Dieses Modul erzeugt keine Variablenprofile.  
-
 ## 6. Visualisierung
+
+### Kachel Visualisierung
+
+Die Instanz wird als Kachel in der Darstellung `Liste` angezeigt. Das Bild zeigt die maximierte Kachel mit allen Variablen.  
+`DSL Auto Config` und `FCS Preserved` werden als An/Aus-Wert, die übrigen Variablen als Text dargestellt. Keine der Variablen ist bedienbar.  
+
+![Kachel Liste](imgs/tile_list.png)  
+
+### WebFront Visualisierung
 
 ![WebFront](imgs/webfront.png)  
 
-## 7. PHP-Funktionsreferenz
+## 7. PHP-Befehlsreferenz
+
+Alle Funktionen liefern `false`, wenn die Instanz nicht aktiv ist oder die FritzBox einen Fehler meldet. Meldet die FritzBox einen Fehler, wird zusätzlich eine Meldung ausgegeben.  
+Bei Modellen ohne DSL (z.B. Kabel) liefern die Funktionen leere Werte bzw. `0`.  
+
+---
 
 ```php
-FB_GetDSLLinkInfo(integer $InstanzID);
-FB_GetAutoConfig(integer $InstanzID);
-FB_GetModulationType(integer $InstanzID);
-FB_GetDestinationAddress(integer $InstanzID);
-FB_GetATMEncapsulation(integer $InstanzID);
-FB_GetFCSPreserved(integer $InstanzID);
-FB_GetStatistics(integer $InstanzID);
+array|false FB_GetDSLLinkInfo(integer $InstanzID);
+```
+
+Liefert Typ und Status der DSL-Verbindung als Array mit den Schlüsseln `NewLinkType` (z.B. `PPPoA`) und `NewLinkStatus` (z.B. `Up`).  
+
+```php
+var_dump(FB_GetDSLLinkInfo(12345));
+// array(2) { ["NewLinkStatus"]=> string(2) "Up"  ["NewLinkType"]=> string(5) "PPPoA" }
+```
+
+---
+
+```php
+string|false FB_GetAutoConfig(integer $InstanzID);
+string|false FB_GetFCSPreserved(integer $InstanzID);
+```
+
+Liefern `1` bzw. `0`, ob die automatische DSL-Konfiguration aktiv ist bzw. ob die FCS (Frame Check Sequence) erhalten bleibt.  
+
+```php
+var_dump(FB_GetAutoConfig(12345)); // string(1) "0"
+```
+
+---
+
+```php
+string|false FB_GetModulationType(integer $InstanzID);
+string|false FB_GetDestinationAddress(integer $InstanzID);
+string|false FB_GetATMEncapsulation(integer $InstanzID);
+```
+
+Liefern Modulationsart, Zieladresse (VPI/VCI) bzw. ATM-Kapselung der DSL-Verbindung als String.  
+
+```php
+var_dump(FB_GetModulationType(12345)); // string(0) "" (Kabel-Modell)
+```
+
+---
+
+```php
+array|false FB_GetStatistics(integer $InstanzID);
+```
+
+Liefert Statistiken der DSL-Verbindung.  
+
+> [!NOTE]
+> Die FRITZ!Box 6690 Cable (FRITZ!OS 8.25) kennt diese Funktion nicht und meldet `Error code 401: Invalid Action`.
+
+```php
+var_dump(FB_GetStatistics(12345));
 ```
 
 ## 8. Aktionen
@@ -102,7 +162,7 @@ Keine Aktionen verfügbar.
 
 ### 1. Changelog
 
-[Changelog der Library](../README.md#changelog)
+[Changelog der Library](../README.md#2-changelog)
 
 ### 2. Spenden
 

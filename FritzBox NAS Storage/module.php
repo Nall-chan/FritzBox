@@ -18,8 +18,8 @@ class FritzBoxNASStorage extends FritzBoxModulBase
         //Never delete this line!
         parent::Create();
 
-        $this->RegisterPropertyInteger('RefreshInterval', 3600);
-        $this->RegisterTimer('RefreshInfo', 0, 'IPS_RequestAction(' . $this->InstanceID . ',"RefreshInfo",true);');
+        $this->RegisterPropertyInteger(\FritzBox\Base\Property::RefreshInterval, 3600);
+        $this->RegisterTimer(\FritzBox\Base\Timer::RefreshInfo, 0, 'IPS_RequestAction(' . $this->InstanceID . ',"' . \FritzBox\Base\Action::RefreshInfo . '",true);');
     }
 
     public function Destroy()
@@ -30,9 +30,9 @@ class FritzBoxNASStorage extends FritzBoxModulBase
 
     public function ApplyChanges()
     {
-        $this->SetTimerInterval('RefreshInfo', 0);
+        $this->SetTimerInterval(\FritzBox\Base\Timer::RefreshInfo, 0);
         parent::ApplyChanges();
-        $this->SetTimerInterval('RefreshInfo', $this->ReadPropertyInteger('RefreshInterval') * 1000);
+        $this->SetTimerInterval(\FritzBox\Base\Timer::RefreshInfo, $this->ReadPropertyInteger(\FritzBox\Base\Property::RefreshInterval) * 1000);
         if (IPS_GetKernelRunlevel() != KR_READY) {
             return;
         }
@@ -45,16 +45,16 @@ class FritzBoxNASStorage extends FritzBoxModulBase
             return true;
         }
         switch ($Ident) {
-            case 'RefreshInfo':
+            case \FritzBox\Base\Action::RefreshInfo:
                 return $this->UpdateInfo();
-            case 'SMBEnable':
+            case \FritzBox\NASStorage\Variables::SMBEnable:
                 return $this->SetSMBServer((bool) $Value);
-            case 'FTPEnable':
+            case \FritzBox\NASStorage\Variables::FTPEnable:
                 return $this->SetFTPServer((bool) $Value);
-            case 'FTPWANEnable':
-                return $this->SetFTPServerWAN((bool) $Value, $this->GetValue('FTPWANSSLOnly'));
-            case 'FTPWANSSLOnly':
-                return $this->SetFTPServerWAN($this->GetValue('FTPWANEnable'), (bool) $Value);
+            case \FritzBox\NASStorage\Variables::FTPWANEnable:
+                return $this->SetFTPServerWAN((bool) $Value, $this->GetValue(\FritzBox\NASStorage\Variables::FTPWANSSLOnly));
+            case \FritzBox\NASStorage\Variables::FTPWANSSLOnly:
+                return $this->SetFTPServerWAN($this->GetValue(\FritzBox\NASStorage\Variables::FTPWANEnable), (bool) $Value);
         }
         trigger_error($this->Translate('Invalid Ident.'), E_USER_NOTICE);
         return false;
@@ -112,12 +112,12 @@ class FritzBoxNASStorage extends FritzBoxModulBase
         if ($result === false) {
             return false;
         }
-        $this->setIPSVariable('SMBEnable', 'SMB server', (bool) $result['NewSMBEnable'], VARIABLETYPE_BOOLEAN, '~Switch', true);
-        $this->setIPSVariable('FTPEnable', 'FTP server', (bool) $result['NewFTPEnable'], VARIABLETYPE_BOOLEAN, '~Switch', true);
-        $this->setIPSVariable('FTPStatus', 'FTP server state', (string) $result['NewFTPStatus'], VARIABLETYPE_STRING);
-        $this->setIPSVariable('FTPWANEnable', 'WAN FTP server', (bool) $result['NewFTPWANEnable'], VARIABLETYPE_BOOLEAN, '~Switch', true);
-        $this->setIPSVariable('FTPWANSSLOnly', 'WAN FTP SSL only', (bool) $result['NewFTPWANSSLOnly'], VARIABLETYPE_BOOLEAN, '~Switch', true);
-        $this->setIPSVariable('FTPWANPort', 'WAN FTP Port', (int) $result['NewFTPWANPort'], VARIABLETYPE_INTEGER);
+        $this->setIPSVariable(\FritzBox\NASStorage\Variables::SMBEnable, 'SMB server', (bool) $result['NewSMBEnable'], VARIABLETYPE_BOOLEAN, '~Switch', true);
+        $this->setIPSVariable(\FritzBox\NASStorage\Variables::FTPEnable, 'FTP server', (bool) $result['NewFTPEnable'], VARIABLETYPE_BOOLEAN, '~Switch', true);
+        $this->setIPSVariable(\FritzBox\NASStorage\Variables::FTPStatus, 'FTP server state', (string) $result['NewFTPStatus'], VARIABLETYPE_STRING);
+        $this->setIPSVariable(\FritzBox\NASStorage\Variables::FTPWANEnable, 'WAN FTP server', (bool) $result['NewFTPWANEnable'], VARIABLETYPE_BOOLEAN, '~Switch', true);
+        $this->setIPSVariable(\FritzBox\NASStorage\Variables::FTPWANSSLOnly, 'WAN FTP SSL only', (bool) $result['NewFTPWANSSLOnly'], VARIABLETYPE_BOOLEAN, '~Switch', true);
+        $this->setIPSVariable(\FritzBox\NASStorage\Variables::FTPWANPort, 'WAN FTP Port', (int) $result['NewFTPWANPort'], VARIABLETYPE_INTEGER);
         return true;
     }
 }

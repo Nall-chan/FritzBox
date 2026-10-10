@@ -83,8 +83,8 @@ trait TelHelper
 
     private function DoReverseSearch(string $Number, string $SearchMarker, string $UnknownName, int $MaxNameSize)
     {
-        $ReverseSearchInstanceID = $this->ReadPropertyInteger('ReverseSearchInstanceID');
-        $CustomSearchScriptID = $this->ReadPropertyInteger('CustomSearchScriptID');
+        $ReverseSearchInstanceID = $this->ReadPropertyInteger(\FritzBox\TelHelper\Property::ReverseSearchInstanceID);
+        $CustomSearchScriptID = $this->ReadPropertyInteger(\FritzBox\TelHelper\Property::CustomSearchScriptID);
 
         if ($CustomSearchScriptID > 1) {
             return IPS_RunScriptWaitEx($CustomSearchScriptID, ['SENDER'=>'FritzBox', 'NUMBER'=>$Number]);
@@ -166,9 +166,9 @@ trait TelHelper
     private function GetNameByNumber(string $Number, string $AreaCode = '', string $CountryCode = '')
     {
         if ($Number == '') {
-            return $this->ReadPropertyString('UnknownNumberName');
+            return $this->ReadPropertyString(\FritzBox\TelHelper\Property::UnknownNumberName);
         }
-        $Name = $this->DoPhonebookSearch($Number, $this->ReadPropertyInteger('MaxNameSize'), $AreaCode, $CountryCode);
+        $Name = $this->DoPhonebookSearch($Number, $this->ReadPropertyInteger(\FritzBox\TelHelper\Property::MaxNameSize), $AreaCode, $CountryCode);
         return $Name;
     }
 
@@ -186,7 +186,7 @@ trait TelHelper
         $Ret = $this->SendDataToParent(json_encode(
             [
                 'DataID'     => \FritzBox\GUID::SendToFritzBoxIO,
-                'Function'   => 'SetPhoneDevices',
+                'Function'   => \FritzBox\IOFunction::SetPhoneDevices,
                 'Devices'    => $PhoneDevices
             ]
         ));
@@ -207,7 +207,7 @@ trait TelHelper
         $Ret = $this->SendDataToParent(json_encode(
             [
                 'DataID'     => \FritzBox\GUID::SendToFritzBoxIO,
-                'Function'   => 'GetPhoneDevice',
+                'Function'   => \FritzBox\IOFunction::GetPhoneDevice,
                 'DeviceID'   => $DeviceID
             ]
         ));
@@ -234,7 +234,7 @@ trait TelHelper
         $Ret = $this->SendDataToParent(json_encode(
             [
                 'DataID'     => \FritzBox\GUID::SendToFritzBoxIO,
-                'Function'   => 'GetPhoneDevices'
+                'Function'   => \FritzBox\IOFunction::GetPhoneDevices
             ]
         ));
         if ($Ret === false) {
@@ -254,7 +254,7 @@ trait TelHelper
         $Ret = $this->SendDataToParent(json_encode(
             [
                 'DataID'     => \FritzBox\GUID::SendToFritzBoxIO,
-                'Function'   => 'GetPhonebooks'
+                'Function'   => \FritzBox\IOFunction::GetPhonebooks
             ]
         ));
         if ($Ret === false) {
@@ -274,7 +274,7 @@ trait TelHelper
         $Ret = $this->SendDataToParent(json_encode(
             [
                 'DataID'     => \FritzBox\GUID::SendToFritzBoxIO,
-                'Function'   => 'GetAreaCodes'
+                'Function'   => \FritzBox\IOFunction::GetAreaCodes
             ]
         ));
         if ($Ret === false) {

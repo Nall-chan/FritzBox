@@ -18,9 +18,9 @@ class FritzBoxPowerline extends FritzBoxModulBase
         //Never delete this line!
         parent::Create();
 
-        $this->RegisterPropertyInteger('RefreshInterval', 60);
-        $this->RegisterPropertyBoolean('RenameDeviceVariables', false);
-        $this->RegisterTimer('RefreshInfo', 0, 'IPS_RequestAction(' . $this->InstanceID . ',"RefreshInfo",true);');
+        $this->RegisterPropertyInteger(\FritzBox\Base\Property::RefreshInterval, 60);
+        $this->RegisterPropertyBoolean(\FritzBox\Powerline\Property::RenameDeviceVariables, false);
+        $this->RegisterTimer(\FritzBox\Base\Timer::RefreshInfo, 0, 'IPS_RequestAction(' . $this->InstanceID . ',"' . \FritzBox\Base\Action::RefreshInfo . '",true);');
     }
 
     public function Destroy()
@@ -31,9 +31,9 @@ class FritzBoxPowerline extends FritzBoxModulBase
 
     public function ApplyChanges()
     {
-        $this->SetTimerInterval('RefreshInfo', 0);
+        $this->SetTimerInterval(\FritzBox\Base\Timer::RefreshInfo, 0);
         parent::ApplyChanges();
-        $this->SetTimerInterval('RefreshInfo', $this->ReadPropertyInteger('RefreshInterval') * 1000);
+        $this->SetTimerInterval(\FritzBox\Base\Timer::RefreshInfo, $this->ReadPropertyInteger(\FritzBox\Base\Property::RefreshInterval) * 1000);
         if (IPS_GetKernelRunlevel() != KR_READY) {
             return;
         }
@@ -46,7 +46,7 @@ class FritzBoxPowerline extends FritzBoxModulBase
             return true;
         }
         switch ($Ident) {
-            case 'RefreshInfo':
+            case \FritzBox\Base\Action::RefreshInfo:
                 return $this->UpdateInfo();
         }
         trigger_error($this->Translate('Invalid Ident.'), E_USER_NOTICE);
@@ -73,15 +73,30 @@ class FritzBoxPowerline extends FritzBoxModulBase
         return $Result;
     }
 
+    /**
+     * Liefert die Daten eines Powerline-Geräts anhand seiner MAC-Adresse.
+     *
+     * @param string $MACAddress MAC-Adresse (z.B. 00:11:22:AA:BB:CC)
+     *
+     * @return array|false
+     */
+    public function GetSpecificDeviceEntry(string $MACAddress)
+    {
+        if (!filter_var($MACAddress, FILTER_VALIDATE_MAC)) {
+            $this->ReportError($this->Translate('Invalid MAC address.'));
+            return false;
+        }
+        return $this->Send(__FUNCTION__, [
+            'NewMACAddress'=> $MACAddress
+        ]);
+    }
+
     public function UpdatePowerlineDevice(string $MACAddress)
     {
         $Result = $this->Send('DeviceDoUpdate', [
             'NewMACAddress'         => $MACAddress
         ]);
-        if ($Result === false) {
-            return false;
-        }
-        return $Result;
+        return $Result !== false;
     }
 
     private function UpdateInfo()
@@ -91,7 +106,7 @@ class FritzBoxPowerline extends FritzBoxModulBase
             return false;
         }
         $ReturnValue = true;
-        $Rename = $this->ReadPropertyBoolean('RenameDeviceVariables');
+        $Rename = $this->ReadPropertyBoolean(\FritzBox\Powerline\Property::RenameDeviceVariables);
         for ($i = 0; $i < $NumberOfDeviceEntries; $i++) {
             $Result = $this->GetGenericDeviceEntry($i);
             if ($Result === false) {

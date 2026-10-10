@@ -17,11 +17,11 @@ Instanz zur Kommunikation mit der FritzBox.
 - [2. Voraussetzungen](#2-voraussetzungen)
 - [3. Software-Installation](#3-software-installation)
 - [4. Einrichten der Instanzen in IP-Symcon](#4-einrichten-der-instanzen-in-ip-symcon)
-- [5. Statusvariablen und Profile](#5-statusvariablen-und-profile)
-  - [Statusvariablen](#statusvariablen)
-  - [Profile](#profile)
+- [5. Statusvariablen](#5-statusvariablen)
 - [6. Visualisierung](#6-visualisierung)
-- [7. PHP-Funktionsreferenz](#7-php-funktionsreferenz)
+  - [Kachel Visualisierung](#kachel-visualisierung)
+  - [WebFront Visualisierung](#webfront-visualisierung)
+- [7. PHP-Befehlsreferenz](#7-php-befehlsreferenz)
 - [8. Aktionen](#8-aktionen)
 - [9. Anhang](#9-anhang)
   - [1. Changelog](#1-changelog)
@@ -62,20 +62,42 @@ Die Discovery legt diesen Client Socket geschlossen an. Sobald ein Anrufmonitor 
 
 **Konfigurationsparameter**:  
 
-| Name       | Typ     | Beschreibung                                             |
-| ---------- | ------- | -------------------------------------------------------- |
-| Open       | boolean | Verbindung aktiveren                                     |
-| Host       | string  | URL der FritzBox                                         |
-| Username   | string  | Benutzername zur Anmeldung                               |
-| Password   | string  | Passwort zum Benutzernamen                               |
-| ReturnIP   | string  | IP-Adresse unter welcher die FritzBox IP-Symcon erreicht |
-| ReturnPort | integer | Port zur o.a. IP-Adresse                                 |
+| Eigenschaft          | Name       | Typ     | Standardwert | Beschreibung                                                                                                         |
+| -------------------- | ---------- | ------- | ------------ | -------------------------------------------------------------------------------------------------------------------- |
+| Aktiv                | Open       | boolean | true         | Verbindung zur FritzBox aktivieren                                                                                   |
+| URL                  | Host       | string  | `http://`    | URL der FritzBox, z.B. `http://192.168.178.1`. Ohne Port wird `49000` (http) bzw. `49443` (https) verwendet          |
+| Benutzername         | Username   | string  |              | Benutzername zur Anmeldung. Leer = Fallback-Anmeldung mit dem zuletzt in der FritzBox angemeldeten Benutzer          |
+| Passwort             | Password   | string  |              | Passwort zum Benutzernamen (Pflicht)                                                                                 |
+| IP für Ereignis-Hook | ReturnIP   | string  |              | IP-Adresse, unter welcher die FritzBox Symcon erreicht. Leer = automatisch ermitteln (Experteneinstellung)           |
+| Port für Ereignis-Hook | ReturnPort | integer | 3777       | Port zur o.a. IP-Adresse, 0 bis 65535 (Experteneinstellung)                                                          |
 
-## 5. Statusvariablen und Profile
+Die URL des Ereignis-WebHooks wird unter den Aktionen der Konfigurationsseite angezeigt.  
+
+Beispiel:  
+
+```php
+IPS_SetProperty(12345, 'Host', 'http://192.168.178.1');
+IPS_SetProperty(12345, 'Username', 'symcon');
+IPS_SetProperty(12345, 'Password', 'GeheimesPasswort');
+IPS_ApplyChanges(12345);
+```
+
+**Status der Instanz**:  
+
+| Code | Status in der Konsole  | Ursache                                                                                                                                                                                                    |
+| ---- | ---------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| 102  | Verbindung hergestellt | Die FritzBox ist erreichbar, die Anmeldung war erfolgreich und die Ereignisse der FritzBox sind abonniert.                                                                                                 |
+| 104  | Verbindung geschlossen | `Aktiv` (`Open`) ist ausgeschaltet.                                                                                                                                                                        |
+| 201  | Verbindung verloren    | Die FritzBox antwortet nicht mehr auf Anfragen oder meldet einen UPnP-Fehler, die Adresse für die Ereignisse (`ReturnIP`/`ReturnPort`) konnte nicht ermittelt werden oder das Abonnieren der Ereignisse ist fehlgeschlagen. |
+| 202  | Zugriff verweigert     | Die FritzBox hat die Anmeldung abgelehnt (HTTP 401), z.B. wegen falschem Benutzernamen oder Passwort.                                                                                                      |
+| 203  | Gerät nicht erreichbar | Unter der eingetragenen URL konnte keine Gerätebeschreibung der FritzBox geladen werden (falsche Adresse, falscher Port oder FritzBox ausgeschaltet).                                                       |
+| 204  | Dienst nicht gefunden  | Die FritzBox bietet den abgefragten Dienst nicht an (HTTP 404).                                                                                                                                            |
+| 205  | Passwort fehlt         | Es ist kein Passwort eingetragen.                                                                                                                                                                          |
+| 206  | URL ist ungültig       | Die URL (`Host`) ist leer oder enthält keinen gültigen Hostnamen bzw. keine gültige IP-Adresse.                                                                                                            |
+
+## 5. Statusvariablen
 
 Die Statusvariablen werden automatisch angelegt. Das Löschen einzelner kann zu Fehlfunktionen führen.
-
-### Statusvariablen
 
 | Ident          | Name           | Typ          | Beschreibung                          |
 | -------------- | -------------- | ------------ | ------------------------------------- |
@@ -83,18 +105,30 @@ Die Statusvariablen werden automatisch angelegt. Das Löschen einzelner kann zu 
 | Hosts          | Hosts          | Medienobjekt | Enthält die Host Tabelle der FritzBox |
 | Phonebook_xxx  | Phonebook_xxx  | Medienobjekt | Telefonbücher der FritzBox            |
 
-### Profile
-
-Dieses Modul erzeugt keine Variablenprofile.  
-
 ## 6. Visualisierung
+
+### Kachel Visualisierung
+
+Dieses Modul ist nicht zur Darstellung in der Kachel Visualisierung gedacht.
+
+### WebFront Visualisierung
 
 Dieses Modul ist nicht zur Darstellung im WebFront gedacht.
 
-## 7. PHP-Funktionsreferenz
+## 7. PHP-Befehlsreferenz
 
 ```php
-boolean FB_Reboot(integer $InstanzID);
+bool FB_Reboot(integer $InstanzID);
+```
+
+Startet die FritzBox neu. Liefert `true`, wenn die FritzBox den Befehl angenommen hat, sonst `false`.  
+*Nicht live getestet.*  
+
+> [!WARNING]
+> Während des Neustarts sind Internet, Telefonie und WLAN für einige Minuten nicht verfügbar.
+
+```php
+FB_Reboot(12345);
 ```
 
 ## 8. Aktionen
@@ -105,7 +139,7 @@ Keine Aktionen verfügbar.
 
 ### 1. Changelog
 
-[Changelog der Library](../README.md#changelog)
+[Changelog der Library](../README.md#2-changelog)
 
 ### 2. Spenden
 

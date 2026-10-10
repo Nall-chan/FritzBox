@@ -77,8 +77,8 @@ class FritzBoxHomeautomationConfigurator extends FritzBoxModulBase
 
                     'moduleID'      => \FritzBox\GUID::HomeautomationDevice,
                     'configuration' => [
-                        'Index'   => 0,
-                        'AIN'     => (string) $DeviceData['NewAIN']
+                        \FritzBox\Base\Property::Index             => 0,
+                        \FritzBox\Homeautomation\Property::AIN     => (string) $DeviceData['NewAIN']
                     ],
                     'location'      => [$this->Translate('FritzBox Homeautomation')]
                 ]
@@ -119,7 +119,7 @@ class FritzBoxHomeautomationConfigurator extends FritzBoxModulBase
     {
         $AllInstancesOfParent = array_flip(array_filter(IPS_GetInstanceListByModuleID(\FritzBox\GUID::HomeautomationDevice), [$this, 'FilterInstances']));
         foreach ($AllInstancesOfParent as $key => &$value) {
-            $value = IPS_GetProperty($key, 'AIN');
+            $value = IPS_GetProperty($key, \FritzBox\Homeautomation\Property::AIN);
         }
         return $AllInstancesOfParent;
     }

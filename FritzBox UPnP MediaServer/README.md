@@ -17,11 +17,11 @@ Auslesen und steuern der UPnP/DLA Funktionen.
 - [2. Voraussetzungen](#2-voraussetzungen)
 - [3. Software-Installation](#3-software-installation)
 - [4. Einrichten der Instanzen in IP-Symcon](#4-einrichten-der-instanzen-in-ip-symcon)
-- [5. Statusvariablen und Profile](#5-statusvariablen-und-profile)
-  - [Statusvariablen](#statusvariablen)
-  - [Profile](#profile)
+- [5. Statusvariablen](#5-statusvariablen)
 - [6. Visualisierung](#6-visualisierung)
-- [7. PHP-Funktionsreferenz](#7-php-funktionsreferenz)
+  - [Kachel Visualisierung](#kachel-visualisierung)
+  - [WebFront Visualisierung](#webfront-visualisierung)
+- [7. PHP-Befehlsreferenz](#7-php-befehlsreferenz)
 - [8. Aktionen](#8-aktionen)
 - [9. Anhang](#9-anhang)
   - [1. Changelog](#1-changelog)
@@ -53,45 +53,83 @@ Unter 'Instanz hinzufügen' ist das 'FritzBox UPnP MediaServer'-Modul unter dem 
 
 **Konfigurationsparameter**:  
 
-| Name            | Typ     | Beschreibung                         |
-| --------------- | ------- | ------------------------------------ |
-| RefreshInterval | integer | Aktualisierungsintervall in Sekunden |
+| Eigenschaft              | Name            | Typ     | Standardwert | Beschreibung                                                        |
+| ------------------------ | --------------- | ------- | ------------ | ------------------------------------------------------------------- |
+| Aktualisierungsintervall | RefreshInterval | integer | 60           | Intervall in Sekunden, in dem die Werte abgefragt werden; `0` = aus |
 
-## 5. Statusvariablen und Profile
+Beispiel:  
+
+```php
+IPS_SetProperty(12345, 'RefreshInterval', 300);
+IPS_ApplyChanges(12345);
+```
+
+## 5. Statusvariablen
 
 Die Statusvariablen werden automatisch angelegt. Das Löschen einzelner kann zu Fehlfunktionen führen.
 
-### Statusvariablen
+| Ident           | Name                   | Typ     | Beschreibung                                         |
+| --------------- | ---------------------- | ------- | ---------------------------------------------------- |
+| Enable          | UPnP Protokoll aktiv   | boolean | Statusinformationen über UPnP werden übertragen      |
+| UPnPMediaServer | UPnP Mediaserver aktiv | boolean | Mediaserver der FritzBox ist aktiv                   |
 
-| Ident           | Name                   | Typ     |
-| --------------- | ---------------------- | ------- |
-| Enable          | UPnP Protokoll aktiv   | boolean |
-| UPnPMediaServer | UPnP Mediaserver aktiv | boolean |
-
-### Profile
-
-Dieses Modul erzeugt keine Variablenprofile.  
+> [!WARNING]
+> Wird `UPnP Protokoll aktiv` ausgeschaltet, sendet die FritzBox keine UPnP-Statusinformationen mehr. Das kann den Empfang von Ereignissen in dieser Library stören (siehe [Vorbereitungen in der FritzBox](../README.md#zur-integration-von-geräten)).
 
 ## 6. Visualisierung
 
+### Kachel Visualisierung
+
+Die Instanz wird als Kachel in der Darstellung `Liste` angezeigt. Das Bild zeigt die maximierte Kachel mit allen Variablen.  
+Beide Variablen werden als Schalter dargestellt und können direkt in der Kachel geschaltet werden.  
+
+![Kachel Liste](imgs/tile_list.png)  
+
+### WebFront Visualisierung
+
 ![WebFront](imgs/webfront.png)  
 
-## 7. PHP-Funktionsreferenz
+## 7. PHP-Befehlsreferenz
+
+Alle Funktionen liefern `false`, wenn die Instanz nicht aktiv ist oder die FritzBox einen Fehler meldet. Meldet die FritzBox einen Fehler, wird zusätzlich eine Meldung ausgegeben.  
+Die Statusvariablen werden nach dem Ändern erst mit der nächsten Aktualisierung (Intervall oder Button `Werte aktualisieren`) nachgeführt.  
+
+---
 
 ```php
 array|false FB_GetInfo(integer $InstanzID);
-boolean FB_EnableUPnPServer(integer $InstanzID, boolean $Enable, boolean $UPnPMediaServer);
+```
+
+Liefert den Zustand als Array mit den Schlüsseln `NewEnable` (`1` = UPnP-Statusinformationen aktiv) und `NewUPnPMediaServer` (`1` = Mediaserver aktiv). Alle Werte sind Strings.  
+
+```php
+var_dump(FB_GetInfo(12345));
+// array(2) { ["NewEnable"]=> string(1) "1"  ["NewUPnPMediaServer"]=> string(1) "1" }
+```
+
+---
+
+```php
+bool FB_EnableUPnPServer(integer $InstanzID, bool $Enable, bool $UPnPMediaServer);
+```
+
+Setzt beide Einstellungen gleichzeitig: `$Enable` für die UPnP-Statusinformationen und `$UPnPMediaServer` für den Mediaserver. Soll nur der Mediaserver geschaltet werden, für `$Enable` den aktuellen Wert aus `FB_GetInfo` übergeben. Liefert `true` bei Erfolg.  
+
+```php
+var_dump(FB_EnableUPnPServer(12345, true, false)); // bool(true)
 ```
 
 ## 8. Aktionen
 
-Keine Aktionen verfügbar.
+**Grundsätzlich können alle bedienbaren Statusvariablen als Ziel einer [`Aktion`](https://www.symcon.de/service/dokumentation/konzepte/automationen/ablaufplaene/aktionen/) mit `Auf Wert schalten` angesteuert werden, so dass hier keine speziellen Aktionen benutzt werden müssen.**
+
+Darüber hinaus bietet das Modul keine speziellen Aktionen.
 
 ## 9. Anhang
 
 ### 1. Changelog
 
-[Changelog der Library](../README.md#changelog)
+[Changelog der Library](../README.md#2-changelog)
 
 ### 2. Spenden
 

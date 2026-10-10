@@ -30,7 +30,7 @@ class FritzBoxHosts extends FritzBoxModulBase
         //Never delete this line!
         parent::Create();
         $this->HostNumberOfEntriesId = 0;
-        $this->RegisterPropertyBoolean('HostAsVariable', false);
+        $this->RegisterPropertyBoolean(\FritzBox\Hosts\Property::HostAsVariable, false);
         $UsedVariableIdents = array_map(function ($VariableID)
         {
             $Ident = IPS_GetObject($VariableID)['ObjectIdent'];
@@ -49,17 +49,17 @@ class FritzBoxHosts extends FritzBoxModulBase
             return true;
         });
 
-        $this->RegisterPropertyString('HostVariables', json_encode(array_values($UsedVariableIdents)));
-        $this->RegisterPropertyBoolean('AutoAddHostVariables', true);
-        $this->RegisterPropertyBoolean('RenameHostVariables', false);
-        $this->RegisterPropertyInteger('RefreshInterval', 60);
-        $this->RegisterPropertyBoolean('HostAsTable', true);
+        $this->RegisterPropertyString(\FritzBox\Hosts\Property::HostVariables, json_encode(array_values($UsedVariableIdents)));
+        $this->RegisterPropertyBoolean(\FritzBox\Hosts\Property::AutoAddHostVariables, true);
+        $this->RegisterPropertyBoolean(\FritzBox\Hosts\Property::RenameHostVariables, false);
+        $this->RegisterPropertyInteger(\FritzBox\Base\Property::RefreshInterval, 60);
+        $this->RegisterPropertyBoolean(\FritzBox\Hosts\Property::HostAsTable, true);
         $Style = $this->GenerateHTMLStyleProperty();
-        $this->RegisterPropertyString('Table', json_encode($Style['Table']));
-        $this->RegisterPropertyString('Columns', json_encode($Style['Columns']));
-        $this->RegisterPropertyString('Rows', json_encode($Style['Rows']));
+        $this->RegisterPropertyString(\FritzBox\Table\Property::Table, json_encode($Style['Table']));
+        $this->RegisterPropertyString(\FritzBox\Table\Property::Columns, json_encode($Style['Columns']));
+        $this->RegisterPropertyString(\FritzBox\Table\Property::Rows, json_encode($Style['Rows']));
 
-        $this->RegisterTimer('RefreshHosts', 0, 'IPS_RequestAction(' . $this->InstanceID . ',"RefreshHosts",true);');
+        $this->RegisterTimer(\FritzBox\Hosts\Timer::RefreshHosts, 0, 'IPS_RequestAction(' . $this->InstanceID . ',"' . \FritzBox\Hosts\Action::RefreshHosts . '",true);');
     }
 
     public function Destroy()
@@ -71,22 +71,22 @@ class FritzBoxHosts extends FritzBoxModulBase
     public function ApplyChanges()
     {
         $this->UnregisterMessage($this->HostNumberOfEntriesId, VM_UPDATE);
-        $this->SetTimerInterval('RefreshHosts', 0);
-        $this->HostNumberOfEntriesId = $this->RegisterVariableInteger('HostNumberOfEntries', $this->Translate('Number of network devices'), '', -2);
-        $this->SetTimerInterval('RefreshHosts', 0);
-        $Table = $this->ReadPropertyBoolean('HostAsTable');
-        $Variable = $this->ReadPropertyBoolean('HostAsVariable');
+        $this->SetTimerInterval(\FritzBox\Hosts\Timer::RefreshHosts, 0);
+        $this->HostNumberOfEntriesId = $this->RegisterVariableInteger(\FritzBox\Hosts\Variables::HostNumberOfEntries, $this->Translate('Number of network devices'), '', -2);
+        $this->SetTimerInterval(\FritzBox\Hosts\Timer::RefreshHosts, 0);
+        $Table = $this->ReadPropertyBoolean(\FritzBox\Hosts\Property::HostAsTable);
+        $Variable = $this->ReadPropertyBoolean(\FritzBox\Hosts\Property::HostAsVariable);
         if ($Table) {
-            $this->RegisterVariableString('HostTable', $this->Translate('Network devices'), '~HTMLBox', -3);
+            $this->RegisterVariableString(\FritzBox\Hosts\Variables::HostTable, $this->Translate('Network devices'), '~HTMLBox', -3);
         } else {
-            $this->UnregisterVariable('HostTable');
+            $this->UnregisterVariable(\FritzBox\Hosts\Variables::HostTable);
         }
         if (!($Variable || ($Table))) {
             $this->SetStatus(IS_INACTIVE);
             return;
         }
 
-        $HostVariables = json_decode($this->ReadPropertyString('HostVariables'), true);
+        $HostVariables = json_decode($this->ReadPropertyString(\FritzBox\Hosts\Property::HostVariables), true);
         foreach ($HostVariables as $HostVariable) {
             if (!$HostVariable['use']) {
                 $Ident = $HostVariable['ident'];
@@ -98,7 +98,7 @@ class FritzBoxHosts extends FritzBoxModulBase
             }
         }
 
-        $this->SetTimerInterval('RefreshHosts', $this->ReadPropertyInteger('RefreshInterval') * 1000);
+        $this->SetTimerInterval(\FritzBox\Hosts\Timer::RefreshHosts, $this->ReadPropertyInteger(\FritzBox\Base\Property::RefreshInterval) * 1000);
         $this->RegisterMessage($this->HostNumberOfEntriesId, VM_UPDATE);
         usleep(5);
         parent::ApplyChanges();
@@ -123,25 +123,25 @@ class FritzBoxHosts extends FritzBoxModulBase
             return true;
         }
         switch ($Ident) {
-            case 'ReloadForm':
+            case \FritzBox\Hosts\Action::ReloadForm:
                 IPS_Sleep(2000);
                 $this->ReloadForm();
                 return;
-            case 'RefreshHosts':
+            case \FritzBox\Hosts\Action::RefreshHosts:
                 return $this->UpdateHostNumberOfEntries();
-            case 'HostAsVariable':
+            case \FritzBox\Hosts\Action::HostAsVariable:
                 $this->UpdateFormField('AutoAddHostVariables', 'enabled', (bool) $Value);
                 $this->UpdateFormField('RenameHostVariables', 'enabled', (bool) $Value);
                 $this->UpdateFormField('HostvariablesPanel', 'expanded', (bool) $Value);
                 $this->UpdateFormField('HostVariables', 'enabled', (bool) $Value);
                 return;
-            case 'HostTableAsVariable':
+            case \FritzBox\Hosts\Action::HostTableAsVariable:
                 $this->UpdateFormField('Table', 'enabled', (bool) $Value);
                 $this->UpdateFormField('Columns', 'enabled', (bool) $Value);
                 $this->UpdateFormField('Rows', 'enabled', (bool) $Value);
                 $this->UpdateFormField('HostAsTablePanel', 'expanded', (bool) $Value);
                 return;
-            case 'HostvariablesPanel':
+            case \FritzBox\Hosts\Action::HostvariablesPanel:
                 if ($this->ShowVariableWarning) {
                     $this->UpdateFormField('ErrorPopup', 'visible', true);
                     $this->UpdateFormField('ErrorTitle', 'caption', 'Attention!');
@@ -149,7 +149,7 @@ class FritzBoxHosts extends FritzBoxModulBase
                     $this->ShowVariableWarning = false;
                 }
                 return;
-            case 'DelHostVariable':
+            case \FritzBox\Hosts\Action::DelHostVariable:
                 $ObjectId = @$this->GetIDForIdent($Value);
                 if ($ObjectId > 0) {
                     $this->DelSubObjects($ObjectId);
@@ -173,12 +173,12 @@ class FritzBoxHosts extends FritzBoxModulBase
         if ($this->GetStatus() == IS_CREATING) {
             return json_encode($Form);
         }
-        if (!$this->ReadPropertyBoolean('HostAsTable')) {
+        if (!$this->ReadPropertyBoolean(\FritzBox\Hosts\Property::HostAsTable)) {
             $Form['elements'][3]['items'][0]['enabled'] = false;
             $Form['elements'][3]['items'][1]['enabled'] = false;
             $Form['elements'][3]['items'][2]['enabled'] = false;
         }
-        if (!$this->ReadPropertyBoolean('HostAsVariable')) {
+        if (!$this->ReadPropertyBoolean(\FritzBox\Hosts\Property::HostAsVariable)) {
             $this->ShowVariableWarning = false;
             $Form['elements'][1]['items'][0]['items'][1]['enabled'] = false;
             $Form['elements'][1]['items'][0]['items'][2]['enabled'] = false;
@@ -190,7 +190,7 @@ class FritzBoxHosts extends FritzBoxModulBase
         $Values = $this->GetHostVariables();
         if (count($Values) == 0) {
             // Fallback für konfigurierte Statusvariablen der Hosts, wenn Abfrage fehlschlägt; z.B. wenn IO offline
-            $Values = json_decode($this->ReadPropertyString('HostVariables'), true);
+            $Values = json_decode($this->ReadPropertyString(\FritzBox\Hosts\Property::HostVariables), true);
         }
         $Form['elements'][1]['items'][1]['items'][0]['values'] = $Values;
         $this->SendDebug('FORM', json_encode($Form), 0);
@@ -206,7 +206,7 @@ class FritzBoxHosts extends FritzBoxModulBase
         }
         $data = json_decode($JSONString, true);
         unset($data['DataID']);
-        if ($data['Function'] == 'RefreshHostList') {
+        if ($data['Function'] == \FritzBox\IOFunction::RefreshHostList) {
             $File = $this->GetHostListPath();
             if ($File === false) {
                 return '';
@@ -236,13 +236,13 @@ class FritzBoxHosts extends FritzBoxModulBase
         $this->SendDataToParent(json_encode(
             [
                 'DataID'     => \FritzBox\GUID::SendToFritzBoxIO,
-                'Function'   => 'NewHostListEvent'
+                'Function'   => \FritzBox\IOFunction::NewHostListEvent
             ]
         ));
 
-        $Table = $this->ReadPropertyBoolean('HostAsTable');
-        $Variable = $this->ReadPropertyBoolean('HostAsVariable');
-        $Rename = $this->ReadPropertyBoolean('RenameHostVariables');
+        $Table = $this->ReadPropertyBoolean(\FritzBox\Hosts\Property::HostAsTable);
+        $Variable = $this->ReadPropertyBoolean(\FritzBox\Hosts\Property::HostAsVariable);
+        $Rename = $this->ReadPropertyBoolean(\FritzBox\Hosts\Property::RenameHostVariables);
         if (!($Variable || ($Table))) {
             return true;
         }
@@ -260,7 +260,7 @@ class FritzBoxHosts extends FritzBoxModulBase
             return false;
         }
         // Konfigurierte Statusvariablen für Hosts
-        $HostVariables = array_column(json_decode($this->ReadPropertyString('HostVariables'), true), 'use', 'ident');
+        $HostVariables = array_column(json_decode($this->ReadPropertyString(\FritzBox\Hosts\Property::HostVariables), true), 'use', 'ident');
         $OnlineCounter = 0;
         $TableData = [];
         foreach ($xml as $xmlItem) {
@@ -275,7 +275,7 @@ class FritzBoxHosts extends FritzBoxModulBase
                 if (array_key_exists($Ident, $HostVariables)) {
                     $Used = $HostVariables[$Ident];
                 } else {
-                    $Used = $this->ReadPropertyBoolean('AutoAddHostVariables');
+                    $Used = $this->ReadPropertyBoolean(\FritzBox\Hosts\Property::AutoAddHostVariables);
                 }
 
                 if ($Used) {
@@ -304,7 +304,7 @@ class FritzBoxHosts extends FritzBoxModulBase
                 $TableData[] = (array) $xmlItem;
             }
         }
-        $this->setIPSVariable('HostNumberActive', 'Number of active network devices', $OnlineCounter, VARIABLETYPE_INTEGER, '', false, -1);
+        $this->setIPSVariable(\FritzBox\Hosts\Variables::HostNumberActive, 'Number of active network devices', $OnlineCounter, VARIABLETYPE_INTEGER, '', false, -1);
         if ($Table) {
             $this->CreateHostHTMLTable($TableData);
         }
@@ -368,10 +368,28 @@ class FritzBoxHosts extends FritzBoxModulBase
             'NewMACAddress'=> $MACAddress,
             'NewHostName'  => $Hostname
         ]);
-        if ($result === false) {
+        return $result !== false;
+    }
+
+    /**
+     * Setzt den in der Oberfläche der FritzBox angezeigten Namen (FriendlyName) eines Netzwerkgeräts.
+     *
+     * @param string $MACAddress   MAC-Adresse des Geräts (z.B. 00:11:22:AA:BB:CC)
+     * @param string $FriendlyName Neuer Anzeigename
+     *
+     * @return bool
+     */
+    public function SetFriendlyNameByMAC(string $MACAddress, string $FriendlyName)
+    {
+        if (!filter_var($MACAddress, FILTER_VALIDATE_MAC)) {
+            $this->ReportError($this->Translate('Invalid MAC address.'));
             return false;
         }
-        return $result;
+        $result = $this->Send('X_AVM-DE_SetFriendlyNameByMAC', [
+            'NewMACAddress'           => $MACAddress,
+            'NewX_AVM-DE_FriendlyName'=> $FriendlyName
+        ]);
+        return $result !== false;
     }
 
     public function GetAutoWakeOnLANByMACAddress(string $MACAddress)
@@ -389,12 +407,30 @@ class FritzBoxHosts extends FritzBoxModulBase
     {
         $result = $this->Send('X_AVM-DE_SetAutoWakeOnLANByMACAddress', [
             'NewMACAddress'    => $MACAddress,
-            'NewAutoWOLEnabled'=> $Enabled
+            'NewAutoWOLEnabled'=> (int) $Enabled
         ]);
-        if ($result === false) {
+        return $result !== false;
+    }
+
+    /**
+     * Priorisiert ein Netzwerkgerät (Internetzugang bevorzugt) oder hebt die Priorisierung auf.
+     *
+     * @param string $IPAddress IPv4-Adresse des Geräts
+     * @param bool   $Priority  true = priorisieren
+     *
+     * @return bool
+     */
+    public function SetPrioritizationByIP(string $IPAddress, bool $Priority)
+    {
+        if (!filter_var($IPAddress, FILTER_VALIDATE_IP, FILTER_FLAG_IPV4)) {
+            $this->ReportError($this->Translate('Invalid IP address.'));
             return false;
         }
-        return $result;
+        $result = $this->Send('X_AVM-DE_SetPrioritizationByIP', [
+            'NewIPAddress'        => $IPAddress,
+            'NewX_AVM-DE_Priority'=> (int) $Priority
+        ]);
+        return $result !== false;
     }
 
     public function WakeOnLANByMACAddress(string $MACAddress)
@@ -402,19 +438,13 @@ class FritzBoxHosts extends FritzBoxModulBase
         $result = $this->Send('X_AVM-DE_WakeOnLANByMACAddress', [
             'NewMACAddress'    => $MACAddress
         ]);
-        if ($result === false) {
-            return false;
-        }
-        return $result;
+        return $result !== false;
     }
 
     public function HostsCheckUpdate()
     {
         $result = $this->Send('X_AVM-DE_HostsCheckUpdate');
-        if ($result === false) {
-            return false;
-        }
-        return $result;
+        return $result !== false;
     }
 
     public function HostDoUpdate(string $MACAddress)
@@ -422,10 +452,7 @@ class FritzBoxHosts extends FritzBoxModulBase
         $result = $this->Send('X_AVM-DE_HostDoUpdate', [
             'NewMACAddress'    => $MACAddress
         ]);
-        if ($result === false) {
-            return false;
-        }
-        return $result;
+        return $result !== false;
     }
 
     public function GetHostListPath()
@@ -478,7 +505,7 @@ class FritzBoxHosts extends FritzBoxModulBase
             return false;
         });
         // Konfigurierte Statusvariablen für Hosts
-        $HostVariables = json_decode($this->ReadPropertyString('HostVariables'), true);
+        $HostVariables = json_decode($this->ReadPropertyString(\FritzBox\Hosts\Property::HostVariables), true);
         // Property durchgehen und Werte ergänzen. Alle Idents merken
         $FoundIdents = array_column($HostVariables, 'ident');
         foreach ($HostVariables as &$HostVariable) {
@@ -600,7 +627,7 @@ class FritzBoxHosts extends FritzBoxModulBase
         $HostName = array_column($TableData, 'HostName');
         array_multisort($HostName, SORT_ASC, SORT_LOCALE_STRING, $TableData);
         $HTML = $this->GetTable($TableData, '', '', '', -1, true);
-        $this->SetValue('HostTable', $HTML);
+        $this->SetValue(\FritzBox\Hosts\Variables::HostTable, $HTML);
     }
 
     private function UpdateHostNumberOfEntries()
@@ -609,7 +636,7 @@ class FritzBoxHosts extends FritzBoxModulBase
         if ($result === false) {
             return false;
         }
-        $this->setIPSVariable('HostNumberOfEntries', 'Number of network devices', (int) $result, VARIABLETYPE_INTEGER, '', false, -2);
+        $this->setIPSVariable(\FritzBox\Hosts\Variables::HostNumberOfEntries, 'Number of network devices', (int) $result, VARIABLETYPE_INTEGER, '', false, -2);
         return true;
     }
 

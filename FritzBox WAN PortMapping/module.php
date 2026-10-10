@@ -22,15 +22,15 @@ class FritzBoxWANPortMapping extends FritzBoxModulBase
         //Never delete this line!
         parent::Create();
 
-        $this->RegisterPropertyInteger('RefreshInterval', 60);
-        $this->RegisterTimer('RefreshInfo', 0, 'IPS_RequestAction(' . $this->InstanceID . ',"RefreshInfo",true);');
+        $this->RegisterPropertyInteger(\FritzBox\Base\Property::RefreshInterval, 60);
+        $this->RegisterTimer(\FritzBox\Base\Timer::RefreshInfo, 0, 'IPS_RequestAction(' . $this->InstanceID . ',"' . \FritzBox\Base\Action::RefreshInfo . '",true);');
     }
 
     public function ApplyChanges()
     {
-        $this->SetTimerInterval('RefreshInfo', 0);
+        $this->SetTimerInterval(\FritzBox\Base\Timer::RefreshInfo, 0);
         parent::ApplyChanges();
-        $Index = $this->ReadPropertyInteger('Index');
+        $Index = $this->ReadPropertyInteger(\FritzBox\Base\Property::Index);
         if ($Index == -1) {
             $this->SetStatus(IS_INACTIVE);
             return;
@@ -40,7 +40,7 @@ class FritzBoxWANPortMapping extends FritzBoxModulBase
             return;
         }
         $this->UpdatePortMapping();
-        $this->SetTimerInterval('RefreshInfo', $this->ReadPropertyInteger('RefreshInterval') * 1000);
+        $this->SetTimerInterval(\FritzBox\Base\Timer::RefreshInfo, $this->ReadPropertyInteger(\FritzBox\Base\Property::RefreshInterval) * 1000);
     }
 
     public function RequestAction($Ident, $Value)
@@ -52,7 +52,7 @@ class FritzBoxWANPortMapping extends FritzBoxModulBase
             return $this->EnablePortMapping($Ident, (bool) $Value);
         }
         switch ($Ident) {
-            case 'RefreshInfo':
+            case \FritzBox\Base\Action::RefreshInfo:
                 return $this->UpdatePortMapping();
         }
         trigger_error($this->Translate('Invalid Ident.'), E_USER_NOTICE);
@@ -76,9 +76,9 @@ class FritzBoxWANPortMapping extends FritzBoxModulBase
         }
         return [
             'NewRemoteHost'             => (string) $result['NewRemoteHost'],
-            'NewInternalPort'           => (int) $result['NewExternalPort'],
+            'NewInternalPort'           => (int) $result['NewInternalPort'],
             'NewProtocol'               => (string) $result['NewProtocol'],
-            'NewExternalPort'           => (int) $result['NewInternalPort'],
+            'NewExternalPort'           => (int) $result['NewExternalPort'],
             'NewInternalClient'         => (string) $result['NewInternalClient'],
             'NewEnabled'                => (int) $result['NewEnabled'],
             'NewPortMappingDescription' => (string) $result['NewPortMappingDescription'],
@@ -111,11 +111,12 @@ class FritzBoxWANPortMapping extends FritzBoxModulBase
 
     public function DeletePortMapping(string $RemoteHost, int $ExternalPort, string $Protocol)
     {
-        return $this->Send(__FUNCTION__, [
+        $result = $this->Send(__FUNCTION__, [
             'NewRemoteHost'  => $RemoteHost,
             'NewExternalPort'=> $ExternalPort,
             'NewProtocol'    => $Protocol
         ]);
+        return $result !== false;
     }
 
     public function AddPortMapping(
@@ -166,13 +167,14 @@ class FritzBoxWANPortMapping extends FritzBoxModulBase
             $MyIPs[] = IPS_GetOption('NATPublicIP');
         }
         $ReturnValue = true;
-        $this->setIPSVariable('PortMappingNumberOfEntries', 'Number of port mapping', $NoOfMappings, VARIABLETYPE_INTEGER, '', false, -1);
+        $this->setIPSVariable(\FritzBox\WANPortMapping\Variables::PortMappingNumberOfEntries, 'Number of port mapping', $NoOfMappings, VARIABLETYPE_INTEGER, '', false, -1);
         for ($i = 0; $i < $NoOfMappings; $i++) {
             $result = $this->GetGenericPortMappingEntry($i);
             if ($result === false) {
                 continue;
             }
-            $Ident = str_replace('.', 'P', $result['NewInternalClient']) . '_' . $result['NewInternalPort'] . '_' . $result['NewProtocol'];
+            // Ident mit dem externen Port, damit bestehende Variablen erhalten bleiben (bis 0.88 stand dieser Wert vertauscht in NewInternalPort)
+            $Ident = str_replace('.', 'P', $result['NewInternalClient']) . '_' . $result['NewExternalPort'] . '_' . $result['NewProtocol'];
             if ($NewIdent == $Ident) {
                 if (in_array((string) $result['NewInternalClient'], $MyIPs)) {
                     $changeResult = $this->AddPortMapping(

@@ -23,21 +23,21 @@ class FritzBoxMyFritz extends FritzBoxModulBase
         //Never delete this line!
         parent::Create();
 
-        $this->RegisterPropertyInteger('RefreshInterval', 60);
-        $this->RegisterTimer('RefreshInfo', 0, 'IPS_RequestAction(' . $this->InstanceID . ',"RefreshInfo",true);');
+        $this->RegisterPropertyInteger(\FritzBox\Base\Property::RefreshInterval, 60);
+        $this->RegisterTimer(\FritzBox\Base\Timer::RefreshInfo, 0, 'IPS_RequestAction(' . $this->InstanceID . ',"' . \FritzBox\Base\Action::RefreshInfo . '",true);');
         $this->ServiceIdents = [];
     }
 
     public function ApplyChanges()
     {
-        $this->SetTimerInterval('RefreshInfo', 0);
+        $this->SetTimerInterval(\FritzBox\Base\Timer::RefreshInfo, 0);
         parent::ApplyChanges();
-        $Index = $this->ReadPropertyInteger('Index');
+        $Index = $this->ReadPropertyInteger(\FritzBox\Base\Property::Index);
         if (IPS_GetKernelRunlevel() != KR_READY) {
             return;
         }
         $this->UpdateInfo();
-        $this->SetTimerInterval('RefreshInfo', $this->ReadPropertyInteger('RefreshInterval') * 1000);
+        $this->SetTimerInterval(\FritzBox\Base\Timer::RefreshInfo, $this->ReadPropertyInteger(\FritzBox\Base\Property::RefreshInterval) * 1000);
     }
 
     public function RequestAction($Ident, $Value)
@@ -49,7 +49,7 @@ class FritzBoxMyFritz extends FritzBoxModulBase
             return $this->EnableService($this->ConvertIdent($Ident), (bool) $Value);
         }
         switch ($Ident) {
-            case 'RefreshInfo':
+            case \FritzBox\Base\Action::RefreshInfo:
                 return $this->UpdateInfo();
         }
         trigger_error($this->Translate('Invalid Ident.'), E_USER_NOTICE);
@@ -160,10 +160,10 @@ class FritzBoxMyFritz extends FritzBoxModulBase
         if ($result == false) {
             return false;
         }
-        $this->setIPSVariable('Enabled', 'MyFritz enabled', (bool) $result['NewEnabled'], VARIABLETYPE_BOOLEAN, '~Switch', false, -5);
-        $this->setIPSVariable('DeviceRegistered', 'FritzBox registered', (bool) $result['NewDeviceRegistered'], VARIABLETYPE_BOOLEAN, '~Switch', false, -4);
-        $this->setIPSVariable('DynDNSName', 'MyFritz address', (string) $result['NewDynDNSName'], VARIABLETYPE_STRING, '', false, -3);
-        $this->setIPSVariable('DynDNSURL', 'FritzBox URL', (string) $result['NewDynDNSName'] . ':' . (string) $result['NewPort'], VARIABLETYPE_STRING, '', false, -2);
+        $this->setIPSVariable(\FritzBox\MyFritz\Variables::Enabled, 'MyFritz enabled', (bool) $result['NewEnabled'], VARIABLETYPE_BOOLEAN, '~Switch', false, -5);
+        $this->setIPSVariable(\FritzBox\MyFritz\Variables::DeviceRegistered, 'FritzBox registered', (bool) $result['NewDeviceRegistered'], VARIABLETYPE_BOOLEAN, '~Switch', false, -4);
+        $this->setIPSVariable(\FritzBox\MyFritz\Variables::DynDNSName, 'MyFritz address', (string) $result['NewDynDNSName'], VARIABLETYPE_STRING, '', false, -3);
+        $this->setIPSVariable(\FritzBox\MyFritz\Variables::DynDNSURL, 'FritzBox URL', (string) $result['NewDynDNSName'] . ':' . (string) $result['NewPort'], VARIABLETYPE_STRING, '', false, -2);
         $result = $this->UpdateService();
         if ($result == false) {
             return false;
@@ -181,7 +181,7 @@ class FritzBoxMyFritz extends FritzBoxModulBase
             $MyIPs[] = IPS_GetOption('NATPublicIP');
         }
         $MyIdents = [];
-        $this->setIPSVariable('NumberOfServices', 'Number of MyFritz services', $NoOfServices, VARIABLETYPE_INTEGER, '', false, -1);
+        $this->setIPSVariable(\FritzBox\MyFritz\Variables::NumberOfServices, 'Number of MyFritz services', $NoOfServices, VARIABLETYPE_INTEGER, '', false, -1);
         for ($i = 0; $i < $NoOfServices; $i++) {
             $result = $this->GetServiceByIndex($i);
             if ($result === false) {

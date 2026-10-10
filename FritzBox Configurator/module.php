@@ -63,7 +63,7 @@ class FritzBoxConfigurator extends IPSModule
         $Ret = $this->SendDataToParent(json_encode(
             [
                 'DataID'     => \FritzBox\GUID::SendToFritzBoxIO,
-                'Function'   => 'SCPD'
+                'Function'   => \FritzBox\IOFunction::Scpd
             ]
         ));
         $SCPDhasEvent = unserialize($Ret);
@@ -146,13 +146,13 @@ class FritzBoxConfigurator extends IPSModule
                         if (IPS_GetModule($guid)['ModuleType'] == 3) {
                             $AddService['create'] = [
                                 'moduleID'      => $guid,
-                                'configuration' => ['Index' => $index],
+                                'configuration' => [\FritzBox\Base\Property::Index => $index],
                                 'location'      => [IPS_GetName($this->InstanceID)]
                             ];
                         } else {
                             $AddService['create'] = [
                                 'moduleID'      => $guid,
-                                'configuration' => ['Index' => $index]
+                                'configuration' => [\FritzBox\Base\Property::Index => $index]
                             ];
                         }
 
@@ -184,7 +184,7 @@ class FritzBoxConfigurator extends IPSModule
         $Ret = $this->SendDataToParent(json_encode(
             [
                 'DataID'     => \FritzBox\GUID::SendToFritzBoxIO,
-                'Function'   => 'HasTel'
+                'Function'   => \FritzBox\IOFunction::HasTel
             ]
         ));
         $HasTel = unserialize($Ret);
@@ -197,7 +197,7 @@ class FritzBoxConfigurator extends IPSModule
                 $Ret = $this->SendDataToParent(json_encode(
                     [
                         'DataID'     => \FritzBox\GUID::SendToFritzBoxIO,
-                        'Function'   => 'CallMonitorOpen'
+                        'Function'   => \FritzBox\IOFunction::CallMonitorOpen
                     ]
                 ));
                 $CallMonitorOpen = unserialize($Ret);
@@ -217,7 +217,7 @@ class FritzBoxConfigurator extends IPSModule
                 'type'            => $this->Translate(IPS_GetModule($guid)['ModuleName']),
                 'create'          => [
                     'moduleID'      => $guid,
-                    'configuration' => ['Index' => 0],
+                    'configuration' => [\FritzBox\Base\Property::Index => 0],
                     'location'      => [IPS_GetName($this->InstanceID)]
                 ]
             ];
@@ -262,7 +262,7 @@ class FritzBoxConfigurator extends IPSModule
     {
         $AllInstancesOfParent = array_flip(array_filter(IPS_GetInstanceList(), [$this, 'FilterInstances']));
         foreach ($AllInstancesOfParent as $key => &$value) {
-            $value = [IPS_GetInstance($key)['ModuleInfo']['ModuleID'] => IPS_GetProperty($key, 'Index')];
+            $value = [IPS_GetInstance($key)['ModuleInfo']['ModuleID'] => IPS_GetProperty($key, \FritzBox\Base\Property::Index)];
         }
         return $AllInstancesOfParent;
     }

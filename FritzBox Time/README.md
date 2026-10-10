@@ -17,11 +17,12 @@ Auslesen und Steuern des NTP Dienst.
 - [2. Voraussetzungen](#2-voraussetzungen)
 - [3. Software-Installation](#3-software-installation)
 - [4. Einrichten der Instanzen in IP-Symcon](#4-einrichten-der-instanzen-in-ip-symcon)
-- [5. Statusvariablen und Profile](#5-statusvariablen-und-profile)
-  - [Statusvariablen](#statusvariablen)
-  - [Profile](#profile)
+- [5. Statusvariablen](#5-statusvariablen)
 - [6. Visualisierung](#6-visualisierung)
-- [7. PHP-Funktionsreferenz](#7-php-funktionsreferenz)
+  - [Kachel Visualisierung](#kachel-visualisierung)
+  - [WebFront Visualisierung](#webfront-visualisierung)
+- [7. PHP-Befehlsreferenz](#7-php-befehlsreferenz)
+- [8. Aktionen](#8-aktionen)
 - [9. Anhang](#9-anhang)
   - [1. Changelog](#1-changelog)
   - [2. Spenden](#2-spenden)
@@ -53,46 +54,102 @@ Unter 'Instanz hinzufügen' ist das 'FritzBox Zeitserver'-Modul unter dem Herste
 
 **Konfigurationsparameter**:  
 
-| Name            | Typ     | Beschreibung                         |
-| --------------- | ------- | ------------------------------------ |
-| RefreshInterval | integer | Aktualisierungsintervall in Sekunden |
+| Eigenschaft              | Name            | Typ     | Standardwert | Beschreibung                                                        |
+| ------------------------ | --------------- | ------- | ------------ | ------------------------------------------------------------------- |
+| Aktualisierungsintervall | RefreshInterval | integer | 60           | Intervall in Sekunden, in dem die Werte abgefragt werden; `0` = aus |
 
-## 5. Statusvariablen und Profile
+Beispiel:  
+
+```php
+IPS_SetProperty(12345, 'RefreshInterval', 300);
+IPS_ApplyChanges(12345);
+```
+
+## 5. Statusvariablen
 
 Die Statusvariablen werden automatisch angelegt. Das Löschen einzelner kann zu Fehlfunktionen führen.
 
-### Statusvariablen
-
-| Ident            | Name                | Typ     |
-| ---------------- | ------------------- | ------- |
-| CurrentLocalTime | Aktuelle Systemzeit | integer |
-| NTPServer        | NTP-Server 1        | string  |
-| NTPServer2       | NTP-Server 2        | string  |
-
-### Profile
-
-Dieses Modul erzeugt keine Variablenprofile.  
+| Ident            | Name                | Typ     | Beschreibung                                |
+| ---------------- | ------------------- | ------- | ------------------------------------------- |
+| CurrentLocalTime | Aktuelle Systemzeit | integer | Systemzeit der FritzBox (Unix-Zeitstempel)  |
+| NTPServer        | NTP-Server 1        | string  | Erster Zeitserver der FritzBox              |
+| NTPServer2       | NTP-Server 2        | string  | Zweiter Zeitserver der FritzBox             |
 
 ## 6. Visualisierung
 
+### Kachel Visualisierung
+
+Die Instanz wird als Kachel in der Darstellung `Liste` angezeigt. Das Bild zeigt die maximierte Kachel mit allen Variablen.  
+`Aktuelle Systemzeit` wird als Datum/Uhrzeit dargestellt, die NTP-Server als Text. Die NTP-Server können direkt in der Kachel geändert werden.  
+
+![Kachel Liste](imgs/tile_list.png)  
+
+### WebFront Visualisierung
+
 ![WebFront](imgs/webfront.png)  
 
-## 7. PHP-Funktionsreferenz
+## 7. PHP-Befehlsreferenz
 
-Keine Funktionen verfügbar.  
+Alle Funktionen liefern `false`, wenn die Instanz nicht aktiv ist oder die FritzBox einen Fehler meldet. Meldet die FritzBox einen Fehler, wird zusätzlich eine Meldung ausgegeben.  
+
+---
 
 ```php
 array|false FB_GetInfo(integer $InstanzID);
+```
+
+Liefert Zeit- und Zeitserver-Einstellungen der FritzBox als Array. Alle Werte sind Strings.  
+
+| Schlüssel               | Beschreibung                                               |
+| ----------------------- | ---------------------------------------------------------- |
+| NewCurrentLocalTime     | Systemzeit der FritzBox (ISO 8601)                         |
+| NewLocalTimeZoneName    | Zeitzone im POSIX-Format                                   |
+| NewLocalTimeZone        | Zeitzone (oft leer)                                        |
+| NewDaylightSavingsUsed  | `1` = Sommerzeit-Angaben werden genutzt                    |
+| NewDaylightSavingsStart | Beginn der Sommerzeit                                      |
+| NewDaylightSavingsEnd   | Ende der Sommerzeit                                        |
+| NewNTPServer1           | Erster Zeitserver                                          |
+| NewNTPServer2           | Zweiter Zeitserver                                         |
+
+```php
+var_dump(FB_GetInfo(12345));
+/*
+array(8) {
+  ["NewCurrentLocalTime"]=> string(25) "2026-10-09T19:08:28+02:00"
+  ["NewDaylightSavingsEnd"]=> string(19) "0001-01-01T00:00:00"
+  ["NewDaylightSavingsStart"]=> string(19) "0001-01-01T00:00:00"
+  ["NewDaylightSavingsUsed"]=> string(1) "0"
+  ["NewLocalTimeZone"]=> string(0) ""
+  ["NewLocalTimeZoneName"]=> string(26) "CET-1CEST,M3.5.0,M10.5.0/3"
+  ["NewNTPServer1"]=> string(15) "ptbtime1.ptb.de"
+  ["NewNTPServer2"]=> string(15) "ptbtime2.ptb.de"
+}
+*/
+```
+
+---
+
+```php
 bool FB_SetNTPServers(integer $InstanzID, string $NTPServer1, string $NTPServer2);
 ```
 
-Keine Aktionen verfügbar.
+Setzt beide Zeitserver der FritzBox und führt danach die Statusvariablen nach. Liefert `true` bei Erfolg.  
+
+```php
+var_dump(FB_SetNTPServers(12345, 'ptbtime1.ptb.de', 'ptbtime2.ptb.de')); // bool(true)
+```
+
+## 8. Aktionen
+
+**Grundsätzlich können alle bedienbaren Statusvariablen als Ziel einer [`Aktion`](https://www.symcon.de/service/dokumentation/konzepte/automationen/ablaufplaene/aktionen/) mit `Auf Wert schalten` angesteuert werden, so dass hier keine speziellen Aktionen benutzt werden müssen.**
+
+Darüber hinaus bietet das Modul keine speziellen Aktionen.
 
 ## 9. Anhang
 
 ### 1. Changelog
 
-[Changelog der Library](../README.md#changelog)
+[Changelog der Library](../README.md#2-changelog)
 
 ### 2. Spenden
 

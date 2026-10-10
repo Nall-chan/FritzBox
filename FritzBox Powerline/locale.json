@@ -1,6 +1,7 @@
 {
     "translations": {
         "de": {
+            "Invalid MAC address.": "Ungültige MAC-Adresse.",
             "Refresh Interval": "Aktualisierungsintervall",
             "seconds": "Sekunden",
             "Update Values": "Werte aktualisieren",

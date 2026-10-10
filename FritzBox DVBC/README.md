@@ -17,11 +17,12 @@ DVB-C Receivers der FritzBox auslesen und steuern.
 - [2. Voraussetzungen](#2-voraussetzungen)
 - [3. Software-Installation](#3-software-installation)
 - [4. Einrichten der Instanzen in IP-Symcon](#4-einrichten-der-instanzen-in-ip-symcon)
-- [5. Statusvariablen und Profile](#5-statusvariablen-und-profile)
-  - [Statusvariablen](#statusvariablen)
+- [5. Statusvariablen](#5-statusvariablen)
   - [Profile](#profile)
 - [6. Visualisierung](#6-visualisierung)
-- [7. PHP-Funktionsreferenz](#7-php-funktionsreferenz)
+  - [Kachel Visualisierung](#kachel-visualisierung)
+  - [WebFront Visualisierung](#webfront-visualisierung)
+- [7. PHP-Befehlsreferenz](#7-php-befehlsreferenz)
 - [8. Aktionen](#8-aktionen)
 - [9. Anhang](#9-anhang)
   - [1. Changelog](#1-changelog)
@@ -54,18 +55,23 @@ Unter 'Instanz hinzufügen' ist das 'FritzBox DVBC'-Modul unter dem Hersteller '
 
 **Konfigurationsparameter**:  
 
-| Name            | Typ     | Beschreibung                         |
-| --------------- | ------- | ------------------------------------ |
-| RefreshInterval | integer | Aktualisierungsintervall in Sekunden |
+| Eigenschaft              | Name            | Typ     | Standardwert | Beschreibung                                                        |
+| ------------------------ | --------------- | ------- | ------------ | ------------------------------------------------------------------- |
+| Aktualisierungsintervall | RefreshInterval | integer | 60           | Intervall in Sekunden, in dem die Werte abgefragt werden; `0` = aus |
 
-## 5. Statusvariablen und Profile
+Beispiel:  
+
+```php
+IPS_SetProperty(12345, 'RefreshInterval', 300);
+IPS_ApplyChanges(12345);
+```
+
+## 5. Statusvariablen
 
 Die Statusvariablen werden automatisch angelegt. Das Löschen einzelner kann zu Fehlfunktionen führen.
 
-**Achtung:**  
-Wird der DVB-C Empfänger aktiviert oder deaktiviert, startet die FritzBox automatisch neu!  
-
-### Statusvariablen
+> [!WARNING]
+> Wird der DVB-C Empfänger aktiviert oder deaktiviert, startet die FritzBox automatisch neu!
 
 | Ident               | Name                       | Typ     | Beschreibung                                               |
 | ------------------- | -------------------------- | ------- | ---------------------------------------------------------- |
@@ -76,32 +82,95 @@ Wird der DVB-C Empfänger aktiviert oder deaktiviert, startet die FritzBox autom
 
 ### Profile
 
-| Name              | Typ     |
-| ----------------- | ------- |
-| FB.Intensity      | integer |
-| FB.StartStop      | string  |
-| FB.ActiveInactive | string  |
+| Name              | Typ     | Werte                                    |
+| ----------------- | ------- | ---------------------------------------- |
+| FB.Intensity      | integer | Prozent (`%`)                            |
+| FB.StartStop      | string  | `start` = Start, `stop` = Stop           |
+| FB.ActiveInactive | string  | `active` = Aktiv, `inactive` = Inaktiv   |
 
 ## 6. Visualisierung
 
+### Kachel Visualisierung
+
+Die Instanz wird als Kachel in der Darstellung `Liste` angezeigt. Das Bild zeigt die maximierte Kachel mit allen Variablen.  
+`DVBC aktiv` wird als Schalter dargestellt, `Sendersuchlauf` als Auswahl `Start`/`Stop`. `Status Sendersuchlauf` zeigt `Aktiv` oder `Inaktiv`, `Fortschritt Sendersuchlauf` den Wert in Prozent.  
+`DVBC aktiv` und `Sendersuchlauf` können direkt in der Kachel bedient werden.  
+
+![Kachel Liste](imgs/tile_list.png)  
+
+### WebFront Visualisierung
+
 ![Webfront](imgs/webfront.png)  
 
-## 7. PHP-Funktionsreferenz
+## 7. PHP-Befehlsreferenz
+
+Alle Funktionen liefern `false`, wenn die Instanz nicht aktiv ist oder die FritzBox einen Fehler meldet. Meldet die FritzBox einen Fehler, wird zusätzlich eine Meldung ausgegeben.  
+
+---
 
 ```php
-boolean FB_SetDVBCEnable(integer $InstanceID, boolean $State);
-boolean FB_StationSearch(integer $InstanceID);
+array|false FB_GetInfo(integer $InstanzID);
+```
+
+Liefert den Zustand des DVB-C Empfängers als Array. Alle Werte sind Strings.  
+
+| Schlüssel              | Beschreibung                                   |
+| ---------------------- | ---------------------------------------------- |
+| NewDVBCEnabled         | `1` = DVB-C Empfänger aktiv, `0` = aus         |
+| NewStationSearchStatus | `active` oder `inactive`                       |
+| NewSearchProgress      | Fortschritt des Sendersuchlaufs in Prozent     |
+
+```php
+var_dump(FB_GetInfo(12345));
+/*
+array(3) {
+  ["NewDVBCEnabled"]=> string(1) "1"
+  ["NewSearchProgress"]=> string(3) "100"
+  ["NewStationSearchStatus"]=> string(8) "inactive"
+}
+*/
+```
+
+---
+
+```php
+bool FB_SetDVBCEnable(integer $InstanzID, bool $State);
+```
+
+Schaltet den DVB-C Empfänger ein (`true`) oder aus (`false`) und führt die Statusvariable `DVBC aktiv` nach. Liefert `true` bei Erfolg.  
+*Nicht live getestet, da die FritzBox dabei neu startet.*  
+
+> [!WARNING]
+> Die FritzBox startet nach dem Schalten automatisch neu.
+
+```php
+FB_SetDVBCEnable(12345, true);
+```
+
+---
+
+```php
+bool FB_StationSearch(integer $InstanzID, string $Mode);
+```
+
+Startet (`$Mode` = `start`) oder stoppt (`$Mode` = `stop`) den Sendersuchlauf. Die Statusvariable `Status Sendersuchlauf` wird mit der Antwort der FritzBox nachgeführt. Liefert `true` bei Erfolg.  
+*Nicht live getestet, da ein Sendersuchlauf den TV-Empfang unterbricht.*  
+
+```php
+FB_StationSearch(12345, 'start');
 ```
 
 ## 8. Aktionen
 
-Keine Aktionen verfügbar.
+**Grundsätzlich können alle bedienbaren Statusvariablen als Ziel einer [`Aktion`](https://www.symcon.de/service/dokumentation/konzepte/automationen/ablaufplaene/aktionen/) mit `Auf Wert schalten` angesteuert werden, so dass hier keine speziellen Aktionen benutzt werden müssen.**
+
+Darüber hinaus bietet das Modul keine speziellen Aktionen.
 
 ## 9. Anhang
 
 ### 1. Changelog
 
-[Changelog der Library](../README.md#changelog)
+[Changelog der Library](../README.md#2-changelog)
 
 ### 2. Spenden
 

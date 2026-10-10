@@ -21,8 +21,8 @@ class FritzBoxWANPhysicalInterface extends FritzBoxModulBase
     {
         //Never delete this line!
         parent::Create();
-        $this->RegisterPropertyInteger('RefreshInterval', 60);
-        $this->RegisterTimer('RefreshLinkProperties', 0, 'IPS_RequestAction(' . $this->InstanceID . ',"RefreshLinkProperties",true);');
+        $this->RegisterPropertyInteger(\FritzBox\Base\Property::RefreshInterval, 60);
+        $this->RegisterTimer(\FritzBox\WANPhysicalInterface\Timer::RefreshLinkProperties, 0, 'IPS_RequestAction(' . $this->InstanceID . ',"' . \FritzBox\WANPhysicalInterface\Action::RefreshLinkProperties . '",true);');
     }
 
     public function Destroy()
@@ -37,7 +37,7 @@ class FritzBoxWANPhysicalInterface extends FritzBoxModulBase
 
     public function ApplyChanges()
     {
-        $this->SetTimerInterval('RefreshLinkProperties', 0);
+        $this->SetTimerInterval(\FritzBox\WANPhysicalInterface\Timer::RefreshLinkProperties, 0);
         $this->RegisterProfileInteger('FB.kBit', '', '', ' kBit/s', 0, 0, 0);
         $this->RegisterProfileStringEx('FB.AccessType', '', '', '', [
             ['DSL', 'DSL', '', -1],
@@ -53,7 +53,7 @@ class FritzBoxWANPhysicalInterface extends FritzBoxModulBase
             return;
         }
         $this->UpdateCommonLinkProperties();
-        $this->SetTimerInterval('RefreshLinkProperties', $this->ReadPropertyInteger('RefreshInterval') * 1000);
+        $this->SetTimerInterval(\FritzBox\WANPhysicalInterface\Timer::RefreshLinkProperties, $this->ReadPropertyInteger(\FritzBox\Base\Property::RefreshInterval) * 1000);
     }
 
     public function RequestAction($Ident, $Value)
@@ -62,9 +62,9 @@ class FritzBoxWANPhysicalInterface extends FritzBoxModulBase
             return true;
         }
         switch ($Ident) {
-            case 'WANAccessType':
+            case \FritzBox\WANPhysicalInterface\Variables::WANAccessType:
                 return $this->SetWANAccessType($Value);
-            case 'RefreshLinkProperties':
+            case \FritzBox\WANPhysicalInterface\Action::RefreshLinkProperties:
                 return $this->UpdateCommonLinkProperties();
         }
         trigger_error($this->Translate('Invalid Ident.'), E_USER_NOTICE);
@@ -132,6 +132,25 @@ class FritzBoxWANPhysicalInterface extends FritzBoxModulBase
         return $result !== false;
     }
 
+    /**
+     * Liefert den Online-Monitor (Verlauf der Auslastung) einer Synchronisationsgruppe.
+     * Die Werte *_bps sind kommagetrennte Listen der letzten Messpunkte.
+     *
+     * @param int $SyncGroupIndex Index der Synchronisationsgruppe, beginnend bei 0 (Anzahl steht in NewTotalNumberSyncGroups)
+     *
+     * @return array|false
+     */
+    public function GetOnlineMonitor(int $SyncGroupIndex)
+    {
+        if ($SyncGroupIndex < 0) {
+            $this->ReportError($this->Translate('Invalid index.'));
+            return false;
+        }
+        return $this->Send('X_AVM-DE_GetOnlineMonitor', [
+            'NewSyncGroupIndex'=> $SyncGroupIndex
+        ]);
+    }
+
     private function UpdateCommonLinkProperties()
     {
         $result = $this->GetCommonLinkProperties();
@@ -139,12 +158,12 @@ class FritzBoxWANPhysicalInterface extends FritzBoxModulBase
             return false;
         }
 
-        $this->setIPSVariable('WANAccessType', 'WAN Access type', (string) $result['NewWANAccessType'], VARIABLETYPE_STRING, 'FB.AccessType', true);
-        $this->setIPSVariable('PhysicalLinkStatus', 'Physical Link Status', (string) $result['NewPhysicalLinkStatus'], VARIABLETYPE_STRING);
+        $this->setIPSVariable(\FritzBox\WANPhysicalInterface\Variables::WANAccessType, 'WAN Access type', (string) $result['NewWANAccessType'], VARIABLETYPE_STRING, 'FB.AccessType', true);
+        $this->setIPSVariable(\FritzBox\WANPhysicalInterface\Variables::PhysicalLinkStatus, 'Physical Link Status', (string) $result['NewPhysicalLinkStatus'], VARIABLETYPE_STRING);
         $Downstream = (int) ((int) $result['NewLayer1DownstreamMaxBitRate'] / 1000);
         $Upstream = (int) ((int) $result['NewLayer1UpstreamMaxBitRate'] / 1000);
-        $this->setIPSVariable('UpstreamMaxBitRate', 'Upstream Max kBitrate', $Upstream, VARIABLETYPE_INTEGER, 'FB.kBit');
-        $this->setIPSVariable('DownstreamMaxBitRate', 'Downstream Max kBitrate', $Downstream, VARIABLETYPE_INTEGER, 'FB.kBit');
+        $this->setIPSVariable(\FritzBox\WANPhysicalInterface\Variables::UpstreamMaxBitRate, 'Upstream Max kBitrate', $Upstream, VARIABLETYPE_INTEGER, 'FB.kBit');
+        $this->setIPSVariable(\FritzBox\WANPhysicalInterface\Variables::DownstreamMaxBitRate, 'Downstream Max kBitrate', $Downstream, VARIABLETYPE_INTEGER, 'FB.kBit');
         return true;
     }
 }

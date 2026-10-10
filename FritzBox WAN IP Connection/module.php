@@ -27,8 +27,8 @@ class FritzBoxWANIPConnection extends FritzBoxModulBase
         //Never delete this line!
         parent::Create();
 
-        $this->RegisterPropertyInteger('RefreshInterval', 60);
-        $this->RegisterTimer('RefreshInfo', 0, 'IPS_RequestAction(' . $this->InstanceID . ',"RefreshInfo",true);');
+        $this->RegisterPropertyInteger(\FritzBox\Base\Property::RefreshInterval, 60);
+        $this->RegisterTimer(\FritzBox\Base\Timer::RefreshInfo, 0, 'IPS_RequestAction(' . $this->InstanceID . ',"' . \FritzBox\Base\Action::RefreshInfo . '",true);');
     }
 
     public function Destroy()
@@ -43,7 +43,7 @@ class FritzBoxWANIPConnection extends FritzBoxModulBase
 
     public function ApplyChanges()
     {
-        $this->SetTimerInterval('RefreshInfo', 0);
+        $this->SetTimerInterval(\FritzBox\Base\Timer::RefreshInfo, 0);
 
         $this->RegisterProfileIntegerEx(
             'FB.Connect',
@@ -65,7 +65,7 @@ class FritzBoxWANIPConnection extends FritzBoxModulBase
             ]
         );
         parent::ApplyChanges();
-        $Index = $this->ReadPropertyInteger('Index');
+        $Index = $this->ReadPropertyInteger(\FritzBox\Base\Property::Index);
         if ($Index == -1) {
             $this->SetStatus(IS_INACTIVE);
             return;
@@ -74,10 +74,10 @@ class FritzBoxWANIPConnection extends FritzBoxModulBase
             return;
         }
         //$this->UpdateInfo();
-        $this->RegisterVariableInteger('ConnectionAction', $this->Translate('Control connection'), 'FB.Connect', 0);
-        $this->EnableAction('ConnectionAction');
+        $this->RegisterVariableInteger(\FritzBox\WANIPConnection\Variables::ConnectionAction, $this->Translate('Control connection'), 'FB.Connect', 0);
+        $this->EnableAction(\FritzBox\WANIPConnection\Variables::ConnectionAction);
 
-        $this->SetTimerInterval('RefreshInfo', $this->ReadPropertyInteger('RefreshInterval') * 1000);
+        $this->SetTimerInterval(\FritzBox\Base\Timer::RefreshInfo, $this->ReadPropertyInteger(\FritzBox\Base\Property::RefreshInterval) * 1000);
     }
 
     public function GetConnectionTypeInfo()
@@ -87,17 +87,20 @@ class FritzBoxWANIPConnection extends FritzBoxModulBase
 
     public function ForceTermination()
     {
-        return $this->Send(__FUNCTION__);
+        $result = $this->Send(__FUNCTION__);
+        return $result !== false;
     }
 
     public function RequestTermination()
     {
-        return $this->Send(__FUNCTION__);
+        $result = $this->Send(__FUNCTION__);
+        return $result !== false;
     }
 
     public function RequestConnection()
     {
-        return $this->Send(__FUNCTION__);
+        $result = $this->Send(__FUNCTION__);
+        return $result !== false;
     }
 
     public function GetStatusInfo()
@@ -188,17 +191,20 @@ class FritzBoxWANIPConnection extends FritzBoxModulBase
 
     public function SetWarnDisconnectDelay(int $DelayTime)
     {
-        return $this->Send(__FUNCTION__, ['NewWarnDisconnectDelay'=>$DelayTime]);
+        $result = $this->Send(__FUNCTION__, ['NewWarnDisconnectDelay'=>$DelayTime]);
+        return $result !== false;
     }
 
     public function SetIdleDisconnectTime(int $Timeout)
     {
-        return $this->Send(__FUNCTION__, ['NewIdleDisconnectTime'=>$Timeout]);
+        $result = $this->Send(__FUNCTION__, ['NewIdleDisconnectTime'=>$Timeout]);
+        return $result !== false;
     }
 
     public function SetAutoDisconnectTime(int $AutoDisconnectTime)
     {
-        return $this->Send(__FUNCTION__, ['NewAutoDisconnectTime'=>$AutoDisconnectTime]);
+        $result = $this->Send(__FUNCTION__, ['NewAutoDisconnectTime'=>$AutoDisconnectTime]);
+        return $result !== false;
     }
 
     public function RequestAction($Ident, $Value)
@@ -207,9 +213,9 @@ class FritzBoxWANIPConnection extends FritzBoxModulBase
             return true;
         }
         switch ($Ident) {
-            case 'RefreshInfo':
+            case \FritzBox\Base\Action::RefreshInfo:
                 return $this->UpdateInfo();
-            case 'ConnectionAction':
+            case \FritzBox\WANIPConnection\Variables::ConnectionAction:
                 return $this->ForceTermination();
         }
         trigger_error($this->Translate('Invalid Ident.'), E_USER_NOTICE);
@@ -226,7 +232,7 @@ class FritzBoxWANIPConnection extends FritzBoxModulBase
             $Ret = $this->SendDataToParent(json_encode(
                 [
                     'DataID'     => \FritzBox\GUID::SendToFritzBoxIO,
-                    'Function'   => 'HasIGD2'
+                    'Function'   => \FritzBox\IOFunction::HasIGD2
                 ]
             ));
             $HasIGD2 = unserialize($Ret);
@@ -243,7 +249,7 @@ class FritzBoxWANIPConnection extends FritzBoxModulBase
     protected function DecodeEvent($Event)
     {
         if (array_key_exists('ConnectionStatus', $Event)) {
-            $this->setIPSVariable('ConnectionStatus', 'IP connection status', ($Event['ConnectionStatus'] == 'Connected'), VARIABLETYPE_BOOLEAN, 'FB.ConnectionStatus');
+            $this->setIPSVariable(\FritzBox\WANIPConnection\Variables::ConnectionStatus, 'IP connection status', ($Event['ConnectionStatus'] == 'Connected'), VARIABLETYPE_BOOLEAN, 'FB.ConnectionStatus');
             unset($Event['ConnectionStatus']);
             $this->UpdateInfo();
         }
@@ -256,40 +262,40 @@ class FritzBoxWANIPConnection extends FritzBoxModulBase
         if ($result === false) {
             return false;
         }
-        $this->setIPSVariable('ConnectionStatus', 'IP connection status', ($result['NewConnectionStatus'] == 'Connected'), VARIABLETYPE_BOOLEAN, 'FB.ConnectionStatus', false, 1);
-        $this->setIPSVariable('UptimeRAW', 'Connection duration in seconds', (int) $result['NewUptime'], VARIABLETYPE_INTEGER, '', false, 2);
-        $this->setIPSVariable('Uptime', 'Connection duration', $this->ConvertRunTime((int) $result['NewUptime']), VARIABLETYPE_STRING, '', false, 3);
+        $this->setIPSVariable(\FritzBox\WANIPConnection\Variables::ConnectionStatus, 'IP connection status', ($result['NewConnectionStatus'] == 'Connected'), VARIABLETYPE_BOOLEAN, 'FB.ConnectionStatus', false, 1);
+        $this->setIPSVariable(\FritzBox\WANIPConnection\Variables::UptimeRAW, 'Connection duration in seconds', (int) $result['NewUptime'], VARIABLETYPE_INTEGER, '', false, 2);
+        $this->setIPSVariable(\FritzBox\WANIPConnection\Variables::Uptime, 'Connection duration', $this->ConvertRunTime((int) $result['NewUptime']), VARIABLETYPE_STRING, '', false, 3);
 
         $result = $this->GetExternalIPAddress();
         if ($result === false) {
             return false;
         }
-        $this->setIPSVariable('ExternalIPAddress', 'External IPv4 Address', $result, VARIABLETYPE_STRING, '', false, 4);
+        $this->setIPSVariable(\FritzBox\WANIPConnection\Variables::ExternalIPAddress, 'External IPv4 Address', $result, VARIABLETYPE_STRING, '', false, 4);
 
         $result = $this->GetDNSServer();
         if ($result === false) {
             return false;
         }
-        $this->setIPSVariable('IPv4DNSServer1', 'IPv4 DNS-Server 1', $result['NewIPv4DNSServer1'], VARIABLETYPE_STRING, '', false, 5);
-        $this->setIPSVariable('IPv4DNSServer2', 'IPv4 DNS-Server 2', $result['NewIPv4DNSServer2'], VARIABLETYPE_STRING, '', false, 6);
+        $this->setIPSVariable(\FritzBox\WANIPConnection\Variables::IPv4DNSServer1, 'IPv4 DNS-Server 1', $result['NewIPv4DNSServer1'], VARIABLETYPE_STRING, '', false, 5);
+        $this->setIPSVariable(\FritzBox\WANIPConnection\Variables::IPv4DNSServer2, 'IPv4 DNS-Server 2', $result['NewIPv4DNSServer2'], VARIABLETYPE_STRING, '', false, 6);
 
         $result = $this->GetExternalIPv6Address();
         if ($result === false) {
             return false;
         }
-        $this->setIPSVariable('ExternalIPv6Address', 'External IPv6 Address', $result['NewExternalIPv6Address'] . '/' . $result['NewPrefixLength'], VARIABLETYPE_STRING, '', false, 10);
+        $this->setIPSVariable(\FritzBox\WANIPConnection\Variables::ExternalIPv6Address, 'External IPv6 Address', $result['NewExternalIPv6Address'] . '/' . $result['NewPrefixLength'], VARIABLETYPE_STRING, '', false, 10);
 
         $result = $this->GetIPv6Prefix();
         if ($result === false) {
             return false;
         }
-        $this->setIPSVariable('IPv6Prefix', 'IPv6 Prefix', $result['NewIPv6Prefix'] . '/' . $result['NewPrefixLength'], VARIABLETYPE_STRING, '', false, 16);
+        $this->setIPSVariable(\FritzBox\WANIPConnection\Variables::IPv6Prefix, 'IPv6 Prefix', $result['NewIPv6Prefix'] . '/' . $result['NewPrefixLength'], VARIABLETYPE_STRING, '', false, 16);
 
         $result = $this->GetIPv6DNSServer();
         if ($result === false) {
             return false;
         }
-        $this->setIPSVariable('IPv6DNSServer1', 'IPv6 DNS-Server 1', $result['NewIPv6DNSServer1'], VARIABLETYPE_STRING, '', false, 14);
-        $this->setIPSVariable('IPv6DNSServer2', 'IPv6 DNS-Server 2', $result['NewIPv6DNSServer2'], VARIABLETYPE_STRING, '', false, 15);
+        $this->setIPSVariable(\FritzBox\WANIPConnection\Variables::IPv6DNSServer1, 'IPv6 DNS-Server 1', $result['NewIPv6DNSServer1'], VARIABLETYPE_STRING, '', false, 14);
+        $this->setIPSVariable(\FritzBox\WANIPConnection\Variables::IPv6DNSServer2, 'IPv6 DNS-Server 2', $result['NewIPv6DNSServer2'], VARIABLETYPE_STRING, '', false, 15);
     }
 }

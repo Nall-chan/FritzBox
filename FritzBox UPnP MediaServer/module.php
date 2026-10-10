@@ -18,8 +18,8 @@ class FritzBoxUPnPMediaServer extends FritzBoxModulBase
         //Never delete this line!
         parent::Create();
 
-        $this->RegisterPropertyInteger('RefreshInterval', 60);
-        $this->RegisterTimer('RefreshInfo', 0, 'IPS_RequestAction(' . $this->InstanceID . ',"RefreshInfo",true);');
+        $this->RegisterPropertyInteger(\FritzBox\Base\Property::RefreshInterval, 60);
+        $this->RegisterTimer(\FritzBox\Base\Timer::RefreshInfo, 0, 'IPS_RequestAction(' . $this->InstanceID . ',"' . \FritzBox\Base\Action::RefreshInfo . '",true);');
     }
 
     public function Destroy()
@@ -30,9 +30,9 @@ class FritzBoxUPnPMediaServer extends FritzBoxModulBase
 
     public function ApplyChanges()
     {
-        $this->SetTimerInterval('RefreshInfo', 0);
+        $this->SetTimerInterval(\FritzBox\Base\Timer::RefreshInfo, 0);
         parent::ApplyChanges();
-        $this->SetTimerInterval('RefreshInfo', $this->ReadPropertyInteger('RefreshInterval') * 1000);
+        $this->SetTimerInterval(\FritzBox\Base\Timer::RefreshInfo, $this->ReadPropertyInteger(\FritzBox\Base\Property::RefreshInterval) * 1000);
         if (IPS_GetKernelRunlevel() != KR_READY) {
             return;
         }
@@ -45,12 +45,12 @@ class FritzBoxUPnPMediaServer extends FritzBoxModulBase
             return true;
         }
         switch ($Ident) {
-            case 'RefreshInfo':
+            case \FritzBox\Base\Action::RefreshInfo:
                 return $this->UpdateInfo();
-            case 'Enable':
-                return $this->EnableUPnPServer((bool) $Value, $this->GetValue('UPnPMediaServer'));
-            case 'UPnPMediaServer':
-                return $this->EnableUPnPServer($this->GetValue('Enable'), (bool) $Value);
+            case \FritzBox\UPnPMediaServer\Variables::Enable:
+                return $this->EnableUPnPServer((bool) $Value, $this->GetValue(\FritzBox\UPnPMediaServer\Variables::UPnPMediaServer));
+            case \FritzBox\UPnPMediaServer\Variables::UPnPMediaServer:
+                return $this->EnableUPnPServer($this->GetValue(\FritzBox\UPnPMediaServer\Variables::Enable), (bool) $Value);
         }
         trigger_error($this->Translate('Invalid Ident.'), E_USER_NOTICE);
 
@@ -84,8 +84,8 @@ class FritzBoxUPnPMediaServer extends FritzBoxModulBase
         if ($result === false) {
             return false;
         }
-        $this->setIPSVariable('Enable', 'UPnP protocol active', (bool) $result['NewEnable'], VARIABLETYPE_BOOLEAN, '~Switch', true);
-        $this->setIPSVariable('UPnPMediaServer', 'UPnP Mediaserver active', (bool) $result['NewUPnPMediaServer'], VARIABLETYPE_BOOLEAN, '~Switch', true);
+        $this->setIPSVariable(\FritzBox\UPnPMediaServer\Variables::Enable, 'UPnP protocol active', (bool) $result['NewEnable'], VARIABLETYPE_BOOLEAN, '~Switch', true);
+        $this->setIPSVariable(\FritzBox\UPnPMediaServer\Variables::UPnPMediaServer, 'UPnP Mediaserver active', (bool) $result['NewUPnPMediaServer'], VARIABLETYPE_BOOLEAN, '~Switch', true);
         return true;
     }
 }

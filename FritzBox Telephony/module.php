@@ -23,6 +23,8 @@ class FritzBoxTelephony extends FritzBoxModulBase
     public const Call_Rejected_Incoming = 10;
     public const Call_Active_Outgoing = 11;
     public const FoundMarker = 20;
+    /** Index von X_VoIP in $ServiceTypeArray */
+    private const VoIPIndex = 1;
     //use \WebhookHelper;
 
     protected static $ControlUrlArray = [
@@ -45,32 +47,32 @@ class FritzBoxTelephony extends FritzBoxModulBase
         //Never delete this line!
         parent::Create();
 
-        $this->RegisterPropertyInteger('RefreshIntervalPhonebook', 60);
-        $this->RegisterPropertyInteger('RefreshIntervalDeflectionList', 60);
-        $this->RegisterPropertyInteger('RefreshIntervalCallLog', 10);
-        $this->RegisterPropertyBoolean('CallLogAsVariable', true);
-        $this->RegisterPropertyBoolean('DeflectionAsVariable', false);
-        $this->RegisterPropertyBoolean('CallBarringAsVariable', false);
-        $this->RegisterTimer('RefreshPhonebook', 0, 'IPS_RequestAction(' . $this->InstanceID . ',"RefreshPhonebook",true);');
-        $this->RegisterTimer('RefreshCallLog', 0, 'IPS_RequestAction(' . $this->InstanceID . ',"RefreshCallLog",true);');
-        $this->RegisterTimer('RefreshDeflectionList', 0, 'IPS_RequestAction(' . $this->InstanceID . ',"RefreshDeflectionList",true);');
+        $this->RegisterPropertyInteger(\FritzBox\Telephony\Property::RefreshIntervalPhonebook, 60);
+        $this->RegisterPropertyInteger(\FritzBox\Telephony\Property::RefreshIntervalDeflectionList, 60);
+        $this->RegisterPropertyInteger(\FritzBox\Telephony\Property::RefreshIntervalCallLog, 10);
+        $this->RegisterPropertyBoolean(\FritzBox\Telephony\Property::CallLogAsVariable, true);
+        $this->RegisterPropertyBoolean(\FritzBox\Telephony\Property::DeflectionAsVariable, false);
+        $this->RegisterPropertyBoolean(\FritzBox\Telephony\Property::CallBarringAsVariable, false);
+        $this->RegisterTimer(\FritzBox\Telephony\Timer::RefreshPhonebook, 0, 'IPS_RequestAction(' . $this->InstanceID . ',"' . \FritzBox\Telephony\Action::RefreshPhonebook . '",true);');
+        $this->RegisterTimer(\FritzBox\Telephony\Timer::RefreshCallLog, 0, 'IPS_RequestAction(' . $this->InstanceID . ',"' . \FritzBox\Telephony\Action::RefreshCallLog . '",true);');
+        $this->RegisterTimer(\FritzBox\Telephony\Timer::RefreshDeflectionList, 0, 'IPS_RequestAction(' . $this->InstanceID . ',"' . \FritzBox\Telephony\Action::RefreshDeflectionList . '",true);');
         $Style = $this->GenerateHTMLStyleProperty();
-        $this->RegisterPropertyBoolean('UseRelativDate', true);
-        $this->RegisterPropertyString('Table', json_encode($Style['Table']));
-        $this->RegisterPropertyString('Columns', json_encode($Style['Columns']));
-        $this->RegisterPropertyString('Rows', json_encode($Style['Rows']));
-        $this->RegisterPropertyString('Icons', json_encode($Style['Icons']));
+        $this->RegisterPropertyBoolean(\FritzBox\Telephony\Property::UseRelativDate, true);
+        $this->RegisterPropertyString(\FritzBox\Table\Property::Table, json_encode($Style['Table']));
+        $this->RegisterPropertyString(\FritzBox\Table\Property::Columns, json_encode($Style['Columns']));
+        $this->RegisterPropertyString(\FritzBox\Table\Property::Rows, json_encode($Style['Rows']));
+        $this->RegisterPropertyString(\FritzBox\Telephony\Property::Icons, json_encode($Style['Icons']));
 
-        $this->RegisterPropertyInteger('ReverseSearchInstanceID', 0);
-        $this->RegisterPropertyInteger('CustomSearchScriptID', 0);
+        $this->RegisterPropertyInteger(\FritzBox\TelHelper\Property::ReverseSearchInstanceID, 0);
+        $this->RegisterPropertyInteger(\FritzBox\TelHelper\Property::CustomSearchScriptID, 0);
 
-        $this->RegisterPropertyInteger('LoadListType', 2);
-        $this->RegisterPropertyInteger('LastEntries', 20);
+        $this->RegisterPropertyInteger(\FritzBox\Telephony\Property::LoadListType, 2);
+        $this->RegisterPropertyInteger(\FritzBox\Telephony\Property::LastEntries, 20);
 
-        $this->RegisterPropertyInteger('MaxNameSize', 30);
-        $this->RegisterPropertyString('SearchMarker', '{ICON}');
-        $this->RegisterPropertyString('UnknownNumberName', $this->Translate('(unknown)'));
-        $this->RegisterPropertyBoolean('NotShowWarning', false);
+        $this->RegisterPropertyInteger(\FritzBox\TelHelper\Property::MaxNameSize, 30);
+        $this->RegisterPropertyString(\FritzBox\Telephony\Property::SearchMarker, '{ICON}');
+        $this->RegisterPropertyString(\FritzBox\TelHelper\Property::UnknownNumberName, $this->Translate('(unknown)'));
+        $this->RegisterPropertyBoolean(\FritzBox\Telephony\Property::NotShowWarning, false);
         //todo
         // NR Filter (Liste?, add über auswahl der Nr + Name?)
         // Nr für Fax (kann das abgefragt werden?)
@@ -92,22 +94,22 @@ class FritzBoxTelephony extends FritzBoxModulBase
             return;
         }
         $this->RefreshPhonebook();
-        $this->SetTimerInterval('RefreshPhonebook', $this->ReadPropertyInteger('RefreshIntervalPhonebook') * 60000);
+        $this->SetTimerInterval(\FritzBox\Telephony\Timer::RefreshPhonebook, $this->ReadPropertyInteger(\FritzBox\Telephony\Property::RefreshIntervalPhonebook) * 60000);
 
-        if ($this->ReadPropertyBoolean('CallLogAsVariable')) {
-            $this->RegisterVariableString('CallLog', $this->Translate('Call log'), '~HTMLBox', -1);
+        if ($this->ReadPropertyBoolean(\FritzBox\Telephony\Property::CallLogAsVariable)) {
+            $this->RegisterVariableString(\FritzBox\Telephony\Variables::CallLog, $this->Translate('Call log'), '~HTMLBox', -1);
             $this->RefreshCallLog();
             $this->SetNewCallLogRefreshTimer();
         } else {
-            $this->UnregisterVariable('CallLog');
-            $this->SetTimerInterval('RefreshCallLog', 0);
+            $this->UnregisterVariable(\FritzBox\Telephony\Variables::CallLog);
+            $this->SetTimerInterval(\FritzBox\Telephony\Timer::RefreshCallLog, 0);
         }
 
         $this->RefreshDeflectionList();
-        if ($this->ReadPropertyBoolean('DeflectionAsVariable') || $this->ReadPropertyBoolean('CallBarringAsVariable')) {
-            $this->SetTimerInterval('RefreshDeflectionList', $this->ReadPropertyInteger('RefreshIntervalDeflectionList') * 60000);
+        if ($this->ReadPropertyBoolean(\FritzBox\Telephony\Property::DeflectionAsVariable) || $this->ReadPropertyBoolean(\FritzBox\Telephony\Property::CallBarringAsVariable)) {
+            $this->SetTimerInterval(\FritzBox\Telephony\Timer::RefreshDeflectionList, $this->ReadPropertyInteger(\FritzBox\Telephony\Property::RefreshIntervalDeflectionList) * 60000);
         } else {
-            $this->SetTimerInterval('RefreshDeflectionList', 0);
+            $this->SetTimerInterval(\FritzBox\Telephony\Timer::RefreshDeflectionList, 0);
         }
 
         //todo
@@ -127,14 +129,14 @@ class FritzBoxTelephony extends FritzBoxModulBase
             return true;
         }
         switch ($Ident) {
-            case 'RefreshPhonebook':
+            case \FritzBox\Telephony\Action::RefreshPhonebook:
                 return $this->RefreshPhonebook();
-            case 'RefreshCallLog':
+            case \FritzBox\Telephony\Action::RefreshCallLog:
                 $this->SetNewCallLogRefreshTimer();
                 return $this->RefreshCallLog();
-            case 'RefreshDeflectionList':
+            case \FritzBox\Telephony\Action::RefreshDeflectionList:
                 return $this->RefreshDeflectionList();
-            case 'PreviewIcon':
+            case \FritzBox\Telephony\Action::PreviewIcon:
                 $Data = unserialize($Value);
                 $ImageData = @getimagesize('data://text/plain;base64,' . $Data['Icon']);
                 if ($ImageData === false) {
@@ -146,14 +148,14 @@ class FritzBoxTelephony extends FritzBoxModulBase
                 $this->UpdateFormField('IconImage', 'image', 'data://' . $ImageData['mime'] . ';base64,' . $Data['Icon']);
                 $this->UpdateFormField('IconPreview', 'visible', true);
                 return;
-            case 'ReverseSearchInstanceID':
+            case \FritzBox\Telephony\Action::ReverseSearchInstanceID:
                 if ($Value > 1) {
                     $this->UpdateFormField('CustomSearchScriptID', 'enabled', false);
                 } else {
                     $this->UpdateFormField('CustomSearchScriptID', 'enabled', true);
                 }
                 return;
-            case 'CustomSearchScriptID':
+            case \FritzBox\Telephony\Action::CustomSearchScriptID:
                 if ($Value > 1) {
                     $this->UpdateFormField('MaxNameSize', 'enabled', false);
                     $this->UpdateFormField('ReverseSearchInstanceID', 'enabled', false);
@@ -166,7 +168,7 @@ class FritzBoxTelephony extends FritzBoxModulBase
                     $this->UpdateFormField('UnknownNumberName', 'enabled', true);
                 }
                 return;
-            case 'CallLogAsVariable':
+            case \FritzBox\Telephony\Action::CallLogAsVariable:
                 $this->UpdateFormField('LastEntries', 'enabled', $Value);
                 $this->UpdateFormField('LoadListType', 'enabled', $Value);
                 $this->UpdateFormField('Icons', 'enabled', $Value);
@@ -183,7 +185,7 @@ class FritzBoxTelephony extends FritzBoxModulBase
                 }
                 $this->UpdateFormField('RefreshIntervalCallLog', 'enabled', ($CallMonitorOpen ? false : $Value));
                 return;
-            case 'InstallCIRSModule':
+            case \FritzBox\Telephony\Action::InstallCIRSModule:
                 $this->UpdateFormField('ReversSearchPopup', 'visible', false);
                 $this->UpdateFormField('WaitPopup', 'visible', true);
                 $this->InstallCIRSModule();
@@ -206,7 +208,7 @@ class FritzBoxTelephony extends FritzBoxModulBase
             return json_encode($Form);
         }
         if (!$this->isCIRSModuleInstalled()) {
-            if (!$this->ReadPropertyBoolean('NotShowWarning')) {
+            if (!$this->ReadPropertyBoolean(\FritzBox\Telephony\Property::NotShowWarning)) {
                 $Form['elements'][4]['visible'] = true;
                 if ($this->StoreAvailable()) {
                     $Form['elements'][4]['popup']['items'][2]['visible'] = false;
@@ -220,7 +222,7 @@ class FritzBoxTelephony extends FritzBoxModulBase
                 }
             }
         }
-        if (!$this->ReadPropertyBoolean('CallLogAsVariable')) {
+        if (!$this->ReadPropertyBoolean(\FritzBox\Telephony\Property::CallLogAsVariable)) {
             $Form['elements'][0]['items'][0]['items'][2]['enabled'] = false;
             $Form['elements'][3]['items'][0]['items'][0]['enabled'] = false;
             $Form['elements'][3]['items'][0]['items'][1]['enabled'] = false;
@@ -242,14 +244,14 @@ class FritzBoxTelephony extends FritzBoxModulBase
                 }
             }
         }
-        if ($this->ReadPropertyInteger('CustomSearchScriptID') > 1) {
+        if ($this->ReadPropertyInteger(\FritzBox\TelHelper\Property::CustomSearchScriptID) > 1) {
             $Form['elements'][0]['items'][1]['expanded'] = false;
             $Form['elements'][0]['items'][1]['items'][0]['items'][0]['enabled'] = false;
             $Form['elements'][0]['items'][1]['items'][0]['items'][1]['enabled'] = false;
             $Form['elements'][0]['items'][1]['items'][1]['items'][0]['enabled'] = false;
             $Form['elements'][0]['items'][1]['items'][1]['items'][1]['enabled'] = false;
         }
-        if ($this->ReadPropertyInteger('ReverseSearchInstanceID') > 1) {
+        if ($this->ReadPropertyInteger(\FritzBox\TelHelper\Property::ReverseSearchInstanceID) > 1) {
             $Form['elements'][1]['items'][1]['enabled'] = false;
         }
         $this->SendDebug('FORM', json_encode($Form), 0);
@@ -446,7 +448,7 @@ class FritzBoxTelephony extends FritzBoxModulBase
         if ($result === false) {
             return false;
         }
-        if ($this->ReadPropertyBoolean('DeflectionAsVariable')) {
+        if ($this->ReadPropertyBoolean(\FritzBox\Telephony\Property::DeflectionAsVariable)) {
             $Ident = $this->ConvertIdent('D_' . $result['NewType'] . '_' . $result['NewNumber'] . '_' . $result['NewMode'] . '_' . $result['NewDeflectionToNumber']);
             $this->SetValue($Ident, (int) $result['NewEnable'] === 1);
         }
@@ -504,18 +506,144 @@ class FritzBoxTelephony extends FritzBoxModulBase
         return $result;
     }
 
-    public function DeleteCallBarringEntryUID(string $PhonebookEntryData)
+    /**
+     * Löscht eine Rufsperre über ihre eindeutige ID.
+     *
+     * @param int $PhonebookEntryUniqueID Eindeutige ID des Eintrags (uniqueid aus der Rufsperrliste)
+     *
+     * @return bool
+     */
+    public function DeleteCallBarringEntryUID(int $PhonebookEntryUniqueID)
     {
         $result = $this->Send(
             __FUNCTION__,
             [
-                'NewPhonebookEntryData'=> $PhonebookEntryData
+                'NewPhonebookEntryUniqueID'=> $PhonebookEntryUniqueID
             ]
         );
+        return $result !== false;
+    }
+
+    /**
+     * Liefert die Liste aller Rufnummern der FritzBox (XML).
+     *
+     * @return string|false
+     */
+    public function GetNumbers()
+    {
+        return $this->SendEx('X_AVM-DE_GetNumbers', self::VoIPIndex);
+    }
+
+    /**
+     * Liefert den Anmeldestatus eines Internet-Telefonie-Kontos.
+     *
+     * @param int $VoIPAccountIndex Index des Kontos, beginnend bei 0
+     *
+     * @return string|false disabled|not registered|registered|connected|unknown
+     */
+    public function GetVoIPStatus(int $VoIPAccountIndex)
+    {
+        if ($VoIPAccountIndex < 0) {
+            $this->ReportError($this->Translate('Invalid index.'));
+            return false;
+        }
+        return $this->SendEx('X_AVM-DE_GetVoIPStatus', self::VoIPIndex, [
+            'NewVoIPAccountIndex'=> $VoIPAccountIndex
+        ]);
+    }
+
+    /**
+     * Liefert den Namen des Telefons, über das die Wählhilfe wählt.
+     *
+     * @return string|false Leer, wenn die Wählhilfe nicht eingerichtet ist
+     */
+    public function GetDialConfig()
+    {
+        return $this->SendEx('X_AVM-DE_DialGetConfig', self::VoIPIndex);
+    }
+
+    /**
+     * Wählhilfe: Das in der FritzBox für die Wählhilfe eingestellte Telefon klingelt,
+     * nach dem Abheben wird die Rufnummer gewählt.
+     *
+     * @param string $PhoneNumber Rufnummer (Ziffern, *, #, +)
+     *
+     * @return bool
+     */
+    public function DialNumber(string $PhoneNumber)
+    {
+        if (!preg_match('/^[0-9*#+]+$/', $PhoneNumber)) {
+            $this->ReportError($this->Translate('Invalid phone number.'));
+            return false;
+        }
+        $result = $this->SendEx('X_AVM-DE_DialNumber', self::VoIPIndex, [
+            'NewX_AVM-DE_PhoneNumber'=> $PhoneNumber
+        ]);
+        return $result !== false;
+    }
+
+    /**
+     * Wählhilfe: Beendet den über DialNumber gestarteten Wählvorgang.
+     *
+     * @return bool
+     */
+    public function DialHangup()
+    {
+        $result = $this->SendEx('X_AVM-DE_DialHangup', self::VoIPIndex);
+        return $result !== false;
+    }
+
+    /**
+     * Liefert die Anzahl der Weckrufe.
+     *
+     * @return int|false
+     */
+    public function GetNumberOfAlarmClocks()
+    {
+        $result = $this->SendEx('X_AVM-DE_GetNumberOfAlarmClocks', self::VoIPIndex);
         if ($result === false) {
             return false;
         }
-        return $result;
+        return (int) $result;
+    }
+
+    /**
+     * Liefert die Einstellungen eines Weckrufs.
+     *
+     * @param int $Index Index des Weckrufs, beginnend bei 0
+     *
+     * @return array|false
+     */
+    public function GetAlarmClock(int $Index)
+    {
+        if ($Index < 0) {
+            $this->ReportError($this->Translate('Invalid index.'));
+            return false;
+        }
+        return $this->SendEx('X_AVM-DE_GetAlarmClock', self::VoIPIndex, [
+            'NewIndex'=> $Index
+        ]);
+    }
+
+    /**
+     * Aktiviert oder deaktiviert einen Weckruf.
+     *
+     * @param int  $Index  Index des Weckrufs, beginnend bei 0
+     * @param bool $Enable true = Weckruf aktivieren
+     *
+     * @return bool
+     */
+    public function SetAlarmClockEnable(int $Index, bool $Enable)
+    {
+        if ($Index < 0) {
+            $this->ReportError($this->Translate('Invalid index.'));
+            return false;
+        }
+        $result = $this->SendEx('X_AVM-DE_SetAlarmClockEnable', self::VoIPIndex, [
+            'NewIndex'                    => $Index,
+            'NewX_AVM-DE_AlarmClockEnable'=> (int) $Enable
+        ]);
+        return $result !== false;
     }
 
     public function ReceiveData($JSONString)
@@ -527,7 +655,7 @@ class FritzBoxTelephony extends FritzBoxModulBase
         switch ($CallEvent[1]) {
             case 'CONNECT': // Verbunden
             case 'DISCONNECT': // Getrennt
-                IPS_RunScriptText('IPS_RequestAction(' . $this->InstanceID . ',"RefreshCallLog",true);');
+                IPS_RunScriptText('IPS_RequestAction(' . $this->InstanceID . ',"' . \FritzBox\Telephony\Action::RefreshCallLog . '",true);');
                 break;
         }
         return true;
@@ -594,28 +722,28 @@ class FritzBoxTelephony extends FritzBoxModulBase
 
     private function SetNewCallLogRefreshTimer()
     {
-        $Interval = $this->ReadPropertyInteger('RefreshIntervalCallLog') * 60000;
+        $Interval = $this->ReadPropertyInteger(\FritzBox\Telephony\Property::RefreshIntervalCallLog) * 60000;
         if ($this->IsCallMonitorActive()) {
             $now = gmdate('U', time());
             $tomorrow = gmdate('U', strtotime('tomorrow'));
             $Interval = (($tomorrow - $now) + 10) * 1000;
         }
         $this->SendDebug('NewCallLogRefreshTimer', $Interval, 0);
-        $this->SetTimerInterval('RefreshCallLog', $Interval);
+        $this->SetTimerInterval(\FritzBox\Telephony\Timer::RefreshCallLog, $Interval);
     }
 
     private function RefreshCallLog()
     {
         $this->SendDebug('RefreshCallLog', 'start', 0);
-        if (!$this->ReadPropertyBoolean('CallLogAsVariable')) {
+        if (!$this->ReadPropertyBoolean(\FritzBox\Telephony\Property::CallLogAsVariable)) {
             return true;
         }
         $result = $this->GetCallLog();
         if (!$result) {
             return false;
         }
-        $entries = $this->ReadPropertyInteger('LastEntries');
-        switch ($this->ReadPropertyInteger('LoadListType')) {
+        $entries = $this->ReadPropertyInteger(\FritzBox\Telephony\Property::LastEntries);
+        switch ($this->ReadPropertyInteger(\FritzBox\Telephony\Property::LoadListType)) {
             case -1:
                 return true;
             case 1:
@@ -640,9 +768,9 @@ class FritzBoxTelephony extends FritzBoxModulBase
         $PhoneDevices = $this->GetPhoneDevices();
         $Data = [];
 
-        $MaxNameSize = $this->ReadPropertyInteger('MaxNameSize');
-        $UnknownName = $this->ReadPropertyString('UnknownNumberName');
-        $SearchMarker = $this->ReadPropertyString('SearchMarker');
+        $MaxNameSize = $this->ReadPropertyInteger(\FritzBox\TelHelper\Property::MaxNameSize);
+        $UnknownName = $this->ReadPropertyString(\FritzBox\TelHelper\Property::UnknownNumberName);
+        $SearchMarker = $this->ReadPropertyString(\FritzBox\Telephony\Property::SearchMarker);
         $this->SendDebug('count(Call)', count($CallLog->Call), 0);
         for ($i = 0; $i < count($CallLog->Call); $i++) {
             $Data[$i]['Name'] = (string) $CallLog->Call[$i]->Name;
@@ -693,7 +821,7 @@ class FritzBoxTelephony extends FritzBoxModulBase
             }
             $Data[$i]['Icon'] = '<div class="Icon' . $this->InstanceID . $Data[$i]['Type'] . '"></div>';
             $Time = (string) $CallLog->Call[$i]->Date;
-            if ($this->ReadPropertyBoolean('UseRelativDate')) {
+            if ($this->ReadPropertyBoolean(\FritzBox\Telephony\Property::UseRelativDate)) {
                 $TimeParts = explode(' ', $Time);
                 list($day, $mon, $year) = explode('.', $TimeParts[0]);
                 $TimeStamp = strtotime("$year-$mon-$day");
@@ -709,7 +837,7 @@ class FritzBoxTelephony extends FritzBoxModulBase
             $PhoneDevices[(int) $CallLog->Call[$i]->Port] = (string) $CallLog->Call[$i]->Device;
         }
         $this->SetPhoneDevices($PhoneDevices);
-        $Config_Icons = json_decode($this->ReadPropertyString('Icons'), true);
+        $Config_Icons = json_decode($this->ReadPropertyString(\FritzBox\Telephony\Property::Icons), true);
         $Icon_CSS = '<div id="scoped-content"><style type="text/css" scoped>' . "\r\n";
         foreach ($Config_Icons as $Config_Icon) {
             $ImageData = @getimagesize('data://text/plain;base64,' . $Config_Icon['icon']);
@@ -727,7 +855,7 @@ class FritzBoxTelephony extends FritzBoxModulBase
         //$JS ='<script type="text/javascript" src="hook/CallLog'.$this->InstanceID.'/tooltips.js"></script>';
         $JS = '';
         $HTML = $this->GetTable($Data) . '</div>';
-        $this->SetValue('CallLog', $Icon_CSS . $JS . $HTML);
+        $this->SetValue(\FritzBox\Telephony\Variables::CallLog, $Icon_CSS . $JS . $HTML);
         $this->SendDebug('RefreshCallLog', 'done', 0);
         return true;
     }
@@ -758,7 +886,7 @@ class FritzBoxTelephony extends FritzBoxModulBase
 
     private function RefreshDeflectionList($ActionIdent = null, $ActionValue = false)
     {
-        if (!$this->ReadPropertyBoolean('DeflectionAsVariable') && !$this->ReadPropertyBoolean('CallBarringAsVariable') && is_null($ActionIdent)) {
+        if (!$this->ReadPropertyBoolean(\FritzBox\Telephony\Property::DeflectionAsVariable) && !$this->ReadPropertyBoolean(\FritzBox\Telephony\Property::CallBarringAsVariable) && is_null($ActionIdent)) {
             return false;
         }
         if (is_null($ActionIdent)) {
@@ -786,7 +914,7 @@ class FritzBoxTelephony extends FritzBoxModulBase
             $Ident = $this->ConvertIdent('C_' . $CallBarringItem->Type . '_' . $CallBarringItem->Number . '_' . $CallBarringItem->Mode . '_' . $CallBarringItem->PhonebookID);
             $this->SendDebug('CallBarringIdent:' . $Index, $Ident, 0);
             $Value = (int) $CallBarringItem->Enable === 1;
-            if (!$this->ReadPropertyBoolean('CallBarringAsVariable')) {
+            if (!$this->ReadPropertyBoolean(\FritzBox\Telephony\Property::CallBarringAsVariable)) {
                 continue;
             }
             if (@$this->GetIDForIdent($Ident)) {
@@ -853,7 +981,7 @@ class FritzBoxTelephony extends FritzBoxModulBase
                     $Value = $ActionValue;
                 }
             }
-            if (!$this->ReadPropertyBoolean('DeflectionAsVariable')) {
+            if (!$this->ReadPropertyBoolean(\FritzBox\Telephony\Property::DeflectionAsVariable)) {
                 continue;
             }
             if (@$this->GetIDForIdent($Ident)) {
@@ -954,7 +1082,7 @@ class FritzBoxTelephony extends FritzBoxModulBase
         $this->SendDataToParent(json_encode(
             [
                 'DataID'     => \FritzBox\GUID::SendToFritzBoxIO,
-                'Function'   => 'SetPhonebooks',
+                'Function'   => \FritzBox\IOFunction::SetPhonebooks,
                 'Files'      => $Files
             ]
         ));

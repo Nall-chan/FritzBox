@@ -1,6 +1,8 @@
 {
     "translations": {
         "de": {
+            "Invalid index.": "Ungültiger Index.",
+            "Invalid phone number.": "Ungültige Rufnummer.",
             "FritzBox Telephony": "FritzBox Telefonie",
             "Reload phone book": "Telefonbuch neu laden",
             "Reload deflection list": "Rufumleitungen und Sperren neu laden",

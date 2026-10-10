@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace FritzBox;
 
+require_once __DIR__ . '/FritzBoxConstants.php';
+
 class GUID
 {
     //Library
@@ -65,8 +67,20 @@ class DebugMask
 {
     public const Mask = '***';
 
-    /** Namen von UPnP-Argumenten mit sensiblen Werten (z.B. NewPassword, NewKeyPassphrase, NewPreSharedKey, NewWEPKey0). */
-    private const SensitiveName = '[\w-]*(?:Password|Passphrase|PreSharedKey|WEPKey\d*|PIN)';
+    /**
+     * Namen von UPnP-Argumenten mit sensiblen Werten (z.B. NewPassword, NewKeyPassphrase, NewPreSharedKey, NewWEPKey0,
+     * EncryptionSecret, NewToken, NewX_AVM-DE_UrlSID). Quelle: SCPD-Beschreibungen mehrerer FritzBoxen.
+     * Ausgenommen sind Längen- und Zeichenvorgaben wie NewMaxCharsPassword oder NewAllowedCharsIPSecPreSharedKey.
+     */
+    private const SensitiveName = '(?![\w-]*(?:AllowedChars|MaxChars|MinChars))[\w-]*(?:Password|PasswordHash|Passphrase|PreSharedKey|WEPKey\d*|PIN|Secret|Token|SessionID|UrlSID)';
+
+    /**
+     * Aktionen, deren einziger Rückgabewert sensibel ist. Die IO liefert bei genau einem
+     * Rückgabewert nur den Wert ohne Argumentnamen, daher wird hier am Aktionsnamen erkannt.
+     */
+    private const SensitiveScalarActions = [
+        'X_AVM-DE_CreateUrlSID' // NewX_AVM-DE_UrlSID
+    ];
 
     /** Session-ID der FritzBox als URL-Parameter (auch HTML-kodiert als &amp;sid=). */
     private const SessionId = '/([?&;]sid=)[^&\s<>"\']+/i';
@@ -119,6 +133,23 @@ class DebugMask
             return $Url;
         }
         return preg_replace(self::SessionId, '$1' . self::Mask, $Url);
+    }
+
+    /**
+     * Maskiert das Ergebnis einer SOAP-Aktion. Bei genau einem Rückgabewert ist das Ergebnis
+     * ein Skalar ohne Argumentnamen, dann wird anhand des Aktionsnamens maskiert.
+     *
+     * @param string $Action Name der SOAP-Aktion
+     * @param mixed  $Result Ergebnis
+     *
+     * @return mixed
+     */
+    public static function Result(string $Action, mixed $Result): mixed
+    {
+        if (is_scalar($Result) && (string) $Result !== '' && in_array($Action, self::SensitiveScalarActions, true)) {
+            return self::Mask;
+        }
+        return self::Values($Result);
     }
 
     /**

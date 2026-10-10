@@ -18,10 +18,10 @@ class FritzBoxWebDavStorage extends FritzBoxModulBase
         //Never delete this line!
         parent::Create();
 
-        $this->RegisterPropertyInteger('RefreshInterval', 3600);
-        $this->RegisterPropertyString('Username', '');
-        $this->RegisterPropertyString('Password', '');
-        $this->RegisterTimer('RefreshInfo', 0, 'IPS_RequestAction(' . $this->InstanceID . ',"RefreshInfo",true);');
+        $this->RegisterPropertyInteger(\FritzBox\Base\Property::RefreshInterval, 3600);
+        $this->RegisterPropertyString(\FritzBox\WebDavStorage\Property::Username, '');
+        $this->RegisterPropertyString(\FritzBox\WebDavStorage\Property::Password, '');
+        $this->RegisterTimer(\FritzBox\Base\Timer::RefreshInfo, 0, 'IPS_RequestAction(' . $this->InstanceID . ',"' . \FritzBox\Base\Action::RefreshInfo . '",true);');
     }
 
     public function Destroy()
@@ -32,16 +32,16 @@ class FritzBoxWebDavStorage extends FritzBoxModulBase
 
     public function ApplyChanges()
     {
-        $this->SetTimerInterval('RefreshInfo', 0);
+        $this->SetTimerInterval(\FritzBox\Base\Timer::RefreshInfo, 0);
         parent::ApplyChanges();
         if (IPS_GetKernelRunlevel() != KR_READY) {
             return;
         }
-        if ($this->ReadPropertyString('Username') == '') {
+        if ($this->ReadPropertyString(\FritzBox\WebDavStorage\Property::Username) == '') {
             $this->SetStatus(IS_INACTIVE);
         } else {
             $this->UpdateWebDAVClient();
-            $this->SetTimerInterval('RefreshInfo', $this->ReadPropertyInteger('RefreshInterval') * 1000);
+            $this->SetTimerInterval(\FritzBox\Base\Timer::RefreshInfo, $this->ReadPropertyInteger(\FritzBox\Base\Property::RefreshInterval) * 1000);
             $this->SetStatus(IS_ACTIVE);
         }
     }
@@ -52,9 +52,9 @@ class FritzBoxWebDavStorage extends FritzBoxModulBase
             return true;
         }
         switch ($Ident) {
-            case 'RefreshInfo':
+            case \FritzBox\Base\Action::RefreshInfo:
                 return $this->UpdateWebDAVClient();
-            case 'Enable':
+            case \FritzBox\WebDavStorage\Variables::Enable:
                 return $this->UpdateWebDAVClient((bool) $Value);
         }
         trigger_error($this->Translate('Invalid Ident.'), E_USER_NOTICE);
@@ -76,8 +76,8 @@ class FritzBoxWebDavStorage extends FritzBoxModulBase
         $result = $this->Send('SetConfig', [
             'NewEnable'        => $Enable,
             'NewHostURL'       => $HostURL,
-            'NewUsername'      => $this->ReadPropertyString('Username'),
-            'NewPassword'      => $this->ReadPropertyString('Password'),
+            'NewUsername'      => $this->ReadPropertyString(\FritzBox\WebDavStorage\Property::Username),
+            'NewPassword'      => $this->ReadPropertyString(\FritzBox\WebDavStorage\Property::Password),
             'NewMountpointName'=> $NewMountpointName
         ]);
         if ($result === null) {
@@ -98,7 +98,7 @@ class FritzBoxWebDavStorage extends FritzBoxModulBase
                 $result['NewEnable'] = $NewEnabled;
             }
         }
-        $this->setIPSVariable('Enable', 'WebDav client active', (bool) $result['NewEnable'], VARIABLETYPE_BOOLEAN, '~Switch', true);
+        $this->setIPSVariable(\FritzBox\WebDavStorage\Variables::Enable, 'WebDav client active', (bool) $result['NewEnable'], VARIABLETYPE_BOOLEAN, '~Switch', true);
         return true;
     }
 }

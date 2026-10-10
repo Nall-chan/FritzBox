@@ -41,26 +41,26 @@ class FritzBoxCallmonitor extends FritzBoxModulBase
         //Never delete this line!
         parent::Create();
 
-        $this->RegisterPropertyString('AreaCode', '');
-        $this->RegisterPropertyString('CountryCode', '');
+        $this->RegisterPropertyString(\FritzBox\Callmonitor\Property::AreaCode, '');
+        $this->RegisterPropertyString(\FritzBox\Callmonitor\Property::CountryCode, '');
 
-        $this->RegisterPropertyInteger('ReverseSearchInstanceID', 0);
-        $this->RegisterPropertyInteger('CustomSearchScriptID', 0);
-        $this->RegisterPropertyInteger('MaxNameSize', 30);
-        $this->RegisterPropertyString('SearchMarker', '(*) ');
-        $this->RegisterPropertyString('UnknownNumberName', $this->Translate('(unknown)'));
-        $this->RegisterPropertyBoolean('NotShowWarning', false);
+        $this->RegisterPropertyInteger(\FritzBox\TelHelper\Property::ReverseSearchInstanceID, 0);
+        $this->RegisterPropertyInteger(\FritzBox\TelHelper\Property::CustomSearchScriptID, 0);
+        $this->RegisterPropertyInteger(\FritzBox\TelHelper\Property::MaxNameSize, 30);
+        $this->RegisterPropertyString(\FritzBox\Callmonitor\Property::SearchMarker, '(*) ');
+        $this->RegisterPropertyString(\FritzBox\TelHelper\Property::UnknownNumberName, $this->Translate('(unknown)'));
+        $this->RegisterPropertyBoolean(\FritzBox\Callmonitor\Property::NotShowWarning, false);
 
-        $this->RegisterPropertyBoolean('CallsAsTable', true);
-        $this->RegisterPropertyBoolean('CallsAsNotification', true);
-        $this->RegisterPropertyString('Targets', json_encode([]));
-        $this->RegisterPropertyString('Notification', json_encode($this->GenerateDefaultNotificationProperty()));
-        $this->RegisterPropertyString('Actions', json_encode([]));
+        $this->RegisterPropertyBoolean(\FritzBox\Callmonitor\Property::CallsAsTable, true);
+        $this->RegisterPropertyBoolean(\FritzBox\Callmonitor\Property::CallsAsNotification, true);
+        $this->RegisterPropertyString(\FritzBox\Callmonitor\Property::Targets, json_encode([]));
+        $this->RegisterPropertyString(\FritzBox\Callmonitor\Property::Notification, json_encode($this->GenerateDefaultNotificationProperty()));
+        $this->RegisterPropertyString(\FritzBox\Callmonitor\Property::Actions, json_encode([]));
         $Style = $this->GenerateHTMLStyleProperty();
-        $this->RegisterPropertyString('Table', json_encode($Style['Table']));
-        $this->RegisterPropertyString('Columns', json_encode($Style['Columns']));
-        $this->RegisterPropertyString('Rows', json_encode($Style['Rows']));
-        $this->RegisterPropertyString('Icons', json_encode($Style['Icons']));
+        $this->RegisterPropertyString(\FritzBox\Table\Property::Table, json_encode($Style['Table']));
+        $this->RegisterPropertyString(\FritzBox\Table\Property::Columns, json_encode($Style['Columns']));
+        $this->RegisterPropertyString(\FritzBox\Table\Property::Rows, json_encode($Style['Rows']));
+        $this->RegisterPropertyString(\FritzBox\Callmonitor\Property::Icons, json_encode($Style['Icons']));
         $this->CallData = [];
     }
 
@@ -79,7 +79,7 @@ class FritzBoxCallmonitor extends FritzBoxModulBase
         }
         // Vorwahlen nur einmalig aus der FritzBox übernehmen, solange sie leer sind (z.B. neue Instanz).
         // Spätere Änderungen erfolgen nur durch den Nutzer über das Konfigurationsformular.
-        if (($this->ReadPropertyString('AreaCode') == '') || ($this->ReadPropertyString('CountryCode') == '')) {
+        if (($this->ReadPropertyString(\FritzBox\Callmonitor\Property::AreaCode) == '') || ($this->ReadPropertyString(\FritzBox\Callmonitor\Property::CountryCode) == '')) {
             $Codes = $this->ReadAreaCodes();
             if ($Codes !== false) {
                 $HasChanges = false;
@@ -98,19 +98,23 @@ class FritzBoxCallmonitor extends FritzBoxModulBase
         foreach ($this->GetReferenceList() as $Reference) {
             $this->UnregisterReference($Reference);
         }
-        foreach (json_decode($this->ReadPropertyString('Targets'), true) as $Target) {
+        foreach (json_decode($this->ReadPropertyString(\FritzBox\Callmonitor\Property::Targets), true) as $Target) {
             $this->RegisterReference($Target['target']);
         }
-        foreach (json_decode($this->ReadPropertyString('Actions'), true) as $Action) {
-            $this->RegisterReference(json_decode($Action['action'], true)['parameters']['TARGET']);
+        foreach (json_decode($this->ReadPropertyString(\FritzBox\Callmonitor\Property::Actions), true) as $Action) {
             $ActionData = json_decode($Action['action'], true);
             $this->SendDebug('ActionData', $ActionData, 0);
+            // Nicht jede Aktion hat ein Ziel (z.B. PHP-Code ausführen)
+            $Target = $ActionData['parameters']['TARGET'] ?? 0;
+            if ($Target > 0) {
+                $this->RegisterReference($Target);
+            }
         }
-        if ($this->ReadPropertyBoolean('CallsAsTable')) {
-            $this->RegisterVariableString('CallList', $this->Translate('Active calls'), '~HTMLBox', 0);
+        if ($this->ReadPropertyBoolean(\FritzBox\Callmonitor\Property::CallsAsTable)) {
+            $this->RegisterVariableString(\FritzBox\Callmonitor\Variables::CallList, $this->Translate('Active calls'), '~HTMLBox', 0);
             $this->RebuildTable();
         } else {
-            $this->UnregisterVariable('CallList');
+            $this->UnregisterVariable(\FritzBox\Callmonitor\Variables::CallList);
         }
     }
 
@@ -120,9 +124,9 @@ class FritzBoxCallmonitor extends FritzBoxModulBase
             return true;
         }
         switch ($Ident) {
-            case 'RefreshCallList':
+            case \FritzBox\Callmonitor\Action::RefreshCallList:
                 return $this->RebuildTable();
-            case 'ReadAreaCodes':
+            case \FritzBox\Callmonitor\Action::ReadAreaCodes:
                 $Codes = $this->ReadAreaCodes();
                 if ($Codes === false) {
                     $this->ReportError($this->Translate('The dialing codes could not be read from the FRITZ!Box.'));
@@ -132,15 +136,15 @@ class FritzBoxCallmonitor extends FritzBoxModulBase
                     $this->UpdateFormField($Property, 'value', $Value);
                 }
                 return true;
-            case 'EditAreaCodes':
+            case \FritzBox\Callmonitor\Action::EditAreaCodes:
                 $this->UpdateFormField('CountryCode', 'enabled', true);
                 $this->UpdateFormField('AreaCode', 'enabled', true);
                 return true;
-            case 'SendNotification':
+            case \FritzBox\Callmonitor\Action::SendNotification:
                 return $this->SendNotification(unserialize($Value));
-            case 'RunActions':
+            case \FritzBox\Callmonitor\Action::RunActions:
                 return $this->RunActions(unserialize($Value));
-            case 'PreviewIcon':
+            case \FritzBox\Callmonitor\Action::PreviewIcon:
                 $Data = unserialize($Value);
                 $ImageData = @getimagesize('data://text/plain;base64,' . $Data['Icon']);
                 if ($ImageData === false) {
@@ -152,14 +156,14 @@ class FritzBoxCallmonitor extends FritzBoxModulBase
                 $this->UpdateFormField('IconImage', 'image', 'data://' . $ImageData['mime'] . ';base64,' . $Data['Icon']);
                 $this->UpdateFormField('IconPreview', 'visible', true);
                 return;
-            case 'ReverseSearchInstanceID':
+            case \FritzBox\Callmonitor\Action::ReverseSearchInstanceID:
                 if ($Value > 1) {
                     $this->UpdateFormField('CustomSearchScriptID', 'enabled', false);
                 } else {
                     $this->UpdateFormField('CustomSearchScriptID', 'enabled', true);
                 }
                 return;
-            case 'CustomSearchScriptID':
+            case \FritzBox\Callmonitor\Action::CustomSearchScriptID:
                 if ($Value > 1) {
                     $this->UpdateFormField('MaxNameSize', 'enabled', false);
                     $this->UpdateFormField('ReverseSearchInstanceID', 'enabled', false);
@@ -172,12 +176,12 @@ class FritzBoxCallmonitor extends FritzBoxModulBase
                     $this->UpdateFormField('UnknownNumberName', 'enabled', true);
                 }
                 return;
-            case 'CallsAsNotification':
+            case \FritzBox\Callmonitor\Action::CallsAsNotification:
                 $this->UpdateFormField('NotificationPanel', 'expanded', $Value);
                 $this->UpdateFormField('Targets', 'enabled', $Value);
                 $this->UpdateFormField('Notification', 'enabled', $Value);
                 return;
-            case 'CallsAsTable':
+            case \FritzBox\Callmonitor\Action::CallsAsTable:
                 $this->UpdateFormField('Icons', 'enabled', $Value);
                 $this->UpdateFormField('ShowImage', 'enabled', $Value);
                 $this->UpdateFormField('Table', 'enabled', $Value);
@@ -196,7 +200,7 @@ class FritzBoxCallmonitor extends FritzBoxModulBase
         if ($this->GetStatus() == IS_CREATING) {
             return json_encode($Form);
         }
-        if (($this->ReadPropertyString('AreaCode') == '') || ($this->ReadPropertyString('CountryCode') == '')) {
+        if (($this->ReadPropertyString(\FritzBox\Callmonitor\Property::AreaCode) == '') || ($this->ReadPropertyString(\FritzBox\Callmonitor\Property::CountryCode) == '')) {
             $Form['elements'][0]['items'][0]['items'][0]['enabled'] = true;
             $Form['elements'][0]['items'][0]['items'][1]['enabled'] = true;
             $Form['actions'][2]['visible'] = true;
@@ -204,21 +208,21 @@ class FritzBoxCallmonitor extends FritzBoxModulBase
             $Form['actions'][2]['popup']['items'][1]['caption'] = "The area code could not be determined automatically.\r\nPlease specify manually.";
         }
         if (!IPS_LibraryExists(\FritzBox\GUID::CIRS)) {
-            if (!$this->ReadPropertyBoolean('NotShowWarning')) {
+            if (!$this->ReadPropertyBoolean(\FritzBox\Callmonitor\Property::NotShowWarning)) {
                 $Form['elements'][5]['visible'] = true;
             }
         }
-        if ($this->ReadPropertyInteger('CustomSearchScriptID') > 1) {
+        if ($this->ReadPropertyInteger(\FritzBox\TelHelper\Property::CustomSearchScriptID) > 1) {
             $Form['elements'][0]['items'][1]['expanded'] = false;
             $Form['elements'][0]['items'][1]['items'][0]['items'][0]['enabled'] = false;
             $Form['elements'][0]['items'][1]['items'][0]['items'][1]['enabled'] = false;
             $Form['elements'][0]['items'][1]['items'][1]['items'][0]['enabled'] = false;
             $Form['elements'][0]['items'][1]['items'][1]['items'][1]['enabled'] = false;
         }
-        if ($this->ReadPropertyInteger('ReverseSearchInstanceID') > 1) {
+        if ($this->ReadPropertyInteger(\FritzBox\TelHelper\Property::ReverseSearchInstanceID) > 1) {
             $Form['elements'][1]['items'][1]['enabled'] = false;
         }
-        if (!$this->ReadPropertyBoolean('CallsAsTable')) {
+        if (!$this->ReadPropertyBoolean(\FritzBox\Callmonitor\Property::CallsAsTable)) {
             $Form['elements'][3]['items'][1]['items'][0]['items'][0]['enabled'] = false;
             $Form['elements'][3]['items'][1]['items'][0]['items'][1]['enabled'] = false;
             $Form['elements'][3]['items'][1]['items'][1]['enabled'] = false;
@@ -306,15 +310,15 @@ class FritzBoxCallmonitor extends FritzBoxModulBase
         $this->CallData = $Calls;
         $this->unlock('CallData');
         // Nur wenn WebFront Notification aktiv
-        if ($this->ReadPropertyBoolean('CallsAsNotification')) {
+        if ($this->ReadPropertyBoolean(\FritzBox\Callmonitor\Property::CallsAsNotification)) {
             IPS_RunScriptText('IPS_RequestAction(' . $this->InstanceID . ',\'SendNotification\',\'' . serialize($NotifyData) . '\');');
         }
         //nur wenn HTML-Tabelle aktiv
-        if ($this->ReadPropertyBoolean('CallsAsTable')) {
+        if ($this->ReadPropertyBoolean(\FritzBox\Callmonitor\Property::CallsAsTable)) {
             IPS_RunScriptText('IPS_RequestAction(' . $this->InstanceID . ',\'RefreshCallList\',true);');
         }
         //nur wenn Aktions aktiv
-        if (count(json_decode($this->ReadPropertyString('Actions'))) > 0) {
+        if (count(json_decode($this->ReadPropertyString(\FritzBox\Callmonitor\Property::Actions))) > 0) {
             IPS_RunScriptText('IPS_RequestAction(' . $this->InstanceID . ',\'RunActions\',\'' . serialize($NotifyData) . '\');');
         }
         return true;
@@ -339,16 +343,16 @@ class FritzBoxCallmonitor extends FritzBoxModulBase
 
     private function SendNotification(array $NotifyData)
     {
-        if (!$this->ReadPropertyBoolean('CallsAsNotification')) {
+        if (!$this->ReadPropertyBoolean(\FritzBox\Callmonitor\Property::CallsAsNotification)) {
             return;
         }
         $this->SendDebug('SendNotification', $NotifyData, 0);
-        $WFC_IDs = json_decode($this->ReadPropertyString('Targets'), true);
+        $WFC_IDs = json_decode($this->ReadPropertyString(\FritzBox\Callmonitor\Property::Targets), true);
         if (count($WFC_IDs) == 0) {
             return;
         }
         $this->SendDebug('Targets', $WFC_IDs, 0);
-        $NotificationConfig = json_decode($this->ReadPropertyString('Notification'), true);
+        $NotificationConfig = json_decode($this->ReadPropertyString(\FritzBox\Callmonitor\Property::Notification), true);
         $ConfigIndex = array_search($NotifyData['EVENT'], array_column($NotificationConfig, 'event'));
         if ($ConfigIndex === false) {
             return;
@@ -370,7 +374,7 @@ class FritzBoxCallmonitor extends FritzBoxModulBase
 
     private function RunActions(array $NotifyData)
     {
-        $Actions = json_decode($this->ReadPropertyString('Actions'), true);
+        $Actions = json_decode($this->ReadPropertyString(\FritzBox\Callmonitor\Property::Actions), true);
         if (count($Actions) == 0) {
             return;
         }
@@ -388,7 +392,7 @@ class FritzBoxCallmonitor extends FritzBoxModulBase
             $DataForParameters = $this->ArrayWithCurlyBracketsKey($NotifyData);
             $Pattern = array_keys($DataForParameters);
             $Values = array_values($DataForParameters);
-            $this->InsertValuesInActionParameters($ActionData, $Pattern, $Values);
+            $ActionData['parameters'] = $this->InsertValuesInActionParameters($ActionData['parameters'], $Pattern, $Values);
             $ActionData['parameters'] = array_merge($ActionData['parameters'], $NotifyData);
             $ActionData['parameters']['SENDER'] = 'FritzBox';
             $ActionData['parameters']['PARENT'] = $this->InstanceID;
@@ -397,27 +401,35 @@ class FritzBoxCallmonitor extends FritzBoxModulBase
         }
     }
 
-    private function InsertValuesInActionParameters(array &$ActionData, array $Pattern, array $Values)
+    /**
+     * Ersetzt Platzhalter (z.B. {NUMBER}) in allen String-Parametern einer Aktion, auch in verschachtelten Arrays.
+     *
+     * @param array $Parameters Parameter der Aktion
+     * @param array $Pattern    Platzhalter
+     * @param array $Values     Werte zu den Platzhaltern
+     *
+     * @return array Parameter mit ersetzten Platzhaltern
+     */
+    private function InsertValuesInActionParameters(array $Parameters, array $Pattern, array $Values): array
     {
-        foreach ($ActionData['parameters'] as &$Parameters) {
-            if (is_array($Parameters)) {
-                $this->InsertValuesInActionParameters($ActionData, $Pattern, $Values);
-                continue;
-            }
-            if (is_string($Parameters)) {
-                $Parameters = str_replace($Pattern, $Values, $Parameters);
+        foreach ($Parameters as $Key => $Parameter) {
+            if (is_array($Parameter)) {
+                $Parameters[$Key] = $this->InsertValuesInActionParameters($Parameter, $Pattern, $Values);
+            } elseif (is_string($Parameter)) {
+                $Parameters[$Key] = str_replace($Pattern, $Values, $Parameter);
             }
         }
+        return $Parameters;
     }
 
     private function RebuildTable()
     {
-        if (!$this->ReadPropertyBoolean('CallsAsTable')) {
+        if (!$this->ReadPropertyBoolean(\FritzBox\Callmonitor\Property::CallsAsTable)) {
             return true;
         }
         $Calls = $this->CallData;
         $this->SendDebug('Calls', $Calls, 0);
-        $Config_Icons = json_decode($this->ReadPropertyString('Icons'), true);
+        $Config_Icons = json_decode($this->ReadPropertyString(\FritzBox\Callmonitor\Property::Icons), true);
         $Icon_CSS = '<div id="scoped-content"><style type="text/css" scoped>' . "\r\n";
         foreach ($Config_Icons as $Config_Icon) {
             $ImageData = @getimagesize('data://text/plain;base64,' . $Config_Icon['icon']);
@@ -441,7 +453,7 @@ class FritzBoxCallmonitor extends FritzBoxModulBase
             $Call['Name'] = str_replace('{ICON}', '<div class="Icon' . $this->InstanceID . self::FoundMarker . '"></div>', $Call['Name']);
         }
         $HTML = $this->GetTable($Calls) . '</div>';
-        $this->SetValue('CallList', $Icon_CSS . $HTML);
+        $this->SetValue(\FritzBox\Callmonitor\Variables::CallList, $Icon_CSS . $HTML);
         return true;
     }
 
@@ -603,13 +615,13 @@ class FritzBoxCallmonitor extends FritzBoxModulBase
 
     private function SearchName(string $Number)
     {
-        $AreaCode = $this->ReadPropertyString('AreaCode');
-        $CountryCode = $this->ReadPropertyString('CountryCode');
+        $AreaCode = $this->ReadPropertyString(\FritzBox\Callmonitor\Property::AreaCode);
+        $CountryCode = $this->ReadPropertyString(\FritzBox\Callmonitor\Property::CountryCode);
         $Name = $this->GetNameByNumber($Number, $AreaCode, $CountryCode);
         if ($Name === false) {
-            $MaxNameSize = $this->ReadPropertyInteger('MaxNameSize');
+            $MaxNameSize = $this->ReadPropertyInteger(\FritzBox\TelHelper\Property::MaxNameSize);
             $UnknownName = '(' . $Number . ')';
-            $SearchMarker = $this->ReadPropertyString('SearchMarker');
+            $SearchMarker = $this->ReadPropertyString(\FritzBox\Callmonitor\Property::SearchMarker);
             $Name = $this->DoReverseSearch($Number, $SearchMarker, $UnknownName, $MaxNameSize);
         }
 

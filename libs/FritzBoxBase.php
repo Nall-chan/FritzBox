@@ -51,9 +51,9 @@ class FritzBoxModulBase extends IPSModule
         $this->isSubscribed = false;
         $this->ConnectParent(\FritzBox\GUID::FritzBoxIO);
         if (count(static::$EventSubURLArray) > 0) {
-            $this->RegisterTimer('RenewSubscription', 0, 'IPS_RequestAction(' . $this->InstanceID . ',"Subscribe", true);');
+            $this->RegisterTimer(\FritzBox\Base\Timer::RenewSubscription, 0, 'IPS_RequestAction(' . $this->InstanceID . ',"' . \FritzBox\Base\Action::Subscribe . '", true);');
         }
-        $this->RegisterPropertyInteger('Index', static::$DefaultIndex);
+        $this->RegisterPropertyInteger(\FritzBox\Base\Property::Index, static::$DefaultIndex);
     }
 
     public function ApplyChanges()
@@ -73,7 +73,7 @@ class FritzBoxModulBase extends IPSModule
         }
 
         $this->RegisterParent();
-        $Index = $this->ReadPropertyInteger('Index');
+        $Index = $this->ReadPropertyInteger(\FritzBox\Base\Property::Index);
         if (count(static::$EventSubURLArray) == 0) {
             $Index = -1;
         }
@@ -103,7 +103,7 @@ class FritzBoxModulBase extends IPSModule
         if ($this->IORequestAction($Ident, $Value)) {
             return true;
         }
-        if ($Ident == 'Subscribe') {
+        if ($Ident == \FritzBox\Base\Action::Subscribe) {
             $this->Subscribe();
             return true;
         }
@@ -191,7 +191,7 @@ class FritzBoxModulBase extends IPSModule
                 $this->SID = '';
                 $this->isSubscribed = false;
                 if (count(static::$EventSubURLArray) > 0) {
-                    $this->SetTimerInterval('RenewSubscription', 0);
+                    $this->SetTimerInterval(\FritzBox\Base\Timer::RenewSubscription, 0);
                 }
                 break;
         }
@@ -210,7 +210,7 @@ class FritzBoxModulBase extends IPSModule
 
     protected function DoSubscribe(): bool
     {
-        $Index = $this->ReadPropertyInteger('Index');
+        $Index = $this->ReadPropertyInteger(\FritzBox\Base\Property::Index);
         if ($Index < 0) {
             return true;
         }
@@ -227,7 +227,7 @@ class FritzBoxModulBase extends IPSModule
         $Ret = $this->SendDataToParent(json_encode(
             [
                 'DataID'     => \FritzBox\GUID::SendToFritzBoxIO,
-                'Function'   => 'SUBSCRIBE',
+                'Function'   => \FritzBox\IOFunction::Subscribe,
                 'EventSubURL'=> static::$EventSubURLArray[$Index],
                 'SID'        => $this->SID
             ]
@@ -236,7 +236,7 @@ class FritzBoxModulBase extends IPSModule
             $this->SID = '';
             $this->SendDebug('Error on subscribe (parse)', static::$EventSubURLArray[$Index], 0);
             trigger_error($this->Translate('Error on subscribe (parse)') . "\r\n" . static::$EventSubURLArray[$Index], E_USER_NOTICE);
-            $this->SetTimerInterval('RenewSubscription', 60000);
+            $this->SetTimerInterval(\FritzBox\Base\Timer::RenewSubscription, 60000);
             return false;
         }
         $Result = unserialize($Ret);
@@ -244,7 +244,7 @@ class FritzBoxModulBase extends IPSModule
             $this->SID = '';
             $this->SendDebug('Error on subscribe (Result)', static::$EventSubURLArray[$Index], 0);
             trigger_error($this->Translate('Error on subscribe (Result)') . "\r\n" . static::$EventSubURLArray[$Index], E_USER_NOTICE);
-            $this->SetTimerInterval('RenewSubscription', 60000);
+            $this->SetTimerInterval(\FritzBox\Base\Timer::RenewSubscription, 60000);
             return false;
         }
         $this->SendDebug('Result', $Result, 0);
@@ -256,11 +256,11 @@ class FritzBoxModulBase extends IPSModule
                 $this->SendDebug('No event after subscribe', static::$EventSubURLArray[$Index], 0);
                 $this->LogMessage('No event after subscribe', KL_ERROR);
                 $this->Unsubscribe();
-                $this->SetTimerInterval('RenewSubscription', 60000);
+                $this->SetTimerInterval(\FritzBox\Base\Timer::RenewSubscription, 60000);
                 return false;
             }
         }
-        $this->SetTimerInterval('RenewSubscription', ((int) $Result['TIMEOUT'] - 300) * 1000);
+        $this->SetTimerInterval(\FritzBox\Base\Timer::RenewSubscription, ((int) $Result['TIMEOUT'] - 300) * 1000);
         return true;
     }
 
@@ -282,7 +282,7 @@ class FritzBoxModulBase extends IPSModule
         $Ret = $this->SendDataToParent(json_encode(
             [
                 'DataID'     => \FritzBox\GUID::SendToFritzBoxIO,
-                'Function'   => 'RefreshHostList'
+                'Function'   => \FritzBox\IOFunction::RefreshHostList
             ]
         ));
         if ($Ret === false) {
@@ -319,7 +319,7 @@ class FritzBoxModulBase extends IPSModule
         $Ret = $this->SendDataToParent(json_encode(
             [
                 'DataID'     => \FritzBox\GUID::SendToFritzBoxIO,
-                'Function'   => ($Filename == '' ? 'LoadAndGetData' : 'LoadAndSaveFile'),
+                'Function'   => ($Filename == '' ? \FritzBox\IOFunction::LoadAndGetData : \FritzBox\IOFunction::LoadAndSaveFile),
                 'Uri'        => $Uri,
                 'Filename'   => $Filename
             ]
@@ -342,7 +342,7 @@ class FritzBoxModulBase extends IPSModule
         $Ret = $this->SendDataToParent(json_encode(
             [
                 'DataID'     => \FritzBox\GUID::SendToFritzBoxIO,
-                'Function'   => 'GetFile',
+                'Function'   => \FritzBox\IOFunction::GetFile,
                 'Filename'   => $Filename
             ]
         ));
@@ -353,14 +353,20 @@ class FritzBoxModulBase extends IPSModule
         if ($MediaID == 0) {
             return false;
         }
-        $Result = base64_decode(IPS_GetMediaContent($MediaID));
+        // Die Datei des Medienobjekts kann fehlen (z.B. nach Wiederherstellung eines Backups)
+        $Content = @IPS_GetMediaContent($MediaID);
+        if ($Content === false) {
+            $this->SendDebug('Media file missing', $MediaID, 0);
+            return false;
+        }
+        $Result = base64_decode($Content);
         $this->SendDebug('Result', $Result, 0);
         return $Result;
     }
 
     protected function Send(string $Function, array $Parameter = [])
     {
-        $Index = $this->ReadPropertyInteger('Index');
+        $Index = $this->ReadPropertyInteger(\FritzBox\Base\Property::Index);
         if ($Index < 0) {
             return false;
         }
@@ -413,7 +419,7 @@ class FritzBoxModulBase extends IPSModule
             $this->ReportError($Result->getMessage());
             return false;
         }
-        $this->SendDebug('Result', \FritzBox\DebugMask::Values($Result), 0);
+        $this->SendDebug('Result', \FritzBox\DebugMask::Result($Function, $Result), 0);
         return $Result;
     }
 
@@ -623,11 +629,11 @@ class FritzBoxModulBase extends IPSModule
         $SID = $this->SID;
         $this->SID = '';
         if (count(static::$EventSubURLArray) > 0) {
-            $this->SetTimerInterval('RenewSubscription', 0);
+            $this->SetTimerInterval(\FritzBox\Base\Timer::RenewSubscription, 0);
         } else {
             return;
         }
-        $Index = $this->ReadPropertyInteger('Index');
+        $Index = $this->ReadPropertyInteger(\FritzBox\Base\Property::Index);
         if ($Index < 0) {
             return;
         }
@@ -638,7 +644,7 @@ class FritzBoxModulBase extends IPSModule
         $Ret = @$this->SendDataToParent(json_encode(
             [
                 'DataID'     => \FritzBox\GUID::SendToFritzBoxIO,
-                'Function'   => 'UNSUBSCRIBE',
+                'Function'   => \FritzBox\IOFunction::Unsubscribe,
                 'EventSubURL'=> static::$EventSubURLArray[$Index],
                 'SID'        => $SID
             ]

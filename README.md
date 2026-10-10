@@ -1,27 +1,45 @@
 [![SDK](https://img.shields.io/badge/Symcon-PHPModul-red.svg)](https://www.symcon.de/service/dokumentation/entwicklerbereich/sdk-tools/sdk-php/)
 [![Module Version](https://img.shields.io/badge/dynamic/json?url=https%3A%2F%2Fraw.githubusercontent.com%2FNall-chan%2FFritzBox%2Frefs%2Fheads%2Fmaster%2Flibrary.json&query=%24.version&label=Modul%20Version&color=blue)](https://community.symcon.de/t/modul-fritzbox-ersatz-fuer-fritzbox-project/125451)
 [![Symcon Version](https://img.shields.io/badge/dynamic/json?url=https%3A%2F%2Fraw.githubusercontent.com%2FNall-chan%2FFritzBox%2Frefs%2Fheads%2Fmaster%2Flibrary.json&query=%24.compatibility.version&suffix=%3E&label=Symcon%20Version&color=green)](https://www.symcon.de/de/service/dokumentation/installation/migrationen/v70-v71-q1-2024/)  
-[![License](https://img.shields.io/badge/License-Custom--NC--SA-green.svg)](#lizenz)
+[![License](https://img.shields.io/badge/License-Custom--NC--SA-green.svg)](#6-lizenz)
 [![Check Style](https://github.com/Nall-chan/FritzBox/workflows/Check%20Style/badge.svg)](https://github.com/Nall-chan/FritzBox/actions)
 [![Run Tests](https://github.com/Nall-chan/FritzBox/workflows/Run%20Tests/badge.svg)](https://github.com/Nall-chan/FritzBox/actions)  
-[![PayPal.Me](https://img.shields.io/badge/PayPal-Me-lightblue.svg)](#spenden)
-[![Wunschliste](https://img.shields.io/badge/Wunschliste-Amazon-ff69fb.svg)](#spenden)  
+[![PayPal.Me](https://img.shields.io/badge/PayPal-Me-lightblue.svg)](#3-spenden)
+[![Wunschliste](https://img.shields.io/badge/Wunschliste-Amazon-ff69fb.svg)](#3-spenden)  
 
 # FritzBox <!-- omit in toc -->
 
 ## Inhaltsverzeichnis <!-- omit in toc -->
 
-- [Vorbemerkungen zur Library](#vorbemerkungen-zur-library)
-- [Vorbemerkungen zur Integration von Geräten](#vorbemerkungen-zur-integration-von-geräten)
-- [Hinweise zum Symcon-System / Host](#hinweise-zum-symcon-system--host)
-- [Folgende Module beinhaltet das FritzBox Repository](#folgende-module-beinhaltet-das-fritzbox-repository)
-- [Changelog](#changelog)
-- [Spenden](#spenden)
-- [Lizenz](#lizenz)
+- [1. Funktionsumfang](#1-funktionsumfang)
+- [Vorbemerkungen](#vorbemerkungen)
+  - [Zur Library](#zur-library)
+  - [Zur Integration von Geräten](#zur-integration-von-geräten)
+    - [Hinweise zum Symcon-System / Host](#hinweise-zum-symcon-system--host)
+- [2. Voraussetzungen](#2-voraussetzungen)
+- [3. Software-Installation](#3-software-installation)
+- [4. Enthaltende Module](#4-enthaltende-module)
+- [5. Anhang](#5-anhang)
+  - [1. GUID der Module](#1-guid-der-module)
+  - [2. Changelog](#2-changelog)
+  - [3. Spenden](#3-spenden)
+- [6. Lizenz](#6-lizenz)
 
 ----------
 
-## Vorbemerkungen zur Library
+## 1. Funktionsumfang
+
+- Anbindung von FritzBox Geräten an IP-Symcon über die TR-064/UPnP-Schnittstelle der FritzBox.
+- Auffinden von FritzBox Geräten im Netzwerk (Discovery) und Anlegen der Instanzen über einen Konfigurator.
+- Empfang von Ereignissen der FritzBox über einen WebHook in Symcon.
+- Anrufmonitor für ankommende und abgehende Anrufe, inklusive Rückwärtssuche und Aktionen bei Ereignissen.
+- Auslesen und Steuern einzelner Bereiche der FritzBox, z.B. Telefonie, WLAN, Hosts, WAN-Verbindung, DynDNS, MyFritz, NAS, DHCP-Server und SmartHome-Geräte (Übersicht siehe [4. Enthaltende Module](#4-enthaltende-module)).
+
+----------
+
+## Vorbemerkungen
+
+### Zur Library
 
 **Falls das alte FritzBox-Project noch installiert ist:**
 
@@ -39,9 +57,7 @@ Siehe auch CallStranger Sicherheitslücke.
 Zitat AVM:  
 `...ist nicht betroffen, da UPnP dort nicht aus dem Internet erreicht oder genutzt werden kann.`
 
-----------
-
-## Vorbemerkungen zur Integration von Geräten  
+### Zur Integration von Geräten  
 
 Es werden Instanzen zum auffinden (Discovery) und einrichten (Konfigurator) von Geräten in Symcon bereitgestellt.  
 Diese Instanzen werden nur korrekt funktionieren, wenn die betreffenden Geräte entsprechend Konfiguriert wurden.  
@@ -54,7 +70,7 @@ Es wird dringend empfohlen vor der Integration in IPS folgende Parameter in der 
 
 **Vorbereitungen in der FritzBox:**
 
-Es wird dringend empfohlen einen eigenen Benutzer mit Passwort in der FritzBox anzulegen und mit folgenden Berechtigungen zu versehen (Anmeldung aus Internet sollte aus sein [siehe Hinweis 5])  
+Es wird dringend empfohlen einen eigenen Benutzer mit Passwort in der FritzBox anzulegen und mit folgenden Berechtigungen zu versehen (Anmeldung aus Internet sollte aus sein [siehe Hinweis 4 unter [Zur Library](#zur-library)])  
 
 ![Rechte](imgs/rechte.png)
 
@@ -64,9 +80,7 @@ Unter Heimnetz / Netzwerk / Netzwerkeinstellungen / weitere Einstellungen bitte 
 
 Soll Symcon die Internetverbindung trennen bzw. neu verbinden können ([WAN IP Connection](FritzBox%20WAN%20IP%20Connection/README.md)), muss ab FRITZ!OS 8.25 für das Symcon-Gerät in der FritzBox die Einstellung **Selbstständige Portfreigaben** erlaubt sein.  
 
-----------
-
-## Hinweise zum Symcon-System / Host  
+#### Hinweise zum Symcon-System / Host  
 
 Um Ereignisse von der FritzBox in Symcon zu verarbeiten wird ein Webhook pro [IO-Modul](FritzBox%20IO/README.md) erzeugt.  
 Hier wird beim anlegen der Instanz automatisch nur der interne WebServer von Symcon auf Port 3777 eingetragen.
@@ -86,7 +100,21 @@ Für das Discovery werden Pakete über die Multicast-Adresse `239.255.255.250` a
 
 ----------
 
-## Folgende Module beinhaltet das FritzBox Repository  
+## 2. Voraussetzungen
+
+- IP-Symcon ab Version 7.1
+- FritzBox mit den unter [Zur Integration von Geräten](#zur-integration-von-geräten) beschriebenen Einstellungen
+- Symcon Host im gleichen Subnetz wie die FritzBox (siehe [Hinweise zum Symcon-System / Host](#hinweise-zum-symcon-system--host))
+
+----------
+
+## 3. Software-Installation
+
+- Über den Module Store die `FritzBox`-Library installieren.
+
+----------
+
+## 4. Enthaltende Module
 
 - **FritzBox Discovery** ([Dokumentation](FritzBox%20Discovery/))  
     Auffinden von FritzBox Geräten im Netzwerk.  
@@ -103,7 +131,7 @@ Für das Discovery werden Pakete über die Multicast-Adresse `239.255.255.250` a
 - **FritzBox DVBC** ([Dokumentation](FritzBox%20DVBC/))  
     DVB-C Receivers der FritzBox auslesen und steuern.  
 
-- **FritzBox DynDNS** ([Dokumentation](FritzBox%20DDNS/))  
+- **FritzBox DynDNS** ([Dokumentation](FritzBox%20DynDNS/))  
     Auslesen und steuern des Fernzugriff und der DynDNS Funktionen.  
 
 - **FritzBox Geräte Informationen** ([Dokumentation](FritzBox%20Device%20Info/))  
@@ -171,7 +199,64 @@ Für das Discovery werden Pakete über die Multicast-Adresse `239.255.255.250` a
 
 ----------
 
-## Changelog
+## 5. Anhang
+
+### 1. GUID der Module
+
+| Modul                                | Typ          | GUID                                   |
+| ------------------------------------ | ------------ | -------------------------------------- |
+| FritzBox Callmonitor                 | Gerät        | {5B5C7F75-E7FE-AE5C-6A51-8252688CBF4D} |
+| FritzBox Configurator                | Konfigurator | {32CF40DC-51DA-6C63-8BD7-55E82F64B9E7} |
+| FritzBox DHCP Server                 | Gerät        | {BDD8382D-00EF-4D84-8B3E-795584ABEB12} |
+| FritzBox DVBC                        | Gerät        | {DF0D838F-C5B4-43D4-A95B-CBCF2A05138E} |
+| FritzBox Device Info                 | Gerät        | {0E5BA3F0-4622-4C96-8D5F-F28DAB051C2F} |
+| FritzBox Discovery                   | Discovery    | {569B01DC-C23F-CE15-D47C-136BD8120470} |
+| FritzBox DynDns                      | Gerät        | {A3828BD1-B487-1860-2812-36E8DA0D358E} |
+| FritzBox File Share                  | Gerät        | {E9B51A32-A87F-8E47-34E8-594535C7D42A} |
+| FritzBox Firmware Info               | Gerät        | {802BCC3D-7144-4803-8886-0F5A08E2BF5D} |
+| FritzBox Homeautomation Configurator | Konfigurator | {D636EA77-03A0-4359-9DFD-4CE035459023} |
+| FritzBox Homeautomation              | Gerät        | {822E981D-9195-4AA7-821A-36BB1E63F993} |
+| FritzBox Host Filter                 | Gerät        | {6E830782-BB60-4E2E-B6FD-8937BEAE2B46} |
+| FritzBox Hosts                       | Gerät        | {66495783-EAEF-7A90-B13C-399045E4790B} |
+| FritzBox IO                          | Splitter     | {6FF9A05D-4E49-4371-23F1-7F58283FB1D9} |
+| FritzBox MyFritz                     | Gerät        | {D8AA1AB8-0FCE-56F9-FE36-E0D49878FB75} |
+| FritzBox NAS Storage                 | Gerät        | {14588B6C-6F13-A3C1-0C79-88B6624E1D87} |
+| FritzBox Powerline                   | Gerät        | {B1B43095-2B0A-4C85-A4DE-E962404201C7} |
+| FritzBox Telephony                   | Gerät        | {AD0B22A7-C71C-71DD-A40B-B70334C5AB3C} |
+| FritzBox Time                        | Gerät        | {4BD2D88F-E56B-9DF1-19A2-E6A688C5EA70} |
+| FritzBox UPnP MediaServer            | Gerät        | {0F09E36F-BE54-D01D-5AF1-48FF618426AC} |
+| FritzBox WAN Common Interface        | Gerät        | {FD564AAF-E00A-4CF8-A60D-7F60B4CDFC1B} |
+| FritzBox WAN DSL Link                | Gerät        | {061AEAF5-ADCD-AD9E-9BF9-AD40DF364EB6} |
+| FritzBox WAN IP Connection           | Gerät        | {61C9DC95-5A0F-7B9A-4427-82EDB57AA1B9} |
+| FritzBox WAN Physical Interface      | Gerät        | {C1A97F94-EE83-0553-5F42-FA242F406B1E} |
+| FritzBox WAN Port Mapping            | Gerät        | {9396D756-40EA-46C7-AA06-623B8DCB789B} |
+| FritzBox WLAN                        | Gerät        | {B3D72623-556E-B6C6-25E0-B3DEFE41F031} |
+| FritzBox WebDav Storage              | Gerät        | {EA069D88-287E-9F08-DB85-799EBA7A2678} |
+
+### 2. Changelog
+
+Version 0.89:  
+
+- Neue Funktionen:
+  - FritzBox WLAN: `FB_GetWPSInfo`, `FB_SetWPSEnable`, `FB_SetWLANGlobalEnable`, `FB_GetWLANConnectionInfo`, `FB_GetIPTVOptimized`.  
+  - FritzBox Telefonie: `FB_GetNumbers`, `FB_GetVoIPStatus`, `FB_GetDialConfig`, `FB_DialNumber`, `FB_DialHangup` (Wählhilfe), `FB_GetNumberOfAlarmClocks`, `FB_GetAlarmClock`, `FB_SetAlarmClockEnable` (Weckrufe).  
+  - FritzBox Geräteinformationen: `FB_GetSecurityPort`, `FB_GetDeviceLogPath`.  
+  - FritzBox WAN Physical Interface: `FB_GetOnlineMonitor`.  
+  - FritzBox DynDNS: `FB_GetDDNSProviders`.  
+  - FritzBox Netzwerkgeräte: `FB_SetPrioritizationByIP`, `FB_SetFriendlyNameByMAC`.  
+  - FritzBox Powerline: `FB_GetSpecificDeviceEntry`.  
+- Die FritzBox Host Filter Instanz konnte beim Start von Symcon mit einem Fehler abbrechen, wenn die Datei der Netzwerkgeräte-Liste fehlte (z.B. nach dem Wiederherstellen eines Backups).  
+- FritzBox Anrufmonitor: Aktionen ohne Zielobjekt (z.B. „PHP-Code ausführen“) führten beim Übernehmen der Einstellungen zu einer Fehlermeldung.  
+- FritzBox Anrufmonitor: Enthielt eine Aktion verschachtelte Parameter, lief das Ersetzen der Platzhalter (z.B. `{NUMBER}`) in eine Endlosschleife. Platzhalter werden jetzt auch in verschachtelten Parametern ersetzt.  
+- Debug: Weitere sensible Werte werden als `***` ausgegeben (Schlüssel, Tokens, Passwort-Hashes und Session-IDs, z.B. `EncryptionSecret`, `NewToken`, `NewX_AVM-DE_UrlSID`), auch wenn eine Funktion nur diesen einen Wert liefert. Längen- und Zeichenvorgaben für Passwörter (z.B. `NewMaxCharsPassword`) werden nicht mehr maskiert.  
+- FritzBox Netzwerkgeräte: `FB_SetAutoWakeOnLANByMACAddress` wurde von der FritzBox abgelehnt (`Invalid Args`).
+- FritzBox WAN Port-Weiterleitung: `FB_GetGenericPortMappingEntry` lieferte internen und externen Port vertauscht. Dadurch wurde beim Schalten einer Weiterleitung mit unterschiedlichen Ports die Weiterleitung mit vertauschten Ports neu angelegt. Die Idents der Statusvariablen bleiben unverändert.
+- FritzBox Telefonie: `FB_DeleteCallBarringEntryUID` sendete einen falschen Parameter. **Geänderte Signatur:** `FB_DeleteCallBarringEntryUID(integer $InstanzID, integer $PhonebookEntryUniqueID)`.
+- Einheitliche Rückgabewerte: `FB_SetFilelinkEntry`, `FB_DeleteFilelinkEntry`, `FB_SetHostNameByMACAddress`, `FB_WakeOnLANByMACAddress`, `FB_HostsCheckUpdate`, `FB_HostDoUpdate`, `FB_DoUpdate`, `FB_UpdatePowerlineDevice`, `FB_DeletePortMapping`, `FB_ForceTermination`, `FB_RequestTermination`, `FB_RequestConnection`, `FB_SetIdleDisconnectTime`, `FB_SetAutoDisconnectTime` und `FB_SetWarnDisconnectDelay` liefern bei Erfolg jetzt `true` (vorher `null` bzw. die Antwort der FritzBox).
+- Dokumentation aller Module überarbeitet: Eigenschaften mit Standardwerten, vollständige PHP-Befehlsreferenz mit Beispielen, Screenshots der Kachel Visualisierung.
+- Dokumentation FritzBox IO: Statuscodes der Instanz beschrieben.  
+- Dokumentation FritzBox Anrufmonitor: Werte in `$_IPS` für Skripte, die als Aktion bei Ereignissen ausgeführt werden.  
+- Intern: Idents, Property-, Attribut- und Timernamen sind jetzt Konstanten (`libs/FritzBoxConstants.php`). Die Werte sind unverändert, bestehende Instanzen sind nicht betroffen.  
 
 Version 0.88:  
 
@@ -374,9 +459,7 @@ Version 0.50:
 - `FritzBox-IO` nutzt HTTP Keep-Alive
 - Unnötige Debug-Ausgabe in IO bei aktiven Anrufmonitor entfernt  
 
-----------
-
-## Spenden  
+### 3. Spenden  
   
   Die Library ist für die nicht kommerzielle Nutzung kostenlos, Schenkungen als Unterstützung für den Autor werden hier akzeptiert:  
 
@@ -384,7 +467,9 @@ Version 0.50:
 
 [![Wunschliste](https://img.shields.io/badge/Wunschliste-Amazon-ff69fb.svg)](https://www.amazon.de/hz/wishlist/ls/YU4AI9AQT9F?ref_=wl_share)  
 
-## Lizenz  
+----------
+
+## 6. Lizenz  
 
 [Custom NC-SA](LICENSE)  
 

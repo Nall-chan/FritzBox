@@ -24,12 +24,12 @@ class FritzBoxWANCommonInterface extends FritzBoxModulBase
         //Never delete this line!
         parent::Create();
         $this->UnregisterProfile('FB.MByte');
-        $this->RegisterPropertyInteger('RefreshInterval', 5);
-        $this->RegisterPropertyInteger('RefreshLinkPropertiesInterval', 60);
-        $this->RegisterTimer('RefreshInfo', 0, 'IPS_RequestAction(' . $this->InstanceID . ',"RefreshInfo",true);');
-        $this->RegisterTimer('RefreshLinkProperties', 0, 'IPS_RequestAction(' . $this->InstanceID . ',"RefreshLinkProperties",true);');
-        $this->RegisterAttributeInteger('Upstream', 0);
-        $this->RegisterAttributeInteger('Downstream', 0);
+        $this->RegisterPropertyInteger(\FritzBox\Base\Property::RefreshInterval, 5);
+        $this->RegisterPropertyInteger(\FritzBox\WANCommonInterface\Property::RefreshLinkPropertiesInterval, 60);
+        $this->RegisterTimer(\FritzBox\Base\Timer::RefreshInfo, 0, 'IPS_RequestAction(' . $this->InstanceID . ',"' . \FritzBox\Base\Action::RefreshInfo . '",true);');
+        $this->RegisterTimer(\FritzBox\WANCommonInterface\Timer::RefreshLinkProperties, 0, 'IPS_RequestAction(' . $this->InstanceID . ',"' . \FritzBox\WANCommonInterface\Action::RefreshLinkProperties . '",true);');
+        $this->RegisterAttributeInteger(\FritzBox\WANCommonInterface\Attribute::Upstream, 0);
+        $this->RegisterAttributeInteger(\FritzBox\WANCommonInterface\Attribute::Downstream, 0);
     }
 
     public function Destroy()
@@ -47,7 +47,7 @@ class FritzBoxWANCommonInterface extends FritzBoxModulBase
 
     public function ApplyChanges()
     {
-        $this->SetTimerInterval('RefreshInfo', 0);
+        $this->SetTimerInterval(\FritzBox\Base\Timer::RefreshInfo, 0);
         $this->RegisterProfileInteger('FB.kBit', '', '', ' kBit/s', 0, 0, 0);
         $this->RegisterProfileFloat('FB.Speed', '', '', '%', 0, 100, 0, 2);
         $this->RegisterProfileFloat('FB.MByte', '', '', ' MB', 0, 0, 0, 2);
@@ -67,7 +67,7 @@ class FritzBoxWANCommonInterface extends FritzBoxModulBase
         ]);
         parent::ApplyChanges();
 
-        $Index = $this->ReadPropertyInteger('Index');
+        $Index = $this->ReadPropertyInteger(\FritzBox\Base\Property::Index);
         if ($Index == -1) {
             $this->SetStatus(IS_INACTIVE);
             return;
@@ -76,8 +76,8 @@ class FritzBoxWANCommonInterface extends FritzBoxModulBase
             return;
         }
         $this->UpdateAddonInfos();
-        $this->SetTimerInterval('RefreshInfo', $this->ReadPropertyInteger('RefreshInterval') * 1000);
-        $this->SetTimerInterval('RefreshLinkProperties', $this->ReadPropertyInteger('RefreshLinkPropertiesInterval') * 1000);
+        $this->SetTimerInterval(\FritzBox\Base\Timer::RefreshInfo, $this->ReadPropertyInteger(\FritzBox\Base\Property::RefreshInterval) * 1000);
+        $this->SetTimerInterval(\FritzBox\WANCommonInterface\Timer::RefreshLinkProperties, $this->ReadPropertyInteger(\FritzBox\WANCommonInterface\Property::RefreshLinkPropertiesInterval) * 1000);
     }
 
     public function RequestAction($Ident, $Value)
@@ -86,9 +86,9 @@ class FritzBoxWANCommonInterface extends FritzBoxModulBase
             return true;
         }
         switch ($Ident) {
-            case 'RefreshInfo':
+            case \FritzBox\Base\Action::RefreshInfo:
                 return $this->UpdateAddonInfos();
-            case 'RefreshLinkProperties':
+            case \FritzBox\WANCommonInterface\Action::RefreshLinkProperties:
                 return $this->UpdateCommonLinkProperties();
         }
         trigger_error($this->Translate('Invalid Ident.'), E_USER_NOTICE);
@@ -178,7 +178,7 @@ class FritzBoxWANCommonInterface extends FritzBoxModulBase
             $Ret = $this->SendDataToParent(json_encode(
                 [
                     'DataID'     => \FritzBox\GUID::SendToFritzBoxIO,
-                    'Function'   => 'HasIGD2'
+                    'Function'   => \FritzBox\IOFunction::HasIGD2
                 ]
             ));
             $HasIGD2 = unserialize($Ret);
@@ -195,7 +195,7 @@ class FritzBoxWANCommonInterface extends FritzBoxModulBase
     protected function DecodeEvent($Event)
     {
         if (array_key_exists('PhysicalLinkStatus', $Event)) {
-            $this->setIPSVariable('PhysicalLinkStatus', 'Physical Link Status', (string) $Event['PhysicalLinkStatus'], VARIABLETYPE_STRING);
+            $this->setIPSVariable(\FritzBox\WANCommonInterface\Variables::PhysicalLinkStatus, 'Physical Link Status', (string) $Event['PhysicalLinkStatus'], VARIABLETYPE_STRING);
             unset($Event['PhysicalLinkStatus']);
             $this->UpdateCommonLinkProperties();
         }
@@ -210,13 +210,13 @@ class FritzBoxWANCommonInterface extends FritzBoxModulBase
             return false;
         }
 
-        $this->setIPSVariable('PhysicalLinkStatus', 'Physical Link Status', (string) $result['NewPhysicalLinkStatus'], VARIABLETYPE_STRING);
+        $this->setIPSVariable(\FritzBox\WANCommonInterface\Variables::PhysicalLinkStatus, 'Physical Link Status', (string) $result['NewPhysicalLinkStatus'], VARIABLETYPE_STRING);
         $Downstream = (int) ((int) $result['NewLayer1DownstreamMaxBitRate'] / 1000);
         $Upstream = (int) ((int) $result['NewLayer1UpstreamMaxBitRate'] / 1000);
-        $this->WriteAttributeInteger('Upstream', $Upstream);
-        $this->WriteAttributeInteger('Downstream', $Downstream);
-        $this->setIPSVariable('UpstreamMaxBitRate', 'Upstream Max kBitrate', $Upstream, VARIABLETYPE_INTEGER, 'FB.kBit');
-        $this->setIPSVariable('DownstreamMaxBitRate', 'Downstream Max kBitrate', $Downstream, VARIABLETYPE_INTEGER, 'FB.kBit');
+        $this->WriteAttributeInteger(\FritzBox\WANCommonInterface\Attribute::Upstream, $Upstream);
+        $this->WriteAttributeInteger(\FritzBox\WANCommonInterface\Attribute::Downstream, $Downstream);
+        $this->setIPSVariable(\FritzBox\WANCommonInterface\Variables::UpstreamMaxBitRate, 'Upstream Max kBitrate', $Upstream, VARIABLETYPE_INTEGER, 'FB.kBit');
+        $this->setIPSVariable(\FritzBox\WANCommonInterface\Variables::DownstreamMaxBitRate, 'Downstream Max kBitrate', $Downstream, VARIABLETYPE_INTEGER, 'FB.kBit');
         /* todo
         NewX_AVM-DE_DownstreamCurrentUtilization out X_AVM-DE_DownStreamCurrentUtilization
 NewX_AVM-DE_UpstreamCurrentUtilization out X_AVM-DE_UpstreamCurrentUtilization
@@ -232,15 +232,15 @@ NewX_AVM-DE_UpstreamCurrentMaxSpeed out X_AVM-DE_UpstreamCurrentMaxSpeed
         if ($result === false) {
             return false;
         }
-        $this->setIPSVariable('KByteSendRate', 'Sending rate', $result['NewByteSendRate'] / 1024, VARIABLETYPE_FLOAT, 'FB.kbs');
-        $this->setIPSVariable('KByteReceiveRate', 'Receive rate', $result['NewByteReceiveRate'] / 1024, VARIABLETYPE_FLOAT, 'FB.kbs');
-        $Downstream = $this->ReadAttributeInteger('Downstream');
+        $this->setIPSVariable(\FritzBox\WANCommonInterface\Variables::KByteSendRate, 'Sending rate', $result['NewByteSendRate'] / 1024, VARIABLETYPE_FLOAT, 'FB.kbs');
+        $this->setIPSVariable(\FritzBox\WANCommonInterface\Variables::KByteReceiveRate, 'Receive rate', $result['NewByteReceiveRate'] / 1024, VARIABLETYPE_FLOAT, 'FB.kbs');
+        $Downstream = $this->ReadAttributeInteger(\FritzBox\WANCommonInterface\Attribute::Downstream);
         if ($Downstream > 0) {
-            $this->setIPSVariable('LevelReceiveRate', 'Load download', (100 / ($Downstream / 8) * ($result['NewByteReceiveRate'] / 1024)), VARIABLETYPE_FLOAT, 'FB.Speed');
+            $this->setIPSVariable(\FritzBox\WANCommonInterface\Variables::LevelReceiveRate, 'Load download', (100 / ($Downstream / 8) * ($result['NewByteReceiveRate'] / 1024)), VARIABLETYPE_FLOAT, 'FB.Speed');
         }
-        $Upstream = $this->ReadAttributeInteger('Upstream');
+        $Upstream = $this->ReadAttributeInteger(\FritzBox\WANCommonInterface\Attribute::Upstream);
         if ($Upstream > 0) {
-            $this->setIPSVariable('LevelSendRate', 'Load upload', (100 / ($Upstream / 8) * ($result['NewByteSendRate'] / 1024)), VARIABLETYPE_FLOAT, 'FB.Speed');
+            $this->setIPSVariable(\FritzBox\WANCommonInterface\Variables::LevelSendRate, 'Load upload', (100 / ($Upstream / 8) * ($result['NewByteSendRate'] / 1024)), VARIABLETYPE_FLOAT, 'FB.Speed');
         }
         if (array_key_exists('NewX_AVM_DE_TotalBytesReceived64', $result)) {
             $send = $result['NewX_AVM_DE_TotalBytesSent64'];
@@ -249,26 +249,26 @@ NewX_AVM-DE_UpstreamCurrentMaxSpeed out X_AVM-DE_UpstreamCurrentMaxSpeed
             $send = $result['NewTotalBytesSent'];
             $recv = $result['NewTotalBytesReceived'];
         }
-        $this->setIPSVariable('TotalMBytesSent', 'Sent since connected', $send / 1024 / 1024, VARIABLETYPE_FLOAT, 'FB.MByte');
-        $this->setIPSVariable('TotalMBytesReceived', 'Received since connected', $recv / 1024 / 1024, VARIABLETYPE_FLOAT, 'FB.MByte');
+        $this->setIPSVariable(\FritzBox\WANCommonInterface\Variables::TotalMBytesSent, 'Sent since connected', $send / 1024 / 1024, VARIABLETYPE_FLOAT, 'FB.MByte');
+        $this->setIPSVariable(\FritzBox\WANCommonInterface\Variables::TotalMBytesReceived, 'Received since connected', $recv / 1024 / 1024, VARIABLETYPE_FLOAT, 'FB.MByte');
 
         if (array_key_exists('NewDNSServer1', $result)) {
-            $this->setIPSVariable('UpnpControlEnabled', 'Allow automatic port forwarding via UPnP', $result['NewUpnpControlEnabled'], VARIABLETYPE_BOOLEAN, '~Switch');
+            $this->setIPSVariable(\FritzBox\WANCommonInterface\Variables::UpnpControlEnabled, 'Allow automatic port forwarding via UPnP', $result['NewUpnpControlEnabled'], VARIABLETYPE_BOOLEAN, '~Switch');
         }
         if (array_key_exists('NewDNSServer1', $result)) {
-            $this->setIPSVariable('DNSServer1', 'DNS-Server 1', (string) $result['NewDNSServer1'], VARIABLETYPE_STRING);
+            $this->setIPSVariable(\FritzBox\WANCommonInterface\Variables::DNSServer1, 'DNS-Server 1', (string) $result['NewDNSServer1'], VARIABLETYPE_STRING);
         }
         if (array_key_exists('NewDNSServer2', $result)) {
-            $this->setIPSVariable('DNSServer2', 'DNS-Server 2', (string) $result['NewDNSServer2'], VARIABLETYPE_STRING);
+            $this->setIPSVariable(\FritzBox\WANCommonInterface\Variables::DNSServer2, 'DNS-Server 2', (string) $result['NewDNSServer2'], VARIABLETYPE_STRING);
         }
         if (array_key_exists('NewX_AVM_DE_WANAccessType', $result)) {
-            $this->setIPSVariable('WANAccessType', 'WAN Access type', (string) $result['NewX_AVM_DE_WANAccessType'], VARIABLETYPE_STRING, 'FB.AvmAccessType');
+            $this->setIPSVariable(\FritzBox\WANCommonInterface\Variables::WANAccessType, 'WAN Access type', (string) $result['NewX_AVM_DE_WANAccessType'], VARIABLETYPE_STRING, 'FB.AvmAccessType');
         }
         if (array_key_exists('NewVoipDNSServer1', $result)) {
-            $this->setIPSVariable('VoipDNSServer1', 'VoIP DNS-Server 1', (string) $result['NewVoipDNSServer1'], VARIABLETYPE_STRING);
+            $this->setIPSVariable(\FritzBox\WANCommonInterface\Variables::VoipDNSServer1, 'VoIP DNS-Server 1', (string) $result['NewVoipDNSServer1'], VARIABLETYPE_STRING);
         }
         if (array_key_exists('NewVoipDNSServer2', $result)) {
-            $this->setIPSVariable('VoipDNSServer2', 'VoIP DNS-Server 2', (string) $result['NewVoipDNSServer2'], VARIABLETYPE_STRING);
+            $this->setIPSVariable(\FritzBox\WANCommonInterface\Variables::VoipDNSServer2, 'VoIP DNS-Server 2', (string) $result['NewVoipDNSServer2'], VARIABLETYPE_STRING);
         }
         return true;
     }

@@ -17,11 +17,11 @@ Auffinden von FritzBox Geräten im Netzwerk.
 - [2. Voraussetzungen](#2-voraussetzungen)
 - [3. Software-Installation](#3-software-installation)
 - [4. Einrichten der Instanzen in IP-Symcon](#4-einrichten-der-instanzen-in-ip-symcon)
-- [5. Statusvariablen und Profile](#5-statusvariablen-und-profile)
-  - [Statusvariablen](#statusvariablen)
-  - [Profile](#profile)
+- [5. Statusvariablen](#5-statusvariablen)
 - [6. Visualisierung](#6-visualisierung)
-- [7. PHP-Funktionsreferenz](#7-php-funktionsreferenz)
+  - [Kachel Visualisierung](#kachel-visualisierung)
+  - [WebFront Visualisierung](#webfront-visualisierung)
+- [7. PHP-Befehlsreferenz](#7-php-befehlsreferenz)
 - [8. Aktionen](#8-aktionen)
 - [9. Anhang](#9-anhang)
   - [1. Changelog](#1-changelog)
@@ -60,21 +60,25 @@ Sollte Symcon unter Docker ausgeführt werden, so ist zu beachten dass die Konfi
 Ursache ist hier die mangelnde Unterstützung seitens Docker für Multicast bei Einsatz von NAT.  
 ![Config2](imgs/config2.png)  
 
-## 5. Statusvariablen und Profile
+**Konfigurationsparameter**:  
 
-### Statusvariablen
+Diese Instanz hat keine Eigenschaften.  
+
+## 5. Statusvariablen
 
 Dieses Modul erzeugt keine Statusvariablen.  
 
-### Profile
-
-Dieses Modul erzeugt keine Variablenprofile.  
-
 ## 6. Visualisierung
+
+### Kachel Visualisierung
+
+Dieses Modul ist nicht zur Darstellung in der Kachel Visualisierung gedacht.
+
+### WebFront Visualisierung
 
 Dieses Modul ist nicht zur Darstellung im WebFront gedacht.
 
-## 7. PHP-Funktionsreferenz
+## 7. PHP-Befehlsreferenz
 
 Keine Funktionen verfügbar.  
 
@@ -86,7 +90,7 @@ Keine Aktionen verfügbar.
 
 ### 1. Changelog
 
-[Changelog der Library](../README.md#changelog)
+[Changelog der Library](../README.md#2-changelog)
 
 ### 2. Spenden
 

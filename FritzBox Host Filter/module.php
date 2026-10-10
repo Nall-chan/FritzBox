@@ -24,20 +24,20 @@ class FritzBoxHostFilter extends FritzBoxModulBase
     {
         //Never delete this line!
         parent::Create();
-        $this->RegisterPropertyInteger('RefreshInterval', 60);
-        $this->RegisterPropertyBoolean('HostAsVariable', false);
-        $this->RegisterPropertyBoolean('AutoAddHostVariables', true);
-        $this->RegisterPropertyBoolean('RenameHostVariables', false);
-        $this->RegisterPropertyString('HostVariables', '[]');
-        $this->RegisterTimer('RefreshState', 0, 'IPS_RequestAction(' . $this->InstanceID . ',"RefreshState",true);');
+        $this->RegisterPropertyInteger(\FritzBox\Base\Property::RefreshInterval, 60);
+        $this->RegisterPropertyBoolean(\FritzBox\HostFilter\Property::HostAsVariable, false);
+        $this->RegisterPropertyBoolean(\FritzBox\HostFilter\Property::AutoAddHostVariables, true);
+        $this->RegisterPropertyBoolean(\FritzBox\HostFilter\Property::RenameHostVariables, false);
+        $this->RegisterPropertyString(\FritzBox\HostFilter\Property::HostVariables, '[]');
+        $this->RegisterTimer(\FritzBox\Base\Timer::RefreshState, 0, 'IPS_RequestAction(' . $this->InstanceID . ',"' . \FritzBox\Base\Action::RefreshState . '",true);');
     }
 
     public function ApplyChanges()
     {
-        $this->SetTimerInterval('RefreshState', 0);
+        $this->SetTimerInterval(\FritzBox\Base\Timer::RefreshState, 0);
         parent::ApplyChanges();
-        $this->SetTimerInterval('RefreshState', $this->ReadPropertyInteger('RefreshInterval') * 1000);
-        $HostVariables = json_decode($this->ReadPropertyString('HostVariables'), true);
+        $this->SetTimerInterval(\FritzBox\Base\Timer::RefreshState, $this->ReadPropertyInteger(\FritzBox\Base\Property::RefreshInterval) * 1000);
+        $HostVariables = json_decode($this->ReadPropertyString(\FritzBox\HostFilter\Property::HostVariables), true);
         foreach ($HostVariables as $HostVariable) {
             if (!$HostVariable['use']) {
                 $Ident = $HostVariable['ident'];
@@ -62,19 +62,19 @@ class FritzBoxHostFilter extends FritzBoxModulBase
         }
 
         switch ($Ident) {
-            case 'ReloadForm':
+            case \FritzBox\HostFilter\Action::ReloadForm:
                 IPS_Sleep(2000);
                 $this->ReloadForm();
                 return;
-            case 'RefreshState':
+            case \FritzBox\Base\Action::RefreshState:
                 return $this->UpdateInfo();
-            case 'HostAsVariable':
+            case \FritzBox\HostFilter\Action::HostAsVariable:
                 $this->UpdateFormField('AutoAddHostVariables', 'enabled', (bool) $Value);
                 $this->UpdateFormField('RenameHostVariables', 'enabled', (bool) $Value);
                 $this->UpdateFormField('HostvariablesPanel', 'expanded', (bool) $Value);
                 $this->UpdateFormField('HostVariables', 'enabled', (bool) $Value);
                 return;
-            case 'HostvariablesPanel':
+            case \FritzBox\HostFilter\Action::HostvariablesPanel:
                 if ($this->ShowVariableWarning) {
                     $this->UpdateFormField('ErrorPopup', 'visible', true);
                     $this->UpdateFormField('ErrorTitle', 'caption', 'Attention!');
@@ -82,7 +82,7 @@ class FritzBoxHostFilter extends FritzBoxModulBase
                     $this->ShowVariableWarning = false;
                 }
                 return;
-            case 'DelHostVariable':
+            case \FritzBox\HostFilter\Action::DelHostVariable:
                 $ObjectId = @$this->GetIDForIdent($Value);
                 if ($ObjectId > 0) {
                     $this->DelSubObjects($ObjectId);
@@ -121,7 +121,7 @@ class FritzBoxHostFilter extends FritzBoxModulBase
                 $Form['actions'][2]['popup']['items'][2]['objectID'] = $ConfiguratorID;
             }
         }
-        if (!$this->ReadPropertyBoolean('HostAsVariable')) {
+        if (!$this->ReadPropertyBoolean(\FritzBox\HostFilter\Property::HostAsVariable)) {
             $this->ShowVariableWarning = false;
             $Form['elements'][1]['items'][0]['items'][1]['enabled'] = false;
             $Form['elements'][1]['items'][0]['items'][2]['enabled'] = false;
@@ -133,7 +133,7 @@ class FritzBoxHostFilter extends FritzBoxModulBase
         $Values = $this->GetHostVariables();
         if (count($Values) == 0) {
             // Fallback für konfigurierte Statusvariablen der Hosts, wenn Abfrage fehlschlägt; z.B. wenn IO offline
-            $Values = json_decode($this->ReadPropertyString('HostVariables'), true);
+            $Values = json_decode($this->ReadPropertyString(\FritzBox\HostFilter\Property::HostVariables), true);
         }
         $Form['elements'][1]['items'][1]['items'][0]['values'] = $Values;
         $this->SendDebug('FORM', json_encode($Form), 0);
@@ -146,9 +146,9 @@ class FritzBoxHostFilter extends FritzBoxModulBase
         if ($this->ParentID == 0) {
             return false;
         }
-        $Variable = $this->ReadPropertyBoolean('HostAsVariable');
-        $Rename = $this->ReadPropertyBoolean('RenameHostVariables');
-        $AutoAdd = $this->ReadPropertyBoolean('AutoAddHostVariables');
+        $Variable = $this->ReadPropertyBoolean(\FritzBox\HostFilter\Property::HostAsVariable);
+        $Rename = $this->ReadPropertyBoolean(\FritzBox\HostFilter\Property::RenameHostVariables);
+        $AutoAdd = $this->ReadPropertyBoolean(\FritzBox\HostFilter\Property::AutoAddHostVariables);
         if (!$Variable) {
             return false;
         }
@@ -165,7 +165,7 @@ class FritzBoxHostFilter extends FritzBoxModulBase
             $this->LogMessage($th->getMessage(), KL_ERROR);
             return false;
         }
-        $HostVariables = array_column(json_decode($this->ReadPropertyString('HostVariables'), true), 'use', 'ident');
+        $HostVariables = array_column(json_decode($this->ReadPropertyString(\FritzBox\HostFilter\Property::HostVariables), true), 'use', 'ident');
         foreach ($xmlHosts as $Host) {
             if ((string) $Host->IPAddress == '') {
                 continue;
@@ -210,7 +210,7 @@ class FritzBoxHostFilter extends FritzBoxModulBase
         }
         $data = json_decode($JSONString, true);
         unset($data['DataID']);
-        if ($data['Function'] == 'NewHostListEvent') {
+        if ($data['Function'] == \FritzBox\IOFunction::NewHostListEvent) {
             $this->SendDebug('NewHostListEvent', '', 0);
             $this->RefreshHostList();
         }
@@ -305,7 +305,7 @@ class FritzBoxHostFilter extends FritzBoxModulBase
             return false;
         });
         // Konfigurierte Statusvariablen für Hosts
-        $HostVariables = json_decode($this->ReadPropertyString('HostVariables'), true);
+        $HostVariables = json_decode($this->ReadPropertyString(\FritzBox\HostFilter\Property::HostVariables), true);
         // Property durchgehen und Werte ergänzen. Alle Idents merken
         $FoundIdents = array_column($HostVariables, 'ident');
         foreach ($HostVariables as &$HostVariable) {
