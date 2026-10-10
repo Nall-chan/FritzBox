@@ -32,8 +32,8 @@ Einen Anrufbeantworter der FritzBox schalten und seine Nachrichten anzeigen, abs
 
 - Je Instanz ein Anrufbeantworter: Ein-/Ausschalten, Anzahl neuer und aller Nachrichten.  
 - Optional eine HTML-Box mit allen Nachrichten des Anrufbeantworters.  
-- Aus der HTML-Box: Nachricht abspielen, als gelesen markieren und löschen (mit Sicherheitsabfrage).  
-- Eine neue Nachricht wird beim Abspielen als gelesen markiert, wie in der FritzBox.  
+- Aus der HTML-Box: Nachricht abspielen und pausieren (mit Zeitanzeige), als gelesen markieren und löschen (mit Sicherheitsabfrage).  
+- Eine neue Nachricht wird nach dem vollständigen Abspielen als gelesen markiert, wie in der FritzBox.  
 
 ## 2. Voraussetzungen
 
@@ -94,9 +94,9 @@ Die Instanz wird als Kachel in der Darstellung `Liste` angezeigt. Das Bild zeigt
 
 ![Kachel Liste](imgs/tile_list.png)  
 
-Als einzelne Kachel zeigt `Nachrichten` die Tabelle direkt an. Neue Nachrichten sind mit `●` markiert. Je Nachricht:  
+Als einzelne Kachel zeigt `Nachrichten` die Tabelle direkt an. Ein Symbol vor jeder Nachricht zeigt, ob sie neu oder bereits abgehört ist. Die Dauer zeigt die FritzBox auf Minuten gerundet (`< 1 Min`, `2 Min`). Je Nachricht:  
 
-- `▶` spielt die Nachricht im Browser ab (eine neue Nachricht wird dabei als gelesen markiert),  
+- `▶` spielt die Nachricht im Browser ab, ein weiterer Klick pausiert bzw. setzt fort; daneben laufen Position und Länge mit (z.B. `0:03 / 0:06`). Startet eine andere Nachricht, wird die laufende gestoppt. Eine neue Nachricht wird nach dem vollständigen Abspielen als gelesen markiert.  
 - `✓` markiert eine neue Nachricht als gelesen,  
 - `✖` löscht die Nachricht nach einer Sicherheitsabfrage.  
 
@@ -181,7 +181,7 @@ Liefert alle Nachrichten des Anrufbeantworters, neueste zuerst. Ohne Nachrichten
 | --------- | ------- | --------------------------------------------------------------------- |
 | Index     | integer | Index der Nachricht, für `FB_MarkTAMMessage` und `FB_DeleteTAMMessage` |
 | Date      | string  | Datum und Uhrzeit, z.B. `30.09.26 11:10`                              |
-| Duration  | string  | Dauer, z.B. `0:01`                                                    |
+| Duration  | string  | Dauer im Format Stunden:Minuten (aufgerundet), z.B. `0:02` = 2 Minuten; `0:01` = bis 1 Minute |
 | Name      | string  | Name des Anrufers aus dem Telefonbuch, sonst leer oder `Unbekannt`    |
 | Number    | string  | Rufnummer des Anrufers, leer bei unterdrückter Rufnummer              |
 | Called    | string  | Angerufene eigene Rufnummer                                           |

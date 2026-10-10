@@ -251,16 +251,15 @@ Für das Discovery werden Pakete über die Multicast-Adresse `239.255.255.250` a
 
 ### 2. Changelog
 
-Version 0.90:  
+**Version 0.90:**  
 
 - Neue Module:
-  - FritzBox Anrufbeantworter: je Anrufbeantworter eine Instanz mit Schalter, Anzahl neuer und aller Nachrichten und einer HTML-Box mit den Nachrichten. Nachrichten können aus der HTML-Box abgespielt, als gelesen markiert und gelöscht werden. Der Konfigurator bietet jeden Anrufbeantworter einzeln an.  
+  - FritzBox Anrufbeantworter: Anrufbeantworter schalten, neue Nachrichten anzeigen, Nachrichten abspielen und löschen.  
   - FritzBox DECT-Geräte: angemeldete DECT-Geräte mit Modell und verfügbarem Update.  
-  - FritzBox DSL-Schnittstelle: Datenraten, Störabstand, Dämpfung und Fehlerzähler der DSL-Leitung (nicht live getestet).  
-  - FritzBox Mobilfunk: SIM-Status, Zugangstechnik, Roaming und Signalstärke (nur ohne Mobilfunk-Verbindung getestet).  
-- Debug: Die IMSI der SIM-Karte wird als `***` ausgegeben.  
+  - FritzBox DSL-Schnittstelle: Datenraten und Leitungswerte (nur FritzBox mit DSL-Anschluss).  
+  - FritzBox Mobilfunk: Status der Mobilfunk-Verbindung.  
 
-Version 0.89:  
+**Version 0.89:**  
 
 - Neue Funktionen:
   - FritzBox WLAN: `FB_GetWPSInfo`, `FB_SetWPSEnable`, `FB_SetWLANGlobalEnable`, `FB_GetWLANConnectionInfo`, `FB_GetIPTVOptimized`.  
@@ -283,7 +282,7 @@ Version 0.89:
 - Dokumentation FritzBox Anrufmonitor: Werte in `$_IPS` für Skripte, die als Aktion bei Ereignissen ausgeführt werden.  
 - Intern: Idents, Property-, Attribut- und Timernamen sind jetzt Konstanten (`libs/FritzBoxConstants.php`). Die Werte sind unverändert, bestehende Instanzen sind nicht betroffen.  
 
-Version 0.88:  
+**Version 0.88:**  
 
 - Kam nach dem Anmelden der Ereignisse (Subscribe) kein Ereignis von der FritzBox an, wurde die Anmeldung nicht wieder abgemeldet. Beim nächsten Verbindungsaufbau antwortete die FritzBox dann mit `412 Precondition Failed`.  
 - Die FritzBox Discovery Instanz meldete `Undefined array key "family"`, wenn das System Netzwerkschnittstellen ohne Adresse hat (z.B. WireGuard- oder VPN-Schnittstellen unter Linux).  
@@ -305,47 +304,47 @@ Version 0.88:
 - Dokumentation FritzBox WAN IP Connection: Hinweis auf die ab FRITZ!OS 8.25 notwendige Einstellung „Selbstständige Portfreigaben“ zum Trennen der Internetverbindung, auch in dieser README unter „Vorbereitungen in der FritzBox“.  
 - Lizenz geändert: Statt CC BY-NC-SA 4.0 gilt jetzt die eigene Lizenz „Custom NC-SA“ (siehe [LICENSE](LICENSE)), wie bei der Kodi-Library. Nutzung und Weitergabe bleiben frei, Änderungen müssen unter derselben Lizenz weitergegeben werden, der Verkauf der Software ist nicht erlaubt. Dienstleistungen wie Installation und Einrichtung sind ausdrücklich erlaubt.  
 
-Version 0.87:  
+**Version 0.87:**  
 
 - Die Verbindung der FritzBox-IO Instanz konnte fehlschlagen, wenn die FritzBox ein ungültiges XML gesendet hat.  
 
-Version 0.86:  
+**Version 0.86:**  
 
 - WiFi7 (802.11be) Unterstützung in der FritzBox WLAN Instanz hinzugefügt.  
 - Bessere Prüfung ob die FritzBox WLAN Instanz einen Parent und somit einen Konfigurator kennt.  
 - Bessere Unterdrückung von Fehlermeldungen beim ModulUpdate.  
   
-Version 0.85:  
+**Version 0.85:**  
 
 - Symcon 7.1 mit PHP 8.2 ist jetzt minimum.  
 - Submodule und Support Links aktualisiert.  
 - Workaround für FritzOS 8.10 bei der Instanz `FritzBox WAN IP-Verbindung`.  
 - Übersetzungen ergänzt.  
   
-Version 0.83:  
+**Version 0.83:**  
 
 - Fehlerhaftes Verhalten beim abonnieren von UPnP Events korrigiert.  
 
-Version 0.82:  
+**Version 0.82:**  
 
 - Besseres verhalten bei Neustart und Verbindungsabbrüche.  
 - WLAN Setzen des Netzwerkschlüssel war nicht möglich.  
   
-Version 0.81:  
+**Version 0.81:**  
 
 - Konfiguratoren erwarten jetzt einen eigenen FritzBox-IO und hängen sich nicht mehr an bestehende.  
 - Konfiguratoren filtern andere Konfiguratoren welche am selben IO hängen.  
 - Das erstellen von der Telefonie Instanz konnte fehlschlagen, wenn die FritzBox keine URL einer Anruferliste liefert.  
 - Der für den Anrufmonitor notwendige ClientSocket wurde unter bestimmten Umständen mit falschen/ungültigen Daten aus dem FritzBox-IO gefüttert.  
 
-Version 0.80:  
+**Version 0.80:**  
 
 - Fehlerhafte Übersetzungen bei DVB-C, DynDNS behoben.  
 - Diverse fehlende Übersetzungen ergänzt.
 - Dynamisches Konfigurationsformular im Anrufmonitor war nicht komplett.  
 - Dokumentation erstellt.  
 
-Version 0.79:  
+**Version 0.79:**  
 
 - WAN DSL-Verbindung funktionierte in 0.78 nicht mehr, Änderungen aktuell zurückgenommen.  
 - SOAP Fehler mit PHP 8.2 (Symcon 7.0) behoben.  
@@ -353,7 +352,7 @@ Version 0.79:
 - Discovery-Instanz unterscheidet nicht mehr bei Groß/Kleinschreibung von Hostnamen.  
 - Umbenennen von Host-Variablen in einer WLAN-Instanz konnte zu Fehlern führen.  
 
-Version 0.78:  
+**Version 0.78:**  
 
 - Instanz Port-Weiterleitung hat die eigene PublicIP bei NAT nicht berücksichtigt.  
 - Instanz Port-Weiterleitung hat Netzwerke mit 2 Ziffern im ersten Octet (z.B. 10.x.y.z) nicht unterstützt.  
@@ -361,13 +360,13 @@ Version 0.78:
 - Fehlte ein Eintrag in der Host-Tabelle der FritzBox **und** war das automatische umbenennen von Host-Variablen in einer WLAN-Instanz aktiv, so wurde der Name der Variable gelöscht werden und wurde als unnamed Object angezeigt.  
 - Discovery-Instanz funktioniert unter Linux-OS wieder.  
 
-Version 0.77:  
+**Version 0.77:**  
 
 - Vorhandene WAN DSL-Verbindung Instanz wurde im Konfigurator nicht korrekt erkannt.  
 - Offene Konfigurationsformulare konnten beim Modul-Update Fehlermeldungen werfen und wurden geschlossen.  
 - WLAN-Instanz für das Gäste-WLAN hat immer die gleichen Geräte wie WLAN 1 angezeigt.  
   
-Version 0.76:  
+**Version 0.76:**  
 
 - Anrufmonitor hat Vorwahlen und Leerzeichen in Rufnummern nicht berücksichtigt.  
 - Verfügbarkeit des Anrufmonitor der FritzBox wird vom Konfigurator immer neu überprüft.  
@@ -375,7 +374,7 @@ Version 0.76:
 - Debug Meldungen von Ereignissen aus dem LogFile entfernt.  
 - Discovery-Instanz sucht auf allen Netzwerkschnittstellen und allen IP-Adressen nach Geräten und präferiert in IPv4 Adressen der FritzBox(en).  
 
-Version 0.75:  
+**Version 0.75:**  
 
 - Powerline-Instanz unterstützt automatisches umbenennen der Gerätevariablen.  
 - IPv6 unterstützung hinzugefügt (Betrifft sowohl Discovery-Instanz, als auch den FritzBox IO).  
@@ -397,14 +396,14 @@ Version 0.75:
 - Benennung der Rufumleitungen und Anrufsperren der Telefonie-Instanz verbessert.  
 - Anrufsperren können nicht mehr geschaltet werden.  
 
-Version 0.74:  
+**Version 0.74:**  
 
 - Fehlermeldungen wenn die Host-Tabelle deaktiviert wurde.  
 - Neues Modul 'Homeautomation Configurator' / 'SmartHome Konfigurator'.  
 - 'Homeautomation' / 'SmartHome' Modul legt Variablen an.  
 - Durch Änderungen des HTTP-Header ab einer nicht genauer bekannten Fritz!OS Version traten 'Subscribe' Fehlermeldungen auf. Der Fehler ist behoben.  
 
-Version 0.73:  
+**Version 0.73:**  
 
 - Neues Modul 'Powerline' um den Zustand der Powerline Geräte darzustellen.  
 - Neues Modul 'DVBC' um den Zustand des DBV-S Empfängers darzustellen und zu steuern.  
@@ -415,16 +414,16 @@ Version 0.73:
 - Bessere Fehlerbehandlung beim Auswerten der Antwort vom Event-Subscribe.  
 - Fehlermeldung beim Zugriff auf die Telefonbücher und Host-Datei, wenn Symcon startet.  
 
-Version 0.72:  
+**Version 0.72:**  
 
 - Fehlermeldung beim Zugriff auf die Telefonbücher.  
   
-Version 0.71:  
+**Version 0.71:**  
 
 - Buffer für Anrufmonitor konnte korrupt sein, was zu Fehlermeldungen führte.  
 - Timer für Anrufliste wurde falsch berechnet.  
 
-Version 0.70:  
+**Version 0.70:**  
 
 - Parameter für Aktionen des Anrufmonitor unterstützen Platzhalter wie bei der WebFront-Benachrichtigung z.B. {NAME}  
 - Anrufliste als HTML-Box kann in der Telefonie-Instanz deaktiviert werden.  
@@ -433,7 +432,7 @@ Version 0.70:
 - Namen der Telefonbücher konnten zu einem Fehler und vermehrten anlegen der Medien-Objekte führen.  
 - Anrufliste unterstützt auch jetzt die Relative Datumsangabe mit gestern und heute.  
 
-Version 0.69:  
+**Version 0.69:**  
 
 - Verlagerung der XML Dateien in der TMP Verzeichnis rückgängig gemacht.  
 - Telefonbücher und Daten der Hosts werden unterhalb des IO in einem Media-Object, mit aktivem Cache gespeichert.  
@@ -448,7 +447,7 @@ Version 0.69:
 - Anrufliste-Instanz meldet wenn die Vorwahl nicht erkannt wurde und fordert zum manuellen konfigurieren auf.  
 - WLAN und Host-Filter Instanzen geben einen Link zum Konfigurator aus, wenn die Host-Instanz fehlt.  
 
-Version 0.68:  
+**Version 0.68:**  
 
 - Ist der NATSupport von Symcon aktiviert, aber keine PublicIP konfiguriert, so wird im FritzBox-IO eine Meldung ausgegeben.  
 - NATSupport im IO.  
@@ -457,13 +456,13 @@ Version 0.68:
 - Neue Instanz-Funktion für die Rückwärtssuche (`FB_SearchNameByNumber(12345 /* FritzBox Telefonie */, string $Number, string $AreaCode)`)  
 - Neues Modul 'Host Filter' um Hosts den WAN Zugriff zu sperren (noch nicht fertig).  
 
-Version 0.62:  
+**Version 0.62:**  
 
 - Discovery-Instanz war mit TTL Änderung kaputt  
 - Discovery-Instanz priorisiert bei IO's https Verbindungen
 - FritzBox WAN Common Interface (FritzBox allgemeine WAN-Schnittstelle) hat nach einem Update nicht korrekt funktioniert  
 
-Version 0.60:  
+**Version 0.60:**  
 
 - Neues Modul: FritzBox WAN Physical Interface (FritzBox physikalische WAN-Schnittstelle)  
 - Modul FritzBox WAN DSL Link (FritzBox WAN DSL-Verbindung) war fehlerhaft  
@@ -477,7 +476,7 @@ Version 0.60:
 - FB_SetDeflectionEnable hat die Statusvariablen nicht nachgeführt  
 - Ein eventuell vorhandenes altes Variablenprofil 'FB.MByte' wird automatisch gelöscht und neu erzeugt
   
-Version 0.50:  
+**Version 0.50:**  
 
 - Beta Release für Symcon 6.0  
 - Readme erweitert

@@ -49,7 +49,12 @@
             "Number of messages": "Anzahl Nachrichten",
             "Index of answering machine": "Index des Anrufbeantworters",
             "Answering machine active": "Anrufbeantworter aktiv",
-            "Invalid answering machine index.": "Ungültiger Index des Anrufbeantworters."
+            "Invalid answering machine index.": "Ungültiger Index des Anrufbeantworters.",
+            "%d h %d min": "%d Std %d Min",
+            "< 1 min": "< 1 Min",
+            "%d min": "%d Min",
+            "New": "Neu",
+            "Played": "Abgehört"
         }
     }
 }

@@ -360,11 +360,6 @@ class FritzBoxAnsweringMachine extends FritzBoxModulBase
         header('Cache-Control: no-cache');
         fpassthru($Stream);
         fclose($Stream);
-        $MessagesNew = $this->MessagesNew;
-        if (!empty($MessagesNew[$Id])) {
-            $this->MarkTAMMessage($Id, true);
-            $this->UpdateInfo();
-        }
     }
 
     private function UpdateInfo()
@@ -391,26 +386,52 @@ class FritzBoxAnsweringMachine extends FritzBoxModulBase
         $this->MessagePaths = $Paths;
         $this->MessagesNew = $NewFlags;
         if ($this->ReadPropertyBoolean(\FritzBox\AnsweringMachine\Property::MessagesAsTable)) {
-            $this->SetValue(\FritzBox\AnsweringMachine\Variables::Messages, $this->GetTable($TableData));
+            $this->SetValue(\FritzBox\AnsweringMachine\Variables::Messages, $this->GetIconStyle() . $this->GetTable($TableData) . '</div>');
         }
         return true;
     }
 
     /**
+     * CSS für die Symbole neu/abgehört (einmal je Tabelle statt je Zeile).
+     */
+    private function GetIconStyle(): string
+    {
+        $Style = '<div id="scoped-content"><style type="text/css" scoped>';
+        foreach (['New' => 'msgnew.png', 'Old' => 'msgold.png'] as $Class => $File) {
+            $Style .= '.FBTam' . $this->InstanceID . $Class . '{width:100%;height:24px;background:url(data:image/png;base64,' .
+                base64_encode(file_get_contents(__DIR__ . '/../imgs/' . $File)) . ') no-repeat center center;}';
+        }
+        return $Style . '</style>';
+    }
+
+    /**
      * Erzeugt eine Zeile der HTML-Tabelle inklusive der Schaltflächen.
+     * Abspielen/Pause und die Zeitanzeige laufen im Browser; eine neue Nachricht wird erst
+     * nach dem vollständigen Abspielen als gelesen markiert.
      */
     private function GetTableRow(array $Message): array
     {
         $Id = $Message['Index'];
         $ButtonStyle = 'cursor:pointer;padding:0 0.4em;';
-        $Play = '<span style="' . $ButtonStyle . '" title="' . $this->Translate('Play') . '" onclick="' .
-            'var a=window.fbTam' . $this->InstanceID . ";if(a){a.pause();}a=new Audio('" . $this->HookUrl(\FritzBox\AnsweringMachine\Hook::Play, $Id) . "');" .
-            'window.fbTam' . $this->InstanceID . '=a;a.play();">&#9654;</span>';
         $Fetch = "fetch('%s').then(function(r){return r.text();}).then(function(t){if(t!=='OK'){alert(t);}});";
-        $Mark = '';
+        $OnEnded = $Message['New'] ? sprintf($Fetch, $this->HookUrl(\FritzBox\AnsweringMachine\Hook::Mark, $Id)) : '';
+        // Ein Player je Instanz: gleicher Button = Pause/Fortsetzen, anderer Button = vorherige Nachricht stoppen
+        $Play = '<span style="' . $ButtonStyle . '" title="' . $this->Translate('Play') . '" onclick="' .
+            "var k='fbTam" . $this->InstanceID . "',w=window,b=this,s=w[k];" .
+            "if(s&&s.b===b){if(s.a.paused){s.a.play();b.innerHTML='&#10074;&#10074;';}else{s.a.pause();b.innerHTML='&#9654;';}return;}" .
+            "if(s){s.a.pause();s.b.innerHTML='&#9654;';s.t.textContent='';}" .
+            "var a=new Audio('" . $this->HookUrl(\FritzBox\AnsweringMachine\Hook::Play, $Id) . "'),t=b.nextElementSibling;" .
+            "var f=function(x){x=Math.floor(x);return Math.floor(x/60)+':'+('0'+x%60).slice(-2);};" .
+            "a.ontimeupdate=function(){t.textContent=f(a.currentTime)+(isFinite(a.duration)?' / '+f(a.duration):'');};" .
+            "a.onended=function(){b.innerHTML='&#9654;';t.textContent='';w[k]=null;" . $OnEnded . '};' .
+            "w[k]={a:a,b:b,t:t};a.play();b.innerHTML='&#10074;&#10074;';\">&#9654;</span>" .
+            '<span style="display:inline-block;min-width:5.5em;text-align:left;"></span>';
         if ($Message['New']) {
             $Mark = '<span style="' . $ButtonStyle . '" title="' . $this->Translate('Mark as read') . '" onclick="' .
                 sprintf($Fetch, $this->HookUrl(\FritzBox\AnsweringMachine\Hook::Mark, $Id)) . '">&#10003;</span>';
+        } else {
+            // Platzhalter gleicher Breite, damit die Schaltflächen in allen Zeilen untereinander stehen
+            $Mark = '<span style="' . $ButtonStyle . 'visibility:hidden;">&#10003;</span>';
         }
         $Delete = '<span style="' . $ButtonStyle . '" title="' . $this->Translate('Delete') . '" onclick="' .
             "if(confirm('" . $this->Translate('Delete message?') . "')){" .
@@ -419,15 +440,36 @@ class FritzBoxAnsweringMachine extends FritzBoxModulBase
         if ($Name == '') {
             $Name = ($Message['Number'] != '') ? $Message['Number'] : $this->Translate('unknown');
         }
+        $State = $Message['New'] ? 'New' : 'Old';
         return [
             'Date'     => htmlspecialchars($Message['Date']),
             'Name'     => htmlspecialchars($Name),
             'Number'   => htmlspecialchars($Message['Number']),
             'Called'   => htmlspecialchars($Message['Called']),
-            'Duration' => htmlspecialchars($Message['Duration']),
-            'New'      => $Message['New'] ? '&#9679;' : '',
+            'Duration' => htmlspecialchars($this->FormatDuration($Message['Duration'])),
+            'New'      => '<div class="FBTam' . $this->InstanceID . $State . '" title="' . $this->Translate($Message['New'] ? 'New' : 'Played') . '"></div>',
             'Actions'  => $Play . $Mark . $Delete
         ];
+    }
+
+    /**
+     * Formatiert die Dauer einer Nachricht wie die FritzBox.
+     * Die FritzBox liefert Stunden:Minuten (z.B. `0:02`), aufgerundet; `0:01` zeigt sie als „< 1 Min“.
+     */
+    private function FormatDuration(string $Duration): string
+    {
+        if (!preg_match('/^(\d+):(\d{2})$/', $Duration, $Match)) {
+            return $Duration;
+        }
+        $Hours = (int) $Match[1];
+        $Minutes = (int) $Match[2];
+        if ($Hours > 0) {
+            return sprintf($this->Translate('%d h %d min'), $Hours, $Minutes);
+        }
+        if ($Minutes <= 1) {
+            return $this->Translate('< 1 min');
+        }
+        return sprintf($this->Translate('%d min'), $Minutes);
     }
 
     private function GenerateHTMLStyleProperty()
@@ -447,13 +489,13 @@ class FritzBoxAnsweringMachine extends FritzBoxModulBase
             ]
         ];
         $Columns = [
-            ['New', '', true, 20, 'center'],
+            ['New', '', true, 30, 'center'],
             ['Date', 'Date', true, 100, 'left'],
             ['Name', 'Name', true, 200, 'left'],
             ['Number', 'Caller', true, 120, 'left'],
             ['Called', 'Called number', false, 120, 'left'],
             ['Duration', 'Duration', true, 50, 'center'],
-            ['Actions', '', true, 80, 'right']
+            ['Actions', '', true, 160, 'right']
         ];
         $NewColumnsConfig = [];
         foreach ($Columns as $Index => $Column) {
@@ -467,7 +509,8 @@ class FritzBoxAnsweringMachine extends FritzBoxModulBase
                 'hralign' => $Column[4],
                 'hrstyle' => '',
                 'tdalign' => $Column[4],
-                'tdstyle' => ''
+                // Datum, Dauer und Schaltflächen nicht umbrechen (schmale Ansicht, z.B. WebFront)
+                'tdstyle' => in_array($Column[0], ['Date', 'Duration', 'Actions']) ? 'white-space:nowrap;' : ''
             ];
         }
         $NewRowsConfig = [
