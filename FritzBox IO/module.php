@@ -121,7 +121,6 @@ class FritzBoxIO extends IPSModule
 
     /**
      * Bietet den Client Socket nur an, wenn der Anrufmonitor-Port (1012) der FritzBox erreichbar ist.
-     * Benötigt Symcon ab Version 8.2, in älteren Versionen wird die Methode nicht aufgerufen.
      *
      * @return string JSON mit den kompatiblen Parent-Modulen
      */

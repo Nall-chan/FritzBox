@@ -1,6 +1,6 @@
 [![SDK](https://img.shields.io/badge/Symcon-PHPModul-red.svg)](https://www.symcon.de/service/dokumentation/entwicklerbereich/sdk-tools/sdk-php/)
 [![Module Version](https://img.shields.io/badge/dynamic/json?url=https%3A%2F%2Fraw.githubusercontent.com%2FNall-chan%2FFritzBox%2Frefs%2Fheads%2Fmaster%2Flibrary.json&query=%24.version&label=Modul%20Version&color=blue)](https://community.symcon.de/t/modul-fritzbox-ersatz-fuer-fritzbox-project/125451)
-[![Symcon Version](https://img.shields.io/badge/dynamic/json?url=https%3A%2F%2Fraw.githubusercontent.com%2FNall-chan%2FFritzBox%2Frefs%2Fheads%2Fmaster%2Flibrary.json&query=%24.compatibility.version&suffix=%3E&label=Symcon%20Version&color=green)](https://www.symcon.de/de/service/dokumentation/installation/migrationen/v70-v71-q1-2024/)  
+[![Symcon Version](https://img.shields.io/badge/dynamic/json?url=https%3A%2F%2Fraw.githubusercontent.com%2FNall-chan%2FFritzBox%2Frefs%2Fheads%2Fmaster%2Flibrary.json&query=%24.compatibility.version&suffix=%3E&label=Symcon%20Version&color=green)](https://www.symcon.de/de/service/dokumentation/installation/migrationen/v81-v90-q1-2026/)  
 [![License](https://img.shields.io/badge/License-Custom--NC--SA-green.svg)](#6-lizenz)
 [![Check Style](https://github.com/Nall-chan/FritzBox/workflows/Check%20Style/badge.svg)](https://github.com/Nall-chan/FritzBox/actions)
 [![Run Tests](https://github.com/Nall-chan/FritzBox/workflows/Run%20Tests/badge.svg)](https://github.com/Nall-chan/FritzBox/actions)  
@@ -102,7 +102,7 @@ Für das Discovery werden Pakete über die Multicast-Adresse `239.255.255.250` a
 
 ## 2. Voraussetzungen
 
-- IP-Symcon ab Version 7.1
+- IP-Symcon ab Version 9.0
 - FritzBox mit den unter [Zur Integration von Geräten](#zur-integration-von-geräten) beschriebenen Einstellungen
 - Symcon Host im gleichen Subnetz wie die FritzBox (siehe [Hinweise zum Symcon-System / Host](#hinweise-zum-symcon-system--host))
 
@@ -259,6 +259,10 @@ Für das Discovery werden Pakete über die Multicast-Adresse `239.255.255.250` a
 
 ### 2. Changelog
 
+**Version 0.93:**  
+
+- Symcon 9.0 ist jetzt minimum (`library.json`, Link der Versions-Badges auf die Migrationsseite 8.1 → 9.0). Vorbereitung für die Umstellung auf Darstellungen mit Version 1.00.  
+
 **Version 0.92:**  
 
 - Neue Module:
@@ -274,7 +278,7 @@ Für das Discovery werden Pakete über die Multicast-Adresse `239.255.255.250` a
 - FritzBox Netzwerkgeräte: Neue Funktionen `FB_SetFriendlyNameByIP`, `FB_GetInfo`, `FB_SetDeviceClassUserByMAC` und `FB_SetDeviceClassUserByIP`.  
 - FritzBox WAN IP-Verbindung: Der Workaround für FRITZ!OS vor 8.10 (`IGD2 (< FritzOS 8.10)`) wurde entfernt, unterstützt wird nur noch ab FRITZ!OS 8.10. Die Auswahl heißt jetzt `IGD2`; bestehende Instanzen mit dem bisherigen Dienst `IGD2 (> FritzOS 8.10)` werden automatisch umgestellt. Dadurch zeigt auch der Konfigurator den Dienst wieder korrekt an.  
 - FritzBox DSL-Schnittstelle: Dokumentation ergänzt; Störabstand/Dämpfung in 0,1 dB bestätigt.  
-- FritzBox IO: Der Client Socket wird als übergeordnete Instanz nur noch angeboten, wenn der Anrufmonitor-Port (1012) der FritzBox erreichbar ist. Benötigt Symcon ab Version 8.2, in älteren Versionen wird die Auswahl nicht eingeschränkt.  
+- FritzBox IO: Der Client Socket wird als übergeordnete Instanz nur noch angeboten, wenn der Anrufmonitor-Port (1012) der FritzBox erreichbar ist.  
 
 **Version 0.90:**  
 

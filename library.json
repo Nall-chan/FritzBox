@@ -4,9 +4,9 @@
     "name": "FritzBox",
     "url": "https://github.com/Nall-chan/FritzBox",
     "compatibility": {
-        "version": "7.1"
+        "version": "9.0"
     },
-    "version": "0.92",
-    "build": 92,
-    "date": 1792669748
+    "version": "0.93",
+    "build": 93,
+    "date": 1792674174
 }
