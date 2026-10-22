@@ -119,6 +119,18 @@ class FritzBoxIO extends IPSModule
         return json_encode([\FritzBox\ClientSocket\Property::Host => ($Host ? $Host : ''), \FritzBox\ClientSocket\Property::Port => 1012]);
     }
 
+    /**
+     * Bietet den Client Socket nur an, wenn der Anrufmonitor-Port (1012) der FritzBox erreichbar ist.
+     * Benötigt Symcon ab Version 8.2, in älteren Versionen wird die Methode nicht aufgerufen.
+     *
+     * @return string JSON mit den kompatiblen Parent-Modulen
+     */
+    public function GetCompatibleParents()
+    {
+        $ModuleIDs = $this->checkCallMonitorPort() ? [\FritzBox\GUID::ClientSocket] : [];
+        return json_encode(['type' => 'connect', 'moduleIDs' => $ModuleIDs]);
+    }
+
     public function RequestAction($Ident, $Value)
     {
         if ($Ident == \FritzBox\IO\Action::KernelReady) {

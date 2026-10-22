@@ -18,6 +18,8 @@
             "Deselecting a host causes the associated status variable to be deleted.": "Abwählen eines Host führt zum löschen der dazugehörigen Statusvariable.",
             "Read state": "Lese Status",
             "Invalid Ident.": "Ungültiger Ident.",
+            "Invalid IP address.": "Ungültige IP-Adresse.",
+            "Invalid profile ID.": "Ungültige Profil-ID.",
             "This module is free for non-commercial use,\r\nDonations in support of the author are accepted here:": "Dieses Modul ist für die nicht kommerzielle Nutzung kostenlos,\r\nSchenkungen als Unterstützung für den Autor werden hier akzeptiert:"
         }
     }

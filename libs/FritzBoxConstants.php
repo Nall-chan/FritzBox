@@ -656,3 +656,26 @@ namespace FritzBox\MobileConnection {
         public const SignalRSRP1 = 'SignalRSRP1';
     }
 }
+
+namespace FritzBox\WANFiber {
+    class Variables
+    {
+        public const FiberMode = 'FiberMode';
+        public const OpticalSignalLevel = 'OpticalSignalLevel';
+        public const TransmitOpticalLevel = 'TransmitOpticalLevel';
+        public const ConnectionRateDown = 'ConnectionRateDown';
+        public const ConnectionRateUp = 'ConnectionRateUp';
+        public const PacketErrorsSent = 'PacketErrorsSent';
+        public const PacketErrorsReceived = 'PacketErrorsReceived';
+        public const Resyncs = 'Resyncs';
+        public const MinutesInShowtime = 'MinutesInShowtime';
+    }
+}
+
+namespace FritzBox\WANIPv6Firewall {
+    class Variables
+    {
+        public const FirewallEnabled = 'FirewallEnabled';
+        public const InboundPinholeAllowed = 'InboundPinholeAllowed';
+    }
+}

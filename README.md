@@ -194,6 +194,12 @@ Für das Discovery werden Pakete über die Multicast-Adresse `239.255.255.250` a
 - **FritzBox Mobilfunk** ([Dokumentation](FritzBox%20Mobile%20Connection/))  
     Auslesen der Mobilfunk-Verbindung (LTE/5G-Modem oder USB-Stick).  
 
+- **FritzBox Glasfaser-Anschluss** ([Dokumentation](FritzBox%20WAN%20Fiber/))  
+    Betriebsart, optische Pegel und Zähler eines Glasfaser-Anschlusses (nur Boxen mit Glasfaser-Anschluss).  
+
+- **FritzBox WAN IPv6-Firewall** ([Dokumentation](FritzBox%20WAN%20IPv6%20Firewall/))  
+    Status der IPv6-Firewall und Verwaltung von Pinholes (IPv6-Freigaben).  
+
 - **FritzBox WAN physikalische WAN-Schnittstelle** ([Dokumentation](FritzBox%20WAN%20Physical%20Interface/))  
     Status des WAN Zugang in Symcon darstellen.  
 
@@ -243,13 +249,32 @@ Für das Discovery werden Pakete über die Multicast-Adresse `239.255.255.250` a
 | FritzBox UPnP MediaServer            | Gerät        | {0F09E36F-BE54-D01D-5AF1-48FF618426AC} |
 | FritzBox WAN Common Interface        | Gerät        | {FD564AAF-E00A-4CF8-A60D-7F60B4CDFC1B} |
 | FritzBox WAN DSL Link                | Gerät        | {061AEAF5-ADCD-AD9E-9BF9-AD40DF364EB6} |
+| FritzBox WAN Fiber                   | Gerät        | {1A5E713B-DE3D-402F-A2DA-A3EEB3ED9D11} |
 | FritzBox WAN IP Connection           | Gerät        | {61C9DC95-5A0F-7B9A-4427-82EDB57AA1B9} |
+| FritzBox WAN IPv6 Firewall           | Gerät        | {156C748D-17A9-4648-A125-E74D3E7933DD} |
 | FritzBox WAN Physical Interface      | Gerät        | {C1A97F94-EE83-0553-5F42-FA242F406B1E} |
 | FritzBox WAN Port Mapping            | Gerät        | {9396D756-40EA-46C7-AA06-623B8DCB789B} |
 | FritzBox WLAN                        | Gerät        | {B3D72623-556E-B6C6-25E0-B3DEFE41F031} |
 | FritzBox WebDav Storage              | Gerät        | {EA069D88-287E-9F08-DB85-799EBA7A2678} |
 
 ### 2. Changelog
+
+**Version 0.92:**  
+
+- Neue Module:
+  - FritzBox Glasfaser-Anschluss: Betriebsart, optische Pegel und Zähler (nur Boxen mit Glasfaser-Anschluss, nicht an einer solchen Box getestet).  
+  - FritzBox WAN IPv6-Firewall: Status der IPv6-Firewall, Pinholes anlegen und löschen (`FB_UpdatePinhole` wird von der Test-FritzBox abgelehnt, die Gültigkeit ändert man mit erneutem `FB_AddPinhole`).  
+- FritzBox Telefonie: Neue Symcon-Aktionen `Rufnummer wählen` und `Wählvorgang beenden` für die Wählhilfe.  
+- FritzBox Konfigurator: Dienste, die nur in der IGD2-Beschreibung stehen (IPv6-Firewall), werden mit dem richtigen Index angelegt.  
+
+**Version 0.91:**  
+
+- FritzBox Telefonie: Neue Funktion `FB_GetPhonePort`, um die Telefone für die Wählhilfe aufzulisten. Die Wählhilfe selbst muss manuell in der FritzBox aktiviert werden (Zwei-Faktor-Bestätigung), sie lässt sich nicht per PHP-Befehl einrichten.  
+- FritzBox Host Filter: Neue Funktionen `FB_GetFilterProfiles`, `FB_GetFilterProfileByID`, `FB_GetHostEntryByIP`, `FB_AddHostEntryToFilterProfile` und `FB_AddTicketTimeToHostEntryByIP` für die Zugangsprofile und Online-Tickets.  
+- FritzBox Netzwerkgeräte: Neue Funktionen `FB_SetFriendlyNameByIP`, `FB_GetInfo`, `FB_SetDeviceClassUserByMAC` und `FB_SetDeviceClassUserByIP`.  
+- FritzBox WAN IP-Verbindung: Der Workaround für FRITZ!OS vor 8.10 (`IGD2 (< FritzOS 8.10)`) wurde entfernt, unterstützt wird nur noch ab FRITZ!OS 8.10. Die Auswahl heißt jetzt `IGD2`; bestehende Instanzen mit dem bisherigen Dienst `IGD2 (> FritzOS 8.10)` werden automatisch umgestellt. Dadurch zeigt auch der Konfigurator den Dienst wieder korrekt an.  
+- FritzBox DSL-Schnittstelle: Dokumentation ergänzt; Störabstand/Dämpfung in 0,1 dB bestätigt.  
+- FritzBox IO: Der Client Socket wird als übergeordnete Instanz nur noch angeboten, wenn der Anrufmonitor-Port (1012) der FritzBox erreichbar ist. Benötigt Symcon ab Version 8.2, in älteren Versionen wird die Auswahl nicht eingeschränkt.  
 
 **Version 0.90:**  
 

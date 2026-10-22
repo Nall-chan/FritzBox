@@ -39,7 +39,9 @@
             "FritzBox Answering Machine": "FritzBox Anrufbeantworter",
             "FritzBox DECT": "FritzBox DECT-Geräte",
             "FritzBox DSL Interface": "FritzBox DSL-Schnittstelle",
-            "FritzBox Mobile Connection": "FritzBox Mobilfunk"
+            "FritzBox Mobile Connection": "FritzBox Mobilfunk",
+            "FritzBox WAN Fiber": "FritzBox Glasfaser-Anschluss",
+            "FritzBox WAN IPv6 Firewall": "FritzBox WAN IPv6-Firewall"
         }
     }
 }

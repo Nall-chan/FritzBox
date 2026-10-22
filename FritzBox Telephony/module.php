@@ -563,8 +563,26 @@ class FritzBoxTelephony extends FritzBoxModulBase
     }
 
     /**
-     * Wählhilfe: Das in der FritzBox für die Wählhilfe eingestellte Telefon klingelt,
-     * nach dem Abheben wird die Rufnummer gewählt.
+     * Liefert den Namen eines Telefonanschlusses, der für die Wählhilfe gewählt werden kann.
+     *
+     * @param int $PhonePortIndex Index des Anschlusses, beginnend bei 1
+     *
+     * @return string|false Name des Telefons
+     */
+    public function GetPhonePort(int $PhonePortIndex)
+    {
+        if ($PhonePortIndex < 1) {
+            $this->ReportError($this->Translate('Invalid index.'));
+            return false;
+        }
+        return $this->SendEx('X_AVM-DE_GetPhonePort', self::VoIPIndex, [
+            'NewIndex'=> $PhonePortIndex
+        ]);
+    }
+
+    /**
+     * Wählhilfe: Die FritzBox baut zuerst die abgehende Verbindung zur Rufnummer auf.
+     * Steht die Verbindung, klingelt das in der FritzBox für die Wählhilfe eingestellte Telefon.
      *
      * @param string $PhoneNumber Rufnummer (Ziffern, *, #, +)
      *

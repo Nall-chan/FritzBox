@@ -266,6 +266,51 @@ var_dump(FB_SetFriendlyNameByMAC(12345, '00:11:22:AA:BB:CC', 'Wohnzimmer-PC')); 
 ---
 
 ```php
+bool FB_SetFriendlyNameByIP(integer $InstanzID, string $IPAddress, string $FriendlyName);
+```
+
+Wie `FB_SetFriendlyNameByMAC`, das Gerät wird aber über seine IPv4-Adresse angegeben. Ungültige Adressen werden vor dem Senden mit einer Meldung abgelehnt. Länge des Namens (1 bis 64 Zeichen) siehe `FB_GetInfo`. Liefert `true` bei Erfolg.
+
+```php
+var_dump(FB_SetFriendlyNameByIP(12345, '192.168.201.250', 'Wohnzimmer-PC')); // bool(true)
+```
+
+---
+
+```php
+array|false FB_GetInfo(integer $InstanzID);
+```
+
+Liefert die Grenzen für Namen und die möglichen Gerätetypen als Array.
+
+| Schlüssel                                   | Beschreibung                                                         |
+| ------------------------------------------- | -------------------------------------------------------------------- |
+| NewX_AVM-DE_FriendlynameMinChars / MaxChars | Zulässige Länge des Anzeigenamens (`1` bis `64`)                     |
+| NewX_AVM-DE_HostnameMinChars / MaxChars     | Zulässige Länge des Hostnamens (`0` bis `63`)                        |
+| NewX_AVM-DE_HostnameAllowedChars            | Erlaubte Zeichen im Hostnamen (Ziffern, Buchstaben, `-`)             |
+| NewX_AVM-DE_DeviceClassUserPossibleValues   | Kommagetrennte Liste der Gerätetypen für `FB_SetDeviceClassUser...`  |
+
+```php
+var_dump(explode(',', FB_GetInfo(12345)['NewX_AVM-DE_DeviceClassUserPossibleValues'])); // AirConditioner, Button, Camera, ...
+```
+
+---
+
+```php
+bool FB_SetDeviceClassUserByMAC(integer $InstanzID, string $MACAddress, string $DeviceClassUser);
+bool FB_SetDeviceClassUserByIP(integer $InstanzID, string $IPAddress, string $DeviceClassUser);
+```
+
+Setzt den Gerätetyp (Symbol in der Oberfläche der FritzBox) eines Netzwerkgerätes über MAC- bzw. IPv4-Adresse. `$DeviceClassUser` ist einer der Werte aus `NewX_AVM-DE_DeviceClassUserPossibleValues` von `FB_GetInfo` (z.B. `Computer`, `Printer`, `Speaker`). Ungültige Adressen werden vor dem Senden mit einer Meldung abgelehnt. Liefert `true` bei Erfolg.
+
+```php
+FB_SetDeviceClassUserByMAC(12345, '00:11:22:AA:BB:CC', 'Computer');
+FB_SetDeviceClassUserByIP(12345, '192.168.201.250', 'Computer');
+```
+
+---
+
+```php
 string|false FB_GetAutoWakeOnLANByMACAddress(integer $InstanzID, string $MACAddress);
 ```
 

@@ -1,0 +1,20 @@
+{
+    "translations": {
+        "de": {
+            "Refresh Interval": "Aktualisierungsintervall",
+            "seconds": "Sekunden",
+            "Update Values": "Werte aktualisieren",
+            "Event subscribe error": "Ereignisabonnementfehler",
+            "Invalid Ident.": "Ungültiger Ident.",
+            "This module is free for non-commercial use,\r\nDonations in support of the author are accepted here:": "Dieses Modul ist für die nicht kommerzielle Nutzung kostenlos,\r\nSchenkungen als Unterstützung für den Autor werden hier akzeptiert:",
+            "FritzBox WAN IPv6 Firewall": "FritzBox WAN IPv6-Firewall",
+            "IPv6 firewall enabled": "IPv6-Firewall aktiv",
+            "Inbound pinholes allowed": "Eingehende Pinholes erlaubt",
+            "Invalid IPv6 address.": "Ungültige IPv6-Adresse.",
+            "Invalid port.": "Ungültiger Port.",
+            "Invalid protocol.": "Ungültiges Protokoll.",
+            "Invalid lease time.": "Ungültige Gültigkeitsdauer.",
+            "Invalid ID.": "Ungültige ID."
+        }
+    }
+}

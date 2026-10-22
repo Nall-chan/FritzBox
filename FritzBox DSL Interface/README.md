@@ -12,7 +12,7 @@
 Auslesen der DSL-Leitungswerte einer FritzBox mit DSL-Anschluss.  
 
 > [!WARNING]
-> Dieses Modul wurde nach der Schnittstellenbeschreibung von AVM erstellt und nicht live getestet, da keine FritzBox mit DSL-Anschluss zum Testen vorhanden war. Rückmeldungen im Forum sind willkommen.
+> Dieses Modul wurde nach der Schnittstellenbeschreibung von AVM erstellt. Ein Tester hat es an einer FRITZ!Box 7690 mit VDSL2 (Profil 35b, Vectoring) geprüft: Datenraten, Störabstand und Dämpfung stimmen mit der Anzeige der FritzBox überein. Beim FEC-Zähler gibt es eine Abweichung (siehe Statusvariablen). Rückmeldungen im Forum sind willkommen.
 
 ## Inhaltsverzeichnis <!-- omit in toc -->
 
@@ -85,13 +85,15 @@ Die Statusvariablen werden automatisch angelegt. Das Löschen einzelner kann zu 
 | UpstreamNoiseMargin   | Upstream Störabstand        | float   | Störabstand in dB                               |
 | DownstreamAttenuation | Downstream Dämpfung         | float   | Leitungsdämpfung in dB                          |
 | UpstreamAttenuation   | Upstream Dämpfung           | float   | Leitungsdämpfung in dB                          |
-| FECErrors             | FEC-Fehler                  | integer | Korrigierte Fehler seit dem Start der FritzBox  |
-| CRCErrors             | CRC-Fehler                  | integer | Nicht korrigierbare Fehler seit dem Start       |
+| FECErrors             | FEC-Fehler                  | integer | Zähler der korrigierten Fehler (`NewFECErrors`) |
+| CRCErrors             | CRC-Fehler                  | integer | Zähler der nicht korrigierbaren Fehler          |
 | ErroredSecs           | Fehlerhafte Sekunden        | integer | Sekunden mit Fehlern seit dem Start             |
 | SeverelyErroredSecs   | Stark fehlerhafte Sekunden  | integer | Sekunden mit vielen Fehlern seit dem Start      |
 
 > [!NOTE]
-> Störabstand und Dämpfung liefert die FritzBox laut TR-064 in 0,1 dB, das Modul rechnet sie in dB um. Das ist nicht an einer echten Leitung geprüft. Kommen unplausible Werte (z.B. 600 dB statt 6 dB), bitte im Forum melden.
+> Störabstand und Dämpfung liefert die FritzBox laut TR-064 in 0,1 dB, das Modul rechnet sie in dB um (an einer 7690 mit VDSL2 bestätigt: `70` = 7,0 dB Störabstand, `200` = 20,0 dB Dämpfung).
+>
+> Die FEC-Fehler sind ein Zähler der Schnittstelle (`NewFECErrors` von `FB_GetStatisticsTotal`), der laufend wächst. Die Anzeige der FritzBox weicht davon ab (Zeitraum oder Zählweise ungeklärt).
 
 ## 6. Visualisierung
 
@@ -107,7 +109,7 @@ Die Instanz wird als Kachel in der Darstellung `Liste` angezeigt. Alle Werte wer
 ## 7. PHP-Befehlsreferenz
 
 Alle Funktionen liefern `false`, wenn die Instanz nicht aktiv ist oder die FritzBox einen Fehler meldet. Meldet die FritzBox einen Fehler, wird zusätzlich eine Meldung ausgegeben.  
-Alle Werte in den Arrays sind Strings. Die Schlüssel entsprechen der Schnittstellenbeschreibung von AVM (`WANDSLInterfaceConfig`). *Alle Funktionen sind nicht live getestet.*  
+Alle Werte in den Arrays sind Strings. Die Schlüssel entsprechen der Schnittstellenbeschreibung von AVM (`WANDSLInterfaceConfig`). *Alle vier Funktionen wurden von einem Tester an einer 7690 mit VDSL2 ausgeführt und lieferten Daten; die Werte von `FB_GetDSLInfo` (z.B. `NewSNRpsds`) sind nicht ausgewertet.*  
 
 ---
 
@@ -128,7 +130,7 @@ echo $Info['NewDownstreamCurrRate'] . ' kBit/s';
 array|false FB_GetStatisticsTotal(integer $InstanzID);
 ```
 
-Liefert die Fehlerzähler seit dem Start der FritzBox, u.a. `NewFECErrors`, `NewCRCErrors`, `NewErroredSecs`, `NewSeverelyErroredSecs`, `NewLinkRetrain` sowie die Zähler der Gegenstelle (`NewATUCFECErrors`, `NewATUCCRCErrors`).  
+Liefert die Fehlerzähler der Schnittstelle, u.a. `NewFECErrors`, `NewCRCErrors`, `NewErroredSecs`, `NewSeverelyErroredSecs`, `NewLinkRetrain` sowie die Zähler der Gegenstelle (`NewATUCFECErrors`, `NewATUCCRCErrors`).  
 
 ```php
 echo FB_GetStatisticsTotal(12345)['NewCRCErrors'];

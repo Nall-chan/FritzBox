@@ -139,7 +139,7 @@ class FritzBoxConfigurator extends IPSModule
                     $guid = key(\FritzBox\Services::$Data[$serviceType]);
                     if ($guid !== null) {
                         $index = \FritzBox\Services::$Data[$serviceType][$guid];
-                        if (($guid != \FritzBox\GUID::WANPortMapping) && ($index == 0) && ($Xml == 'igd2desc.xml')) {
+                        if (!in_array($guid, [\FritzBox\GUID::WANPortMapping, \FritzBox\GUID::WANIPv6Firewall]) && ($index == 0) && ($Xml == 'igd2desc.xml')) {
                             $index++;
                         }
                         $AddService['type'] = $AddService['type'] . ' (' . $this->Translate(IPS_GetModule($guid)['ModuleName']) . ')';

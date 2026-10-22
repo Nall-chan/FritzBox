@@ -382,13 +382,33 @@ var_dump(FB_GetDialConfig(12345)); // string(12) "unconfigured"
 ---
 
 ```php
+string|false FB_GetPhonePort(integer $InstanzID, integer $PhonePortIndex);
+```
+
+`FB_GetPhonePort` liefert den Namen eines Telefonanschlusses, der für die Wählhilfe gewählt werden kann. `$PhonePortIndex` beginnt bei `1` und läuft lückenlos aufwärts; ein Index ohne Telefon (auch `0`) wird von der FritzBox mit einem Fehler (`402 Invalid Args`) abgelehnt und liefert `false`.  
+Das Telefon für die Wählhilfe lässt sich nicht per PHP-Befehl einstellen: Die FritzBox verlangt dafür eine Bestätigung per Zwei-Faktor-Authentifizierung (Fehler `866 second factor authentication required`), die über die Schnittstelle nicht angefordert wird. Die Wählhilfe daher einmal manuell in der Oberfläche der FritzBox aktivieren und das Telefon wählen (Telefonie → Anrufe → Wählhilfe); dort erfolgt die Bestätigung.
+
+```php
+// Alle Telefone auflisten (Index beginnt bei 1)
+for ($i = 1; $i < 20; $i++) {
+    $Name = @FB_GetPhonePort(12345, $i);
+    if ($Name === false) {
+        break;
+    }
+    echo $i . ': ' . $Name . PHP_EOL; // 1: ISDN: DECT Rundruf
+}
+```
+
+---
+
+```php
 bool FB_DialNumber(integer $InstanzID, string $PhoneNumber);
 bool FB_DialHangup(integer $InstanzID);
 ```
 
-`FB_DialNumber` lässt das für die Wählhilfe eingestellte Telefon klingeln; nach dem Abheben wird `$PhoneNumber` gewählt. Erlaubt sind nur Ziffern sowie `*`, `#` und `+`, andere Zeichen werden vor dem Senden mit einer Meldung abgelehnt. `FB_DialHangup` beendet den Wählvorgang. Liefern `true` bei Erfolg.  
-Voraussetzung ist die eingerichtete Wählhilfe in der FritzBox (Telefonie → Anrufe → Wählhilfe).  
-*Nicht live getestet, da die Wählhilfe auf der Test-FritzBox nicht eingerichtet war.*  
+`FB_DialNumber` startet einen Anruf zu `$PhoneNumber`: Die FritzBox baut zuerst die abgehende Verbindung auf, erst wenn diese steht, klingelt das für die Wählhilfe eingestellte Telefon. Nach dem Abheben ist man mit dem Angerufenen verbunden. Erlaubt sind nur Ziffern sowie `*`, `#` und `+`, andere Zeichen werden vor dem Senden mit einer Meldung abgelehnt. `FB_DialHangup` beendet den Wählvorgang. Liefern `true` bei Erfolg.  
+Voraussetzung ist die manuell in der FritzBox aktivierte Wählhilfe (Telefonie → Anrufe → Wählhilfe).  
+*Live getestet mit in der FritzBox eingerichteter Wählhilfe (Nutzer bestätigt: funktioniert): `FB_DialNumber` und `FB_DialHangup` liefern `true`. Ohne Einrichtung liefert `FB_DialNumber` den Fehler `501 Action Failed`.*  
 
 ```php
 FB_DialNumber(12345, '0301234567');
@@ -452,7 +472,12 @@ var_dump(FB_SetAlarmClockEnable(12345, 0, true)); // bool(true)
 
 **Grundsätzlich können alle bedienbaren Statusvariablen als Ziel einer [`Aktion`](https://www.symcon.de/service/dokumentation/konzepte/automationen/ablaufplaene/aktionen/) mit `Auf Wert schalten` angesteuert werden, so dass hier keine speziellen Aktionen benutzt werden müssen.**
 
-Darüber hinaus bietet das Modul keine speziellen Aktionen.
+Darüber hinaus stehen folgende Aktionen für die Wählhilfe zur Verfügung (Voraussetzung: die Wählhilfe ist in der FritzBox aktiviert, siehe `FB_DialNumber`):
+
+| Aktion               | Beschreibung                                                                                           |
+| -------------------- | ------------------------------------------------------------------------------------------------------ |
+| Rufnummer wählen     | Ruft `FB_DialNumber` mit der eingegebenen Rufnummer auf (nur Ziffern sowie `*`, `#` und `+`).          |
+| Wählvorgang beenden  | Ruft `FB_DialHangup` auf.                                                                              |
 
 ## 9. Anhang
 

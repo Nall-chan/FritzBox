@@ -174,6 +174,74 @@ $TicketID = FB_MarkTicket(12345);
 var_dump(FB_GetTicketIDStatus(12345, (int) $TicketID));
 ```
 
+---
+
+```php
+string|false FB_GetFilterProfiles(integer $InstanzID);
+string|false FB_GetFilterProfileByID(integer $InstanzID, string $FilterProfileID);
+```
+
+`FB_GetFilterProfiles` liefert alle Zugangsprofile der FritzBox, `FB_GetFilterProfileByID` ein einzelnes Profil. Beide liefern den XML-Text der FritzBox (`FilterProfileList` bzw. `FilterProfile`), z.B. mit `simplexml_load_string` auszuwerten.
+Je Profil enthält der Text `FilterProfileID` (z.B. `filtprof2`, wird von den anderen Funktionen als `$FilterProfileID` erwartet), `Name`, `FilterProfileType` (`Standard`, `Guest`, `Unrestricted` oder `Personal`), die Wochentage `Monday` … `Sunday`, `Shared` und den Zeitplan `TimeTable` (`Time` in Minuten ab Montag 00:00, `Action` 1 = Zugang erlaubt, 0 = gesperrt). Eine unbekannte `$FilterProfileID` liefert einen leeren Text, keinen Fehler.
+
+```php
+foreach (simplexml_load_string(FB_GetFilterProfiles(12345))->FilterProfile as $Profile) {
+    echo $Profile->FilterProfileID . ': ' . $Profile->Name . PHP_EOL; // filtprof2: Gast
+}
+```
+
+---
+
+```php
+array|false FB_GetHostEntryByIP(integer $InstanzID, string $IPv4Address);
+```
+
+Liefert Zugangsprofil, Online-Zeit und Tickets eines Netzwerkgerätes über seine IPv4-Adresse. Ungültige Adressen werden vor dem Senden mit einer Meldung abgelehnt.
+
+| Schlüssel           | Beschreibung                                                          |
+| ------------------- | --------------------------------------------------------------------- |
+| NewFilterProfileID  | ID des Zugangsprofils des Geräts                                      |
+| NewHostName         | Hostname des Geräts                                                   |
+| NewWANAccess        | `granted` (erlaubt), `denied` (gesperrt) oder `unknown`               |
+| NewTimeUsed         | Bereits genutzte Online-Zeit                                          |
+| NewTimeMax          | Maximale Online-Zeit des Profils (`0` = unbegrenzt)                   |
+| NewTicketsInAdvance | Anzahl der vorab vergebenen Tickets                                   |
+| NewTicketValid      | `1` = ein Ticket ist aktuell gültig                                   |
+| NewIsTimeShared     | `1` = Online-Zeit wird mit anderen Geräten geteilt                    |
+
+```php
+var_dump(FB_GetHostEntryByIP(12345, '192.168.201.250')['NewFilterProfileID']); // string(9) "filtprof3"
+```
+
+---
+
+```php
+bool FB_AddHostEntryToFilterProfile(integer $InstanzID, string $IPv4Address, string $FilterProfileID);
+```
+
+Weist ein Netzwerkgerät über seine IPv4-Adresse einem Zugangsprofil zu. `$FilterProfileID` stammt aus `FB_GetFilterProfiles`. Ungültige Adresse oder leere ID werden vor dem Senden mit einer Meldung abgelehnt. Liefert `true` bei Erfolg.
+Beobachtung an FRITZ!OS 8.25: Die Zuweisung von `filtprof1` (Standard) endete beim Gerät als `filtprof2` (Gast). Das Ergebnis immer mit `FB_GetHostEntryByIP` prüfen.
+
+> [!WARNING]
+> Die Zuweisung ändert den Internetzugang des Geräts sofort. Wird sie für den Rechner ausgeführt, auf dem IP-Symcon läuft, vorher die Ziel-ID prüfen.
+
+```php
+var_dump(FB_AddHostEntryToFilterProfile(12345, '192.168.201.250', 'filtprof3')); // bool(true)
+```
+
+---
+
+```php
+array|false FB_AddTicketTimeToHostEntryByIP(integer $InstanzID, string $IPv4Address);
+```
+
+Fügt dem Netzwerkgerät ein Online-Ticket (zusätzliche Online-Zeit) hinzu und liefert die Schlüssel `NewTimeUsed`, `NewTimeMax`, `NewTicketsInAdvance` und `NewTicketValid` wie `FB_GetHostEntryByIP`. Ungültige Adressen werden vor dem Senden mit einer Meldung abgelehnt.
+Bei einem Gerät mit dem Profil `Unrestricted` (keine Zeitbegrenzung) lehnt die FritzBox mit `Error code 820: Internal Error` ab. Mit einem zeitbegrenzten Profil nicht getestet.
+
+```php
+var_dump(FB_AddTicketTimeToHostEntryByIP(12345, '192.168.201.10'));
+```
+
 ## 8. Aktionen
 
 **Grundsätzlich können alle bedienbaren Statusvariablen als Ziel einer [`Aktion`](https://www.symcon.de/service/dokumentation/konzepte/automationen/ablaufplaene/aktionen/) mit `Auf Wert schalten` angesteuert werden, so dass hier keine speziellen Aktionen benutzt werden müssen.**

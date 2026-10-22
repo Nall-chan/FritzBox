@@ -111,6 +111,36 @@ class LibraryTest extends TestCaseSymconValidation
         $this->validateModule(__DIR__ . '/../FritzBox UPnP MediaServer');
     }
 
+    public function testValidateAnsweringMachine(): void
+    {
+        $this->validateModule(__DIR__ . '/../FritzBox Answering Machine');
+    }
+
+    public function testValidateDECT(): void
+    {
+        $this->validateModule(__DIR__ . '/../FritzBox DECT');
+    }
+
+    public function testValidateDSLInterface(): void
+    {
+        $this->validateModule(__DIR__ . '/../FritzBox DSL Interface');
+    }
+
+    public function testValidateMobileConnection(): void
+    {
+        $this->validateModule(__DIR__ . '/../FritzBox Mobile Connection');
+    }
+
+    public function testValidateWANFiber(): void
+    {
+        $this->validateModule(__DIR__ . '/../FritzBox WAN Fiber');
+    }
+
+    public function testValidateWANIPv6Firewall(): void
+    {
+        $this->validateModule(__DIR__ . '/../FritzBox WAN IPv6 Firewall');
+    }
+
     public function testValidateWANCommonInterface(): void
     {
         $this->validateModule(__DIR__ . '/../FritzBox WAN Common Interface');

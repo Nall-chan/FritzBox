@@ -269,6 +269,95 @@ class FritzBoxHostFilter extends FritzBoxModulBase
         return $result;
     }
 
+    /**
+     * Liefert die Zugangsprofile der FritzBox.
+     *
+     * @return string|false Liste der Profile, wie von der FritzBox geliefert
+     */
+    public function GetFilterProfiles()
+    {
+        return $this->Send(__FUNCTION__);
+    }
+
+    /**
+     * Liefert ein Zugangsprofil.
+     *
+     * @param string $FilterProfileID ID des Profils, wie von GetFilterProfiles geliefert
+     *
+     * @return string|false
+     */
+    public function GetFilterProfileByID(string $FilterProfileID)
+    {
+        if ($FilterProfileID === '') {
+            $this->ReportError($this->Translate('Invalid profile ID.'));
+            return false;
+        }
+        return $this->Send(__FUNCTION__, [
+            'NewFilterProfileID'=> $FilterProfileID
+        ]);
+    }
+
+    /**
+     * Liefert Hostname, Zugangsprofil, Online-Zeit und Tickets eines Netzwerkgerätes.
+     *
+     * @param string $IPv4Address IPv4-Adresse des Geräts
+     *
+     * @return array|false
+     */
+    public function GetHostEntryByIP(string $IPv4Address)
+    {
+        if (!filter_var($IPv4Address, FILTER_VALIDATE_IP, FILTER_FLAG_IPV4)) {
+            $this->ReportError($this->Translate('Invalid IP address.'));
+            return false;
+        }
+        return $this->Send(__FUNCTION__, [
+            'NewIPv4Address'=> $IPv4Address
+        ]);
+    }
+
+    /**
+     * Weist ein Netzwerkgerät einem Zugangsprofil zu.
+     *
+     * @param string $IPv4Address     IPv4-Adresse des Geräts
+     * @param string $FilterProfileID ID des Profils, wie von GetFilterProfiles geliefert
+     *
+     * @return bool
+     */
+    public function AddHostEntryToFilterProfile(string $IPv4Address, string $FilterProfileID)
+    {
+        if (!filter_var($IPv4Address, FILTER_VALIDATE_IP, FILTER_FLAG_IPV4)) {
+            $this->ReportError($this->Translate('Invalid IP address.'));
+            return false;
+        }
+        if ($FilterProfileID === '') {
+            $this->ReportError($this->Translate('Invalid profile ID.'));
+            return false;
+        }
+        $result = $this->Send(__FUNCTION__, [
+            'NewIPv4Address'    => $IPv4Address,
+            'NewFilterProfileID'=> $FilterProfileID
+        ]);
+        return $result !== false;
+    }
+
+    /**
+     * Fügt einem Netzwerkgerät ein Online-Ticket (zusätzliche Online-Zeit) hinzu.
+     *
+     * @param string $IPv4Address IPv4-Adresse des Geräts
+     *
+     * @return array|false
+     */
+    public function AddTicketTimeToHostEntryByIP(string $IPv4Address)
+    {
+        if (!filter_var($IPv4Address, FILTER_VALIDATE_IP, FILTER_FLAG_IPV4)) {
+            $this->ReportError($this->Translate('Invalid IP address.'));
+            return false;
+        }
+        return $this->Send(__FUNCTION__, [
+            'NewIPv4Address'=> $IPv4Address
+        ]);
+    }
+
     private function UpdateInfo()
     {
         $this->RefreshHostXML();

@@ -1,0 +1,27 @@
+{
+    "id": "{1045A32D-B043-4C2D-A083-76FDE4804FEF}",
+    "caption": "Cancel dialing",
+    "form": [],
+    "action": "FB_DialHangup($_IPS['TARGET']);",
+    "readable": "echo 'FB_DialHangup(' . $_IPS['TARGET'] . ');';",
+    "category": "target",
+    "restrictions": {
+        "objectType": [
+            1
+        ],
+        "moduleID": [
+            "{AD0B22A7-C71C-71DD-A40B-B70334C5AB3C}"
+        ],
+        "includeEnvironments": [
+            "TestCommands",
+            "Default"
+        ]
+    },
+    "locale": {
+        "de": {
+            "Cancel dialing": "Wählvorgang beenden",
+            "Ends a call started with the dialing aid of the FritzBox": "Beendet einen mit der Wählhilfe der FritzBox gestarteten Anruf"
+        }
+    },
+    "description": "Ends a call started with the dialing aid of the FritzBox"
+}

@@ -41,6 +41,8 @@ class GUID
     public const DECT = '{4446C104-4F20-486A-AC47-096E4B1DBAA4}';
     public const DSLInterface = '{D42F6309-DE5D-4EA3-90E6-4B9AA1942D77}';
     public const MobileConnection = '{E9F671F4-64AE-4AA3-83FF-B654F85D3718}';
+    public const WANFiber = '{1A5E713B-DE3D-402F-A2DA-A3EEB3ED9D11}';
+    public const WANIPv6Firewall = '{156C748D-17A9-4648-A125-E74D3E7933DD}';
     public const ClientSocket = '{3CFF0FD9-E306-41DB-9B5A-9D06D38576C3}';
     public const UtilControl = '{B69010EA-96D5-46DF-B885-24821B8C8DBD}';
     public const Store = '{F45B5D1F-56AE-4C61-9AB2-C87C63149EC3}';
@@ -230,11 +232,12 @@ class Services
         'urn:dslforum-org:service:X_AVM-DE_TAM:1'                => [GUID::AnsweringMachine=>0], // Anrufbeantworter
         'urn:dslforum-org:service:X_AVM-DE_WANMobileConnection:1'=> [GUID::MobileConnection=>0], // Mobilfunk
         'urn:dslforum-org:service:Layer3Forwarding:1'            => [], // im IO Enthalten
-        'urn:schemas-upnp-org:service:WANIPv6FirewallControl:1'  => [],
+        'urn:schemas-upnp-org:service:WANIPv6FirewallControl:1'  => [GUID::WANIPv6Firewall=>0], // nur IGD2
+        'urn:dslforum-org:service:X_AVM-DE_WANFiber:1'           => [GUID::WANFiber=>0], // nur Glasfaser-Boxen
         // Ohne eigene Module
+        //'urn:dslforum-org:service:LANEthernetInterfaceConfig:1'  => [], // nur eine nicht zuordenbare Schnittstelle, Zähler passen nicht zum Gesamtverkehr
         //'urn:dslforum-org:service:LANConfigSecurity:1'           => [], // im IO Enthalten -> Fallback für User Anmeldung
         //'urn:dslforum-org:service:DeviceConfig:1'                => [], // im IO Enthalten -> ausbauen?
-        //'urn:dslforum-org:service:LANEthernetInterfaceConfig:1'  => [], // Statistik, unnötig?
         //'urn:dslforum-org:service:WANEthernetLinkConfig:1'       => [], // unnötig?
         //'urn:dslforum-org:service:X_AVM-DE_Speedtest:1'          => [], // unnötig
         //'urn:dslforum-org:service:X_AVM-DE_Auth:1'               => [], // unnötig

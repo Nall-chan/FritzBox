@@ -61,7 +61,7 @@ Unter 'Instanz hinzufügen' ist das 'FritzBox WAN IP-Verbindung'-Modul unter dem
 
 | Eigenschaft              | Name            | Typ     | Standardwert | Beschreibung                                                                                                         |
 | ------------------------ | --------------- | ------- | ------------ | -------------------------------------------------------------------------------------------------------------------- |
-| Dienst                   | Index           | integer | -1           | Genutzter Dienst der FritzBox: `-1` = keiner, `0` = IGD, `1` = IGD2 (vor FRITZ!OS 8.10), `2` = IGD2 (ab FRITZ!OS 8.10) |
+| Dienst                   | Index           | integer | -1           | Genutzter Dienst der FritzBox: `-1` = keiner, `0` = IGD, `1` = IGD2 (ab FRITZ!OS 8.10) |
 | Aktualisierungsintervall | RefreshInterval | integer | 60           | Intervall in Sekunden, in dem die Werte abgefragt werden; `0` = aus                                                  |
 
 Der Dienst wird vom [FritzBox Konfigurator](../FritzBox%20Configurator/README.md) automatisch eingetragen. Die IGD2-Auswahl wird nur angeboten, wenn die FritzBox IGD2 unterstützt.  

@@ -392,6 +392,79 @@ class FritzBoxHosts extends FritzBoxModulBase
         return $result !== false;
     }
 
+    /**
+     * Setzt den in der Oberfläche der FritzBox angezeigten Namen (FriendlyName) eines Netzwerkgeräts.
+     *
+     * @param string $IPAddress    IPv4-Adresse des Geräts
+     * @param string $FriendlyName Neuer Anzeigename
+     *
+     * @return bool
+     */
+    public function SetFriendlyNameByIP(string $IPAddress, string $FriendlyName)
+    {
+        if (!filter_var($IPAddress, FILTER_VALIDATE_IP, FILTER_FLAG_IPV4)) {
+            $this->ReportError($this->Translate('Invalid IP address.'));
+            return false;
+        }
+        $result = $this->Send('X_AVM-DE_SetFriendlyNameByIP', [
+            'NewIPAddress'            => $IPAddress,
+            'NewX_AVM-DE_FriendlyName'=> $FriendlyName
+        ]);
+        return $result !== false;
+    }
+
+    /**
+     * Liefert die Grenzen für Namen und die möglichen Gerätetypen.
+     *
+     * @return array|false
+     */
+    public function GetInfo()
+    {
+        return $this->Send('X_AVM-DE_GetInfo');
+    }
+
+    /**
+     * Setzt den Gerätetyp (Symbol in der Oberfläche der FritzBox) eines Netzwerkgeräts.
+     *
+     * @param string $MACAddress      MAC-Adresse des Geräts (z.B. 00:11:22:AA:BB:CC)
+     * @param string $DeviceClassUser Gerätetyp, einer der Werte aus NewX_AVM-DE_DeviceClassUserPossibleValues von GetInfo
+     *
+     * @return bool
+     */
+    public function SetDeviceClassUserByMAC(string $MACAddress, string $DeviceClassUser)
+    {
+        if (!filter_var($MACAddress, FILTER_VALIDATE_MAC)) {
+            $this->ReportError($this->Translate('Invalid MAC address.'));
+            return false;
+        }
+        $result = $this->Send('X_AVM-DE_SetDeviceClassUserByMAC', [
+            'NewMACAddress'              => $MACAddress,
+            'NewX_AVM-DE_DeviceClassUser'=> $DeviceClassUser
+        ]);
+        return $result !== false;
+    }
+
+    /**
+     * Setzt den Gerätetyp (Symbol in der Oberfläche der FritzBox) eines Netzwerkgeräts.
+     *
+     * @param string $IPAddress       IPv4-Adresse des Geräts
+     * @param string $DeviceClassUser Gerätetyp, einer der Werte aus NewX_AVM-DE_DeviceClassUserPossibleValues von GetInfo
+     *
+     * @return bool
+     */
+    public function SetDeviceClassUserByIP(string $IPAddress, string $DeviceClassUser)
+    {
+        if (!filter_var($IPAddress, FILTER_VALIDATE_IP, FILTER_FLAG_IPV4)) {
+            $this->ReportError($this->Translate('Invalid IP address.'));
+            return false;
+        }
+        $result = $this->Send('X_AVM-DE_SetDeviceClassUserByIP', [
+            'NewIPAddress'               => $IPAddress,
+            'NewX_AVM-DE_DeviceClassUser'=> $DeviceClassUser
+        ]);
+        return $result !== false;
+    }
+
     public function GetAutoWakeOnLANByMACAddress(string $MACAddress)
     {
         $result = $this->Send('X_AVM-DE_GetAutoWakeOnLANByMACAddress', [

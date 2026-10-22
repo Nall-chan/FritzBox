@@ -1,0 +1,40 @@
+{
+    "id": "{3C05387A-3029-4664-976C-BE28045C9C06}",
+    "caption": "Dial number",
+    "form": [
+        {
+            "type": "ValidationTextBox",
+            "name": "PHONENUMBER",
+            "caption": "Phone number",
+            "validate": "^[0-9*#+]+$"
+        }
+    ],
+    "action": "FB_DialNumber($_IPS['TARGET'],$_IPS['PHONENUMBER']);",
+    "readable": [
+        "echo 'FB_DialNumber(' . $_IPS['TARGET'] . ','",
+        ". '\\'' . $_IPS['PHONENUMBER'] . '\\');';"
+    ],
+    "category": "target",
+    "restrictions": {
+        "objectType": [
+            1
+        ],
+        "moduleID": [
+            "{AD0B22A7-C71C-71DD-A40B-B70334C5AB3C}"
+        ],
+        "includeEnvironments": [
+            "TestCommands",
+            "Default"
+        ]
+    },
+    "locale": {
+        "de": {
+            "Dial number": "Rufnummer wählen",
+            "Phone number": "Rufnummer",
+            "Starts a call with the dialing aid of the FritzBox. The phone selected for the dialing aid rings as soon as the connection is established": "Startet einen Anruf mit der Wählhilfe der FritzBox. Das für die Wählhilfe eingestellte Telefon klingelt, sobald die Verbindung steht",
+            "Dial {PHONENUMBER} with {TARGET, object}": "Wähle {PHONENUMBER} mit {TARGET, object}"
+        }
+    },
+    "format": "Dial {PHONENUMBER} with {TARGET, object}",
+    "description": "Starts a call with the dialing aid of the FritzBox. The phone selected for the dialing aid rings as soon as the connection is established"
+}

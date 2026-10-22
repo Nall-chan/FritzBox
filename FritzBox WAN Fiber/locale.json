@@ -1,0 +1,22 @@
+{
+    "translations": {
+        "de": {
+            "Refresh Interval": "Aktualisierungsintervall",
+            "seconds": "Sekunden",
+            "Update Values": "Werte aktualisieren",
+            "Event subscribe error": "Ereignisabonnementfehler",
+            "Invalid Ident.": "Ungültiger Ident.",
+            "This module is free for non-commercial use,\r\nDonations in support of the author are accepted here:": "Dieses Modul ist für die nicht kommerzielle Nutzung kostenlos,\r\nSchenkungen als Unterstützung für den Autor werden hier akzeptiert:",
+            "FritzBox WAN Fiber": "FritzBox Glasfaser-Anschluss",
+            "Fiber mode": "Betriebsart",
+            "Optical signal level": "Optischer Empfangspegel",
+            "Transmit optical level": "Optischer Sendepegel",
+            "Downstream current rate": "Downstream aktuelle Rate",
+            "Upstream current rate": "Upstream aktuelle Rate",
+            "Packet errors sent": "Paketfehler gesendet",
+            "Packet errors received": "Paketfehler empfangen",
+            "Resyncs": "Neusynchronisierungen",
+            "Minutes in showtime": "Minuten im Showtime-Zustand"
+        }
+    }
+}

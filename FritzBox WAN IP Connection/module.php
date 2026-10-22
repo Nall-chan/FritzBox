@@ -8,19 +8,33 @@ class FritzBoxWANIPConnection extends FritzBoxModulBase
 {
     protected static $ControlUrlArray = [
         '/igdupnp/control/WANIPConn1',
-        '/igd2upnp/control/WANIPConn1',
         '/igd2upnp/control/WANIPConn2'
     ];
     protected static $EventSubURLArray = [
         '/igdupnp/control/WANIPConn1',
-        '/igd2upnp/control/WANIPConn1',
         '/igd2upnp/control/WANIPConn2',
     ];
     protected static $ServiceTypeArray = [
         'urn:schemas-upnp-org:service:WANIPConnection:1',
-        'urn:schemas-upnp-org:service:WANIPConnection:2',
         'urn:schemas-upnp-org:service:WANIPConnection:2'
     ];
+
+    /**
+     * Wandelt den früheren Dienst `IGD2 (> FritzOS 8.10)` (Index 2) in `IGD2` (Index 1) um.
+     * Der frühere Dienst `IGD2 (< FritzOS 8.10)` wird nicht mehr unterstützt.
+     *
+     * @param string $JSONData
+     * @return string
+     */
+    public function Migrate($JSONData)
+    {
+        // Als Objekt dekodieren, damit leere Objekte (attributes, buffers) nicht zu [] werden
+        $Data = json_decode($JSONData);
+        if (isset($Data->configuration->{\FritzBox\Base\Property::Index}) && ($Data->configuration->{\FritzBox\Base\Property::Index} == 2)) {
+            $Data->configuration->{\FritzBox\Base\Property::Index} = 1;
+        }
+        return json_encode($Data);
+    }
 
     public function Create()
     {
