@@ -259,10 +259,6 @@ Für das Discovery werden Pakete über die Multicast-Adresse `239.255.255.250` a
 
 ### 2. Changelog
 
-**Version 0.93:**  
-
-- Symcon 9.0 ist jetzt minimum (`library.json`, Link der Versions-Badges auf die Migrationsseite 8.1 → 9.0). Vorbereitung für die Umstellung auf Darstellungen mit Version 1.00.  
-
 **Version 0.92:**  
 
 - Neue Module:
