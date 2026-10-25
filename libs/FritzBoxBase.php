@@ -9,6 +9,7 @@ eval('declare(strict_types=1);namespace FritzBoxModulBase {?>' . file_get_conten
 require_once __DIR__ . '/../libs/FritzBoxModule.php';
 /**
  * @property string $SID
+ * @property string $SubscribedURL EventSubURL, mit der die aktuelle SID angemeldet wurde (die Eigenschaft Index kann sich zwischenzeitlich geändert haben)
  * @property bool $isSubscribed
  * @property int $ParentID
  * @method bool SendDebug(string $Message, mixed $Data, int $Format)
@@ -47,6 +48,7 @@ class FritzBoxModulBase extends IPSModule
         //Never delete this line!
         parent::Create();
         $this->SID = '';
+        $this->SubscribedURL = '';
         $this->ParentID = 0;
         $this->isSubscribed = false;
         $this->ConnectParent(\FritzBox\GUID::FritzBoxIO);
@@ -251,6 +253,7 @@ class FritzBoxModulBase extends IPSModule
         $isNewSubscription = ($this->SID === '');
         // SID sofort merken, damit sie auch bei fehlendem Event wieder abgemeldet werden kann
         $this->SID = $Result['SID'];
+        $this->SubscribedURL = static::$EventSubURLArray[$Index];
         if ($isNewSubscription) {
             if (!$this->WaitForEvent()) {
                 $this->SendDebug('No event after subscribe', static::$EventSubURLArray[$Index], 0);
@@ -627,15 +630,21 @@ class FritzBoxModulBase extends IPSModule
         $this->SendDebug('Unsubscribe', $this->SID, 0);
         $this->isSubscribed = false;
         $SID = $this->SID;
+        $SubscribedURL = $this->SubscribedURL;
         $this->SID = '';
+        $this->SubscribedURL = '';
         if (count(static::$EventSubURLArray) > 0) {
             $this->SetTimerInterval(\FritzBox\Base\Timer::RenewSubscription, 0);
         } else {
             return;
         }
-        $Index = $this->ReadPropertyInteger(\FritzBox\Base\Property::Index);
-        if ($Index < 0) {
-            return;
+        // Mit der URL abmelden, mit der angemeldet wurde: Bei geänderter Eigenschaft Index wäre es sonst die falsche
+        if ($SubscribedURL === '') {
+            $Index = $this->ReadPropertyInteger(\FritzBox\Base\Property::Index);
+            if ($Index < 0) {
+                return;
+            }
+            $SubscribedURL = static::$EventSubURLArray[$Index];
         }
         if (!$this->HasActiveParent()) {
             return;
@@ -645,16 +654,16 @@ class FritzBoxModulBase extends IPSModule
             [
                 'DataID'     => \FritzBox\GUID::SendToFritzBoxIO,
                 'Function'   => \FritzBox\IOFunction::Unsubscribe,
-                'EventSubURL'=> static::$EventSubURLArray[$Index],
+                'EventSubURL'=> $SubscribedURL,
                 'SID'        => $SID
             ]
         ));
         if ($Ret === false) {
-            $this->SendDebug('Error on Unsubscribe (parse)', static::$EventSubURLArray[$Index], 0);
+            $this->SendDebug('Error on Unsubscribe (parse)', $SubscribedURL, 0);
         } else {
             $Result = unserialize($Ret);
             if ($Result === false) {
-                $this->SendDebug('Error on Unsubscribe (Result)', static::$EventSubURLArray[$Index], 0);
+                $this->SendDebug('Error on Unsubscribe (Result)', $SubscribedURL, 0);
             }
             $this->SendDebug('Unsubscribe', $Result, 0);
         }

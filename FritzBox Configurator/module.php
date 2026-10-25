@@ -142,6 +142,10 @@ class FritzBoxConfigurator extends IPSModule
                         if (!in_array($guid, [\FritzBox\GUID::WANPortMapping, \FritzBox\GUID::WANIPv6Firewall]) && ($index == 0) && ($Xml == 'igd2desc.xml')) {
                             $index++;
                         }
+                        if (($guid == \FritzBox\GUID::WANIPConnection) && ($index == 1) && (substr($AddService['url'], -1) == '1')) {
+                            // FRITZ!OS < 8.10: IGD2 bietet nur WANIPConn1, dafür den Dienst IGD verwenden
+                            $index = 0;
+                        }
                         $AddService['type'] = $AddService['type'] . ' (' . $this->Translate(IPS_GetModule($guid)['ModuleName']) . ')';
                         if ($guid == \FritzBox\GUID::AnsweringMachine) {
                             // Ein Service für alle Anrufbeantworter, je Anrufbeantworter eine Instanz

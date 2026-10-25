@@ -6,6 +6,11 @@ require_once __DIR__ . '/../libs/FritzBoxBase.php';
 
 class FritzBoxWANIPConnection extends FritzBoxModulBase
 {
+    /**
+     * Stand der Konfigurationsmigration (1 = ab Version 0.93: Index 0 = IGD, 1 = IGD2).
+     */
+    private const CurrentMigrationVersion = 1;
+
     protected static $ControlUrlArray = [
         '/igdupnp/control/WANIPConn1',
         '/igd2upnp/control/WANIPConn2'
@@ -20,8 +25,10 @@ class FritzBoxWANIPConnection extends FritzBoxModulBase
     ];
 
     /**
-     * Wandelt den früheren Dienst `IGD2 (> FritzOS 8.10)` (Index 2) in `IGD2` (Index 1) um.
-     * Der frühere Dienst `IGD2 (< FritzOS 8.10)` wird nicht mehr unterstützt.
+     * Stellt die Dienste früherer Versionen auf `IGD` (0) bzw. `IGD2` (1) um.
+     * Ohne das Attribut `MigrationVersion` stammt die Instanz aus einer Version vor 0.93:
+     * - Index 1 (`IGD2 (< FritzOS 8.10)`, in 0.91/0.92 kurzzeitig `IGD2`) wird `IGD` (0), da IGD auf allen Boxen funktioniert.
+     * - Index 2 (`IGD2 (> FritzOS 8.10)`) wird `IGD2` (1).
      *
      * @param string $JSONData
      * @return string
@@ -30,8 +37,21 @@ class FritzBoxWANIPConnection extends FritzBoxModulBase
     {
         // Als Objekt dekodieren, damit leere Objekte (attributes, buffers) nicht zu [] werden
         $Data = json_decode($JSONData);
-        if (isset($Data->configuration->{\FritzBox\Base\Property::Index}) && ($Data->configuration->{\FritzBox\Base\Property::Index} == 2)) {
-            $Data->configuration->{\FritzBox\Base\Property::Index} = 1;
+        if (!isset($Data->attributes) || !is_object($Data->attributes)) {
+            $Data->attributes = new stdClass();
+        }
+        if (!property_exists($Data->attributes, \FritzBox\WANIPConnection\Attribute::MigrationVersion)) {
+            if (isset($Data->configuration->{\FritzBox\Base\Property::Index})) {
+                switch ($Data->configuration->{\FritzBox\Base\Property::Index}) {
+                    case 1:
+                        $Data->configuration->{\FritzBox\Base\Property::Index} = 0;
+                        break;
+                    case 2:
+                        $Data->configuration->{\FritzBox\Base\Property::Index} = 1;
+                        break;
+                }
+            }
+            $Data->attributes->{\FritzBox\WANIPConnection\Attribute::MigrationVersion} = self::CurrentMigrationVersion;
         }
         return json_encode($Data);
     }
@@ -41,6 +61,7 @@ class FritzBoxWANIPConnection extends FritzBoxModulBase
         //Never delete this line!
         parent::Create();
 
+        $this->RegisterAttributeInteger(\FritzBox\WANIPConnection\Attribute::MigrationVersion, self::CurrentMigrationVersion);
         $this->RegisterPropertyInteger(\FritzBox\Base\Property::RefreshInterval, 60);
         $this->RegisterTimer(\FritzBox\Base\Timer::RefreshInfo, 0, 'IPS_RequestAction(' . $this->InstanceID . ',"' . \FritzBox\Base\Action::RefreshInfo . '",true);');
     }

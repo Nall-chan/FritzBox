@@ -484,6 +484,11 @@ namespace FritzBox\WANDSLLink {
 }
 
 namespace FritzBox\WANIPConnection {
+    class Attribute
+    {
+        public const MigrationVersion = 'MigrationVersion';
+    }
+
     class Variables
     {
         public const ConnectionAction = 'ConnectionAction';

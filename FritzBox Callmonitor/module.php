@@ -246,6 +246,12 @@ class FritzBoxCallmonitor extends FritzBoxModulBase
         $this->lock('CallData');
         $Calls = $this->CallData;
 
+        // CONNECT und DISCONNECT ohne vorheriges RING/CALL (z.B. nach Neustart oder Neuladen des Moduls während eines Gesprächs) können nicht zugeordnet werden
+        if (in_array($CallEvent[1], ['CONNECT', 'DISCONNECT']) && !array_key_exists($CallEvent[2], $Calls)) {
+            $this->unlock('CallData');
+            $this->SendDebug('Unknown call ID', $CallEvent[2], 0);
+            return true;
+        }
         $Calls[$CallEvent[2]]['Status'] = $CallEvent[1];
         switch ($CallEvent[1]) {
             case 'RING': // Ankommend klingelt

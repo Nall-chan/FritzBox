@@ -259,6 +259,15 @@ Für das Discovery werden Pakete über die Multicast-Adresse `239.255.255.250` a
 
 ### 2. Changelog
 
+**Version 0.93:**  
+
+> [!IMPORTANT]
+> `IGD2` in der Instanz `FritzBox WAN IP-Verbindung` wird nur von FRITZ!OS ab 8.10 unterstützt. Instanzen mit dem früheren Dienst `IGD2 (< FritzOS 8.10)`, sowie Instanzen die in 0.91/0.92 auf `IGD2` eingestellt waren, werden beim Update auf `IGD` umgestellt (`IGD` funktioniert mit allen FritzBoxen). Wer eine FritzBox ab FRITZ!OS 8.10 hat und `IGD2` nutzen möchte, wählt dies danach in der Instanz wieder aus.
+
+- FritzBox WAN IP-Verbindung: Instanzen an FritzBoxen vor FRITZ!OS 8.10 (z.B. 7580 mit 7.30) meldeten seit 0.91 `Error on subscribe (HTTP/1.1 404 Not Found)`. Der FritzBox Konfigurator schlägt bei diesen FritzBoxen jetzt den Dienst `IGD` vor.  
+- Alle Module mit Ereignissen: Beim Ändern des Dienstes (Eigenschaft `Index`) blieb die alte Anmeldung an den Ereignissen in der FritzBox bis zum Ablauf bestehen.  
+- FritzBox Anrufmonitor: Ereignisse zu einem Anruf, dessen Beginn die Instanz nicht erhalten hat (z.B. nach einem Neustart oder Neuladen des Moduls während des Gesprächs), führten zu den Fehlern `Undefined array key "Type"` und `str_replace(): Argument #3 ($subject) must be of type array|string, null given`.  
+
 **Version 0.92:**  
 
 - Neue Module:
@@ -273,7 +282,6 @@ Für das Discovery werden Pakete über die Multicast-Adresse `239.255.255.250` a
 - FritzBox Host Filter: Neue Funktionen `FB_GetFilterProfiles`, `FB_GetFilterProfileByID`, `FB_GetHostEntryByIP`, `FB_AddHostEntryToFilterProfile` und `FB_AddTicketTimeToHostEntryByIP` für die Zugangsprofile und Online-Tickets.  
 - FritzBox Netzwerkgeräte: Neue Funktionen `FB_SetFriendlyNameByIP`, `FB_GetInfo`, `FB_SetDeviceClassUserByMAC` und `FB_SetDeviceClassUserByIP`.  
 - FritzBox WAN IP-Verbindung: Der Workaround für FRITZ!OS vor 8.10 (`IGD2 (< FritzOS 8.10)`) wurde entfernt, unterstützt wird nur noch ab FRITZ!OS 8.10. Die Auswahl heißt jetzt `IGD2`; bestehende Instanzen mit dem bisherigen Dienst `IGD2 (> FritzOS 8.10)` werden automatisch umgestellt. Dadurch zeigt auch der Konfigurator den Dienst wieder korrekt an.  
-- FritzBox DSL-Schnittstelle: Dokumentation ergänzt; Störabstand/Dämpfung in 0,1 dB bestätigt.  
 - FritzBox IO: Der Client Socket wird als übergeordnete Instanz nur noch angeboten, wenn der Anrufmonitor-Port (1012) der FritzBox erreichbar ist.  
 
 **Version 0.90:**  
@@ -302,10 +310,6 @@ Für das Discovery werden Pakete über die Multicast-Adresse `239.255.255.250` a
 - FritzBox WAN Port-Weiterleitung: `FB_GetGenericPortMappingEntry` lieferte internen und externen Port vertauscht. Dadurch wurde beim Schalten einer Weiterleitung mit unterschiedlichen Ports die Weiterleitung mit vertauschten Ports neu angelegt. Die Idents der Statusvariablen bleiben unverändert.
 - FritzBox Telefonie: `FB_DeleteCallBarringEntryUID` sendete einen falschen Parameter. **Geänderte Signatur:** `FB_DeleteCallBarringEntryUID(integer $InstanzID, integer $PhonebookEntryUniqueID)`.
 - Einheitliche Rückgabewerte: `FB_SetFilelinkEntry`, `FB_DeleteFilelinkEntry`, `FB_SetHostNameByMACAddress`, `FB_WakeOnLANByMACAddress`, `FB_HostsCheckUpdate`, `FB_HostDoUpdate`, `FB_DoUpdate`, `FB_UpdatePowerlineDevice`, `FB_DeletePortMapping`, `FB_ForceTermination`, `FB_RequestTermination`, `FB_RequestConnection`, `FB_SetIdleDisconnectTime`, `FB_SetAutoDisconnectTime` und `FB_SetWarnDisconnectDelay` liefern bei Erfolg jetzt `true` (vorher `null` bzw. die Antwort der FritzBox).
-- Dokumentation aller Module überarbeitet: Eigenschaften mit Standardwerten, vollständige PHP-Befehlsreferenz mit Beispielen, Screenshots der Kachel Visualisierung.
-- Dokumentation FritzBox IO: Statuscodes der Instanz beschrieben.  
-- Dokumentation FritzBox Anrufmonitor: Werte in `$_IPS` für Skripte, die als Aktion bei Ereignissen ausgeführt werden.  
-- Intern: Idents, Property-, Attribut- und Timernamen sind jetzt Konstanten (`libs/FritzBoxConstants.php`). Die Werte sind unverändert, bestehende Instanzen sind nicht betroffen.  
 
 **Version 0.88:**  
 
@@ -319,15 +323,11 @@ Für das Discovery werden Pakete über die Multicast-Adresse `239.255.255.250` a
 - FritzBox Discovery: Link-local IPv6-Adressen (`fe80::`) werden beim Erstellen nicht mehr angeboten, da sie ohne Zonen-ID nicht nutzbar sind.  
 - FritzBox IO: Ohne Passwort meldete die Instanz „Verbindung hergestellt“, obwohl keine Verbindung aufgebaut wurde. Jetzt wird der Status „Passwort fehlt“ angezeigt.  
 - FritzBox IO: Statusmeldungen korrigiert. Eine ungültige URL wurde als „Gerät nicht erreichbar“ und ein nicht gefundener Dienst als „URL ist ungültig“ angezeigt. Eine ungültige URL hat jetzt den eigenen Status 206.  
-- Dokumentation FritzBox IO und Discovery: Hinweis auf den Client Socket für den Anrufmonitor und die Meldung „Eine übergeordnete Instanz ist inaktiv“, solange kein Anrufmonitor existiert.  
 - FritzBox Konfigurator: Ist die FritzBox IO nicht aktiv, weist der Konfigurator auf deren Konfiguration hin und bietet einen Button zum Öffnen der IO an.  
 - FritzBox Telefonie: Die Anrufliste wird nur noch dann ausschließlich über den Anrufmonitor aktualisiert, wenn dessen Client Socket aktiv ist. Bisher reichte ein vorhandener Client Socket.  
 - FritzBox Anrufmonitor: Länder- und Ortsvorwahl werden nur noch einmalig beim Anlegen der Instanz aus der FritzBox übernommen und danach nicht mehr bei jedem Übernehmen überschrieben. Neuer Button `Vorwahlen ändern` zum erneuten Auslesen oder manuellen Bearbeiten. Fehlte die Ortsvorwahl, wurde bisher nur das Feld der Ländervorwahl freigegeben.  
 - Der Debug der Instanzen enthält keine Zugangsdaten und Schlüssel mehr im Klartext. Der `Authorization`-Header sowie Passwörter, WLAN-Passphrase, PSK, WEP-Schlüssel, PINs und die Session-ID (`sid`) in URLs der FritzBox werden als `***` ausgegeben.  
-- Hinweise wie „Nur Regeln welche den Symcon Host als Ziel haben können verändert werden.“ (MyFritz, WAN Port-Weiterleitung) werden beim Schalten jetzt direkt in der Visualisierung angezeigt. Fehler beim Anmelden der Ereignisse werden übersetzt und als Notice statt als Warning gemeldet.  
-- Fehler beim Schalten von Statusvariablen werden jetzt direkt in der Visualisierung angezeigt. Bei Aufrufen aus Skripten werden sie als Notice ohne Stacktrace gemeldet (bisher Warning mit Stacktrace).  
-- Dokumentation FritzBox WAN IP Connection: Hinweis auf die ab FRITZ!OS 8.25 notwendige Einstellung „Selbstständige Portfreigaben“ zum Trennen der Internetverbindung, auch in dieser README unter „Vorbereitungen in der FritzBox“.  
-- Lizenz geändert: Statt CC BY-NC-SA 4.0 gilt jetzt die eigene Lizenz „Custom NC-SA“ (siehe [LICENSE](LICENSE)), wie bei der Kodi-Library. Nutzung und Weitergabe bleiben frei, Änderungen müssen unter derselben Lizenz weitergegeben werden, der Verkauf der Software ist nicht erlaubt. Dienstleistungen wie Installation und Einrichtung sind ausdrücklich erlaubt.  
+- Hinweise wie „Nur Regeln welche den Symcon Host als Ziel haben können verändert werden.“ (MyFritz, WAN Port-Weiterleitung) werden beim Schalten jetzt direkt in der Visualisierung angezeigt.
 
 **Version 0.87:**  
 
@@ -342,7 +342,6 @@ Für das Discovery werden Pakete über die Multicast-Adresse `239.255.255.250` a
 **Version 0.85:**  
 
 - Symcon 7.1 mit PHP 8.2 ist jetzt minimum.  
-- Submodule und Support Links aktualisiert.  
 - Workaround für FritzOS 8.10 bei der Instanz `FritzBox WAN IP-Verbindung`.  
 - Übersetzungen ergänzt.  
   
@@ -367,7 +366,6 @@ Für das Discovery werden Pakete über die Multicast-Adresse `239.255.255.250` a
 - Fehlerhafte Übersetzungen bei DVB-C, DynDNS behoben.  
 - Diverse fehlende Übersetzungen ergänzt.
 - Dynamisches Konfigurationsformular im Anrufmonitor war nicht komplett.  
-- Dokumentation erstellt.  
 
 **Version 0.79:**  
 
