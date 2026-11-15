@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace FritzBox;
 
 require_once __DIR__ . '/FritzBoxConstants.php';
+require_once __DIR__ . '/FritzBoxParser.php';
 
 class GUID
 {

@@ -660,6 +660,12 @@ namespace FritzBox\MobileConnection {
         public const SignalRSRP0 = 'SignalRSRP0';
         public const SignalRSRP1 = 'SignalRSRP1';
     }
+
+    class Profile
+    {
+        /** RSRP in ganzen dBm (i4), Integer-Profil. */
+        public const Dbm = 'FB.dBm';
+    }
 }
 
 namespace FritzBox\WANFiber {
@@ -674,6 +680,14 @@ namespace FritzBox\WANFiber {
         public const PacketErrorsReceived = 'PacketErrorsReceived';
         public const Resyncs = 'Resyncs';
         public const MinutesInShowtime = 'MinutesInShowtime';
+    }
+
+    class Profile
+    {
+        /** Optische Pegel in dBm (Rohwert dBm/1000 umgerechnet), Float-Profil. */
+        public const Dbm = 'FB.dBm.Float';
+        /** Bis 0.93 genutztes Float-Profil, kollidierte mit dem Integer-Profil der Mobilfunk-Instanz. */
+        public const LegacyDbm = 'FB.dBm';
     }
 }
 

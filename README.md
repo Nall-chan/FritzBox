@@ -259,6 +259,14 @@ Für das Discovery werden Pakete über die Multicast-Adresse `239.255.255.250` a
 
 ### 2. Changelog
 
+**Version 0.94:**  
+
+- FritzBox WAN Fiber und FritzBox Mobile Connection: Beide Module registrierten das Variablenprofil `FB.dBm`, WAN Fiber als Float, Mobile Connection als Integer. Wurden beide Module genutzt, scheiterte die zweite Instanz mit `Variable profile type does not match for profile FB.dBm`. WAN Fiber nutzt jetzt das eigene Profil `FB.dBm.Float`. Vorhandene Instanzen stellen ihre Pegel-Variablen beim Übernehmen bzw. nach dem Update um und löschen das alte Float-Profil `FB.dBm`, sofern keine andere Variable es nutzt.  
+- Alle Module: Lief beim Neuladen des Moduls ein Timer, bevor die Instanz bereit war, kam es zum Fehler `SendEx(): Argument #2 ($Index) must be of type int, false given`.  
+- FritzBox Telefonie und FritzBox Anrufmonitor: Ist die eingestellte Instanz der Rückwärtssuche gelöscht, erzeugte jeder unbekannte Anrufer die Warnung `Instance #… does not exist`. Der Name bleibt jetzt „unbekannt“, der Hinweis steht nur im Debug.  
+- FritzBox Telefonie und FritzBox Anrufmonitor: Die maximale Länge von Namen zählt jetzt Zeichen statt Bytes. Bisher konnte das Kürzen ein Umlaut-Zeichen zerteilen.  
+- FritzBox Dateifreigabe: Die Liste der Icons im Formular hieß „Icon für Typ des Anrufes“, jetzt „Icons für Dateityp und Linkstatus“.  
+
 **Version 0.93:**  
 
 > [!IMPORTANT]

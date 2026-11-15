@@ -57,7 +57,7 @@ Unter 'Instanz hinzufügen' ist das 'FritzBox Dateifreigabe'-Modul unter dem Her
 | -------------------------------- | --------------- | ------- | ------------ | ------------------------------------------------------------------------------------- |
 | Zeige Freigaben als HTML-Tabelle | SharesAsTable   | boolean | false        | Ausgabe der Dateifreigaben als HTML-Tabelle in der Statusvariable `Dateifreigaben`     |
 | Aktualisierungsintervall         | RefreshInterval | integer | 3600         | Intervall in Sekunden, in dem die Tabelle neu erzeugt wird; `0` = aus                 |
-| Icon für Typ des Anrufes         | Icons           | string  | vordefiniert | Icons für die Spalten Icon und Valid (die Beschriftung im Formular ist irreführend)   |
+| Icons für Dateityp und Linkstatus | Icons          | string  | vordefiniert | Icons für die Spalten Icon (Datei/Ordner) und Valid (Link gültig/abgelaufen)          |
 | Darstellung Tabelle              | Table           | string  | vordefiniert | HTML/CSS Konfiguration der HTML-Tabelle                                               |
 | Spalten                          | Columns         | string  | vordefiniert | HTML/CSS Konfiguration der Spalten (pro Spalte)                                       |
 | Zeilen                           | Rows            | string  | vordefiniert | HTML/CSS Konfiguration der Zeilen (Überschrift, gerade und ungerade)                  |

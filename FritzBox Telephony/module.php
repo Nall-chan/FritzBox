@@ -776,7 +776,7 @@ class FritzBoxTelephony extends FritzBoxModulBase
             return false;
         }
         try {
-            $CallLog = new \simpleXMLElement(trim($XMLData));
+            $Calls = \FritzBox\CallLog::Parse($XMLData);
         } catch (\Throwable $th) {
             $this->SendDebug('XML decode error', $XMLData, 0);
             $this->SendDebug('XML decode trace', $th->getTrace(), 0);
@@ -789,56 +789,31 @@ class FritzBoxTelephony extends FritzBoxModulBase
         $MaxNameSize = $this->ReadPropertyInteger(\FritzBox\TelHelper\Property::MaxNameSize);
         $UnknownName = $this->ReadPropertyString(\FritzBox\TelHelper\Property::UnknownNumberName);
         $SearchMarker = $this->ReadPropertyString(\FritzBox\Telephony\Property::SearchMarker);
-        $this->SendDebug('count(Call)', count($CallLog->Call), 0);
-        for ($i = 0; $i < count($CallLog->Call); $i++) {
-            $Data[$i]['Name'] = (string) $CallLog->Call[$i]->Name;
-            if ((int) $CallLog->Call[$i]->Type == self::Call_Outgoing) {
-                $Data[$i]['Caller'] = str_replace(strtoupper((string) $CallLog->Call[$i]->Numbertype) . ': ', '', (string) $CallLog->Call[$i]->Caller);
-                $Data[$i]['Called'] = (string) $CallLog->Call[$i]->Called;
-                $Data[$i]['Number'] = (string) $CallLog->Call[$i]->Called;
-                if ($Data[$i]['Name'] == '') {
-                    $Data[$i]['Name'] = $this->DoReverseSearch($Data[$i]['Called'], $SearchMarker, $UnknownName, $MaxNameSize);
-                } else {
-                    if (strlen($Data[$i]['Name']) > $MaxNameSize) {
-                        $Data[$i]['Name'] = substr($Data[$i]['Name'], 0, $MaxNameSize);
-                    }
-                }
+        $this->SendDebug('count(Call)', count($Calls), 0);
+        foreach ($Calls as $i => $Call) {
+            $Data[$i]['Name'] = $Call['Name'];
+            $Data[$i]['Caller'] = $Call['Caller'];
+            $Data[$i]['Called'] = $Call['Called'];
+            $Data[$i]['Number'] = $Call['Number'];
+            if (($Call['Type'] != self::Call_Outgoing) && ($Call['Caller'] == '')) {
+                $Data[$i]['Name'] = $UnknownName;
+            } elseif ($Data[$i]['Name'] == '') {
+                $Data[$i]['Name'] = $this->DoReverseSearch($Call['Number'], $SearchMarker, $UnknownName, $MaxNameSize);
             } else {
-                $Data[$i]['Caller'] = (string) $CallLog->Call[$i]->Caller;
-                $Data[$i]['Called'] = str_replace(strtoupper((string) $CallLog->Call[$i]->Numbertype) . ': ', '', (string) $CallLog->Call[$i]->Called);
-                if ($Data[$i]['Caller'] == '') {
-                    $Data[$i]['Name'] = $UnknownName;
-                } else {
-                    if ($Data[$i]['Name'] == '') {
-                        $Data[$i]['Name'] = $this->DoReverseSearch($Data[$i]['Caller'], $SearchMarker, $UnknownName, $MaxNameSize);
-                    } else {
-                        if (strlen($Data[$i]['Name']) > $MaxNameSize) {
-                            $Data[$i]['Name'] = substr($Data[$i]['Name'], 0, $MaxNameSize);
-                        }
-                    }
-                }
-                $Data[$i]['Number'] = (string) $CallLog->Call[$i]->Caller;
+                $Data[$i]['Name'] = \FritzBox\Phonebook::TruncateName($Data[$i]['Name'], $MaxNameSize);
             }
             $Data[$i]['Name'] = str_replace('{ICON}', '<div class="Icon' . $this->InstanceID . self::FoundMarker . '"></div>', $Data[$i]['Name']);
-            //$CallLog->Call[$i]->addChild("Fax"); // leeren FAX Eintrag erzeugen.
             $Data[$i]['Fax'] = '';
-            // Fax-Anruf ?
-            if ((int) $CallLog->Call[$i]->Port == 5) {
-                $Data[$i]['Type'] = self::Call_Fax; //self::Call_Tam_Deleted; // vorbelegen mit Fax schon gelöscht
-                //$Data[$i]['Called'] = (string)$CallLog->Call[$i]->Device;
-                //$Data[$i]['Duration'] = "---";  // Warum auch immer ist die Dauer immer 0:01 auch bei FAX
-
-                /*if (strlen((string)$CallLog->Call[$i]->Path) <> 0) {
-                    $Data[$i]['Fax'] = "1"; // FAX-Eintrag ist vorhanden !
-                    //$CallLog->Call[$i]->Path =  $AB_URL."?fax=".urlencode((string)$CallLog->Call[$i]->Path);// URL-Anpassen
-                    $Data[$i]['Type'] = self::Call_Fax;
-                }*/
+            // Fax-Anruf (Port 5 laut AVM)
+            if ($Call['Port'] == \FritzBox\CallLog::PortFax) {
+                $Data[$i]['Type'] = self::Call_Fax;
+                // Die Dauer ist bei Fax immer 0:01, daher nicht angezeigt.
             } else {
-                $Data[$i]['Type'] = (int) $CallLog->Call[$i]->Type;
-                $Data[$i]['Duration'] = (string) $CallLog->Call[$i]->Duration;
+                $Data[$i]['Type'] = $Call['Type'];
+                $Data[$i]['Duration'] = $Call['Duration'];
             }
             $Data[$i]['Icon'] = '<div class="Icon' . $this->InstanceID . $Data[$i]['Type'] . '"></div>';
-            $Time = (string) $CallLog->Call[$i]->Date;
+            $Time = $Call['Date'];
             if ($this->ReadPropertyBoolean(\FritzBox\Telephony\Property::UseRelativDate)) {
                 $TimeParts = explode(' ', $Time);
                 list($day, $mon, $year) = explode('.', $TimeParts[0]);
@@ -850,9 +825,9 @@ class FritzBoxTelephony extends FritzBoxModulBase
                 }
             }
             $Data[$i]['Date'] = $Time;
-            $this->SendDebug('Date', (string) $CallLog->Call[$i]->Date, 0);
-            $Data[$i]['Device'] = (string) $CallLog->Call[$i]->Device;
-            $PhoneDevices[(int) $CallLog->Call[$i]->Port] = (string) $CallLog->Call[$i]->Device;
+            $this->SendDebug('Date', $Call['Date'], 0);
+            $Data[$i]['Device'] = $Call['Device'];
+            $PhoneDevices[$Call['Port']] = $Call['Device'];
         }
         $this->SetPhoneDevices($PhoneDevices);
         $Config_Icons = json_decode($this->ReadPropertyString(\FritzBox\Telephony\Property::Icons), true);

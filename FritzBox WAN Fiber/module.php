@@ -28,7 +28,7 @@ class FritzBoxWANFiber extends FritzBoxModulBase
         //Never delete this line!
         parent::Create();
         $this->RegisterProfileInteger('FB.kBit', '', '', ' kBit/s', 0, 0, 0);
-        $this->RegisterProfileFloat('FB.dBm', '', '', ' dBm', 0, 0, 0, 2);
+        $this->RegisterProfileFloat(\FritzBox\WANFiber\Profile::Dbm, '', '', ' dBm', 0, 0, 0, 2);
         $this->RegisterPropertyInteger(\FritzBox\Base\Property::RefreshInterval, 60);
         $this->RegisterTimer(\FritzBox\Base\Timer::RefreshInfo, 0, 'IPS_RequestAction(' . $this->InstanceID . ',"' . \FritzBox\Base\Action::RefreshInfo . '",true);');
     }
@@ -36,7 +36,7 @@ class FritzBoxWANFiber extends FritzBoxModulBase
     public function Destroy()
     {
         if (!IPS_InstanceExists($this->InstanceID)) {
-            $this->UnregisterProfile('FB.dBm');
+            $this->UnregisterProfile(\FritzBox\WANFiber\Profile::Dbm);
         }
         //Never delete this line!
         parent::Destroy();
@@ -47,6 +47,7 @@ class FritzBoxWANFiber extends FritzBoxModulBase
         $this->SetTimerInterval(\FritzBox\Base\Timer::RefreshInfo, 0);
         parent::ApplyChanges();
         $this->SetTimerInterval(\FritzBox\Base\Timer::RefreshInfo, $this->ReadPropertyInteger(\FritzBox\Base\Property::RefreshInterval) * 1000);
+        $this->MigrateDbmProfile();
         if (IPS_GetKernelRunlevel() != KR_READY) {
             return;
         }
@@ -97,6 +98,38 @@ class FritzBoxWANFiber extends FritzBoxModulBase
         return $this->Send(__FUNCTION__);
     }
 
+    /**
+     * Bis 0.93 nutzten die Pegel das Float-Profil FB.dBm, das mit dem gleichnamigen
+     * Integer-Profil der Mobilfunk-Instanz kollidierte. Stellt die eigenen Pegel-Variablen auf
+     * FB.dBm.Float um und löscht das alte Profil, wenn es vom Typ Float ist und keine andere
+     * Variable es nutzt. Ein Integer-Profil FB.dBm gehört der Mobilfunk-Instanz und bleibt.
+     */
+    private function MigrateDbmProfile(): void
+    {
+        $Legacy = \FritzBox\WANFiber\Profile::LegacyDbm;
+        if (!IPS_VariableProfileExists($Legacy)) {
+            return;
+        }
+        if (IPS_GetVariableProfile($Legacy)['ProfileType'] != VARIABLETYPE_FLOAT) {
+            return;
+        }
+        $Levels = [
+            \FritzBox\WANFiber\Variables::OpticalSignalLevel   => ['Optical signal level', 2],
+            \FritzBox\WANFiber\Variables::TransmitOpticalLevel => ['Transmit optical level', 3]
+        ];
+        foreach ($Levels as $Ident => [$Name, $Position]) {
+            $VariableID = @$this->GetIDForIdent($Ident);
+            if (($VariableID === false) || ($VariableID === 0)) {
+                continue;
+            }
+            if (IPS_GetVariable($VariableID)['VariableProfile'] != $Legacy) {
+                continue;
+            }
+            $this->MaintainVariable($Ident, $this->Translate($Name), VARIABLETYPE_FLOAT, \FritzBox\WANFiber\Profile::Dbm, $Position, true);
+        }
+        $this->UnregisterProfile($Legacy);
+    }
+
     private function UpdateInfo()
     {
         $Info = $this->GetInfo();
@@ -105,8 +138,8 @@ class FritzBoxWANFiber extends FritzBoxModulBase
         }
         $this->setIPSVariable(\FritzBox\WANFiber\Variables::FiberMode, 'Fiber mode', (string) $Info['NewFiberMode'], VARIABLETYPE_STRING, '', false, 1);
         // dBm/1000 laut AVM
-        $this->setIPSVariable(\FritzBox\WANFiber\Variables::OpticalSignalLevel, 'Optical signal level', (int) $Info['NewOpticalSignalLevel'] / 1000, VARIABLETYPE_FLOAT, 'FB.dBm', false, 2);
-        $this->setIPSVariable(\FritzBox\WANFiber\Variables::TransmitOpticalLevel, 'Transmit optical level', (int) $Info['NewTransmitOpticalLevel'] / 1000, VARIABLETYPE_FLOAT, 'FB.dBm', false, 3);
+        $this->setIPSVariable(\FritzBox\WANFiber\Variables::OpticalSignalLevel, 'Optical signal level', (int) $Info['NewOpticalSignalLevel'] / 1000, VARIABLETYPE_FLOAT, \FritzBox\WANFiber\Profile::Dbm, false, 2);
+        $this->setIPSVariable(\FritzBox\WANFiber\Variables::TransmitOpticalLevel, 'Transmit optical level', (int) $Info['NewTransmitOpticalLevel'] / 1000, VARIABLETYPE_FLOAT, \FritzBox\WANFiber\Profile::Dbm, false, 3);
         // Zähler sind optional, Fehler nur im Debug
         $Stats = @$this->GetStatistics();
         if ($Stats === false) {

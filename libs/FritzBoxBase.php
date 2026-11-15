@@ -369,8 +369,10 @@ class FritzBoxModulBase extends IPSModule
 
     protected function Send(string $Function, array $Parameter = [])
     {
-        $Index = $this->ReadPropertyInteger(\FritzBox\Base\Property::Index);
-        if ($Index < 0) {
+        // Während module_reload kann ein Timer laufen, bevor die Instanz bereit ist;
+        // ReadPropertyInteger liefert dann false („InstanceInterface is not available“).
+        $Index = @$this->ReadPropertyInteger(\FritzBox\Base\Property::Index);
+        if (!is_int($Index) || ($Index < 0)) {
             return false;
         }
         return $this->SendEx($Function, $Index, $Parameter);

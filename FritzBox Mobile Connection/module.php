@@ -24,7 +24,7 @@ class FritzBoxMobileConnection extends FritzBoxModulBase
     {
         //Never delete this line!
         parent::Create();
-        $this->RegisterProfileInteger('FB.dBm', '', '', ' dBm', 0, 0, 0);
+        $this->RegisterProfileInteger(\FritzBox\MobileConnection\Profile::Dbm, '', '', ' dBm', 0, 0, 0);
         $this->RegisterPropertyInteger(\FritzBox\Base\Property::RefreshInterval, 60);
         $this->RegisterTimer(\FritzBox\Base\Timer::RefreshInfo, 0, 'IPS_RequestAction(' . $this->InstanceID . ',"' . \FritzBox\Base\Action::RefreshInfo . '",true);');
     }
@@ -138,10 +138,10 @@ class FritzBoxMobileConnection extends FritzBoxModulBase
         $this->setIPSVariable(\FritzBox\MobileConnection\Variables::Roaming, 'Roaming', (bool) $Ex['NewRoaming'], VARIABLETYPE_BOOLEAN, '~Switch', false, 4);
         // 0 ist kein gültiger RSRP-Wert, sondern 'keine Verbindung': letzten Wert behalten
         if ((int) $Ex['NewSignalRSRP0'] != 0) {
-            $this->setIPSVariable(\FritzBox\MobileConnection\Variables::SignalRSRP0, 'Signal RSRP antenna 1', (int) $Ex['NewSignalRSRP0'], VARIABLETYPE_INTEGER, 'FB.dBm', false, 5);
+            $this->setIPSVariable(\FritzBox\MobileConnection\Variables::SignalRSRP0, 'Signal RSRP antenna 1', (int) $Ex['NewSignalRSRP0'], VARIABLETYPE_INTEGER, \FritzBox\MobileConnection\Profile::Dbm, false, 5);
         }
         if ((int) $Ex['NewSignalRSRP1'] != 0) {
-            $this->setIPSVariable(\FritzBox\MobileConnection\Variables::SignalRSRP1, 'Signal RSRP antenna 2', (int) $Ex['NewSignalRSRP1'], VARIABLETYPE_INTEGER, 'FB.dBm', false, 6);
+            $this->setIPSVariable(\FritzBox\MobileConnection\Variables::SignalRSRP1, 'Signal RSRP antenna 2', (int) $Ex['NewSignalRSRP1'], VARIABLETYPE_INTEGER, \FritzBox\MobileConnection\Profile::Dbm, false, 6);
         }
         return true;
     }

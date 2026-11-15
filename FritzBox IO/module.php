@@ -388,12 +388,7 @@ class FritzBoxIO extends IPSModule
             $this->isSubscribed = true;
         }
         try {
-            $xml = new \simpleXMLElement(trim($Data));
-            $xml->registerXPathNamespace('event', $xml->getNameSpaces(false)['e']);
-            $xmlPropertys = $xml->xpath('//event:property');
-            foreach ($xmlPropertys as $property) {
-                $Propertys[str_replace('-', '_', $property->Children()->GetName())] = (string) $property->Children();
-            }
+            $Propertys = \FritzBox\EventParser::Parse($Data);
         } catch (\Throwable $th) {
             $this->SendDebug('EVENT DECODE ERROR', $th->getTrace(), 0);
             $this->LogMessage($th->getMessage(), KL_ERROR);

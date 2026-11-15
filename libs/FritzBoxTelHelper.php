@@ -91,76 +91,43 @@ trait TelHelper
         }
 
         if ($ReverseSearchInstanceID > 1) {
+            // Gelöschte Instanz der Rückwärtssuche: keine Warnung bei jedem Anruf, nur Debug.
+            if (!IPS_InstanceExists($ReverseSearchInstanceID)) {
+                $this->SendDebug('Reverse search', 'Instance ' . $ReverseSearchInstanceID . ' does not exist', 0);
+                return $UnknownName;
+            }
             $Name = CIRS_GetName($ReverseSearchInstanceID, $Number);
             if ($Name === false) {
                 return $UnknownName;
             }
-            if (strlen($Name) > $MaxNameSize) {
-                $Name = substr($Name, 0, $MaxNameSize);
-            }
-            return $SearchMarker . $Name;
+            return $SearchMarker . \FritzBox\Phonebook::TruncateName($Name, $MaxNameSize);
         }
         return $UnknownName;
     }
 
     private function DoPhonebookSearch(string $Number, int $MaxNameSize, string $AreaCode = '', string $CountryCode = '')
     {
-        $Name = false;
-        $Files = $this->GetPhoneBookFiles();
-        $SerachNumbers[] = $Number;
-        switch ($Number[0]) {
-            case '+':
-                break;
-            case '0':
-                if ($CountryCode != '') {
-                    $SerachNumbers[] = $CountryCode . substr($Number, 1);
-                }
-                if ($AreaCode != '') {
-                    if (strpos($Number, $AreaCode) === 0) {
-                        $SerachNumbers[] = substr($Number, strlen($AreaCode));
-                    }
-                }
-                break;
-            default:
-                if ($AreaCode != '') {
-                    $SerachNumbers[] = $AreaCode . $Number;
-                    if ($CountryCode != '') {
-                        $SerachNumbers[] = $CountryCode . substr($AreaCode, 1) . $Number;
-                    }
-                }
-                break;
-        }
-        foreach ($Files as $File) {
+        $SearchNumbers = \FritzBox\Phonebook::SearchNumbers($Number, $AreaCode, $CountryCode);
+        $this->SendDebug('Search for', implode(', ', $SearchNumbers), 0);
+        foreach ($this->GetPhoneBookFiles() as $File) {
             $XMLData = $this->GetFile($File);
             if ($XMLData === false) {
                 $this->SendDebug('XML not found', $File, 0);
                 continue;
             }
             try {
-                $XMLPhoneBook = new \simpleXMLElement($XMLData);
+                $Name = \FritzBox\Phonebook::FindName($XMLData, $SearchNumbers, $MaxNameSize);
             } catch (\Throwable $th) {
                 $this->SendDebug('XML decode error', $XMLData, 0);
                 $this->SendDebug('XML decode trace', $th->getTrace(), 0);
                 $this->LogMessage($th->getMessage(), KL_ERROR);
                 continue;
             }
-            foreach ($SerachNumbers as $SerachNumber) {
-                $this->SendDebug('Search for', $SerachNumber, 0);
-                $Contact = $XMLPhoneBook->xpath("//contact[telephony/number ='" . $SerachNumber . "']");
-                if (count($Contact) > 0) {
-                    try {
-                        $Name = (string) $Contact[0]->person->realName;
-                        if (strlen($Name) > $MaxNameSize) {
-                            $Name = substr($Name, 0, $MaxNameSize);
-                        }
-                        break 2;
-                    } catch (\Exception $exc) {
-                        continue;
-                    }
-                }
+            if ($Name !== false) {
+                return $Name;
             }
         }
-        return $Name;
+        return false;
     }
 
     private function GetNameByNumber(string $Number, string $AreaCode = '', string $CountryCode = '')
