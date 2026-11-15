@@ -13,7 +13,7 @@ class FritzBoxWebDavStorage extends FritzBoxModulBase
         'urn:dslforum-org:service:X_AVM-DE_WebDAVClient:1'
     ];
 
-    public function Create()
+    public function Create(): void
     {
         //Never delete this line!
         parent::Create();
@@ -24,13 +24,13 @@ class FritzBoxWebDavStorage extends FritzBoxModulBase
         $this->RegisterTimer(\FritzBox\Base\Timer::RefreshInfo, 0, 'IPS_RequestAction(' . $this->InstanceID . ',"' . \FritzBox\Base\Action::RefreshInfo . '",true);');
     }
 
-    public function Destroy()
+    public function Destroy(): void
     {
         //Never delete this line!
         parent::Destroy();
     }
 
-    public function ApplyChanges()
+    public function ApplyChanges(): void
     {
         $this->SetTimerInterval(\FritzBox\Base\Timer::RefreshInfo, 0);
         parent::ApplyChanges();
@@ -46,23 +46,7 @@ class FritzBoxWebDavStorage extends FritzBoxModulBase
         }
     }
 
-    public function RequestAction($Ident, $Value)
-    {
-        if (parent::RequestAction($Ident, $Value)) {
-            return true;
-        }
-        switch ($Ident) {
-            case \FritzBox\Base\Action::RefreshInfo:
-                return $this->UpdateWebDAVClient();
-            case \FritzBox\WebDavStorage\Variables::Enable:
-                return $this->UpdateWebDAVClient((bool) $Value);
-        }
-        trigger_error($this->Translate('Invalid Ident.'), E_USER_NOTICE);
-
-        return false;
-    }
-
-    public function GetInfo()
+    public function GetInfo(): mixed
     {
         $result = $this->Send(__FUNCTION__);
         if ($result === false) {
@@ -71,7 +55,7 @@ class FritzBoxWebDavStorage extends FritzBoxModulBase
         return $result;
     }
 
-    public function EnableWebDAVClient(bool $Enable, string $HostURL, string $NewMountpointName)
+    public function EnableWebDAVClient(bool $Enable, string $HostURL, string $NewMountpointName): bool
     {
         $result = $this->Send('SetConfig', [
             'NewEnable'        => $Enable,
@@ -83,6 +67,22 @@ class FritzBoxWebDavStorage extends FritzBoxModulBase
         if ($result === null) {
             return true;
         }
+        return false;
+    }
+
+    protected function ProcessRequestAction(string $Ident, mixed $Value): mixed
+    {
+        if (parent::ProcessRequestAction($Ident, $Value)) {
+            return true;
+        }
+        switch ($Ident) {
+            case \FritzBox\Base\Action::RefreshInfo:
+                return $this->UpdateWebDAVClient();
+            case \FritzBox\WebDavStorage\Variables::Enable:
+                return $this->UpdateWebDAVClient((bool) $Value);
+        }
+        trigger_error($this->Translate('Invalid Ident.'), E_USER_NOTICE);
+
         return false;
     }
 

@@ -18,7 +18,7 @@ class FritzBoxMyFritz extends FritzBoxModulBase
         'urn:dslforum-org:service:X_AVM-DE_MyFritz:1'
     ];
 
-    public function Create()
+    public function Create(): void
     {
         //Never delete this line!
         parent::Create();
@@ -28,7 +28,7 @@ class FritzBoxMyFritz extends FritzBoxModulBase
         $this->ServiceIdents = [];
     }
 
-    public function ApplyChanges()
+    public function ApplyChanges(): void
     {
         $this->SetTimerInterval(\FritzBox\Base\Timer::RefreshInfo, 0);
         parent::ApplyChanges();
@@ -40,23 +40,7 @@ class FritzBoxMyFritz extends FritzBoxModulBase
         $this->SetTimerInterval(\FritzBox\Base\Timer::RefreshInfo, $this->ReadPropertyInteger(\FritzBox\Base\Property::RefreshInterval) * 1000);
     }
 
-    public function RequestAction($Ident, $Value)
-    {
-        if (parent::RequestAction($Ident, $Value)) {
-            return true;
-        }
-        if (in_array($this->ConvertIdent($Ident), $this->ServiceIdents)) {
-            return $this->EnableService($this->ConvertIdent($Ident), (bool) $Value);
-        }
-        switch ($Ident) {
-            case \FritzBox\Base\Action::RefreshInfo:
-                return $this->UpdateInfo();
-        }
-        trigger_error($this->Translate('Invalid Ident.'), E_USER_NOTICE);
-        return false;
-    }
-
-    public function GetInfo()
+    public function GetInfo(): mixed
     {
         $result = $this->Send(__FUNCTION__);
         if ($result === false) {
@@ -65,7 +49,7 @@ class FritzBoxMyFritz extends FritzBoxModulBase
         return $result;
     }
 
-    public function EnableService(string $Ident, bool $Value)
+    public function EnableService(string $Ident, bool $Value): mixed
     {
         if (@$this->GetIDForIdent($Ident) == false) {
             $this->ReportError($this->Translate('Invalid Ident.'));
@@ -75,12 +59,12 @@ class FritzBoxMyFritz extends FritzBoxModulBase
         return $this->UpdateService($Ident, $Value);
     }
 
-    public function GetIdentsForActions()
+    public function GetIdentsForActions(): mixed
     {
         return $this->ServiceIdents;
     }
 
-    public function GetNumberOfServices()
+    public function GetNumberOfServices(): int|false
     {
         $result = $this->Send(__FUNCTION__);
         if ($result === false) {
@@ -89,7 +73,7 @@ class FritzBoxMyFritz extends FritzBoxModulBase
         return (int) $result;
     }
 
-    public function GetServiceByIndex(int $index)
+    public function GetServiceByIndex(int $index): array|false
     {
         $result = $this->Send(__FUNCTION__, ['NewIndex'=>$index]);
         if ($result == false) {
@@ -112,7 +96,7 @@ class FritzBoxMyFritz extends FritzBoxModulBase
         ];
     }
 
-    public function DeleteServiceByIndex(int $Index)
+    public function DeleteServiceByIndex(int $Index): bool
     {
         return $this->Send(__FUNCTION__, [
             'NewIndex'  => $Index
@@ -151,6 +135,22 @@ class FritzBoxMyFritz extends FritzBoxModulBase
         if ($result === null) {
             return true;
         }
+        return false;
+    }
+
+    protected function ProcessRequestAction(string $Ident, mixed $Value): mixed
+    {
+        if (parent::ProcessRequestAction($Ident, $Value)) {
+            return true;
+        }
+        if (in_array($this->ConvertIdent($Ident), $this->ServiceIdents)) {
+            return $this->EnableService($this->ConvertIdent($Ident), (bool) $Value);
+        }
+        switch ($Ident) {
+            case \FritzBox\Base\Action::RefreshInfo:
+                return $this->UpdateInfo();
+        }
+        trigger_error($this->Translate('Invalid Ident.'), E_USER_NOTICE);
         return false;
     }
 

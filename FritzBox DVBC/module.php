@@ -12,7 +12,7 @@ class FritzBoxDVBC extends FritzBoxModulBase
         'urn:dslforum-org:service:X_AVM-DE_Media:1'
     ];
 
-    public function Create()
+    public function Create(): void
     {
         //Never delete this line!
         parent::Create();
@@ -21,7 +21,7 @@ class FritzBoxDVBC extends FritzBoxModulBase
         $this->RegisterTimer(\FritzBox\Base\Timer::RefreshInfo, 0, 'IPS_RequestAction(' . $this->InstanceID . ',"' . \FritzBox\Base\Action::RefreshInfo . '",true);');
     }
 
-    public function Destroy()
+    public function Destroy(): void
     {
         if (!IPS_InstanceExists($this->InstanceID)) {
             $this->UnregisterProfile('FB.Intensity');
@@ -31,7 +31,7 @@ class FritzBoxDVBC extends FritzBoxModulBase
         parent::Destroy();
     }
 
-    public function ApplyChanges()
+    public function ApplyChanges(): void
     {
         $this->SetTimerInterval(\FritzBox\Base\Timer::RefreshInfo, 0);
         parent::ApplyChanges();
@@ -53,9 +53,42 @@ class FritzBoxDVBC extends FritzBoxModulBase
         $this->UpdateInfo();
     }
 
-    public function RequestAction($Ident, $Value)
+    public function GetInfo(): mixed
     {
-        if (parent::RequestAction($Ident, $Value)) {
+        $Result = $this->Send('GetInfo');
+        if ($Result === false) {
+            return false;
+        }
+        return $Result;
+    }
+
+    public function SetDVBCEnable(bool $State): bool
+    {
+        $Result = $this->Send('SetDVBCEnable', [
+            'NewDVBCEnabled'         => (int) $State
+        ]);
+        if ($Result === false) {
+            return false;
+        }
+        $this->setIPSVariable(\FritzBox\DVBC\Variables::DVBCEnabled, 'DVBC enabled', $State, VARIABLETYPE_BOOLEAN, '~Switch', true);
+        return true;
+    }
+
+    public function StationSearch(string $Mode): bool
+    {
+        $Result = $this->Send('StationSearch', [
+            'NewStationSearchMode'         => $Mode
+        ]);
+        if ($Result === false) {
+            return false;
+        }
+        $this->setIPSVariable(\FritzBox\DVBC\Variables::StationSearchStatus, 'Station search status', (string) $Result, VARIABLETYPE_STRING, 'FB.ActiveInactive');
+        return true;
+    }
+
+    protected function ProcessRequestAction(string $Ident, mixed $Value): mixed
+    {
+        if (parent::ProcessRequestAction($Ident, $Value)) {
             return true;
         }
         switch ($Ident) {
@@ -68,39 +101,6 @@ class FritzBoxDVBC extends FritzBoxModulBase
         }
         trigger_error($this->Translate('Invalid Ident.'), E_USER_NOTICE);
         return false;
-    }
-
-    public function GetInfo()
-    {
-        $Result = $this->Send('GetInfo');
-        if ($Result === false) {
-            return false;
-        }
-        return $Result;
-    }
-
-    public function SetDVBCEnable(bool $State)
-    {
-        $Result = $this->Send('SetDVBCEnable', [
-            'NewDVBCEnabled'         => (int) $State
-        ]);
-        if ($Result === false) {
-            return false;
-        }
-        $this->setIPSVariable(\FritzBox\DVBC\Variables::DVBCEnabled, 'DVBC enabled', $State, VARIABLETYPE_BOOLEAN, '~Switch', true);
-        return true;
-    }
-
-    public function StationSearch(string $Mode)
-    {
-        $Result = $this->Send('StationSearch', [
-            'NewStationSearchMode'         => $Mode
-        ]);
-        if ($Result === false) {
-            return false;
-        }
-        $this->setIPSVariable(\FritzBox\DVBC\Variables::StationSearchStatus, 'Station search status', (string) $Result, VARIABLETYPE_STRING, 'FB.ActiveInactive');
-        return true;
     }
 
     private function UpdateInfo()

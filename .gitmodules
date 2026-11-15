@@ -7,6 +7,7 @@
 [submodule "libs/helper"]
 	path = libs/helper
 	url = https://github.com/Nall-chan/SymconModulHelper
+	branch = strict
 [submodule ".vscode"]
 	path = .vscode
 	url = https://github.com/Nall-chan/SymconVSCTasks.git

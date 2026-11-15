@@ -12,7 +12,7 @@ class FritzBoxHomeautomation extends FritzBoxModulBase
         'urn:dslforum-org:service:X_AVM-DE_Homeauto:1'
     ];
 
-    public function Create()
+    public function Create(): void
     {
         //Never delete this line!
         parent::Create();
@@ -21,13 +21,13 @@ class FritzBoxHomeautomation extends FritzBoxModulBase
         $this->RegisterTimer(\FritzBox\Base\Timer::RefreshInfo, 0, 'IPS_RequestAction(' . $this->InstanceID . ',"' . \FritzBox\Base\Action::RefreshInfo . '",true);');
     }
 
-    public function Destroy()
+    public function Destroy(): void
     {
         //Never delete this line!
         parent::Destroy();
     }
 
-    public function ApplyChanges()
+    public function ApplyChanges(): void
     {
         $this->SetTimerInterval(\FritzBox\Base\Timer::RefreshInfo, 0);
         parent::ApplyChanges();
@@ -66,22 +66,7 @@ class FritzBoxHomeautomation extends FritzBoxModulBase
         $this->UpdateInfo();
     }
 
-    public function RequestAction($Ident, $Value)
-    {
-        if (parent::RequestAction($Ident, $Value)) {
-            return true;
-        }
-        switch ($Ident) {
-            case \FritzBox\Base\Action::RefreshInfo:
-                return $this->UpdateInfo();
-            case \FritzBox\Homeautomation\Variables::SwitchState:
-                return $this->SetSwitch((string) $Value);
-        }
-        trigger_error($this->Translate('Invalid Ident.'), E_USER_NOTICE);
-        return false;
-    }
-
-    public function GetInfo()
+    public function GetInfo(): mixed
     {
         $Result = $this->Send('GetInfo');
         if ($Result === false) {
@@ -90,7 +75,7 @@ class FritzBoxHomeautomation extends FritzBoxModulBase
         return $Result;
     }
 
-    public function GetSpecificDeviceInfos()
+    public function GetSpecificDeviceInfos(): mixed
     {
         $Result = $this->Send('GetSpecificDeviceInfos', [
             'NewAIN'         => $this->ReadPropertyString(\FritzBox\Homeautomation\Property::AIN)
@@ -101,7 +86,7 @@ class FritzBoxHomeautomation extends FritzBoxModulBase
         return $Result;
     }
 
-    public function SetDeviceName(string $Name)
+    public function SetDeviceName(string $Name): bool
     {
         $Result = $this->Send('SetDeviceName', [
             'NewAIN'         => $this->ReadPropertyString(\FritzBox\Homeautomation\Property::AIN),
@@ -113,7 +98,7 @@ class FritzBoxHomeautomation extends FritzBoxModulBase
         return true;
     }
 
-    public function SetSwitch(string $State)
+    public function SetSwitch(string $State): bool
     {
         /*
         OFF Switch off
@@ -128,6 +113,21 @@ class FritzBoxHomeautomation extends FritzBoxModulBase
             return false;
         }
         return true;
+    }
+
+    protected function ProcessRequestAction(string $Ident, mixed $Value): mixed
+    {
+        if (parent::ProcessRequestAction($Ident, $Value)) {
+            return true;
+        }
+        switch ($Ident) {
+            case \FritzBox\Base\Action::RefreshInfo:
+                return $this->UpdateInfo();
+            case \FritzBox\Homeautomation\Variables::SwitchState:
+                return $this->SetSwitch((string) $Value);
+        }
+        trigger_error($this->Translate('Invalid Ident.'), E_USER_NOTICE);
+        return false;
     }
 
     private function UpdateInfo()

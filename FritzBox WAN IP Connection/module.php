@@ -33,7 +33,7 @@ class FritzBoxWANIPConnection extends FritzBoxModulBase
      * @param string $JSONData
      * @return string
      */
-    public function Migrate($JSONData)
+    public function Migrate(string $JSONData): string
     {
         // Als Objekt dekodieren, damit leere Objekte (attributes, buffers) nicht zu [] werden
         $Data = json_decode($JSONData);
@@ -56,7 +56,7 @@ class FritzBoxWANIPConnection extends FritzBoxModulBase
         return json_encode($Data);
     }
 
-    public function Create()
+    public function Create(): void
     {
         //Never delete this line!
         parent::Create();
@@ -66,7 +66,7 @@ class FritzBoxWANIPConnection extends FritzBoxModulBase
         $this->RegisterTimer(\FritzBox\Base\Timer::RefreshInfo, 0, 'IPS_RequestAction(' . $this->InstanceID . ',"' . \FritzBox\Base\Action::RefreshInfo . '",true);');
     }
 
-    public function Destroy()
+    public function Destroy(): void
     {
         if (!IPS_InstanceExists($this->InstanceID)) {
             $this->UnregisterProfile('FB.Connect');
@@ -76,7 +76,7 @@ class FritzBoxWANIPConnection extends FritzBoxModulBase
         parent::Destroy();
     }
 
-    public function ApplyChanges()
+    public function ApplyChanges(): void
     {
         $this->SetTimerInterval(\FritzBox\Base\Timer::RefreshInfo, 0);
 
@@ -115,30 +115,30 @@ class FritzBoxWANIPConnection extends FritzBoxModulBase
         $this->SetTimerInterval(\FritzBox\Base\Timer::RefreshInfo, $this->ReadPropertyInteger(\FritzBox\Base\Property::RefreshInterval) * 1000);
     }
 
-    public function GetConnectionTypeInfo()
+    public function GetConnectionTypeInfo(): mixed
     {
         return $this->Send(__FUNCTION__);
     }
 
-    public function ForceTermination()
+    public function ForceTermination(): bool
     {
         $result = $this->Send(__FUNCTION__);
         return $result !== false;
     }
 
-    public function RequestTermination()
+    public function RequestTermination(): bool
     {
         $result = $this->Send(__FUNCTION__);
         return $result !== false;
     }
 
-    public function RequestConnection()
+    public function RequestConnection(): bool
     {
         $result = $this->Send(__FUNCTION__);
         return $result !== false;
     }
 
-    public function GetStatusInfo()
+    public function GetStatusInfo(): mixed
     {
         $result = $this->Send(__FUNCTION__);
         if ($result === false) {
@@ -147,7 +147,7 @@ class FritzBoxWANIPConnection extends FritzBoxModulBase
         return $result;
     }
 
-    public function GetExternalIPAddress()
+    public function GetExternalIPAddress(): mixed
     {
         $result = $this->Send(__FUNCTION__);
         if ($result === false) {
@@ -156,7 +156,7 @@ class FritzBoxWANIPConnection extends FritzBoxModulBase
         return $result;
     }
 
-    public function GetDNSServer()
+    public function GetDNSServer(): mixed
     {
         $result = $this->Send('X_AVM_DE_GetDNSServer');
         if ($result === false) {
@@ -165,7 +165,7 @@ class FritzBoxWANIPConnection extends FritzBoxModulBase
         return $result;
     }
 
-    public function GetExternalIPv6Address()
+    public function GetExternalIPv6Address(): mixed
     {
         $result = $this->Send('X_AVM_DE_GetExternalIPv6Address');
         if ($result === false) {
@@ -174,7 +174,7 @@ class FritzBoxWANIPConnection extends FritzBoxModulBase
         return $result;
     }
 
-    public function GetIPv6DNSServer()
+    public function GetIPv6DNSServer(): mixed
     {
         $result = $this->Send('X_AVM_DE_GetIPv6DNSServer');
         if ($result === false) {
@@ -183,7 +183,7 @@ class FritzBoxWANIPConnection extends FritzBoxModulBase
         return $result;
     }
 
-    public function GetIPv6Prefix()
+    public function GetIPv6Prefix(): mixed
     {
         $result = $this->Send('X_AVM_DE_GetIPv6Prefix');
         if ($result === false) {
@@ -192,12 +192,12 @@ class FritzBoxWANIPConnection extends FritzBoxModulBase
         return $result;
     }
 
-    public function GetNATRSIPStatus()
+    public function GetNATRSIPStatus(): mixed
     {
         return $this->Send(__FUNCTION__);
     }
 
-    public function GetWarnDisconnectDelay()
+    public function GetWarnDisconnectDelay(): int|false
     {
         $result = $this->Send(__FUNCTION__);
         if ($result === false) {
@@ -206,7 +206,7 @@ class FritzBoxWANIPConnection extends FritzBoxModulBase
         return (int) $result;
     }
 
-    public function GetIdleDisconnectTime()
+    public function GetIdleDisconnectTime(): int|false
     {
         $result = $this->Send(__FUNCTION__);
         if ($result === false) {
@@ -215,7 +215,7 @@ class FritzBoxWANIPConnection extends FritzBoxModulBase
         return (int) $result;
     }
 
-    public function GetAutoDisconnectTime()
+    public function GetAutoDisconnectTime(): int|false
     {
         $result = $this->Send(__FUNCTION__);
         if ($result === false) {
@@ -224,39 +224,25 @@ class FritzBoxWANIPConnection extends FritzBoxModulBase
         return (int) $result;
     }
 
-    public function SetWarnDisconnectDelay(int $DelayTime)
+    public function SetWarnDisconnectDelay(int $DelayTime): bool
     {
         $result = $this->Send(__FUNCTION__, ['NewWarnDisconnectDelay'=>$DelayTime]);
         return $result !== false;
     }
 
-    public function SetIdleDisconnectTime(int $Timeout)
+    public function SetIdleDisconnectTime(int $Timeout): bool
     {
         $result = $this->Send(__FUNCTION__, ['NewIdleDisconnectTime'=>$Timeout]);
         return $result !== false;
     }
 
-    public function SetAutoDisconnectTime(int $AutoDisconnectTime)
+    public function SetAutoDisconnectTime(int $AutoDisconnectTime): bool
     {
         $result = $this->Send(__FUNCTION__, ['NewAutoDisconnectTime'=>$AutoDisconnectTime]);
         return $result !== false;
     }
 
-    public function RequestAction($Ident, $Value)
-    {
-        if (parent::RequestAction($Ident, $Value)) {
-            return true;
-        }
-        switch ($Ident) {
-            case \FritzBox\Base\Action::RefreshInfo:
-                return $this->UpdateInfo();
-            case \FritzBox\WANIPConnection\Variables::ConnectionAction:
-                return $this->ForceTermination();
-        }
-        trigger_error($this->Translate('Invalid Ident.'), E_USER_NOTICE);
-    }
-
-    public function GetConfigurationForm()
+    public function GetConfigurationForm(): string
     {
         $Form = json_decode(file_get_contents(__DIR__ . '/form.json'), true);
         if ($this->GetStatus() == IS_CREATING) {
@@ -270,7 +256,7 @@ class FritzBoxWANIPConnection extends FritzBoxModulBase
                     'Function'   => \FritzBox\IOFunction::HasIGD2
                 ]
             ));
-            $HasIGD2 = unserialize($Ret);
+            $HasIGD2 = \FritzBox\IOResult::Decode($Ret);
             $this->SendDebug('Use IGD2', $HasIGD2, 0);
             if (!$HasIGD2) {
                 unset($Form['elements'][0]['options'][2]);
@@ -281,7 +267,21 @@ class FritzBoxWANIPConnection extends FritzBoxModulBase
         return json_encode($Form);
     }
 
-    protected function DecodeEvent($Event)
+    protected function ProcessRequestAction(string $Ident, mixed $Value): mixed
+    {
+        if (parent::ProcessRequestAction($Ident, $Value)) {
+            return true;
+        }
+        switch ($Ident) {
+            case \FritzBox\Base\Action::RefreshInfo:
+                return $this->UpdateInfo();
+            case \FritzBox\WANIPConnection\Variables::ConnectionAction:
+                return $this->ForceTermination();
+        }
+        trigger_error($this->Translate('Invalid Ident.'), E_USER_NOTICE);
+    }
+
+    protected function DecodeEvent(array $Event): void
     {
         if (array_key_exists('ConnectionStatus', $Event)) {
             $this->setIPSVariable(\FritzBox\WANIPConnection\Variables::ConnectionStatus, 'IP connection status', ($Event['ConnectionStatus'] == 'Connected'), VARIABLETYPE_BOOLEAN, 'FB.ConnectionStatus');

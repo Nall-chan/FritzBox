@@ -9,33 +9,40 @@ require_once __DIR__ . '/../libs/FritzBoxModule.php';
  * @property int $ParentID
  * @method bool SendDebug(string $Message, mixed $Data, int $Format)
  */
-class FritzBoxConfigurator extends IPSModule
+class FritzBoxConfigurator extends IPSModuleStrict
 {
     use \FritzBoxConfigurator\BufferHelper;
     use \FritzBoxConfigurator\DebugHelper;
 
-    public function Create()
+    public function Create(): void
     {
         //Never delete this line!
         parent::Create();
         $this->ParentID = 0;
-        $this->RequireParent(\FritzBox\GUID::FritzBoxIO);
     }
 
-    public function Destroy()
+    /**
+     * Der Konfigurator benötigt eine FritzBox IO (wird bei Bedarf angelegt).
+     */
+    public function GetCompatibleParents(): string
+    {
+        return json_encode(['type' => 'require', 'moduleIDs' => [\FritzBox\GUID::FritzBoxIO]]);
+    }
+
+    public function Destroy(): void
     {
         //Never delete this line!
         parent::Destroy();
     }
 
-    public function ApplyChanges()
+    public function ApplyChanges(): void
     {
         //Never delete this line!
         parent::ApplyChanges();
         $this->SetReceiveDataFilter('.*NOTHINGTORECEIVE.*');
     }
 
-    public function GetConfigurationForm()
+    public function GetConfigurationForm(): string
     {
         $Form = json_decode(file_get_contents(__DIR__ . '/form.json'), true);
         if ($this->GetStatus() == IS_CREATING) {
@@ -66,7 +73,7 @@ class FritzBoxConfigurator extends IPSModule
                 'Function'   => \FritzBox\IOFunction::Scpd
             ]
         ));
-        $SCPDhasEvent = unserialize($Ret);
+        $SCPDhasEvent = \FritzBox\IOResult::Decode($Ret);
         $this->SendDebug('SCPDhasEvent', $SCPDhasEvent, 0);
         $ServiceValues = [];
         $DeviceValues = [];
@@ -214,7 +221,7 @@ class FritzBoxConfigurator extends IPSModule
                 'Function'   => \FritzBox\IOFunction::HasTel
             ]
         ));
-        $HasTel = unserialize($Ret);
+        $HasTel = \FritzBox\IOResult::Decode($Ret);
         $this->SendDebug('HasTel', $HasTel, 0);
         if ($HasTel) {
             $CS = IPS_GetInstance($this->ParentID)['ConnectionID'];
@@ -227,7 +234,7 @@ class FritzBoxConfigurator extends IPSModule
                         'Function'   => \FritzBox\IOFunction::CallMonitorOpen
                     ]
                 ));
-                $CallMonitorOpen = unserialize($Ret);
+                $CallMonitorOpen = \FritzBox\IOResult::Decode($Ret);
                 $this->SendDebug('CallMonitorOpen', $CallMonitorOpen, 0);
             }
             if (!$CallMonitorOpen) {
@@ -287,10 +294,10 @@ class FritzBoxConfigurator extends IPSModule
                 'Parameter'  => []
             ]
         ));
-        if ($Ret === false) {
+        if ($Ret === '') {
             return [];
         }
-        $List = unserialize($Ret);
+        $List = \FritzBox\IOResult::Decode($Ret);
         if (!is_string($List)) {
             $this->SendDebug('GetList', 'failed', 0);
             return [];
@@ -310,7 +317,7 @@ class FritzBoxConfigurator extends IPSModule
         return $Result;
     }
 
-    private function FilterInstances(int $InstanceID)
+    private function FilterInstances(int $InstanceID): bool
     {
         $Instance = IPS_GetInstance($InstanceID);
         if ($Instance['ModuleInfo']['ModuleID'] == \FritzBox\GUID::HomeautomationDevice) {
@@ -322,7 +329,7 @@ class FritzBoxConfigurator extends IPSModule
         return $Instance['ConnectionID'] == $this->ParentID;
     }
 
-    private function GetInstanceList()
+    private function GetInstanceList(): array
     {
         $AllInstancesOfParent = array_flip(array_filter(IPS_GetInstanceList(), [$this, 'FilterInstances']));
         foreach ($AllInstancesOfParent as $key => &$value) {

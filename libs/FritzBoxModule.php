@@ -7,6 +7,29 @@ namespace FritzBox;
 require_once __DIR__ . '/FritzBoxConstants.php';
 require_once __DIR__ . '/FritzBoxParser.php';
 
+/**
+ * Ergebnisse, die die IO über ForwardData an die Kinder zurückgibt (serialisiert).
+ * Ein leerer String von SendDataToParent bedeutet Fehler (kein Parent, Fehler in der IO).
+ */
+class IOResult
+{
+    public static function Encode(mixed $Value): string
+    {
+        return serialize($Value);
+    }
+
+    /**
+     * @return mixed Ergebnis, false bei leerem oder ungültigem Rückgabewert.
+     */
+    public static function Decode(string $Data): mixed
+    {
+        if ($Data === '') {
+            return false;
+        }
+        return @unserialize($Data);
+    }
+}
+
 class GUID
 {
     //Library

@@ -23,7 +23,7 @@ class FritzBoxWANFiber extends FritzBoxModulBase
     ];
     protected static $DefaultIndex = 0;
 
-    public function Create()
+    public function Create(): void
     {
         //Never delete this line!
         parent::Create();
@@ -33,7 +33,7 @@ class FritzBoxWANFiber extends FritzBoxModulBase
         $this->RegisterTimer(\FritzBox\Base\Timer::RefreshInfo, 0, 'IPS_RequestAction(' . $this->InstanceID . ',"' . \FritzBox\Base\Action::RefreshInfo . '",true);');
     }
 
-    public function Destroy()
+    public function Destroy(): void
     {
         if (!IPS_InstanceExists($this->InstanceID)) {
             $this->UnregisterProfile(\FritzBox\WANFiber\Profile::Dbm);
@@ -42,7 +42,7 @@ class FritzBoxWANFiber extends FritzBoxModulBase
         parent::Destroy();
     }
 
-    public function ApplyChanges()
+    public function ApplyChanges(): void
     {
         $this->SetTimerInterval(\FritzBox\Base\Timer::RefreshInfo, 0);
         parent::ApplyChanges();
@@ -54,26 +54,13 @@ class FritzBoxWANFiber extends FritzBoxModulBase
         $this->UpdateInfo();
     }
 
-    public function RequestAction($Ident, $Value)
-    {
-        if (parent::RequestAction($Ident, $Value)) {
-            return true;
-        }
-        switch ($Ident) {
-            case \FritzBox\Base\Action::RefreshInfo:
-                return $this->UpdateInfo();
-        }
-        trigger_error($this->Translate('Invalid Ident.'), E_USER_NOTICE);
-        return false;
-    }
-
     /**
      * Liefert Betriebsart, optische Pegel samt Schwellwerten und Daten des optischen Moduls (SFP).
      * Pegel und Schwellwerte in dBm/1000.
      *
      * @return array|false
      */
-    public function GetInfo()
+    public function GetInfo(): mixed
     {
         return $this->Send(__FUNCTION__);
     }
@@ -83,7 +70,7 @@ class FritzBoxWANFiber extends FritzBoxModulBase
      *
      * @return array|false
      */
-    public function GetInfoGPON()
+    public function GetInfoGPON(): mixed
     {
         return $this->Send(__FUNCTION__);
     }
@@ -93,9 +80,22 @@ class FritzBoxWANFiber extends FritzBoxModulBase
      *
      * @return array|false
      */
-    public function GetStatistics()
+    public function GetStatistics(): mixed
     {
         return $this->Send(__FUNCTION__);
+    }
+
+    protected function ProcessRequestAction(string $Ident, mixed $Value): mixed
+    {
+        if (parent::ProcessRequestAction($Ident, $Value)) {
+            return true;
+        }
+        switch ($Ident) {
+            case \FritzBox\Base\Action::RefreshInfo:
+                return $this->UpdateInfo();
+        }
+        trigger_error($this->Translate('Invalid Ident.'), E_USER_NOTICE);
+        return false;
     }
 
     /**

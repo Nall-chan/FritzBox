@@ -42,7 +42,7 @@ class FritzBoxTelephony extends FritzBoxModulBase
     protected static $SecondEventGUID = \FritzBox\GUID::CallMonitorEvent;
     protected static $DefaultIndex = 0;
 
-    public function Create()
+    public function Create(): void
     {
         //Never delete this line!
         parent::Create();
@@ -80,13 +80,13 @@ class FritzBoxTelephony extends FritzBoxModulBase
         // Filter / Gesprächstypen (Liste)
     }
 
-    public function Destroy()
+    public function Destroy(): void
     {
         //Never delete this line!
         parent::Destroy();
     }
 
-    public function ApplyChanges()
+    public function ApplyChanges(): void
     {
         //Never delete this line!
         parent::ApplyChanges();
@@ -123,85 +123,7 @@ class FritzBoxTelephony extends FritzBoxModulBase
         //$this->RegisterHook('/hook/FritzBoxCallLog' . $this->InstanceID);
     }
 
-    public function RequestAction($Ident, $Value)
-    {
-        if (parent::RequestAction($Ident, $Value)) {
-            return true;
-        }
-        switch ($Ident) {
-            case \FritzBox\Telephony\Action::RefreshPhonebook:
-                return $this->RefreshPhonebook();
-            case \FritzBox\Telephony\Action::RefreshCallLog:
-                $this->SetNewCallLogRefreshTimer();
-                return $this->RefreshCallLog();
-            case \FritzBox\Telephony\Action::RefreshDeflectionList:
-                return $this->RefreshDeflectionList();
-            case \FritzBox\Telephony\Action::PreviewIcon:
-                $Data = unserialize($Value);
-                $ImageData = @getimagesize('data://text/plain;base64,' . $Data['Icon']);
-                if ($ImageData === false) {
-                    $this->UpdateFormField('IconName', 'caption', 'No valid image');
-                    $this->UpdateFormField('IconPreview', 'visible', true);
-                    return;
-                }
-                $this->UpdateFormField('IconName', 'caption', $Data['DisplayName']);
-                $this->UpdateFormField('IconImage', 'image', 'data://' . $ImageData['mime'] . ';base64,' . $Data['Icon']);
-                $this->UpdateFormField('IconPreview', 'visible', true);
-                return;
-            case \FritzBox\Telephony\Action::ReverseSearchInstanceID:
-                if ($Value > 1) {
-                    $this->UpdateFormField('CustomSearchScriptID', 'enabled', false);
-                } else {
-                    $this->UpdateFormField('CustomSearchScriptID', 'enabled', true);
-                }
-                return;
-            case \FritzBox\Telephony\Action::CustomSearchScriptID:
-                if ($Value > 1) {
-                    $this->UpdateFormField('MaxNameSize', 'enabled', false);
-                    $this->UpdateFormField('ReverseSearchInstanceID', 'enabled', false);
-                    $this->UpdateFormField('SearchMarker', 'enabled', false);
-                    $this->UpdateFormField('UnknownNumberName', 'enabled', false);
-                } else {
-                    $this->UpdateFormField('MaxNameSize', 'enabled', true);
-                    $this->UpdateFormField('ReverseSearchInstanceID', 'enabled', true);
-                    $this->UpdateFormField('SearchMarker', 'enabled', true);
-                    $this->UpdateFormField('UnknownNumberName', 'enabled', true);
-                }
-                return;
-            case \FritzBox\Telephony\Action::CallLogAsVariable:
-                $this->UpdateFormField('LastEntries', 'enabled', $Value);
-                $this->UpdateFormField('LoadListType', 'enabled', $Value);
-                $this->UpdateFormField('Icons', 'enabled', $Value);
-                $this->UpdateFormField('ShowImage', 'enabled', $Value);
-                $this->UpdateFormField('Table', 'enabled', $Value);
-                $this->UpdateFormField('UseRelativDate', 'enabled', $Value);
-                $this->UpdateFormField('Columns', 'enabled', $Value);
-                $this->UpdateFormField('Rows', 'enabled', $Value);
-                $this->UpdateFormField('ReloadCallLogButton', 'enabled', $Value);
-                $this->UpdateFormField('HTMLExpansionPanel', 'expanded', $Value);
-                $CallMonitorOpen = false;
-                if ($this->ParentID) {
-                    $CallMonitorOpen = $this->IsCallMonitorActive();
-                }
-                $this->UpdateFormField('RefreshIntervalCallLog', 'enabled', ($CallMonitorOpen ? false : $Value));
-                return;
-            case \FritzBox\Telephony\Action::InstallCIRSModule:
-                $this->UpdateFormField('ReversSearchPopup', 'visible', false);
-                $this->UpdateFormField('WaitPopup', 'visible', true);
-                $this->InstallCIRSModule();
-                $this->ReloadForm();
-                return;
-        }
-
-        if (substr($Ident, 0, 2) == 'D_') {
-            return $this->RefreshDeflectionList($Ident, $Value);
-        }
-
-        trigger_error($this->Translate('Invalid Ident.'), E_USER_NOTICE);
-        return false;
-    }
-
-    public function GetConfigurationForm()
+    public function GetConfigurationForm(): string
     {
         $Form = json_decode(file_get_contents(__DIR__ . '/form.json'), true);
         if ($this->GetStatus() == IS_CREATING) {
@@ -259,7 +181,7 @@ class FritzBoxTelephony extends FritzBoxModulBase
         return json_encode($Form);
     }
 
-    public function GetCallLog()
+    public function GetCallLog(): mixed
     {
         $result = $this->Send('GetCallList');
         if ($result === false) {
@@ -268,7 +190,7 @@ class FritzBoxTelephony extends FritzBoxModulBase
         return $result;
     }
 
-    public function GetPhonebookList()
+    public function GetPhonebookList(): mixed
     {
         $result = $this->Send(__FUNCTION__);
         if ($result === false) {
@@ -277,7 +199,7 @@ class FritzBoxTelephony extends FritzBoxModulBase
         return $result;
     }
 
-    public function GetPhonebook(int $PhonebookID)
+    public function GetPhonebook(int $PhonebookID): mixed
     {
         $result = $this->Send(
             __FUNCTION__,
@@ -291,7 +213,7 @@ class FritzBoxTelephony extends FritzBoxModulBase
         return $result;
     }
 
-    public function GetPhonebookEntry(int $PhonebookID, int $PhonebookEntryID)
+    public function GetPhonebookEntry(int $PhonebookID, int $PhonebookEntryID): mixed
     {
         $result = $this->Send(
             __FUNCTION__,
@@ -306,7 +228,7 @@ class FritzBoxTelephony extends FritzBoxModulBase
         return $result;
     }
 
-    public function GetPhonebookEntryUID(int $PhonebookID, int $PhonebookEntryUniqueID)
+    public function GetPhonebookEntryUID(int $PhonebookID, int $PhonebookEntryUniqueID): mixed
     {
         $result = $this->Send(
             __FUNCTION__,
@@ -321,7 +243,7 @@ class FritzBoxTelephony extends FritzBoxModulBase
         return $result;
     }
 
-    public function GetPhonebooks()
+    public function GetPhonebooks(): mixed
     {
         $Files = $this->GetPhoneBookFiles();
         $Result = [];
@@ -338,7 +260,7 @@ class FritzBoxTelephony extends FritzBoxModulBase
         return $Result;
     }
 
-    public function GetPhonebookEntrysByNumber(string $Number)
+    public function GetPhonebookEntrysByNumber(string $Number): mixed
     {
         $Files = $this->GetPhoneBookFiles();
         foreach ($Files as $File) {
@@ -367,7 +289,7 @@ class FritzBoxTelephony extends FritzBoxModulBase
         return false;
     }
 
-    public function SearchNameByNumber(string $Number, string $AreaCode)
+    public function SearchNameByNumber(string $Number, string $AreaCode): mixed
     {
         $Name = $this->GetNameByNumber($Number, $AreaCode);
         if ($Name === false) {
@@ -377,7 +299,7 @@ class FritzBoxTelephony extends FritzBoxModulBase
         return $Name;
     }
 
-    public function GetDECTHandsetList()
+    public function GetDECTHandsetList(): mixed
     {
         $result = $this->Send(__FUNCTION__);
         if ($result === false) {
@@ -386,7 +308,7 @@ class FritzBoxTelephony extends FritzBoxModulBase
         return $result;
     }
 
-    public function GetDECTHandsetInfo(int $DectID)
+    public function GetDECTHandsetInfo(int $DectID): mixed
     {
         $result = $this->Send(
             __FUNCTION__,
@@ -400,7 +322,16 @@ class FritzBoxTelephony extends FritzBoxModulBase
         return $result;
     }
 
-    public function GetNumberOfDeflections()
+    public function GetNumberOfDeflections(): int|false
+    {
+        $result = $this->Send(__FUNCTION__);
+        if ($result === false) {
+            return false;
+        }
+        return (int) $result;
+    }
+
+    public function GetDeflections(): mixed
     {
         $result = $this->Send(__FUNCTION__);
         if ($result === false) {
@@ -409,16 +340,7 @@ class FritzBoxTelephony extends FritzBoxModulBase
         return $result;
     }
 
-    public function GetDeflections()
-    {
-        $result = $this->Send(__FUNCTION__);
-        if ($result === false) {
-            return false;
-        }
-        return $result;
-    }
-
-    public function GetDeflection(int $DeflectionId)
+    public function GetDeflection(int $DeflectionId): mixed
     {
         $result = $this->Send(
             __FUNCTION__,
@@ -432,7 +354,7 @@ class FritzBoxTelephony extends FritzBoxModulBase
         return $result;
     }
 
-    public function SetDeflectionEnable(int $DeflectionId, bool $Enable)
+    public function SetDeflectionEnable(int $DeflectionId, bool $Enable): bool
     {
         $result = $this->Send(
             __FUNCTION__,
@@ -455,7 +377,7 @@ class FritzBoxTelephony extends FritzBoxModulBase
         return true;
     }
 
-    public function GetCallBarringList()
+    public function GetCallBarringList(): mixed
     {
         $result = $this->Send(__FUNCTION__);
         if ($result === false) {
@@ -464,7 +386,7 @@ class FritzBoxTelephony extends FritzBoxModulBase
         return $this->LoadAndGetData($result);
     }
 
-    public function GetCallBarringEntry(int $PhonebookEntryID)
+    public function GetCallBarringEntry(int $PhonebookEntryID): mixed
     {
         $result = $this->Send(
             __FUNCTION__,
@@ -478,7 +400,7 @@ class FritzBoxTelephony extends FritzBoxModulBase
         return $result;
     }
 
-    public function GetCallBarringEntryByNum(string $Number)
+    public function GetCallBarringEntryByNum(string $Number): mixed
     {
         $result = $this->Send(
             __FUNCTION__,
@@ -492,7 +414,7 @@ class FritzBoxTelephony extends FritzBoxModulBase
         return $result;
     }
 
-    public function SetCallBarringEntry(string $PhonebookEntryData)
+    public function SetCallBarringEntry(string $PhonebookEntryData): mixed
     {
         $result = $this->Send(
             __FUNCTION__,
@@ -513,7 +435,7 @@ class FritzBoxTelephony extends FritzBoxModulBase
      *
      * @return bool
      */
-    public function DeleteCallBarringEntryUID(int $PhonebookEntryUniqueID)
+    public function DeleteCallBarringEntryUID(int $PhonebookEntryUniqueID): bool
     {
         $result = $this->Send(
             __FUNCTION__,
@@ -529,7 +451,7 @@ class FritzBoxTelephony extends FritzBoxModulBase
      *
      * @return string|false
      */
-    public function GetNumbers()
+    public function GetNumbers(): mixed
     {
         return $this->SendEx('X_AVM-DE_GetNumbers', self::VoIPIndex);
     }
@@ -541,7 +463,7 @@ class FritzBoxTelephony extends FritzBoxModulBase
      *
      * @return string|false disabled|not registered|registered|connected|unknown
      */
-    public function GetVoIPStatus(int $VoIPAccountIndex)
+    public function GetVoIPStatus(int $VoIPAccountIndex): mixed
     {
         if ($VoIPAccountIndex < 0) {
             $this->ReportError($this->Translate('Invalid index.'));
@@ -557,7 +479,7 @@ class FritzBoxTelephony extends FritzBoxModulBase
      *
      * @return string|false Leer, wenn die Wählhilfe nicht eingerichtet ist
      */
-    public function GetDialConfig()
+    public function GetDialConfig(): mixed
     {
         return $this->SendEx('X_AVM-DE_DialGetConfig', self::VoIPIndex);
     }
@@ -569,7 +491,7 @@ class FritzBoxTelephony extends FritzBoxModulBase
      *
      * @return string|false Name des Telefons
      */
-    public function GetPhonePort(int $PhonePortIndex)
+    public function GetPhonePort(int $PhonePortIndex): mixed
     {
         if ($PhonePortIndex < 1) {
             $this->ReportError($this->Translate('Invalid index.'));
@@ -588,7 +510,7 @@ class FritzBoxTelephony extends FritzBoxModulBase
      *
      * @return bool
      */
-    public function DialNumber(string $PhoneNumber)
+    public function DialNumber(string $PhoneNumber): bool
     {
         if (!preg_match('/^[0-9*#+]+$/', $PhoneNumber)) {
             $this->ReportError($this->Translate('Invalid phone number.'));
@@ -605,7 +527,7 @@ class FritzBoxTelephony extends FritzBoxModulBase
      *
      * @return bool
      */
-    public function DialHangup()
+    public function DialHangup(): bool
     {
         $result = $this->SendEx('X_AVM-DE_DialHangup', self::VoIPIndex);
         return $result !== false;
@@ -616,7 +538,7 @@ class FritzBoxTelephony extends FritzBoxModulBase
      *
      * @return int|false
      */
-    public function GetNumberOfAlarmClocks()
+    public function GetNumberOfAlarmClocks(): int|false
     {
         $result = $this->SendEx('X_AVM-DE_GetNumberOfAlarmClocks', self::VoIPIndex);
         if ($result === false) {
@@ -632,7 +554,7 @@ class FritzBoxTelephony extends FritzBoxModulBase
      *
      * @return array|false
      */
-    public function GetAlarmClock(int $Index)
+    public function GetAlarmClock(int $Index): mixed
     {
         if ($Index < 0) {
             $this->ReportError($this->Translate('Invalid index.'));
@@ -651,7 +573,7 @@ class FritzBoxTelephony extends FritzBoxModulBase
      *
      * @return bool
      */
-    public function SetAlarmClockEnable(int $Index, bool $Enable)
+    public function SetAlarmClockEnable(int $Index, bool $Enable): bool
     {
         if ($Index < 0) {
             $this->ReportError($this->Translate('Invalid index.'));
@@ -664,19 +586,98 @@ class FritzBoxTelephony extends FritzBoxModulBase
         return $result !== false;
     }
 
-    public function ReceiveData($JSONString)
+    public function ReceiveData(string $JSONString): string
     {
         $data = json_decode($JSONString, true);
         unset($data['DataID']);
         $this->SendDebug('ReceiveCallMonitorData', $data, 0);
-        $CallEvent = explode(';', utf8_decode($data['Buffer']));
-        switch ($CallEvent[1]) {
+        // IPSModuleStrict: Daten des Client Sockets kommen HEX-kodiert
+        $CallEvent = explode(';', hex2bin($data['Buffer']));
+        switch ($CallEvent[1] ?? '') {
             case 'CONNECT': // Verbunden
             case 'DISCONNECT': // Getrennt
                 IPS_RunScriptText('IPS_RequestAction(' . $this->InstanceID . ',"' . \FritzBox\Telephony\Action::RefreshCallLog . '",true);');
                 break;
         }
-        return true;
+        return '';
+    }
+
+    protected function ProcessRequestAction(string $Ident, mixed $Value): mixed
+    {
+        if (parent::ProcessRequestAction($Ident, $Value)) {
+            return true;
+        }
+        switch ($Ident) {
+            case \FritzBox\Telephony\Action::RefreshPhonebook:
+                return $this->RefreshPhonebook();
+            case \FritzBox\Telephony\Action::RefreshCallLog:
+                $this->SetNewCallLogRefreshTimer();
+                return $this->RefreshCallLog();
+            case \FritzBox\Telephony\Action::RefreshDeflectionList:
+                return $this->RefreshDeflectionList();
+            case \FritzBox\Telephony\Action::PreviewIcon:
+                $Data = unserialize($Value);
+                $ImageData = @getimagesize('data://text/plain;base64,' . $Data['Icon']);
+                if ($ImageData === false) {
+                    $this->UpdateFormField('IconName', 'caption', 'No valid image');
+                    $this->UpdateFormField('IconPreview', 'visible', true);
+                    return true;
+                }
+                $this->UpdateFormField('IconName', 'caption', $Data['DisplayName']);
+                $this->UpdateFormField('IconImage', 'image', 'data://' . $ImageData['mime'] . ';base64,' . $Data['Icon']);
+                $this->UpdateFormField('IconPreview', 'visible', true);
+                return true;
+            case \FritzBox\Telephony\Action::ReverseSearchInstanceID:
+                if ($Value > 1) {
+                    $this->UpdateFormField('CustomSearchScriptID', 'enabled', false);
+                } else {
+                    $this->UpdateFormField('CustomSearchScriptID', 'enabled', true);
+                }
+                return true;
+            case \FritzBox\Telephony\Action::CustomSearchScriptID:
+                if ($Value > 1) {
+                    $this->UpdateFormField('MaxNameSize', 'enabled', false);
+                    $this->UpdateFormField('ReverseSearchInstanceID', 'enabled', false);
+                    $this->UpdateFormField('SearchMarker', 'enabled', false);
+                    $this->UpdateFormField('UnknownNumberName', 'enabled', false);
+                } else {
+                    $this->UpdateFormField('MaxNameSize', 'enabled', true);
+                    $this->UpdateFormField('ReverseSearchInstanceID', 'enabled', true);
+                    $this->UpdateFormField('SearchMarker', 'enabled', true);
+                    $this->UpdateFormField('UnknownNumberName', 'enabled', true);
+                }
+                return true;
+            case \FritzBox\Telephony\Action::CallLogAsVariable:
+                $this->UpdateFormField('LastEntries', 'enabled', $Value);
+                $this->UpdateFormField('LoadListType', 'enabled', $Value);
+                $this->UpdateFormField('Icons', 'enabled', $Value);
+                $this->UpdateFormField('ShowImage', 'enabled', $Value);
+                $this->UpdateFormField('Table', 'enabled', $Value);
+                $this->UpdateFormField('UseRelativDate', 'enabled', $Value);
+                $this->UpdateFormField('Columns', 'enabled', $Value);
+                $this->UpdateFormField('Rows', 'enabled', $Value);
+                $this->UpdateFormField('ReloadCallLogButton', 'enabled', $Value);
+                $this->UpdateFormField('HTMLExpansionPanel', 'expanded', $Value);
+                $CallMonitorOpen = false;
+                if ($this->ParentID) {
+                    $CallMonitorOpen = $this->IsCallMonitorActive();
+                }
+                $this->UpdateFormField('RefreshIntervalCallLog', 'enabled', ($CallMonitorOpen ? false : $Value));
+                return true;
+            case \FritzBox\Telephony\Action::InstallCIRSModule:
+                $this->UpdateFormField('ReversSearchPopup', 'visible', false);
+                $this->UpdateFormField('WaitPopup', 'visible', true);
+                $this->InstallCIRSModule();
+                $this->ReloadForm();
+                return true;
+        }
+
+        if (substr($Ident, 0, 2) == 'D_') {
+            return $this->RefreshDeflectionList($Ident, $Value);
+        }
+
+        trigger_error($this->Translate('Invalid Ident.'), E_USER_NOTICE);
+        return false;
     }
 
     /**
@@ -684,7 +685,7 @@ class FritzBoxTelephony extends FritzBoxModulBase
      *
      * @global array $_GET
      */
-    protected function ProcessHookdata()
+    protected function ProcessHookData(): void
     {
         $this->SendDebug('Server', $_SERVER['HOOK'], 0);
         if ($_SERVER['SCRIPT_NAME'] == '/hook/FritzBoxCallLog' . $this->InstanceID . '/tooltip.js') {

@@ -21,7 +21,7 @@ class FritzBoxWANIPv6Firewall extends FritzBoxModulBase
     ];
     protected static $DefaultIndex = 0;
 
-    public function Create()
+    public function Create(): void
     {
         //Never delete this line!
         parent::Create();
@@ -29,13 +29,13 @@ class FritzBoxWANIPv6Firewall extends FritzBoxModulBase
         $this->RegisterTimer(\FritzBox\Base\Timer::RefreshInfo, 0, 'IPS_RequestAction(' . $this->InstanceID . ',"' . \FritzBox\Base\Action::RefreshInfo . '",true);');
     }
 
-    public function Destroy()
+    public function Destroy(): void
     {
         //Never delete this line!
         parent::Destroy();
     }
 
-    public function ApplyChanges()
+    public function ApplyChanges(): void
     {
         $this->SetTimerInterval(\FritzBox\Base\Timer::RefreshInfo, 0);
         parent::ApplyChanges();
@@ -46,25 +46,12 @@ class FritzBoxWANIPv6Firewall extends FritzBoxModulBase
         $this->UpdateInfo();
     }
 
-    public function RequestAction($Ident, $Value)
-    {
-        if (parent::RequestAction($Ident, $Value)) {
-            return true;
-        }
-        switch ($Ident) {
-            case \FritzBox\Base\Action::RefreshInfo:
-                return $this->UpdateInfo();
-        }
-        trigger_error($this->Translate('Invalid Ident.'), E_USER_NOTICE);
-        return false;
-    }
-
     /**
      * Liefert, ob die Firewall aktiv ist und ob eingehende Pinholes erlaubt sind.
      *
      * @return array|false Schlüssel FirewallEnabled und InboundPinholeAllowed
      */
-    public function GetFirewallStatus()
+    public function GetFirewallStatus(): mixed
     {
         return $this->Send(__FUNCTION__);
     }
@@ -81,7 +68,7 @@ class FritzBoxWANIPv6Firewall extends FritzBoxModulBase
      *
      * @return int|false UniqueID des Pinholes
      */
-    public function AddPinhole(string $RemoteHost, int $RemotePort, string $InternalClient, int $InternalPort, int $Protocol, int $LeaseTime)
+    public function AddPinhole(string $RemoteHost, int $RemotePort, string $InternalClient, int $InternalPort, int $Protocol, int $LeaseTime): int|false
     {
         if (($RemoteHost !== '') && !filter_var($RemoteHost, FILTER_VALIDATE_IP, FILTER_FLAG_IPV6)) {
             $this->ReportError($this->Translate('Invalid IPv6 address.'));
@@ -125,7 +112,7 @@ class FritzBoxWANIPv6Firewall extends FritzBoxModulBase
      *
      * @return bool
      */
-    public function UpdatePinhole(int $UniqueID, int $LeaseTime)
+    public function UpdatePinhole(int $UniqueID, int $LeaseTime): bool
     {
         if (($UniqueID < 0) || ($UniqueID > 65535)) {
             $this->ReportError($this->Translate('Invalid ID.'));
@@ -149,7 +136,7 @@ class FritzBoxWANIPv6Firewall extends FritzBoxModulBase
      *
      * @return bool
      */
-    public function DeletePinhole(int $UniqueID)
+    public function DeletePinhole(int $UniqueID): bool
     {
         if (($UniqueID < 0) || ($UniqueID > 65535)) {
             $this->ReportError($this->Translate('Invalid ID.'));
@@ -159,6 +146,19 @@ class FritzBoxWANIPv6Firewall extends FritzBoxModulBase
             'UniqueID'=> $UniqueID
         ]);
         return $result !== false;
+    }
+
+    protected function ProcessRequestAction(string $Ident, mixed $Value): mixed
+    {
+        if (parent::ProcessRequestAction($Ident, $Value)) {
+            return true;
+        }
+        switch ($Ident) {
+            case \FritzBox\Base\Action::RefreshInfo:
+                return $this->UpdateInfo();
+        }
+        trigger_error($this->Translate('Invalid Ident.'), E_USER_NOTICE);
+        return false;
     }
 
     private function UpdateInfo()

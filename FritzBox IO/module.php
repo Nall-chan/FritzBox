@@ -2,7 +2,6 @@
 
 declare(strict_types=1);
 eval('declare(strict_types=1);namespace FritzBoxIO {?>' . file_get_contents(__DIR__ . '/../libs/helper/AttributeArrayHelper.php') . '}');
-eval('declare(strict_types=1);namespace FritzBoxIO {?>' . file_get_contents(__DIR__ . '/../libs/helper/WebhookHelper.php') . '}');
 eval('declare(strict_types=1);namespace FritzBoxIO {?>' . file_get_contents(__DIR__ . '/../libs/helper/BufferHelper.php') . '}');
 eval('declare(strict_types=1);namespace FritzBoxIO {?>' . file_get_contents(__DIR__ . '/../libs/helper/DebugHelper.php') . '}');
 eval('declare(strict_types=1);namespace FritzBoxIO {?>' . file_get_contents(__DIR__ . '/../libs/helper/SemaphoreHelper.php') . '}');
@@ -13,19 +12,16 @@ require_once __DIR__ . '/../libs/FritzBoxModule.php';
  * @property bool $ForceLoadXML
  * @property string $SID
  * @property bool $isSubscribed
- * @method void RegisterHook(string $WebHook)
- * @method void UnregisterHook(string $WebHook)
  * @method void RegisterAttributeArray(string $name, mixed $Value, int $Size = 0)
  * @method mixed ReadAttributeArray(string $name)
  * @method void WriteAttributeArray(string $name, mixed $value)
  * @method bool SendDebug(string $Message, mixed $Data, int $Format)
  */
-class FritzBoxIO extends IPSModule
+class FritzBoxIO extends IPSModuleStrict
 {
     use \FritzBoxIO\AttributeArrayHelper;
     use \FritzBoxIO\BufferHelper;
     use \FritzBoxIO\DebugHelper;
-    use \FritzBoxIO\WebhookHelper;
     use \FritzBoxIO\Semaphore;
 
     public const isConnected = IS_ACTIVE;
@@ -47,7 +43,7 @@ class FritzBoxIO extends IPSModule
             501 => ['Webhook invalid', self::isDisconnected]
         ];
 
-    public function Create()
+    public function Create(): void
     {
         //Never delete this line!
         parent::Create();
@@ -86,10 +82,10 @@ class FritzBoxIO extends IPSModule
         }
     }
 
-    public function Destroy()
+    public function Destroy(): void
     {
         if (!IPS_InstanceExists($this->InstanceID)) {
-            $this->UnregisterHook('/hook/FritzBoxIO' . $this->InstanceID);
+            $this->UnregisterHook(\FritzBox\IO\Hook::Name . $this->InstanceID);
             @array_map('unlink', glob(IPS_GetKErnelDir() . 'FritzBoxTemp/' . $this->InstanceID . '/*.*'));
             @rmdir(IPS_GetKErnelDir() . 'FritzBoxTemp/' . $this->InstanceID);
         }
@@ -97,7 +93,7 @@ class FritzBoxIO extends IPSModule
         parent::Destroy();
     }
 
-    public function MessageSink($TimeStamp, $SenderID, $Message, $Data)
+    public function MessageSink(int $TimeStamp, int $SenderID, int $Message, array $Data): void
     {
         switch ($Message) {
             case IPS_KERNELMESSAGE:
@@ -113,7 +109,7 @@ class FritzBoxIO extends IPSModule
         }
     }
 
-    public function GetConfigurationForParent()
+    public function GetConfigurationForParent(): string
     {
         $Host = parse_url($this->ReadPropertyString(\FritzBox\IO\Property::Host), PHP_URL_HOST);
         return json_encode([\FritzBox\ClientSocket\Property::Host => ($Host ? $Host : ''), \FritzBox\ClientSocket\Property::Port => 1012]);
@@ -124,24 +120,24 @@ class FritzBoxIO extends IPSModule
      *
      * @return string JSON mit den kompatiblen Parent-Modulen
      */
-    public function GetCompatibleParents()
+    public function GetCompatibleParents(): string
     {
         $ModuleIDs = $this->checkCallMonitorPort() ? [\FritzBox\GUID::ClientSocket] : [];
         return json_encode(['type' => 'connect', 'moduleIDs' => $ModuleIDs]);
     }
 
-    public function RequestAction($Ident, $Value)
+    public function RequestAction(string $Ident, mixed $Value): void
     {
         if ($Ident == \FritzBox\IO\Action::KernelReady) {
-            return $this->KernelReady();
+            $this->KernelReady();
+            return;
         }
         if ($Ident == \FritzBox\IO\Action::Subscribe) {
             $this->DoSubscribe();
-            return true;
         }
     }
 
-    public function ApplyChanges()
+    public function ApplyChanges(): void
     {
         //Never delete this line!
         $this->DoUnsubscribe();
@@ -149,11 +145,12 @@ class FritzBoxIO extends IPSModule
         if (IPS_GetKernelRunlevel() != KR_READY) {
             return;
         }
-        $this->RegisterHook('/hook/FritzBoxIO' . $this->InstanceID);
+        // IPSModuleStrict: RegisterHook setzt /hook/ selbst davor
+        $this->RegisterHook(\FritzBox\IO\Hook::Name . $this->InstanceID);
         $this->InitConnection();
     }
 
-    public function ForwardData($JSONString)
+    public function ForwardData(string $JSONString): string
     {
         $data = json_decode($JSONString, true);
         switch ($data['Function']) {
@@ -184,19 +181,17 @@ class FritzBoxIO extends IPSModule
             case \FritzBox\IOFunction::RefreshHostList:
                 $data['DataID'] = \FritzBox\GUID::RefreshHostListRequest;
                 $result = $this->SendDataToChildren(json_encode($data));
-                $ret = false;
-                if (count($result) > 0) {
-                    $ret = $result[0] == 'OK';
-                }
+                $ret = in_array('OK', $result, true);
                 if ($ret) {
                     $data['DataID'] = \FritzBox\GUID::NewHostListEvent;
                     $data['Function'] = \FritzBox\IOFunction::NewHostListEvent;
-                    $ret = $this->SendDataToChildren(json_encode($data));
+                    $this->SendDataToChildren(json_encode($data));
                 }
                 break;
             case \FritzBox\IOFunction::NewHostListEvent:
                 $data['DataID'] = \FritzBox\GUID::NewHostListEvent;
-                $ret = $this->SendDataToChildren(json_encode($data));
+                $this->SendDataToChildren(json_encode($data));
+                $ret = true;
                 break;
             case \FritzBox\IOFunction::LoadAndGetData:
                 $ret = $this->LoadAndGetData($data['Uri']);
@@ -236,18 +231,19 @@ class FritzBoxIO extends IPSModule
                 $ret = $this->CallSoapAction($HttpCode, $data['ServiceTyp'], $data['ControlUrl'], $data['Function'], $data['Parameter']);
                 break;
         }
-        return serialize($ret);
+        return \FritzBox\IOResult::Encode($ret);
     }
 
-    public function ReceiveData($JSONString)
+    public function ReceiveData(string $JSONString): string
     {
         $data = json_decode($JSONString);
         $data->DataID = \FritzBox\GUID::CallMonitorEvent;
         $this->SendDebug('Forward', json_encode($data), 0);
         $this->SendDataToChildren(json_encode($data));
+        return '';
     }
 
-    public function GetConfigurationForm()
+    public function GetConfigurationForm(): string
     {
         $Form = json_decode(file_get_contents(__DIR__ . '/form.json'), true);
         if ($this->GetStatus() == IS_CREATING) {
@@ -280,7 +276,7 @@ class FritzBoxIO extends IPSModule
         return json_encode($Form);
     }
 
-    public function Reboot()
+    public function Reboot(): bool
     {
         $result = $this->CallSoapAction(
             $HttpCode,
@@ -294,14 +290,15 @@ class FritzBoxIO extends IPSModule
         return true;
     }
 
-    protected function SetStatus($Status)
+    protected function SetStatus(int $Status): bool
     {
         if ($Status != self::isConnected) {
             $this->DoUnsubscribe();
         }
         if ($this->GetStatus() != $Status) {
-            parent::SetStatus($Status);
+            return parent::SetStatus($Status);
         }
+        return true;
     }
 
     protected function InitConnection()
@@ -348,7 +345,7 @@ class FritzBoxIO extends IPSModule
         }
     }
 
-    protected function ProcessHookData()
+    protected function ProcessHookData(): void
     {
         if ($this->ReadPropertyBoolean(\FritzBox\IO\Property::Open) == false) {
             http_response_code(404);
@@ -375,7 +372,7 @@ class FritzBoxIO extends IPSModule
             return;
         }
 
-        $eventSubUrl = substr($_SERVER['REQUEST_URI'], strlen($_SERVER['HOOK']));
+        $eventSubUrl = substr($_SERVER['REQUEST_URI'], strlen(\FritzBox\IO\Hook::Path . $this->InstanceID));
         $SID = $_SERVER['HTTP_SID'];
 
         http_response_code(200);
@@ -412,7 +409,7 @@ class FritzBoxIO extends IPSModule
             if ($this->isSubscribed) {
                 return true;
             } else {
-                IPS_Sleep(5);
+                usleep((5) * 1000);
             }
         }
         return false;
@@ -655,14 +652,14 @@ class FritzBoxIO extends IPSModule
             }
             $Debug = 'ConsumerAddress';
         }
-        $Url = 'http://' . $ip . ':' . $Port . '/hook/FritzBoxIO' . $this->InstanceID;
+        $Url = 'http://' . $ip . ':' . $Port . \FritzBox\IO\Hook::Path . $this->InstanceID;
         $this->SendDebug($Debug, $Url, 0);
         $this->UpdateFormField('EventHook', 'caption', $Url);
         $this->WriteAttributeString(\FritzBox\IO\Attribute::ConsumerAddress, $Url);
         return true;
     }
 
-    private function KernelReady()
+    private function KernelReady(): void
     {
         $this->UnregisterMessage(0, IPS_KERNELMESSAGE);
         if (!$this->IsCallMonitorSocketOpen()) {
@@ -674,7 +671,7 @@ class FritzBoxIO extends IPSModule
 
     private function ShowLastError(string $ErrorMessage, string $ErrorTitle = 'Error')
     {
-        IPS_Sleep(500);
+        usleep((500) * 1000);
         $this->UpdateFormField('ErrorTitle', 'caption', $this->Translate($ErrorTitle));
         $this->UpdateFormField('ErrorText', 'caption', $this->Translate($ErrorMessage));
         $this->UpdateFormField('ErrorPopup', 'visible', true);

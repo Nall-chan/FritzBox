@@ -15,7 +15,7 @@ class FritzBoxFirmwareInfo extends FritzBoxModulBase
     ];
     protected static $DefaultIndex = 0;
 
-    public function Create()
+    public function Create(): void
     {
         //Never delete this line!
         parent::Create();
@@ -24,7 +24,7 @@ class FritzBoxFirmwareInfo extends FritzBoxModulBase
         $this->RegisterTimer(\FritzBox\Base\Timer::RefreshState, 0, 'IPS_RequestAction(' . $this->InstanceID . ',"' . \FritzBox\Base\Action::RefreshState . '",true);');
     }
 
-    public function Destroy()
+    public function Destroy(): void
     {
         if (!IPS_InstanceExists($this->InstanceID)) {
             $this->UnregisterProfile('FB.UpdateState');
@@ -36,7 +36,7 @@ class FritzBoxFirmwareInfo extends FritzBoxModulBase
         parent::Destroy();
     }
 
-    public function ApplyChanges()
+    public function ApplyChanges(): void
     {
         //Never delete this line!
         parent::ApplyChanges();
@@ -81,23 +81,7 @@ class FritzBoxFirmwareInfo extends FritzBoxModulBase
         $this->UpdateInfo();
     }
 
-    public function RequestAction($Ident, $Value)
-    {
-        if (parent::RequestAction($Ident, $Value)) {
-            return true;
-        }
-        switch ($Ident) {
-            case \FritzBox\Base\Action::RefreshState:
-                return $this->UpdateInfo();
-            case \FritzBox\FirmwareInfo\Variables::AutoUpdateMode:
-                return $this->SetAutoUpdateMode((string) $Value);
-        }
-        trigger_error($this->Translate('Invalid Ident.'), E_USER_NOTICE);
-
-        return false;
-    }
-
-    public function GetInfo()
+    public function GetInfo(): mixed
     {
         $result = $this->Send(__FUNCTION__);
         if ($result === false) {
@@ -106,7 +90,7 @@ class FritzBoxFirmwareInfo extends FritzBoxModulBase
         return $result;
     }
 
-    public function GetInfoEx()
+    public function GetInfoEx(): mixed
     {
         $result = $this->Send('X_AVM-DE_GetInfo');
         if ($result === false) {
@@ -115,7 +99,7 @@ class FritzBoxFirmwareInfo extends FritzBoxModulBase
         return $result;
     }
 
-    public function SetAutoUpdateMode(string $Mode)
+    public function SetAutoUpdateMode(string $Mode): bool
     {
         $result = $this->Send('X_AVM-DE_SetConfig', [
             'NewX_AVM-DE_AutoUpdateMode' => $Mode
@@ -127,7 +111,7 @@ class FritzBoxFirmwareInfo extends FritzBoxModulBase
         return true;
     }
 
-    public function GetInternationalConfig()
+    public function GetInternationalConfig(): mixed
     {
         $result = $this->Send('X_AVM-DE_GetInternationalConfig');
         if ($result === false) {
@@ -136,7 +120,7 @@ class FritzBoxFirmwareInfo extends FritzBoxModulBase
         return $result;
     }
 
-    public function CheckUpdate()
+    public function CheckUpdate(): bool
     {
         $result = $this->Send('X_AVM-DE_CheckUpdate');
         if ($result === false) {
@@ -145,10 +129,26 @@ class FritzBoxFirmwareInfo extends FritzBoxModulBase
         return true;
     }
 
-    public function DoUpdate()
+    public function DoUpdate(): bool
     {
         $result = $this->Send('X_AVM-DE_DoUpdate');
         return $result !== false;
+    }
+
+    protected function ProcessRequestAction(string $Ident, mixed $Value): mixed
+    {
+        if (parent::ProcessRequestAction($Ident, $Value)) {
+            return true;
+        }
+        switch ($Ident) {
+            case \FritzBox\Base\Action::RefreshState:
+                return $this->UpdateInfo();
+            case \FritzBox\FirmwareInfo\Variables::AutoUpdateMode:
+                return $this->SetAutoUpdateMode((string) $Value);
+        }
+        trigger_error($this->Translate('Invalid Ident.'), E_USER_NOTICE);
+
+        return false;
     }
 
     private function UpdateInfo()

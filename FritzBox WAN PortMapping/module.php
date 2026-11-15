@@ -17,7 +17,7 @@ class FritzBoxWANPortMapping extends FritzBoxModulBase
         'urn:dslforum-org:service:WANIPConnection:1'
     ];
 
-    public function Create()
+    public function Create(): void
     {
         //Never delete this line!
         parent::Create();
@@ -26,7 +26,7 @@ class FritzBoxWANPortMapping extends FritzBoxModulBase
         $this->RegisterTimer(\FritzBox\Base\Timer::RefreshInfo, 0, 'IPS_RequestAction(' . $this->InstanceID . ',"' . \FritzBox\Base\Action::RefreshInfo . '",true);');
     }
 
-    public function ApplyChanges()
+    public function ApplyChanges(): void
     {
         $this->SetTimerInterval(\FritzBox\Base\Timer::RefreshInfo, 0);
         parent::ApplyChanges();
@@ -43,23 +43,7 @@ class FritzBoxWANPortMapping extends FritzBoxModulBase
         $this->SetTimerInterval(\FritzBox\Base\Timer::RefreshInfo, $this->ReadPropertyInteger(\FritzBox\Base\Property::RefreshInterval) * 1000);
     }
 
-    public function RequestAction($Ident, $Value)
-    {
-        if (parent::RequestAction($Ident, $Value)) {
-            return true;
-        }
-        if ((bool) preg_match('/^[[:digit:]]{1,3}P[[:digit:]]{1,3}P[[:digit:]]{1,3}P[[:digit:]]{1,3}/m', $Ident)) {
-            return $this->EnablePortMapping($Ident, (bool) $Value);
-        }
-        switch ($Ident) {
-            case \FritzBox\Base\Action::RefreshInfo:
-                return $this->UpdatePortMapping();
-        }
-        trigger_error($this->Translate('Invalid Ident.'), E_USER_NOTICE);
-        return false;
-    }
-
-    public function GetPortMappingNumberOfEntries()
+    public function GetPortMappingNumberOfEntries(): int|false
     {
         $result = $this->Send(__FUNCTION__);
         if ($result === false) {
@@ -68,7 +52,7 @@ class FritzBoxWANPortMapping extends FritzBoxModulBase
         return (int) $result;
     }
 
-    public function GetGenericPortMappingEntry(int $index)
+    public function GetGenericPortMappingEntry(int $index): array|false
     {
         $result = $this->Send(__FUNCTION__, ['NewPortMappingIndex'=>$index]);
         if ($result == false) {
@@ -86,7 +70,7 @@ class FritzBoxWANPortMapping extends FritzBoxModulBase
         ];
     }
 
-    public function GetSpecificPortMappingEntry(string $RemoteHost, int $ExternalPort, string $Protocol)
+    public function GetSpecificPortMappingEntry(string $RemoteHost, int $ExternalPort, string $Protocol): array|false
     {
         $result = $this->Send(__FUNCTION__, [
             'NewRemoteHost'  => $RemoteHost,
@@ -109,7 +93,7 @@ class FritzBoxWANPortMapping extends FritzBoxModulBase
         ];
     }
 
-    public function DeletePortMapping(string $RemoteHost, int $ExternalPort, string $Protocol)
+    public function DeletePortMapping(string $RemoteHost, int $ExternalPort, string $Protocol): bool
     {
         $result = $this->Send(__FUNCTION__, [
             'NewRemoteHost'  => $RemoteHost,
@@ -146,7 +130,7 @@ class FritzBoxWANPortMapping extends FritzBoxModulBase
         return false;
     }
 
-    public function EnablePortMapping(string $Ident, bool $Value)
+    public function EnablePortMapping(string $Ident, bool $Value): mixed
     {
         if (@$this->GetIDForIdent($Ident) == false) {
             trigger_error($this->Translate('Invalid Ident.'), E_USER_NOTICE);
@@ -154,6 +138,22 @@ class FritzBoxWANPortMapping extends FritzBoxModulBase
         }
 
         return $this->UpdatePortMapping($Ident, $Value);
+    }
+
+    protected function ProcessRequestAction(string $Ident, mixed $Value): mixed
+    {
+        if (parent::ProcessRequestAction($Ident, $Value)) {
+            return true;
+        }
+        if ((bool) preg_match('/^[[:digit:]]{1,3}P[[:digit:]]{1,3}P[[:digit:]]{1,3}P[[:digit:]]{1,3}/m', $Ident)) {
+            return $this->EnablePortMapping($Ident, (bool) $Value);
+        }
+        switch ($Ident) {
+            case \FritzBox\Base\Action::RefreshInfo:
+                return $this->UpdatePortMapping();
+        }
+        trigger_error($this->Translate('Invalid Ident.'), E_USER_NOTICE);
+        return false;
     }
 
     private function UpdatePortMapping(string $NewIdent = '', bool $NewEnabled = false)
@@ -206,35 +206,35 @@ class FritzBoxWANPortMapping extends FritzBoxModulBase
         return $ReturnValue;
     }
     /*
-            public function GetInfo()
+            public function GetInfo(): void
             {
                 $this->Send(__FUNCTION__);
             }
-            public function GetConnectionTypeInfo()
-            {
-                $this->Send(__FUNCTION__);
-
-            }
-            public function GetStatusInfo()
-            {
-                $this->Send(__FUNCTION__);
-            }
-            public function GetNATRSIPStatus()
+            public function GetConnectionTypeInfo(): void
             {
                 $this->Send(__FUNCTION__);
 
             }
-            public function GetExternalIPAddress()
+            public function GetStatusInfo(): void
+            {
+                $this->Send(__FUNCTION__);
+            }
+            public function GetNATRSIPStatus(): void
             {
                 $this->Send(__FUNCTION__);
 
             }
-            public function X_GetDNSServers()
+            public function GetExternalIPAddress(): void
             {
                 $this->Send(__FUNCTION__);
 
             }
-            public function GetLinkLayerMaxBitRates()
+            public function X_GetDNSServers(): void
+            {
+                $this->Send(__FUNCTION__);
+
+            }
+            public function GetLinkLayerMaxBitRates(): void
             {
                 $this->Send(__FUNCTION__);
 

@@ -111,6 +111,14 @@ namespace FritzBox\IO {
     {
         public const ConnectionType = 'ConnectionType';
     }
+
+    class Hook
+    {
+        /** Name für RegisterHook/UnregisterHook (Symcon setzt /hook/ davor). */
+        public const Name = 'FritzBoxIO';
+        /** Vollständiger Pfad (URL für die FritzBox, Auswertung in ProcessHookData). */
+        public const Path = '/hook/' . self::Name;
+    }
 }
 
 namespace FritzBox\Time {
@@ -611,7 +619,10 @@ namespace FritzBox\AnsweringMachine {
 
     class Hook
     {
-        public const Prefix = '/hook/FritzBoxTAM';
+        /** Name für RegisterHook/UnregisterHook (Symcon setzt /hook/ davor). */
+        public const Name = 'FritzBoxTAM';
+        /** Vollständiger Pfad für die Links in der Tabelle. */
+        public const Prefix = '/hook/' . self::Name;
         public const Play = 'Play';
         public const Mark = 'Mark';
         public const Delete = 'Delete';

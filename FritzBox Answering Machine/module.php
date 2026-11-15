@@ -2,7 +2,6 @@
 
 declare(strict_types=1);
 
-eval('declare(strict_types=1);namespace FritzBoxAnsweringMachine {?>' . file_get_contents(__DIR__ . '/../libs/helper/WebhookHelper.php') . '}');
 require_once __DIR__ . '/../libs/FritzBoxBase.php';
 require_once __DIR__ . '/../libs/FritzBoxTable.php';
 
@@ -13,13 +12,10 @@ require_once __DIR__ . '/../libs/FritzBoxTable.php';
  *
  * @property array $MessagePaths Pfade der Audiodateien [Nachrichten-Index]
  * @property array $MessagesNew Nachricht war beim letzten Abruf neu [Nachrichten-Index]
- * @method void RegisterHook(string $WebHook)
- * @method void UnregisterHook(string $WebHook)
  */
 class FritzBoxAnsweringMachine extends FritzBoxModulBase
 {
     use \FritzBoxModul\HTMLTable;
-    use \FritzBoxAnsweringMachine\WebhookHelper;
 
     /** Anzahl der möglichen Anrufbeantworter (Index 0 bis 4) laut AVM. */
     public const MaxTAM = 5;
@@ -33,7 +29,7 @@ class FritzBoxAnsweringMachine extends FritzBoxModulBase
     ];
     protected static $DefaultIndex = 0;
 
-    public function Create()
+    public function Create(): void
     {
         //Never delete this line!
         parent::Create();
@@ -50,16 +46,16 @@ class FritzBoxAnsweringMachine extends FritzBoxModulBase
         $this->RegisterTimer(\FritzBox\Base\Timer::RefreshInfo, 0, 'IPS_RequestAction(' . $this->InstanceID . ',"' . \FritzBox\Base\Action::RefreshInfo . '",true);');
     }
 
-    public function Destroy()
+    public function Destroy(): void
     {
         if (!IPS_InstanceExists($this->InstanceID)) {
-            $this->UnregisterHook(\FritzBox\AnsweringMachine\Hook::Prefix . $this->InstanceID);
+            $this->UnregisterHook(\FritzBox\AnsweringMachine\Hook::Name . $this->InstanceID);
         }
         //Never delete this line!
         parent::Destroy();
     }
 
-    public function ApplyChanges()
+    public function ApplyChanges(): void
     {
         $this->SetTimerInterval(\FritzBox\Base\Timer::RefreshInfo, 0);
         $this->MessagePaths = [];
@@ -87,36 +83,12 @@ class FritzBoxAnsweringMachine extends FritzBoxModulBase
             return;
         }
         if ($this->ReadPropertyBoolean(\FritzBox\AnsweringMachine\Property::MessagesAsTable)) {
-            $this->RegisterHook(\FritzBox\AnsweringMachine\Hook::Prefix . $this->InstanceID);
+            // IPSModuleStrict: RegisterHook setzt /hook/ selbst davor
+            $this->RegisterHook(\FritzBox\AnsweringMachine\Hook::Name . $this->InstanceID);
         } else {
-            $this->UnregisterHook(\FritzBox\AnsweringMachine\Hook::Prefix . $this->InstanceID);
+            $this->UnregisterHook(\FritzBox\AnsweringMachine\Hook::Name . $this->InstanceID);
         }
         $this->UpdateInfo();
-    }
-
-    public function RequestAction($Ident, $Value)
-    {
-        if (parent::RequestAction($Ident, $Value)) {
-            return true;
-        }
-        switch ($Ident) {
-            case \FritzBox\AnsweringMachine\Variables::Enable:
-                if (!$this->SetTAMEnable((bool) $Value)) {
-                    return false;
-                }
-                $this->SetValue($Ident, (bool) $Value);
-                return true;
-            case \FritzBox\Base\Action::RefreshInfo:
-                return $this->UpdateInfo();
-            case \FritzBox\AnsweringMachine\Property::MessagesAsTable:
-                $this->UpdateFormField('HTMLExpansionPanel', 'expanded', $Value);
-                $this->UpdateFormField('Table', 'enabled', $Value);
-                $this->UpdateFormField('Columns', 'enabled', $Value);
-                $this->UpdateFormField('Rows', 'enabled', $Value);
-                return;
-        }
-        trigger_error($this->Translate('Invalid Ident.'), E_USER_NOTICE);
-        return false;
     }
 
     /**
@@ -124,7 +96,7 @@ class FritzBoxAnsweringMachine extends FritzBoxModulBase
      *
      * @return array|false
      */
-    public function GetTAMInfo()
+    public function GetTAMInfo(): mixed
     {
         return $this->Send('GetInfo', [
             'NewIndex' => $this->ReadPropertyInteger(\FritzBox\AnsweringMachine\Property::TAMIndex)
@@ -138,7 +110,7 @@ class FritzBoxAnsweringMachine extends FritzBoxModulBase
      *
      * @return bool
      */
-    public function SetTAMEnable(bool $Enable)
+    public function SetTAMEnable(bool $Enable): bool
     {
         return $this->Send('SetEnable', [
             'NewIndex'  => $this->ReadPropertyInteger(\FritzBox\AnsweringMachine\Property::TAMIndex),
@@ -151,7 +123,7 @@ class FritzBoxAnsweringMachine extends FritzBoxModulBase
      *
      * @return string|false
      */
-    public function GetTAMList()
+    public function GetTAMList(): mixed
     {
         return $this->Send('GetList');
     }
@@ -161,7 +133,7 @@ class FritzBoxAnsweringMachine extends FritzBoxModulBase
      *
      * @return string|false
      */
-    public function GetTAMMessageList()
+    public function GetTAMMessageList(): mixed
     {
         return $this->Send('GetMessageList', [
             'NewIndex' => $this->ReadPropertyInteger(\FritzBox\AnsweringMachine\Property::TAMIndex)
@@ -176,7 +148,7 @@ class FritzBoxAnsweringMachine extends FritzBoxModulBase
      *
      * @return bool
      */
-    public function MarkTAMMessage(int $MessageIndex, bool $MarkedAsRead)
+    public function MarkTAMMessage(int $MessageIndex, bool $MarkedAsRead): bool
     {
         if (!$this->IsValidMessageIndex($MessageIndex)) {
             return false;
@@ -195,7 +167,7 @@ class FritzBoxAnsweringMachine extends FritzBoxModulBase
      *
      * @return bool
      */
-    public function DeleteTAMMessage(int $MessageIndex)
+    public function DeleteTAMMessage(int $MessageIndex): bool
     {
         if (!$this->IsValidMessageIndex($MessageIndex)) {
             return false;
@@ -211,7 +183,7 @@ class FritzBoxAnsweringMachine extends FritzBoxModulBase
      *
      * @return array|false
      */
-    public function GetTAMMessages()
+    public function GetTAMMessages(): mixed
     {
         $Url = $this->GetTAMMessageList();
         if ($Url === false) {
@@ -245,7 +217,7 @@ class FritzBoxAnsweringMachine extends FritzBoxModulBase
         return $Messages;
     }
 
-    public function GetConfigurationForm()
+    public function GetConfigurationForm(): string
     {
         $Form = json_decode(file_get_contents(__DIR__ . '/form.json'), true);
         if ($this->GetStatus() == IS_CREATING) {
@@ -259,10 +231,35 @@ class FritzBoxAnsweringMachine extends FritzBoxModulBase
         return json_encode($Form);
     }
 
+    protected function ProcessRequestAction(string $Ident, mixed $Value): mixed
+    {
+        if (parent::ProcessRequestAction($Ident, $Value)) {
+            return true;
+        }
+        switch ($Ident) {
+            case \FritzBox\AnsweringMachine\Variables::Enable:
+                if (!$this->SetTAMEnable((bool) $Value)) {
+                    return false;
+                }
+                $this->SetValue($Ident, (bool) $Value);
+                return true;
+            case \FritzBox\Base\Action::RefreshInfo:
+                return $this->UpdateInfo();
+            case \FritzBox\AnsweringMachine\Property::MessagesAsTable:
+                $this->UpdateFormField('HTMLExpansionPanel', 'expanded', $Value);
+                $this->UpdateFormField('Table', 'enabled', $Value);
+                $this->UpdateFormField('Columns', 'enabled', $Value);
+                $this->UpdateFormField('Rows', 'enabled', $Value);
+                return true;
+        }
+        trigger_error($this->Translate('Invalid Ident.'), E_USER_NOTICE);
+        return false;
+    }
+
     /**
      * Verarbeitet die Bedienung aus der HTML-Tabelle (Abspielen, Markieren, Löschen).
      */
-    protected function ProcessHookData()
+    protected function ProcessHookData(): void
     {
         $Type = $_GET['Type'] ?? '';
         $Id = (int) ($_GET['ID'] ?? -1);

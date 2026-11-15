@@ -18,7 +18,7 @@ class FritzBoxDECT extends FritzBoxModulBase
     ];
     protected static $DefaultIndex = 0;
 
-    public function Create()
+    public function Create(): void
     {
         //Never delete this line!
         parent::Create();
@@ -28,13 +28,13 @@ class FritzBoxDECT extends FritzBoxModulBase
         $this->RegisterTimer(\FritzBox\Base\Timer::RefreshInfo, 0, 'IPS_RequestAction(' . $this->InstanceID . ',"' . \FritzBox\Base\Action::RefreshInfo . '",true);');
     }
 
-    public function Destroy()
+    public function Destroy(): void
     {
         //Never delete this line!
         parent::Destroy();
     }
 
-    public function ApplyChanges()
+    public function ApplyChanges(): void
     {
         $this->SetTimerInterval(\FritzBox\Base\Timer::RefreshInfo, 0);
         parent::ApplyChanges();
@@ -45,25 +45,12 @@ class FritzBoxDECT extends FritzBoxModulBase
         $this->UpdateInfo();
     }
 
-    public function RequestAction($Ident, $Value)
-    {
-        if (parent::RequestAction($Ident, $Value)) {
-            return true;
-        }
-        switch ($Ident) {
-            case \FritzBox\Base\Action::RefreshInfo:
-                return $this->UpdateInfo();
-        }
-        trigger_error($this->Translate('Invalid Ident.'), E_USER_NOTICE);
-        return false;
-    }
-
     /**
      * Liefert die Anzahl der DECT-Geräte.
      *
      * @return int|false
      */
-    public function GetNumberOfDectEntries()
+    public function GetNumberOfDectEntries(): int|false
     {
         $Result = $this->Send(__FUNCTION__);
         if ($Result === false) {
@@ -79,7 +66,7 @@ class FritzBoxDECT extends FritzBoxModulBase
      *
      * @return array|false
      */
-    public function GetGenericDectEntry(int $Index)
+    public function GetGenericDectEntry(int $Index): mixed
     {
         if ($Index < 0) {
             $this->ReportError($this->Translate('Invalid index.'));
@@ -97,7 +84,7 @@ class FritzBoxDECT extends FritzBoxModulBase
      *
      * @return array|false
      */
-    public function GetSpecificDectEntry(string $ID)
+    public function GetSpecificDectEntry(string $ID): mixed
     {
         if ($ID === '') {
             $this->ReportError($this->Translate('Invalid device ID.'));
@@ -115,7 +102,7 @@ class FritzBoxDECT extends FritzBoxModulBase
      *
      * @return bool
      */
-    public function DectDoUpdate(string $ID)
+    public function DectDoUpdate(string $ID): bool
     {
         if ($ID === '') {
             $this->ReportError($this->Translate('Invalid device ID.'));
@@ -131,9 +118,22 @@ class FritzBoxDECT extends FritzBoxModulBase
      *
      * @return string|false
      */
-    public function GetDectListPath()
+    public function GetDectListPath(): mixed
     {
         return $this->Send(__FUNCTION__);
+    }
+
+    protected function ProcessRequestAction(string $Ident, mixed $Value): mixed
+    {
+        if (parent::ProcessRequestAction($Ident, $Value)) {
+            return true;
+        }
+        switch ($Ident) {
+            case \FritzBox\Base\Action::RefreshInfo:
+                return $this->UpdateInfo();
+        }
+        trigger_error($this->Translate('Invalid Ident.'), E_USER_NOTICE);
+        return false;
     }
 
     private function UpdateInfo()

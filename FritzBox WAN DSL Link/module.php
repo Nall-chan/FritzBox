@@ -20,7 +20,7 @@ class FritzBoxWANDSLLink extends FritzBoxModulBase
 
     ];
 
-    public function Create()
+    public function Create(): void
     {
         //Never delete this line!
         parent::Create();
@@ -29,13 +29,13 @@ class FritzBoxWANDSLLink extends FritzBoxModulBase
         $this->RegisterTimer(\FritzBox\Base\Timer::RefreshInfo, 0, 'IPS_RequestAction(' . $this->InstanceID . ',"' . \FritzBox\Base\Action::RefreshInfo . '",true);');
     }
 
-    public function Destroy()
+    public function Destroy(): void
     {
         //Never delete this line!
         parent::Destroy();
     }
 
-    public function ApplyChanges()
+    public function ApplyChanges(): void
     {
         $this->SetTimerInterval(\FritzBox\Base\Timer::RefreshInfo, 0);
         parent::ApplyChanges();
@@ -50,54 +50,42 @@ class FritzBoxWANDSLLink extends FritzBoxModulBase
         $this->SetTimerInterval(\FritzBox\Base\Timer::RefreshInfo, $this->ReadPropertyInteger(\FritzBox\Base\Property::RefreshInterval) * 1000);
     }
 
-    public function RequestAction($Ident, $Value)
-    {
-        if (parent::RequestAction($Ident, $Value)) {
-            return true;
-        }
-        switch ($Ident) {
-            case \FritzBox\Base\Action::RefreshInfo:
-                return $this->UpdateInfo();
-        }
-        trigger_error($this->Translate('Invalid Ident.'), E_USER_NOTICE);
-    }
-
-    public function GetDSLLinkInfo()
+    public function GetDSLLinkInfo(): mixed
     {
         return $this->Send(__FUNCTION__);
     }
 
-    public function GetAutoConfig()
+    public function GetAutoConfig(): mixed
     {
         return $this->Send(__FUNCTION__);
     }
 
-    public function GetModulationType()
+    public function GetModulationType(): mixed
     {
         return $this->Send(__FUNCTION__);
     }
 
-    public function GetDestinationAddress()
+    public function GetDestinationAddress(): mixed
     {
         return $this->Send(__FUNCTION__);
     }
 
-    public function GetATMEncapsulation()
+    public function GetATMEncapsulation(): mixed
     {
         return $this->Send(__FUNCTION__);
     }
 
-    public function GetFCSPreserved()
+    public function GetFCSPreserved(): mixed
     {
         return $this->Send(__FUNCTION__);
     }
 
-    public function GetStatistics()
+    public function GetStatistics(): mixed
     {
         return $this->Send(__FUNCTION__);
     }
 
-    public function GetConfigurationForm()
+    public function GetConfigurationForm(): string
     {
         $Form = json_decode(file_get_contents(__DIR__ . '/form.json'), true);
         if ($this->GetStatus() == IS_CREATING) {
@@ -111,7 +99,7 @@ class FritzBoxWANDSLLink extends FritzBoxModulBase
                     'Function'   => \FritzBox\IOFunction::HasIGD2
                 ]
             ));
-            $HasIGD2 = unserialize($Ret);
+            $HasIGD2 = \FritzBox\IOResult::Decode($Ret);
             $this->SendDebug('Use IGD2', $HasIGD2, 0);
             if (!$HasIGD2) {
                 unset($Form['elements'][0]['options'][2]);
@@ -122,7 +110,19 @@ class FritzBoxWANDSLLink extends FritzBoxModulBase
         return json_encode($Form);
     }
 
-    protected function DecodeEvent($Event)
+    protected function ProcessRequestAction(string $Ident, mixed $Value): mixed
+    {
+        if (parent::ProcessRequestAction($Ident, $Value)) {
+            return true;
+        }
+        switch ($Ident) {
+            case \FritzBox\Base\Action::RefreshInfo:
+                return $this->UpdateInfo();
+        }
+        trigger_error($this->Translate('Invalid Ident.'), E_USER_NOTICE);
+    }
+
+    protected function DecodeEvent(array $Event): void
     {
         if (array_key_exists('LinkStatus', $Event)) {
             $this->setIPSVariable(\FritzBox\WANDSLLink\Variables::LinkStatus, 'DSL Link Status', (string) $Event['LinkStatus'], VARIABLETYPE_STRING);

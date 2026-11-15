@@ -17,7 +17,7 @@ class FritzBoxWANPhysicalInterface extends FritzBoxModulBase
     ];
     protected static $DefaultIndex = 0;
 
-    public function Create()
+    public function Create(): void
     {
         //Never delete this line!
         parent::Create();
@@ -25,7 +25,7 @@ class FritzBoxWANPhysicalInterface extends FritzBoxModulBase
         $this->RegisterTimer(\FritzBox\WANPhysicalInterface\Timer::RefreshLinkProperties, 0, 'IPS_RequestAction(' . $this->InstanceID . ',"' . \FritzBox\WANPhysicalInterface\Action::RefreshLinkProperties . '",true);');
     }
 
-    public function Destroy()
+    public function Destroy(): void
     {
         if (!IPS_InstanceExists($this->InstanceID)) {
             $this->UnregisterProfile('FB.kBit');
@@ -35,7 +35,7 @@ class FritzBoxWANPhysicalInterface extends FritzBoxModulBase
         parent::Destroy();
     }
 
-    public function ApplyChanges()
+    public function ApplyChanges(): void
     {
         $this->SetTimerInterval(\FritzBox\WANPhysicalInterface\Timer::RefreshLinkProperties, 0);
         $this->RegisterProfileInteger('FB.kBit', '', '', ' kBit/s', 0, 0, 0);
@@ -56,22 +56,7 @@ class FritzBoxWANPhysicalInterface extends FritzBoxModulBase
         $this->SetTimerInterval(\FritzBox\WANPhysicalInterface\Timer::RefreshLinkProperties, $this->ReadPropertyInteger(\FritzBox\Base\Property::RefreshInterval) * 1000);
     }
 
-    public function RequestAction($Ident, $Value)
-    {
-        if (parent::RequestAction($Ident, $Value)) {
-            return true;
-        }
-        switch ($Ident) {
-            case \FritzBox\WANPhysicalInterface\Variables::WANAccessType:
-                return $this->SetWANAccessType($Value);
-            case \FritzBox\WANPhysicalInterface\Action::RefreshLinkProperties:
-                return $this->UpdateCommonLinkProperties();
-        }
-        trigger_error($this->Translate('Invalid Ident.'), E_USER_NOTICE);
-        return false;
-    }
-
-    public function GetActiveProvider()
+    public function GetActiveProvider(): mixed
     {
         $result = $this->Send('X_AVM-DE_GetActiveProvider');
 
@@ -81,7 +66,7 @@ class FritzBoxWANPhysicalInterface extends FritzBoxModulBase
         return $result;
     }
 
-    public function GetCommonLinkProperties()
+    public function GetCommonLinkProperties(): mixed
     {
         $result = $this->Send(__FUNCTION__);
         if ($result === false) {
@@ -90,7 +75,7 @@ class FritzBoxWANPhysicalInterface extends FritzBoxModulBase
         return $result;
     }
 
-    public function GetTotalBytesSent()
+    public function GetTotalBytesSent(): int|false
     {
         $result = $this->Send(__FUNCTION__);
         if ($result === false) {
@@ -99,7 +84,7 @@ class FritzBoxWANPhysicalInterface extends FritzBoxModulBase
         return (int) $result;
     }
 
-    public function GetTotalBytesReceived()
+    public function GetTotalBytesReceived(): int|false
     {
         $result = $this->Send(__FUNCTION__);
         if ($result === false) {
@@ -108,7 +93,7 @@ class FritzBoxWANPhysicalInterface extends FritzBoxModulBase
         return (int) $result;
     }
 
-    public function GetTotalPacketsSent()
+    public function GetTotalPacketsSent(): int|false
     {
         $result = $this->Send(__FUNCTION__);
         if ($result === false) {
@@ -117,7 +102,7 @@ class FritzBoxWANPhysicalInterface extends FritzBoxModulBase
         return (int) $result;
     }
 
-    public function GetTotalPacketsReceived()
+    public function GetTotalPacketsReceived(): int|false
     {
         $result = $this->Send(__FUNCTION__);
         if ($result === false) {
@@ -126,7 +111,7 @@ class FritzBoxWANPhysicalInterface extends FritzBoxModulBase
         return (int) $result;
     }
 
-    public function SetWANAccessType(string $WanAccessType)
+    public function SetWANAccessType(string $WanAccessType): bool
     {
         $result = $this->Send('X_AVM-DE_SetWANAccessType', ['NewAccessType'=>$WanAccessType]);
         return $result !== false;
@@ -140,7 +125,7 @@ class FritzBoxWANPhysicalInterface extends FritzBoxModulBase
      *
      * @return array|false
      */
-    public function GetOnlineMonitor(int $SyncGroupIndex)
+    public function GetOnlineMonitor(int $SyncGroupIndex): mixed
     {
         if ($SyncGroupIndex < 0) {
             $this->ReportError($this->Translate('Invalid index.'));
@@ -149,6 +134,21 @@ class FritzBoxWANPhysicalInterface extends FritzBoxModulBase
         return $this->Send('X_AVM-DE_GetOnlineMonitor', [
             'NewSyncGroupIndex'=> $SyncGroupIndex
         ]);
+    }
+
+    protected function ProcessRequestAction(string $Ident, mixed $Value): mixed
+    {
+        if (parent::ProcessRequestAction($Ident, $Value)) {
+            return true;
+        }
+        switch ($Ident) {
+            case \FritzBox\WANPhysicalInterface\Variables::WANAccessType:
+                return $this->SetWANAccessType($Value);
+            case \FritzBox\WANPhysicalInterface\Action::RefreshLinkProperties:
+                return $this->UpdateCommonLinkProperties();
+        }
+        trigger_error($this->Translate('Invalid Ident.'), E_USER_NOTICE);
+        return false;
     }
 
     private function UpdateCommonLinkProperties()

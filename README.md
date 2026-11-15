@@ -259,6 +259,13 @@ Für das Discovery werden Pakete über die Multicast-Adresse `239.255.255.250` a
 
 ### 2. Changelog
 
+**Version 1.0 (in Arbeit):**  
+
+> [!IMPORTANT]
+> Folgende Funktionen liefern jetzt eine Zahl statt eines Textes: `FB_GetHostNumberOfEntries`, `FB_GetChangeCounter` (Netzwerkgeräte), `FB_GetIPInterfaceNumberOfEntries` (DHCP-Server), `FB_GetNumberOfFilelinkEntries` (Dateifreigabe), `FB_GetNumberOfDeviceEntries` (Powerline) und `FB_GetNumberOfDeflections` (Telefonie). Skripte, die das Ergebnis mit einem Text vergleichen (z.B. `=== '5'`), müssen angepasst werden.
+
+- Alle Module: Umstellung auf IPSModuleStrict. Alle Instanz-Funktionen haben feste Typen für Parameter und Rückgabewerte.  
+
 **Version 0.94:**  
 
 - FritzBox WAN Fiber und FritzBox Mobile Connection: Beide Module registrierten das Variablenprofil `FB.dBm`, WAN Fiber als Float, Mobile Connection als Integer. Wurden beide Module genutzt, scheiterte die zweite Instanz mit `Variable profile type does not match for profile FB.dBm`. WAN Fiber nutzt jetzt das eigene Profil `FB.dBm.Float`. Vorhandene Instanzen stellen ihre Pegel-Variablen beim Übernehmen bzw. nach dem Update um und löschen das alte Float-Profil `FB.dBm`, sofern keine andere Variable es nutzt.  

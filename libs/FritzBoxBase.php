@@ -21,7 +21,7 @@ require_once __DIR__ . '/../libs/FritzBoxModule.php';
  * @method void RegisterProfileStringEx(string $Name, string $Icon, string $Prefix, string $Suffix, array $Associations)
  * @method void RegisterProfileFloat(string $Name, string $Icon, string $Prefix, string $Suffix, float $MinValue, float $MaxValue, float $StepSize, int $Digits)
  */
-class FritzBoxModulBase extends IPSModule
+class FritzBoxModulBase extends IPSModuleStrict
 {
     use \FritzBoxModulBase\BufferHelper;
     use \FritzBoxModulBase\DebugHelper;
@@ -43,7 +43,7 @@ class FritzBoxModulBase extends IPSModule
      */
     private bool $IsRequestAction = false;
 
-    public function Create()
+    public function Create(): void
     {
         //Never delete this line!
         parent::Create();
@@ -51,14 +51,21 @@ class FritzBoxModulBase extends IPSModule
         $this->SubscribedURL = '';
         $this->ParentID = 0;
         $this->isSubscribed = false;
-        $this->ConnectParent(\FritzBox\GUID::FritzBoxIO);
         if (count(static::$EventSubURLArray) > 0) {
             $this->RegisterTimer(\FritzBox\Base\Timer::RenewSubscription, 0, 'IPS_RequestAction(' . $this->InstanceID . ',"' . \FritzBox\Base\Action::Subscribe . '", true);');
         }
         $this->RegisterPropertyInteger(\FritzBox\Base\Property::Index, static::$DefaultIndex);
     }
 
-    public function ApplyChanges()
+    /**
+     * Alle Geräte-Module hängen an der FritzBox IO.
+     */
+    public function GetCompatibleParents(): string
+    {
+        return json_encode(['type' => 'connect', 'moduleIDs' => [\FritzBox\GUID::FritzBoxIO]]);
+    }
+
+    public function ApplyChanges(): void
     {
         if ($this->SID !== '') {
             $this->Unsubscribe();
@@ -99,20 +106,17 @@ class FritzBoxModulBase extends IPSModule
         $this->Subscribe();
     }
 
-    public function RequestAction($Ident, $Value)
+    /**
+     * IPSModuleStrict: RequestAction hat keinen Rückgabewert. Die Module überschreiben daher
+     * ProcessRequestAction, das zurückmeldet, ob der Ident behandelt wurde.
+     */
+    public function RequestAction(string $Ident, mixed $Value): void
     {
         $this->IsRequestAction = true;
-        if ($this->IORequestAction($Ident, $Value)) {
-            return true;
-        }
-        if ($Ident == \FritzBox\Base\Action::Subscribe) {
-            $this->Subscribe();
-            return true;
-        }
-        return false;
+        $this->ProcessRequestAction($Ident, $Value);
     }
 
-    public function MessageSink($TimeStamp, $SenderID, $Message, $Data)
+    public function MessageSink(int $TimeStamp, int $SenderID, int $Message, array $Data): void
     {
         $myState = IPS_GetInstance($this->InstanceID)['InstanceStatus']; // NICHT $this->GetStatus benutzen, da MessageSink auch aufgerufen wird, wenn die Instanz noch nicht erstellt wurde (z.B. beim Modul Update)
         if ($myState == IS_CREATING || $myState == IS_DELETING) {
@@ -135,36 +139,64 @@ class FritzBoxModulBase extends IPSModule
         }
     }
 
-    public function ReceiveData($JSONString)
+    public function ReceiveData(string $JSONString): string
     {
         $data = json_decode($JSONString, true);
         if ($data['DataID'] == \FritzBox\GUID::SendEventToChildren) {
             unset($data['DataID']);
             if (!array_key_exists('EventData', $data)) {
-                return false;
+                return '';
             }
             $this->isSubscribed = true;
             $this->SendDebug('Event', \FritzBox\DebugMask::Values($data['EventData']), 0);
             $this->DecodeEvent($data['EventData']);
-            return true;
         }
-        return null;
+        return '';
     }
 
-    protected function DecodeEvent($Event)
+    /**
+     * Behandelt die Aktionen der Basisklasse (Statuswechsel der IO, Erneuern der Ereignisse).
+     *
+     * @return mixed true bzw. Ergebnis der Aktion, wenn der Ident behandelt wurde, sonst false.
+     */
+    protected function ProcessRequestAction(string $Ident, mixed $Value): mixed
+    {
+        if ($this->IORequestAction($Ident, $Value)) {
+            return true;
+        }
+        if ($Ident == \FritzBox\Base\Action::Subscribe) {
+            $this->Subscribe();
+            return true;
+        }
+        return false;
+    }
+
+    protected function DecodeEvent(array $Event): void
     {
         foreach ($Event as $Ident => $EventData) {
             $vid = @$this->GetIDForIdent($Ident);
             if ($vid > 0) {
-                if (IPS_GetVariable($vid)['VariableType'] == VARIABLETYPE_BOOLEAN) {
-                    $EventData = (string) $EventData !== '0';
+                // Ereigniswerte kommen als Text, passend zum Variablentyp umwandeln
+                switch (IPS_GetVariable($vid)['VariableType']) {
+                    case VARIABLETYPE_BOOLEAN:
+                        $EventData = (string) $EventData !== '0';
+                        break;
+                    case VARIABLETYPE_INTEGER:
+                        $EventData = (int) $EventData;
+                        break;
+                    case VARIABLETYPE_FLOAT:
+                        $EventData = (float) $EventData;
+                        break;
+                    default:
+                        $EventData = (string) $EventData;
+                        break;
                 }
                 $this->SetValue($Ident, $EventData);
             }
         }
     }
 
-    protected function KernelReady()
+    protected function KernelReady(): void
     {
         $this->UnregisterMessage(0, IPS_KERNELSTARTED);
         $this->ApplyChanges();
@@ -173,7 +205,7 @@ class FritzBoxModulBase extends IPSModule
     /**
      * Wird ausgeführt wenn sich der Status vom Parent ändert.
      */
-    protected function IOChangeState($State)
+    protected function IOChangeState(int $State): void
     {
         switch ($State) {
             case IS_ACTIVE:
@@ -234,14 +266,14 @@ class FritzBoxModulBase extends IPSModule
                 'SID'        => $this->SID
             ]
         ));
-        if ($Ret === false) {
+        if ($Ret === '') {
             $this->SID = '';
             $this->SendDebug('Error on subscribe (parse)', static::$EventSubURLArray[$Index], 0);
             trigger_error($this->Translate('Error on subscribe (parse)') . "\r\n" . static::$EventSubURLArray[$Index], E_USER_NOTICE);
             $this->SetTimerInterval(\FritzBox\Base\Timer::RenewSubscription, 60000);
             return false;
         }
-        $Result = unserialize($Ret);
+        $Result = \FritzBox\IOResult::Decode($Ret);
         if ($Result === false) {
             $this->SID = '';
             $this->SendDebug('Error on subscribe (Result)', static::$EventSubURLArray[$Index], 0);
@@ -267,19 +299,19 @@ class FritzBoxModulBase extends IPSModule
         return true;
     }
 
-    protected function WaitForEvent()
+    protected function WaitForEvent(): bool
     {
         for ($i = 0; $i < 1000; $i++) {
             if ($this->isSubscribed) {
                 return true;
             } else {
-                IPS_Sleep(5);
+                usleep(5000);
             }
         }
         return false;
     }
 
-    protected function RefreshHostXML()
+    protected function RefreshHostXML(): bool
     {
         $this->SendDebug('RefreshHostList', '', 0);
         $Ret = $this->SendDataToParent(json_encode(
@@ -288,14 +320,14 @@ class FritzBoxModulBase extends IPSModule
                 'Function'   => \FritzBox\IOFunction::RefreshHostList
             ]
         ));
-        if ($Ret === false) {
+        if (\FritzBox\IOResult::Decode($Ret) === false) {
             $this->SendDebug('Error on RefreshHostList', '', 0);
             return false;
         }
         return true;
     }
 
-    protected function GetConfiguratorID()
+    protected function GetConfiguratorID(): int
     {
         $GUID = \FritzBox\GUID::Configurator;
         $Instances = IPS_GetInstanceListByModuleID($GUID);
@@ -306,12 +338,12 @@ class FritzBoxModulBase extends IPSModule
         return 1;
     }
 
-    protected function LoadAndGetData(string $Uri)
+    protected function LoadAndGetData(string $Uri): mixed
     {
         return $this->LoadAndSaveFile($Uri, '');
     }
 
-    protected function LoadAndSaveFile(string $Uri, string $Filename)
+    protected function LoadAndSaveFile(string $Uri, string $Filename): mixed
     {
         if (!$this->HasActiveParent()) {
             return false;
@@ -327,15 +359,12 @@ class FritzBoxModulBase extends IPSModule
                 'Filename'   => $Filename
             ]
         ));
-        if ($Ret === false) {
-            return false;
-        }
-        $Result = unserialize($Ret);
+        $Result = \FritzBox\IOResult::Decode($Ret);
         $this->SendDebug('Result', $Result, 0);
         return $Result;
     }
 
-    protected function GetFile(string $Filename)
+    protected function GetFile(string $Filename): string|false
     {
         if (!$this->HasActiveParent()) {
             return false;
@@ -349,11 +378,8 @@ class FritzBoxModulBase extends IPSModule
                 'Filename'   => $Filename
             ]
         ));
-        if ($Ret === false) {
-            return false;
-        }
-        $MediaID = unserialize($Ret);
-        if ($MediaID == 0) {
+        $MediaID = \FritzBox\IOResult::Decode($Ret);
+        if (!$MediaID) {
             return false;
         }
         // Die Datei des Medienobjekts kann fehlen (z.B. nach Wiederherstellung eines Backups)
@@ -367,18 +393,22 @@ class FritzBoxModulBase extends IPSModule
         return $Result;
     }
 
-    protected function Send(string $Function, array $Parameter = [])
+    protected function Send(string $Function, array $Parameter = []): mixed
     {
-        // Während module_reload kann ein Timer laufen, bevor die Instanz bereit ist;
-        // ReadPropertyInteger liefert dann false („InstanceInterface is not available“).
-        $Index = @$this->ReadPropertyInteger(\FritzBox\Base\Property::Index);
-        if (!is_int($Index) || ($Index < 0)) {
+        // Während module_reload kann ein Timer laufen, bevor die Instanz bereit ist
+        // („InstanceInterface is not available“).
+        try {
+            $Index = $this->ReadPropertyInteger(\FritzBox\Base\Property::Index);
+        } catch (\Throwable $th) {
+            return false;
+        }
+        if ($Index < 0) {
             return false;
         }
         return $this->SendEx($Function, $Index, $Parameter);
     }
 
-    protected function SendEx(string $Function, int $Index, array $Parameter = [])
+    protected function SendEx(string $Function, int $Index, array $Parameter = []): mixed
     {
         if (!$this->HasActiveParent()) {
             return false;
@@ -397,10 +427,10 @@ class FritzBoxModulBase extends IPSModule
                 'Parameter' => $Parameter
             ]
         ));
-        if ($Ret === false) {
+        if ($Ret === '') {
             return false;
         }
-        $Result = unserialize($Ret);
+        $Result = \FritzBox\IOResult::Decode($Ret);
         if (is_a($Result, 'SoapFault')) {
             if (property_exists($Result, 'detail')) {
                 $Details = $Result->detail;
@@ -444,7 +474,7 @@ class FritzBoxModulBase extends IPSModule
         trigger_error($Message, E_USER_NOTICE);
     }
 
-    protected function setIPSVariable(string $ident, string $name, $value, $type, string $profile = '', bool $action = false, int $pos = 0)
+    protected function setIPSVariable(string $ident, string $name, mixed $value, int $type, string $profile = '', bool $action = false, int $pos = 0): void
     {
         $this->MaintainVariable($ident, $this->Translate($name), $type, $profile, $pos, true);
         if ($action) {
@@ -453,7 +483,7 @@ class FritzBoxModulBase extends IPSModule
         $this->SetValue($ident, $value);
     }
 
-    protected function ConvertRuntime(int $Time)
+    protected function ConvertRuntime(int $Time): string
     {
         $strtime = '';
         $sec = intval(gmdate('s', $Time));
@@ -472,7 +502,7 @@ class FritzBoxModulBase extends IPSModule
         return $strtime;
     }
 
-    protected function ConvertIdent(string $Ident)
+    protected function ConvertIdent(string $Ident): string
     {
         return preg_replace('/[^a-zA-Z0-9_]/', '', $Ident);
     }
@@ -491,7 +521,7 @@ class FritzBoxModulBase extends IPSModule
      *
      * @return int IPS-ID der neuen Variable.
      */
-    protected function RegisterSubVariable($ParentID, $Ident, $Name, $Type, $Profile = '', $Position = 0)
+    protected function RegisterSubVariable(int $ParentID, string $Ident, string $Name, int $Type, string $Profile = '', int $Position = 0): int
     {
         if ($Profile != '') {
             if (IPS_VariableProfileExists('~' . $Profile)) {
@@ -535,7 +565,7 @@ class FritzBoxModulBase extends IPSModule
         return $vid;
     }
 
-    protected function DelSubObjects(int $ObjectId)
+    protected function DelSubObjects(int $ObjectId): void
     {
         foreach (IPS_GetChildrenIDs($ObjectId) as $Id) {
             $this->DelSubObjects($Id);
@@ -565,7 +595,7 @@ class FritzBoxModulBase extends IPSModule
         }
     }
 
-    protected function ServeFile(string $path)
+    protected function ServeFile(string $path): void
     {
         $extension = pathinfo($path, PATHINFO_EXTENSION);
         $mimeType = $this->GetMimeType($extension);
@@ -591,7 +621,7 @@ class FritzBoxModulBase extends IPSModule
         }
     }
 
-    protected function IsCompressionAllowed($mimeType)
+    protected function IsCompressionAllowed(string $mimeType): bool
     {
         return in_array($mimeType, [
             'text/plain',
@@ -610,7 +640,7 @@ class FritzBoxModulBase extends IPSModule
         ]);
     }
 
-    protected function GetMimeType($extension)
+    protected function GetMimeType(string $extension): string
     {
         $lines = file(IPS_GetKErnelDir() . 'mime.types');
         foreach ($lines as $line) {
@@ -627,7 +657,7 @@ class FritzBoxModulBase extends IPSModule
         return 'text/plain';
     }
 
-    private function Unsubscribe()
+    private function Unsubscribe(): void
     {
         $this->SendDebug('Unsubscribe', $this->SID, 0);
         $this->isSubscribed = false;
@@ -660,10 +690,10 @@ class FritzBoxModulBase extends IPSModule
                 'SID'        => $SID
             ]
         ));
-        if ($Ret === false) {
+        if ($Ret === '') {
             $this->SendDebug('Error on Unsubscribe (parse)', $SubscribedURL, 0);
         } else {
-            $Result = unserialize($Ret);
+            $Result = \FritzBox\IOResult::Decode($Ret);
             if ($Result === false) {
                 $this->SendDebug('Error on Unsubscribe (Result)', $SubscribedURL, 0);
             }
@@ -671,7 +701,7 @@ class FritzBoxModulBase extends IPSModule
         }
     }
 
-    private function FilterInstances(int $InstanceID)
+    private function FilterInstances(int $InstanceID): bool
     {
         return IPS_GetInstance($InstanceID)['ConnectionID'] == $this->ParentID;
     }

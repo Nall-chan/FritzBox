@@ -25,7 +25,7 @@ class FritzBoxHosts extends FritzBoxModulBase
     protected static $SecondEventGUID = \FritzBox\GUID::RefreshHostListRequest;
     protected static $DefaultIndex = 0;
 
-    public function Create()
+    public function Create(): void
     {
         //Never delete this line!
         parent::Create();
@@ -62,17 +62,19 @@ class FritzBoxHosts extends FritzBoxModulBase
         $this->RegisterTimer(\FritzBox\Hosts\Timer::RefreshHosts, 0, 'IPS_RequestAction(' . $this->InstanceID . ',"' . \FritzBox\Hosts\Action::RefreshHosts . '",true);');
     }
 
-    public function Destroy()
+    public function Destroy(): void
     {
         //Never delete this line!
         parent::Destroy();
     }
 
-    public function ApplyChanges()
+    public function ApplyChanges(): void
     {
         $this->UnregisterMessage($this->HostNumberOfEntriesId, VM_UPDATE);
         $this->SetTimerInterval(\FritzBox\Hosts\Timer::RefreshHosts, 0);
-        $this->HostNumberOfEntriesId = $this->RegisterVariableInteger(\FritzBox\Hosts\Variables::HostNumberOfEntries, $this->Translate('Number of network devices'), '', -2);
+        // IPSModuleStrict: RegisterVariable* liefert bool, die ID kommt über GetIDForIdent
+        $this->RegisterVariableInteger(\FritzBox\Hosts\Variables::HostNumberOfEntries, $this->Translate('Number of network devices'), '', -2);
+        $this->HostNumberOfEntriesId = (int) $this->GetIDForIdent(\FritzBox\Hosts\Variables::HostNumberOfEntries);
         $this->SetTimerInterval(\FritzBox\Hosts\Timer::RefreshHosts, 0);
         $Table = $this->ReadPropertyBoolean(\FritzBox\Hosts\Property::HostAsTable);
         $Variable = $this->ReadPropertyBoolean(\FritzBox\Hosts\Property::HostAsVariable);
@@ -104,7 +106,7 @@ class FritzBoxHosts extends FritzBoxModulBase
         parent::ApplyChanges();
     }
 
-    public function MessageSink($TimeStamp, $SenderID, $Message, $Data)
+    public function MessageSink(int $TimeStamp, int $SenderID, int $Message, array $Data): void
     {
         switch ($Message) {
             case VM_UPDATE:
@@ -117,57 +119,7 @@ class FritzBoxHosts extends FritzBoxModulBase
         parent::MessageSink($TimeStamp, $SenderID, $Message, $Data);
     }
 
-    public function RequestAction($Ident, $Value)
-    {
-        if (parent::RequestAction($Ident, $Value)) {
-            return true;
-        }
-        switch ($Ident) {
-            case \FritzBox\Hosts\Action::ReloadForm:
-                IPS_Sleep(2000);
-                $this->ReloadForm();
-                return;
-            case \FritzBox\Hosts\Action::RefreshHosts:
-                return $this->UpdateHostNumberOfEntries();
-            case \FritzBox\Hosts\Action::HostAsVariable:
-                $this->UpdateFormField('AutoAddHostVariables', 'enabled', (bool) $Value);
-                $this->UpdateFormField('RenameHostVariables', 'enabled', (bool) $Value);
-                $this->UpdateFormField('HostvariablesPanel', 'expanded', (bool) $Value);
-                $this->UpdateFormField('HostVariables', 'enabled', (bool) $Value);
-                return;
-            case \FritzBox\Hosts\Action::HostTableAsVariable:
-                $this->UpdateFormField('Table', 'enabled', (bool) $Value);
-                $this->UpdateFormField('Columns', 'enabled', (bool) $Value);
-                $this->UpdateFormField('Rows', 'enabled', (bool) $Value);
-                $this->UpdateFormField('HostAsTablePanel', 'expanded', (bool) $Value);
-                return;
-            case \FritzBox\Hosts\Action::HostvariablesPanel:
-                if ($this->ShowVariableWarning) {
-                    $this->UpdateFormField('ErrorPopup', 'visible', true);
-                    $this->UpdateFormField('ErrorTitle', 'caption', 'Attention!');
-                    $this->UpdateFormField('ErrorText', 'caption', 'Deselecting a host causes the associated status variable to be deleted.');
-                    $this->ShowVariableWarning = false;
-                }
-                return;
-            case \FritzBox\Hosts\Action::DelHostVariable:
-                $ObjectId = @$this->GetIDForIdent($Value);
-                if ($ObjectId > 0) {
-                    $this->DelSubObjects($ObjectId);
-                    $this->UnregisterVariable($Value);
-                }
-                return;
-        }
-        if (strpos($Ident, 'MAC') === 0) {
-            if ($Value === true) {
-                $MACAddress = implode(':', str_split(substr($Ident, 3), 2));
-                $this->WakeOnLANByMACAddress($MACAddress);
-            }
-        }
-        trigger_error($this->Translate('Invalid Ident.'), E_USER_NOTICE);
-        return false;
-    }
-
-    public function GetConfigurationForm()
+    public function GetConfigurationForm(): string
     {
         $Form = json_decode(file_get_contents(__DIR__ . '/form.json'), true);
         if ($this->GetStatus() == IS_CREATING) {
@@ -198,13 +150,12 @@ class FritzBoxHosts extends FritzBoxModulBase
         return json_encode($Form);
     }
 
-    public function ReceiveData($JSONString)
+    public function ReceiveData(string $JSONString): string
     {
-        $Processed = parent::ReceiveData($JSONString);
-        if ($Processed !== null) {
-            return $Processed;
-        }
         $data = json_decode($JSONString, true);
+        if ($data['DataID'] == \FritzBox\GUID::SendEventToChildren) {
+            return parent::ReceiveData($JSONString);
+        }
         unset($data['DataID']);
         if ($data['Function'] == \FritzBox\IOFunction::RefreshHostList) {
             $File = $this->GetHostListPath();
@@ -218,7 +169,7 @@ class FritzBoxHosts extends FritzBoxModulBase
         return 'OK';
     }
 
-    public function RefreshHostList()
+    public function RefreshHostList(): bool
     {
         if ($this->ParentID == 0) {
             return false;
@@ -311,16 +262,16 @@ class FritzBoxHosts extends FritzBoxModulBase
         return true;
     }
 
-    public function GetHostNumberOfEntries()
+    public function GetHostNumberOfEntries(): int|false
     {
         $result = $this->Send(__FUNCTION__);
         if ($result === false) {
             return false;
         }
-        return $result;
+        return (int) $result;
     }
 
-    public function GetSpecificHostEntry(string $MACAddress)
+    public function GetSpecificHostEntry(string $MACAddress): mixed
     {
         $result = $this->Send(__FUNCTION__, [
             'NewMACAddress'=> $MACAddress
@@ -331,7 +282,7 @@ class FritzBoxHosts extends FritzBoxModulBase
         return $result;
     }
 
-    public function GetGenericHostEntry(int $Index)
+    public function GetGenericHostEntry(int $Index): mixed
     {
         $result = $this->Send(__FUNCTION__, [
             'NewIndex'=> $Index
@@ -342,7 +293,7 @@ class FritzBoxHosts extends FritzBoxModulBase
         return $result;
     }
 
-    public function GetSpecificHostEntryByIP(string $IPAddress)
+    public function GetSpecificHostEntryByIP(string $IPAddress): mixed
     {
         $result = $this->Send('X_AVM-DE_GetSpecificHostEntryByIP', [
             'NewIPAddress'=> $IPAddress
@@ -353,16 +304,16 @@ class FritzBoxHosts extends FritzBoxModulBase
         return $result;
     }
 
-    public function GetChangeCounter()
+    public function GetChangeCounter(): int|false
     {
         $result = $this->Send('X_AVM-DE_GetChangeCounter');
         if ($result === false) {
             return false;
         }
-        return $result;
+        return (int) $result;
     }
 
-    public function SetHostNameByMACAddress(string $MACAddress, string $Hostname)
+    public function SetHostNameByMACAddress(string $MACAddress, string $Hostname): bool
     {
         $result = $this->Send('X_AVM-DE_SetHostNameByMACAddress', [
             'NewMACAddress'=> $MACAddress,
@@ -379,7 +330,7 @@ class FritzBoxHosts extends FritzBoxModulBase
      *
      * @return bool
      */
-    public function SetFriendlyNameByMAC(string $MACAddress, string $FriendlyName)
+    public function SetFriendlyNameByMAC(string $MACAddress, string $FriendlyName): bool
     {
         if (!filter_var($MACAddress, FILTER_VALIDATE_MAC)) {
             $this->ReportError($this->Translate('Invalid MAC address.'));
@@ -400,7 +351,7 @@ class FritzBoxHosts extends FritzBoxModulBase
      *
      * @return bool
      */
-    public function SetFriendlyNameByIP(string $IPAddress, string $FriendlyName)
+    public function SetFriendlyNameByIP(string $IPAddress, string $FriendlyName): bool
     {
         if (!filter_var($IPAddress, FILTER_VALIDATE_IP, FILTER_FLAG_IPV4)) {
             $this->ReportError($this->Translate('Invalid IP address.'));
@@ -418,7 +369,7 @@ class FritzBoxHosts extends FritzBoxModulBase
      *
      * @return array|false
      */
-    public function GetInfo()
+    public function GetInfo(): mixed
     {
         return $this->Send('X_AVM-DE_GetInfo');
     }
@@ -431,7 +382,7 @@ class FritzBoxHosts extends FritzBoxModulBase
      *
      * @return bool
      */
-    public function SetDeviceClassUserByMAC(string $MACAddress, string $DeviceClassUser)
+    public function SetDeviceClassUserByMAC(string $MACAddress, string $DeviceClassUser): bool
     {
         if (!filter_var($MACAddress, FILTER_VALIDATE_MAC)) {
             $this->ReportError($this->Translate('Invalid MAC address.'));
@@ -452,7 +403,7 @@ class FritzBoxHosts extends FritzBoxModulBase
      *
      * @return bool
      */
-    public function SetDeviceClassUserByIP(string $IPAddress, string $DeviceClassUser)
+    public function SetDeviceClassUserByIP(string $IPAddress, string $DeviceClassUser): bool
     {
         if (!filter_var($IPAddress, FILTER_VALIDATE_IP, FILTER_FLAG_IPV4)) {
             $this->ReportError($this->Translate('Invalid IP address.'));
@@ -465,7 +416,7 @@ class FritzBoxHosts extends FritzBoxModulBase
         return $result !== false;
     }
 
-    public function GetAutoWakeOnLANByMACAddress(string $MACAddress)
+    public function GetAutoWakeOnLANByMACAddress(string $MACAddress): mixed
     {
         $result = $this->Send('X_AVM-DE_GetAutoWakeOnLANByMACAddress', [
             'NewMACAddress'=> $MACAddress
@@ -476,7 +427,7 @@ class FritzBoxHosts extends FritzBoxModulBase
         return $result;
     }
 
-    public function SetAutoWakeOnLANByMACAddress(string $MACAddress, bool $Enabled)
+    public function SetAutoWakeOnLANByMACAddress(string $MACAddress, bool $Enabled): bool
     {
         $result = $this->Send('X_AVM-DE_SetAutoWakeOnLANByMACAddress', [
             'NewMACAddress'    => $MACAddress,
@@ -493,7 +444,7 @@ class FritzBoxHosts extends FritzBoxModulBase
      *
      * @return bool
      */
-    public function SetPrioritizationByIP(string $IPAddress, bool $Priority)
+    public function SetPrioritizationByIP(string $IPAddress, bool $Priority): bool
     {
         if (!filter_var($IPAddress, FILTER_VALIDATE_IP, FILTER_FLAG_IPV4)) {
             $this->ReportError($this->Translate('Invalid IP address.'));
@@ -506,7 +457,7 @@ class FritzBoxHosts extends FritzBoxModulBase
         return $result !== false;
     }
 
-    public function WakeOnLANByMACAddress(string $MACAddress)
+    public function WakeOnLANByMACAddress(string $MACAddress): bool
     {
         $result = $this->Send('X_AVM-DE_WakeOnLANByMACAddress', [
             'NewMACAddress'    => $MACAddress
@@ -514,13 +465,13 @@ class FritzBoxHosts extends FritzBoxModulBase
         return $result !== false;
     }
 
-    public function HostsCheckUpdate()
+    public function HostsCheckUpdate(): bool
     {
         $result = $this->Send('X_AVM-DE_HostsCheckUpdate');
         return $result !== false;
     }
 
-    public function HostDoUpdate(string $MACAddress)
+    public function HostDoUpdate(string $MACAddress): bool
     {
         $result = $this->Send('X_AVM-DE_HostDoUpdate', [
             'NewMACAddress'    => $MACAddress
@@ -528,7 +479,7 @@ class FritzBoxHosts extends FritzBoxModulBase
         return $result !== false;
     }
 
-    public function GetHostListPath()
+    public function GetHostListPath(): mixed
     {
         $result = $this->Send('X_AVM-DE_GetHostListPath');
         if ($result === false) {
@@ -537,13 +488,63 @@ class FritzBoxHosts extends FritzBoxModulBase
         return $result;
     }
 
-    public function GetMeshListPath()
+    public function GetMeshListPath(): mixed
     {
         $result = $this->Send('X_AVM-DE_GetMeshListPath');
         if ($result === false) {
             return false;
         }
         return $result;
+    }
+
+    protected function ProcessRequestAction(string $Ident, mixed $Value): mixed
+    {
+        if (parent::ProcessRequestAction($Ident, $Value)) {
+            return true;
+        }
+        switch ($Ident) {
+            case \FritzBox\Hosts\Action::ReloadForm:
+                usleep((2000) * 1000);
+                $this->ReloadForm();
+                return true;
+            case \FritzBox\Hosts\Action::RefreshHosts:
+                return $this->UpdateHostNumberOfEntries();
+            case \FritzBox\Hosts\Action::HostAsVariable:
+                $this->UpdateFormField('AutoAddHostVariables', 'enabled', (bool) $Value);
+                $this->UpdateFormField('RenameHostVariables', 'enabled', (bool) $Value);
+                $this->UpdateFormField('HostvariablesPanel', 'expanded', (bool) $Value);
+                $this->UpdateFormField('HostVariables', 'enabled', (bool) $Value);
+                return true;
+            case \FritzBox\Hosts\Action::HostTableAsVariable:
+                $this->UpdateFormField('Table', 'enabled', (bool) $Value);
+                $this->UpdateFormField('Columns', 'enabled', (bool) $Value);
+                $this->UpdateFormField('Rows', 'enabled', (bool) $Value);
+                $this->UpdateFormField('HostAsTablePanel', 'expanded', (bool) $Value);
+                return true;
+            case \FritzBox\Hosts\Action::HostvariablesPanel:
+                if ($this->ShowVariableWarning) {
+                    $this->UpdateFormField('ErrorPopup', 'visible', true);
+                    $this->UpdateFormField('ErrorTitle', 'caption', 'Attention!');
+                    $this->UpdateFormField('ErrorText', 'caption', 'Deselecting a host causes the associated status variable to be deleted.');
+                    $this->ShowVariableWarning = false;
+                }
+                return true;
+            case \FritzBox\Hosts\Action::DelHostVariable:
+                $ObjectId = @$this->GetIDForIdent($Value);
+                if ($ObjectId > 0) {
+                    $this->DelSubObjects($ObjectId);
+                    $this->UnregisterVariable($Value);
+                }
+                return true;
+        }
+        if (strpos($Ident, 'MAC') === 0) {
+            if ($Value === true) {
+                $MACAddress = implode(':', str_split(substr($Ident, 3), 2));
+                $this->WakeOnLANByMACAddress($MACAddress);
+            }
+        }
+        trigger_error($this->Translate('Invalid Ident.'), E_USER_NOTICE);
+        return false;
     }
 
     private function GetHostVariables(): array

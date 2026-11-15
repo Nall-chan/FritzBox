@@ -7,7 +7,7 @@ require_once __DIR__ . '/../libs/FritzBoxModule.php';
 /**
  * @method bool SendDebug(string $Message, mixed $Data, int $Format)
  */
-class FritzBoxDiscovery extends IPSModule
+class FritzBoxDiscovery extends IPSModuleStrict
 {
     use \FritzBoxDiscovery\DebugHelper;
     /**
@@ -26,25 +26,25 @@ class FritzBoxDiscovery extends IPSModule
      */
     public const WS_DISCOVERY_MULTICAST_PORT = 1900;
 
-    public function Create()
+    public function Create(): void
     {
         //Never delete this line!
         parent::Create();
     }
 
-    public function Destroy()
+    public function Destroy(): void
     {
         //Never delete this line!
         parent::Destroy();
     }
 
-    public function ApplyChanges()
+    public function ApplyChanges(): void
     {
         //Never delete this line!
         parent::ApplyChanges();
     }
 
-    public function GetConfigurationForm()
+    public function GetConfigurationForm(): string
     {
         $Form = json_decode(file_get_contents(__DIR__ . '/form.json'), true);
         if ($this->GetStatus() == IS_CREATING) {

@@ -13,7 +13,7 @@ class FritzBoxTime extends FritzBoxModulBase
         'urn:dslforum-org:service:Time:1'
     ];
 
-    public function Create()
+    public function Create(): void
     {
         //Never delete this line!
         parent::Create();
@@ -22,13 +22,13 @@ class FritzBoxTime extends FritzBoxModulBase
         $this->RegisterTimer(\FritzBox\Base\Timer::RefreshInfo, 0, 'IPS_RequestAction(' . $this->InstanceID . ',"' . \FritzBox\Base\Action::RefreshInfo . '",true);');
     }
 
-    public function Destroy()
+    public function Destroy(): void
     {
         //Never delete this line!
         parent::Destroy();
     }
 
-    public function ApplyChanges()
+    public function ApplyChanges(): void
     {
         $this->SetTimerInterval(\FritzBox\Base\Timer::RefreshInfo, 0);
         parent::ApplyChanges();
@@ -39,9 +39,31 @@ class FritzBoxTime extends FritzBoxModulBase
         $this->UpdateInfo();
     }
 
-    public function RequestAction($Ident, $Value)
+    public function GetInfo(): mixed
     {
-        if (parent::RequestAction($Ident, $Value)) {
+        $result = $this->Send(__FUNCTION__);
+        if ($result === false) {
+            return false;
+        }
+        return $result;
+    }
+
+    public function SetNTPServers(string $NTPServer1, string $NTPServer2): bool
+    {
+        $result = $this->Send(__FUNCTION__, [
+            'NewNTPServer1'=> $NTPServer1,
+            'NewNTPServer2'=> $NTPServer2
+        ]);
+        if ($result === false) {
+            return false;
+        }
+        $this->UpdateInfo();
+        return true;
+    }
+
+    protected function ProcessRequestAction(string $Ident, mixed $Value): mixed
+    {
+        if (parent::ProcessRequestAction($Ident, $Value)) {
             return true;
         }
         switch ($Ident) {
@@ -55,28 +77,6 @@ class FritzBoxTime extends FritzBoxModulBase
         trigger_error($this->Translate('Invalid Ident.'), E_USER_NOTICE);
 
         return false;
-    }
-
-    public function GetInfo()
-    {
-        $result = $this->Send(__FUNCTION__);
-        if ($result === false) {
-            return false;
-        }
-        return $result;
-    }
-
-    public function SetNTPServers(string $NTPServer1, string $NTPServer2)
-    {
-        $result = $this->Send(__FUNCTION__, [
-            'NewNTPServer1'=> $NTPServer1,
-            'NewNTPServer2'=> $NTPServer2
-        ]);
-        if ($result === false) {
-            return false;
-        }
-        $this->UpdateInfo();
-        return true;
     }
 
     private function UpdateInfo()

@@ -20,7 +20,7 @@ class FritzBoxMobileConnection extends FritzBoxModulBase
     ];
     protected static $DefaultIndex = 0;
 
-    public function Create()
+    public function Create(): void
     {
         //Never delete this line!
         parent::Create();
@@ -29,13 +29,13 @@ class FritzBoxMobileConnection extends FritzBoxModulBase
         $this->RegisterTimer(\FritzBox\Base\Timer::RefreshInfo, 0, 'IPS_RequestAction(' . $this->InstanceID . ',"' . \FritzBox\Base\Action::RefreshInfo . '",true);');
     }
 
-    public function Destroy()
+    public function Destroy(): void
     {
         //Never delete this line!
         parent::Destroy();
     }
 
-    public function ApplyChanges()
+    public function ApplyChanges(): void
     {
         $this->SetTimerInterval(\FritzBox\Base\Timer::RefreshInfo, 0);
         parent::ApplyChanges();
@@ -46,25 +46,12 @@ class FritzBoxMobileConnection extends FritzBoxModulBase
         $this->UpdateInfo();
     }
 
-    public function RequestAction($Ident, $Value)
-    {
-        if (parent::RequestAction($Ident, $Value)) {
-            return true;
-        }
-        switch ($Ident) {
-            case \FritzBox\Base\Action::RefreshInfo:
-                return $this->UpdateInfo();
-        }
-        trigger_error($this->Translate('Invalid Ident.'), E_USER_NOTICE);
-        return false;
-    }
-
     /**
      * Liefert Aktivierung, SIM-Status und Fehlversuche für PIN/PUK.
      *
      * @return array|false
      */
-    public function GetInfo()
+    public function GetInfo(): mixed
     {
         return $this->Send(__FUNCTION__);
     }
@@ -74,7 +61,7 @@ class FritzBoxMobileConnection extends FritzBoxModulBase
      *
      * @return array|false
      */
-    public function GetInfoEx()
+    public function GetInfoEx(): mixed
     {
         return $this->Send(__FUNCTION__);
     }
@@ -84,7 +71,7 @@ class FritzBoxMobileConnection extends FritzBoxModulBase
      *
      * @return array|false
      */
-    public function GetAccessTechnology()
+    public function GetAccessTechnology(): mixed
     {
         return $this->Send(__FUNCTION__);
     }
@@ -94,7 +81,7 @@ class FritzBoxMobileConnection extends FritzBoxModulBase
      *
      * @return array|false
      */
-    public function GetPreferredAccessTechnology()
+    public function GetPreferredAccessTechnology(): mixed
     {
         return $this->Send(__FUNCTION__);
     }
@@ -104,7 +91,7 @@ class FritzBoxMobileConnection extends FritzBoxModulBase
      *
      * @return array|false
      */
-    public function GetEnabledBandCapabilities()
+    public function GetEnabledBandCapabilities(): mixed
     {
         return $this->Send(__FUNCTION__);
     }
@@ -114,9 +101,22 @@ class FritzBoxMobileConnection extends FritzBoxModulBase
      *
      * @return array|false
      */
-    public function GetBandCapabilities()
+    public function GetBandCapabilities(): mixed
     {
         return $this->Send(__FUNCTION__);
+    }
+
+    protected function ProcessRequestAction(string $Ident, mixed $Value): mixed
+    {
+        if (parent::ProcessRequestAction($Ident, $Value)) {
+            return true;
+        }
+        switch ($Ident) {
+            case \FritzBox\Base\Action::RefreshInfo:
+                return $this->UpdateInfo();
+        }
+        trigger_error($this->Translate('Invalid Ident.'), E_USER_NOTICE);
+        return false;
     }
 
     private function UpdateInfo()

@@ -14,7 +14,7 @@ class FritzBoxDHCPServer extends FritzBoxModulBase
     ];
     protected static $DefaultIndex = 0;
 
-    public function Create()
+    public function Create(): void
     {
         //Never delete this line!
         parent::Create();
@@ -22,13 +22,13 @@ class FritzBoxDHCPServer extends FritzBoxModulBase
         $this->RegisterTimer(\FritzBox\Base\Timer::RefreshState, 0, 'IPS_RequestAction(' . $this->InstanceID . ',"' . \FritzBox\Base\Action::RefreshState . '",true);');
     }
 
-    public function Destroy()
+    public function Destroy(): void
     {
         //Never delete this line!
         parent::Destroy();
     }
 
-    public function ApplyChanges()
+    public function ApplyChanges(): void
     {
         //Never delete this line!
         parent::ApplyChanges();
@@ -40,9 +40,130 @@ class FritzBoxDHCPServer extends FritzBoxModulBase
         $this->UpdateInfo();
     }
 
-    public function RequestAction($Ident, $Value)
+    public function GetInfo(): mixed
     {
-        if (parent::RequestAction($Ident, $Value)) {
+        $result = $this->Send(__FUNCTION__);
+        if ($result === false) {
+            return false;
+        }
+        return $result;
+    }
+
+    public function GetAddressRange(): mixed
+    {
+        $result = $this->Send(__FUNCTION__);
+        if ($result === false) {
+            return false;
+        }
+
+        return $result;
+    }
+
+    public function GetIPRoutersList(): mixed
+    {
+        $result = $this->Send(__FUNCTION__);
+        if ($result === false) {
+            return false;
+        }
+
+        return $result;
+    }
+
+    public function GetSubnetMask(): mixed
+    {
+        $result = $this->Send(__FUNCTION__);
+        if ($result === false) {
+            return false;
+        }
+
+        return $result;
+    }
+
+    public function GetDNSServers(): mixed
+    {
+        $result = $this->Send(__FUNCTION__);
+        if ($result === false) {
+            return false;
+        }
+
+        return $result;
+    }
+
+    public function GetIPInterfaceNumberOfEntries(): int|false
+    {
+        $result = $this->Send(__FUNCTION__);
+        if ($result === false) {
+            return false;
+        }
+
+        return (int) $result;
+    }
+
+    public function SetDHCPServerEnable(bool $Value): bool
+    {
+        $result = $this->Send(__FUNCTION__, ['NewDHCPServerEnable'=>(int) $Value]);
+        if ($result === false) {
+            return false;
+        }
+
+        return true;
+    }
+
+    public function SetIPInterface(bool $Enable, string $IPInterfaceIPAddress, string $IPInterfaceSubnetMask, string $IPInterfaceIPAddressingType): bool
+    {
+        $result = $this->Send(__FUNCTION__, [
+            'NewEnable'                     => $Enable,
+            'NewIPInterfaceIPAddress'       => $IPInterfaceIPAddress,
+            'NewIPInterfaceSubnetMask'      => $IPInterfaceSubnetMask,
+            'NewIPInterfaceIPAddressingType'=> $IPInterfaceIPAddressingType
+        ]);
+        if ($result === false) {
+            return false;
+        }
+
+        return true;
+    }
+
+    public function SetAddressRange(string $MinAddress, string $MaxAddress): bool
+    {
+        $result = $this->Send(__FUNCTION__, [
+            'NewMinAddress'=> $MinAddress,
+            'NewMaxAddress'=> $MaxAddress
+        ]);
+        if ($result === false) {
+            return false;
+        }
+
+        return true;
+    }
+
+    public function SetIPRouter(string $IPRouters): bool
+    {
+        $result = $this->Send(__FUNCTION__, [
+            'NewIPRouters'=> $IPRouters
+        ]);
+        if ($result === false) {
+            return false;
+        }
+
+        return true;
+    }
+
+    public function SetSubnetMask(string $SubnetMask): bool
+    {
+        $result = $this->Send(__FUNCTION__, [
+            'NewSubnetMask'=> $SubnetMask
+        ]);
+        if ($result === false) {
+            return false;
+        }
+
+        return true;
+    }
+
+    protected function ProcessRequestAction(string $Ident, mixed $Value): mixed
+    {
+        if (parent::ProcessRequestAction($Ident, $Value)) {
             return true;
         }
         switch ($Ident) {
@@ -62,127 +183,6 @@ class FritzBoxDHCPServer extends FritzBoxModulBase
         trigger_error($this->Translate('Invalid Ident.'), E_USER_NOTICE);
 
         return false;
-    }
-
-    public function GetInfo()
-    {
-        $result = $this->Send(__FUNCTION__);
-        if ($result === false) {
-            return false;
-        }
-        return $result;
-    }
-
-    public function GetAddressRange()
-    {
-        $result = $this->Send(__FUNCTION__);
-        if ($result === false) {
-            return false;
-        }
-
-        return $result;
-    }
-
-    public function GetIPRoutersList()
-    {
-        $result = $this->Send(__FUNCTION__);
-        if ($result === false) {
-            return false;
-        }
-
-        return $result;
-    }
-
-    public function GetSubnetMask()
-    {
-        $result = $this->Send(__FUNCTION__);
-        if ($result === false) {
-            return false;
-        }
-
-        return $result;
-    }
-
-    public function GetDNSServers()
-    {
-        $result = $this->Send(__FUNCTION__);
-        if ($result === false) {
-            return false;
-        }
-
-        return $result;
-    }
-
-    public function GetIPInterfaceNumberOfEntries()
-    {
-        $result = $this->Send(__FUNCTION__);
-        if ($result === false) {
-            return false;
-        }
-
-        return $result;
-    }
-
-    public function SetDHCPServerEnable(bool $Value)
-    {
-        $result = $this->Send(__FUNCTION__, ['NewDHCPServerEnable'=>(int) $Value]);
-        if ($result === false) {
-            return false;
-        }
-
-        return true;
-    }
-
-    public function SetIPInterface(bool $Enable, string $IPInterfaceIPAddress, string $IPInterfaceSubnetMask, string $IPInterfaceIPAddressingType)
-    {
-        $result = $this->Send(__FUNCTION__, [
-            'NewEnable'                     => $Enable,
-            'NewIPInterfaceIPAddress'       => $IPInterfaceIPAddress,
-            'NewIPInterfaceSubnetMask'      => $IPInterfaceSubnetMask,
-            'NewIPInterfaceIPAddressingType'=> $IPInterfaceIPAddressingType
-        ]);
-        if ($result === false) {
-            return false;
-        }
-
-        return true;
-    }
-
-    public function SetAddressRange(string $MinAddress, string $MaxAddress)
-    {
-        $result = $this->Send(__FUNCTION__, [
-            'NewMinAddress'=> $MinAddress,
-            'NewMaxAddress'=> $MaxAddress
-        ]);
-        if ($result === false) {
-            return false;
-        }
-
-        return true;
-    }
-
-    public function SetIPRouter(string $IPRouters)
-    {
-        $result = $this->Send(__FUNCTION__, [
-            'NewIPRouters'=> $IPRouters
-        ]);
-        if ($result === false) {
-            return false;
-        }
-
-        return true;
-    }
-
-    public function SetSubnetMask(string $SubnetMask)
-    {
-        $result = $this->Send(__FUNCTION__, [
-            'NewSubnetMask'=> $SubnetMask
-        ]);
-        if ($result === false) {
-            return false;
-        }
-
-        return true;
     }
 
     private function UpdateInfo()

@@ -36,7 +36,7 @@ class FritzBoxCallmonitor extends FritzBoxModulBase
     protected static $SecondEventGUID = \FritzBox\GUID::CallMonitorEvent;
     protected static $DefaultIndex = 0;
 
-    public function Create()
+    public function Create(): void
     {
         //Never delete this line!
         parent::Create();
@@ -64,13 +64,13 @@ class FritzBoxCallmonitor extends FritzBoxModulBase
         $this->CallData = [];
     }
 
-    public function Destroy()
+    public function Destroy(): void
     {
         //Never delete this line!
         parent::Destroy();
     }
 
-    public function ApplyChanges()
+    public function ApplyChanges(): void
     {
         //Never delete this line!
         parent::ApplyChanges();
@@ -118,83 +118,7 @@ class FritzBoxCallmonitor extends FritzBoxModulBase
         }
     }
 
-    public function RequestAction($Ident, $Value)
-    {
-        if (parent::RequestAction($Ident, $Value)) {
-            return true;
-        }
-        switch ($Ident) {
-            case \FritzBox\Callmonitor\Action::RefreshCallList:
-                return $this->RebuildTable();
-            case \FritzBox\Callmonitor\Action::ReadAreaCodes:
-                $Codes = $this->ReadAreaCodes();
-                if ($Codes === false) {
-                    $this->ReportError($this->Translate('The dialing codes could not be read from the FRITZ!Box.'));
-                    return false;
-                }
-                foreach ($Codes as $Property => $Value) {
-                    $this->UpdateFormField($Property, 'value', $Value);
-                }
-                return true;
-            case \FritzBox\Callmonitor\Action::EditAreaCodes:
-                $this->UpdateFormField('CountryCode', 'enabled', true);
-                $this->UpdateFormField('AreaCode', 'enabled', true);
-                return true;
-            case \FritzBox\Callmonitor\Action::SendNotification:
-                return $this->SendNotification(unserialize($Value));
-            case \FritzBox\Callmonitor\Action::RunActions:
-                return $this->RunActions(unserialize($Value));
-            case \FritzBox\Callmonitor\Action::PreviewIcon:
-                $Data = unserialize($Value);
-                $ImageData = @getimagesize('data://text/plain;base64,' . $Data['Icon']);
-                if ($ImageData === false) {
-                    $this->UpdateFormField('IconName', 'caption', 'No valid image');
-                    $this->UpdateFormField('IconPreview', 'visible', true);
-                    return;
-                }
-                $this->UpdateFormField('IconName', 'caption', $Data['DisplayName']);
-                $this->UpdateFormField('IconImage', 'image', 'data://' . $ImageData['mime'] . ';base64,' . $Data['Icon']);
-                $this->UpdateFormField('IconPreview', 'visible', true);
-                return;
-            case \FritzBox\Callmonitor\Action::ReverseSearchInstanceID:
-                if ($Value > 1) {
-                    $this->UpdateFormField('CustomSearchScriptID', 'enabled', false);
-                } else {
-                    $this->UpdateFormField('CustomSearchScriptID', 'enabled', true);
-                }
-                return;
-            case \FritzBox\Callmonitor\Action::CustomSearchScriptID:
-                if ($Value > 1) {
-                    $this->UpdateFormField('MaxNameSize', 'enabled', false);
-                    $this->UpdateFormField('ReverseSearchInstanceID', 'enabled', false);
-                    $this->UpdateFormField('SearchMarker', 'enabled', false);
-                    $this->UpdateFormField('UnknownNumberName', 'enabled', false);
-                } else {
-                    $this->UpdateFormField('MaxNameSize', 'enabled', true);
-                    $this->UpdateFormField('ReverseSearchInstanceID', 'enabled', true);
-                    $this->UpdateFormField('SearchMarker', 'enabled', true);
-                    $this->UpdateFormField('UnknownNumberName', 'enabled', true);
-                }
-                return;
-            case \FritzBox\Callmonitor\Action::CallsAsNotification:
-                $this->UpdateFormField('NotificationPanel', 'expanded', $Value);
-                $this->UpdateFormField('Targets', 'enabled', $Value);
-                $this->UpdateFormField('Notification', 'enabled', $Value);
-                return;
-            case \FritzBox\Callmonitor\Action::CallsAsTable:
-                $this->UpdateFormField('Icons', 'enabled', $Value);
-                $this->UpdateFormField('ShowImage', 'enabled', $Value);
-                $this->UpdateFormField('Table', 'enabled', $Value);
-                $this->UpdateFormField('Columns', 'enabled', $Value);
-                $this->UpdateFormField('Rows', 'enabled', $Value);
-                $this->UpdateFormField('HTMLExpansionPanel', 'expanded', $Value);
-                return;
-        }
-        trigger_error($this->Translate('Invalid Ident.'), E_USER_NOTICE);
-        return false;
-    }
-
-    public function GetConfigurationForm()
+    public function GetConfigurationForm(): string
     {
         $Form = json_decode(file_get_contents(__DIR__ . '/form.json'), true);
         if ($this->GetStatus() == IS_CREATING) {
@@ -235,13 +159,14 @@ class FritzBoxCallmonitor extends FritzBoxModulBase
         return json_encode($Form);
     }
 
-    public function ReceiveData($JSONString)
+    public function ReceiveData(string $JSONString): string
     {
         $data = json_decode($JSONString, true);
         unset($data['DataID']);
         $this->SendDebug('ReceiveCallMonitorData', $data, 0);
 
-        $CallEvent = explode(';', utf8_decode($data['Buffer']));
+        // IPSModuleStrict: Daten des Client Sockets kommen HEX-kodiert
+        $CallEvent = explode(';', hex2bin($data['Buffer']));
         $CallEvent[2] = (int) $CallEvent[2];
         $this->lock('CallData');
         $Calls = $this->CallData;
@@ -250,7 +175,7 @@ class FritzBoxCallmonitor extends FritzBoxModulBase
         if (in_array($CallEvent[1], ['CONNECT', 'DISCONNECT']) && !array_key_exists($CallEvent[2], $Calls)) {
             $this->unlock('CallData');
             $this->SendDebug('Unknown call ID', $CallEvent[2], 0);
-            return true;
+            return '';
         }
         $Calls[$CallEvent[2]]['Status'] = $CallEvent[1];
         switch ($CallEvent[1]) {
@@ -327,7 +252,83 @@ class FritzBoxCallmonitor extends FritzBoxModulBase
         if (count(json_decode($this->ReadPropertyString(\FritzBox\Callmonitor\Property::Actions))) > 0) {
             IPS_RunScriptText('IPS_RequestAction(' . $this->InstanceID . ',\'RunActions\',\'' . serialize($NotifyData) . '\');');
         }
-        return true;
+        return '';
+    }
+
+    protected function ProcessRequestAction(string $Ident, mixed $Value): mixed
+    {
+        if (parent::ProcessRequestAction($Ident, $Value)) {
+            return true;
+        }
+        switch ($Ident) {
+            case \FritzBox\Callmonitor\Action::RefreshCallList:
+                return $this->RebuildTable();
+            case \FritzBox\Callmonitor\Action::ReadAreaCodes:
+                $Codes = $this->ReadAreaCodes();
+                if ($Codes === false) {
+                    $this->ReportError($this->Translate('The dialing codes could not be read from the FRITZ!Box.'));
+                    return false;
+                }
+                foreach ($Codes as $Property => $Value) {
+                    $this->UpdateFormField($Property, 'value', $Value);
+                }
+                return true;
+            case \FritzBox\Callmonitor\Action::EditAreaCodes:
+                $this->UpdateFormField('CountryCode', 'enabled', true);
+                $this->UpdateFormField('AreaCode', 'enabled', true);
+                return true;
+            case \FritzBox\Callmonitor\Action::SendNotification:
+                return $this->SendNotification(unserialize($Value));
+            case \FritzBox\Callmonitor\Action::RunActions:
+                return $this->RunActions(unserialize($Value));
+            case \FritzBox\Callmonitor\Action::PreviewIcon:
+                $Data = unserialize($Value);
+                $ImageData = @getimagesize('data://text/plain;base64,' . $Data['Icon']);
+                if ($ImageData === false) {
+                    $this->UpdateFormField('IconName', 'caption', 'No valid image');
+                    $this->UpdateFormField('IconPreview', 'visible', true);
+                    return true;
+                }
+                $this->UpdateFormField('IconName', 'caption', $Data['DisplayName']);
+                $this->UpdateFormField('IconImage', 'image', 'data://' . $ImageData['mime'] . ';base64,' . $Data['Icon']);
+                $this->UpdateFormField('IconPreview', 'visible', true);
+                return true;
+            case \FritzBox\Callmonitor\Action::ReverseSearchInstanceID:
+                if ($Value > 1) {
+                    $this->UpdateFormField('CustomSearchScriptID', 'enabled', false);
+                } else {
+                    $this->UpdateFormField('CustomSearchScriptID', 'enabled', true);
+                }
+                return true;
+            case \FritzBox\Callmonitor\Action::CustomSearchScriptID:
+                if ($Value > 1) {
+                    $this->UpdateFormField('MaxNameSize', 'enabled', false);
+                    $this->UpdateFormField('ReverseSearchInstanceID', 'enabled', false);
+                    $this->UpdateFormField('SearchMarker', 'enabled', false);
+                    $this->UpdateFormField('UnknownNumberName', 'enabled', false);
+                } else {
+                    $this->UpdateFormField('MaxNameSize', 'enabled', true);
+                    $this->UpdateFormField('ReverseSearchInstanceID', 'enabled', true);
+                    $this->UpdateFormField('SearchMarker', 'enabled', true);
+                    $this->UpdateFormField('UnknownNumberName', 'enabled', true);
+                }
+                return true;
+            case \FritzBox\Callmonitor\Action::CallsAsNotification:
+                $this->UpdateFormField('NotificationPanel', 'expanded', $Value);
+                $this->UpdateFormField('Targets', 'enabled', $Value);
+                $this->UpdateFormField('Notification', 'enabled', $Value);
+                return true;
+            case \FritzBox\Callmonitor\Action::CallsAsTable:
+                $this->UpdateFormField('Icons', 'enabled', $Value);
+                $this->UpdateFormField('ShowImage', 'enabled', $Value);
+                $this->UpdateFormField('Table', 'enabled', $Value);
+                $this->UpdateFormField('Columns', 'enabled', $Value);
+                $this->UpdateFormField('Rows', 'enabled', $Value);
+                $this->UpdateFormField('HTMLExpansionPanel', 'expanded', $Value);
+                return true;
+        }
+        trigger_error($this->Translate('Invalid Ident.'), E_USER_NOTICE);
+        return false;
     }
 
     /**

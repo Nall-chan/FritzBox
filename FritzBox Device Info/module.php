@@ -15,7 +15,7 @@ class FritzBoxDeviceInfo extends FritzBoxModulBase
     ];
     protected static $DefaultIndex = 0;
 
-    public function Create()
+    public function Create(): void
     {
         //Never delete this line!
         parent::Create();
@@ -24,7 +24,7 @@ class FritzBoxDeviceInfo extends FritzBoxModulBase
         $this->RegisterTimer(\FritzBox\Base\Timer::RefreshState, 0, 'IPS_RequestAction(' . $this->InstanceID . ',"' . \FritzBox\Base\Action::RefreshState . '",true);');
     }
 
-    public function ApplyChanges()
+    public function ApplyChanges(): void
     {
         //Never delete this line!
         parent::ApplyChanges();
@@ -36,21 +36,7 @@ class FritzBoxDeviceInfo extends FritzBoxModulBase
         $this->UpdateInfo();
     }
 
-    public function RequestAction($Ident, $Value)
-    {
-        if (parent::RequestAction($Ident, $Value)) {
-            return true;
-        }
-        switch ($Ident) {
-            case \FritzBox\Base\Action::RefreshState:
-                return $this->UpdateInfo();
-        }
-        trigger_error($this->Translate('Invalid Ident.'), E_USER_NOTICE);
-
-        return false;
-    }
-
-    public function GetInfo()
+    public function GetInfo(): mixed
     {
         $result = $this->Send(__FUNCTION__);
         if ($result === false) {
@@ -64,7 +50,7 @@ class FritzBoxDeviceInfo extends FritzBoxModulBase
      *
      * @return int|false
      */
-    public function GetSecurityPort()
+    public function GetSecurityPort(): int|false
     {
         $result = $this->Send(__FUNCTION__);
         if ($result === false) {
@@ -78,9 +64,23 @@ class FritzBoxDeviceInfo extends FritzBoxModulBase
      *
      * @return string|false
      */
-    public function GetDeviceLogPath()
+    public function GetDeviceLogPath(): mixed
     {
         return $this->Send('X_AVM-DE_GetDeviceLogPath');
+    }
+
+    protected function ProcessRequestAction(string $Ident, mixed $Value): mixed
+    {
+        if (parent::ProcessRequestAction($Ident, $Value)) {
+            return true;
+        }
+        switch ($Ident) {
+            case \FritzBox\Base\Action::RefreshState:
+                return $this->UpdateInfo();
+        }
+        trigger_error($this->Translate('Invalid Ident.'), E_USER_NOTICE);
+
+        return false;
     }
 
     private function UpdateInfo()

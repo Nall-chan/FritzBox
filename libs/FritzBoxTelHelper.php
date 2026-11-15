@@ -157,10 +157,10 @@ trait TelHelper
                 'Devices'    => $PhoneDevices
             ]
         ));
-        if ($Ret === false) {
+        if ($Ret === '') {
             return false;
         }
-        $Result = unserialize($Ret);
+        $Result = \FritzBox\IOResult::Decode($Ret);
         $this->SendDebug('Result', $Result, 0);
         return $Result;
     }
@@ -178,7 +178,7 @@ trait TelHelper
                 'DeviceID'   => $DeviceID
             ]
         ));
-        if ($Ret === false) {
+        if ($Ret === '') {
             $Number = $this->GetPhoneDeviceNumberByID($DeviceID);
             $Result = $this->DoPhonebookSearch('**' . $Number, 50);
             $this->SendDebug('Result', $Result, 0);
@@ -186,7 +186,7 @@ trait TelHelper
                 $Result = '';
             }
         } else {
-            $Result = unserialize($Ret);
+            $Result = \FritzBox\IOResult::Decode($Ret);
             $this->SendDebug('Result', $Result, 0);
         }
         return $Result;
@@ -204,10 +204,10 @@ trait TelHelper
                 'Function'   => \FritzBox\IOFunction::GetPhoneDevices
             ]
         ));
-        if ($Ret === false) {
+        if ($Ret === '') {
             return false;
         }
-        $Result = unserialize($Ret);
+        $Result = \FritzBox\IOResult::Decode($Ret);
         $this->SendDebug('Result', $Result, 0);
         return $Result;
     }
@@ -224,10 +224,10 @@ trait TelHelper
                 'Function'   => \FritzBox\IOFunction::GetPhonebooks
             ]
         ));
-        if ($Ret === false) {
+        if ($Ret === '') {
             return [];
         }
-        $Result = unserialize($Ret);
+        $Result = \FritzBox\IOResult::Decode($Ret);
         $this->SendDebug('Result', $Result, 0);
         return $Result;
     }
@@ -244,10 +244,10 @@ trait TelHelper
                 'Function'   => \FritzBox\IOFunction::GetAreaCodes
             ]
         ));
-        if ($Ret === false) {
+        if ($Ret === '') {
             return [];
         }
-        $Result = unserialize($Ret);
+        $Result = \FritzBox\IOResult::Decode($Ret);
         $this->SendDebug('Result', $Result, 0);
         return $Result;
     }

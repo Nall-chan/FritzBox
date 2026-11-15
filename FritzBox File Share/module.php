@@ -21,7 +21,7 @@ class FritzBoxFileShare extends FritzBoxModulBase
     ];
     protected static $DefaultIndex = 0;
 
-    public function Create()
+    public function Create(): void
     {
         //Never delete this line!
         parent::Create();
@@ -35,12 +35,12 @@ class FritzBoxFileShare extends FritzBoxModulBase
         $this->RegisterTimer(\FritzBox\Base\Timer::RefreshState, 0, 'IPS_RequestAction(' . $this->InstanceID . ',"' . \FritzBox\Base\Action::RefreshState . '",true);');
     }
 
-    public function Destroy()
+    public function Destroy(): void
     {
         parent::Destroy();
     }
 
-    public function ApplyChanges()
+    public function ApplyChanges(): void
     {
         $this->SetTimerInterval(\FritzBox\Base\Timer::RefreshState, 0);
         parent::ApplyChanges();
@@ -58,29 +58,7 @@ class FritzBoxFileShare extends FritzBoxModulBase
         }
     }
 
-    public function RequestAction($Ident, $Value)
-    {
-        if (parent::RequestAction($Ident, $Value)) {
-            return true;
-        }
-        switch ($Ident) {
-            case \FritzBox\Base\Action::RefreshState:
-                return $this->RefreshFileShareTable();
-            case \FritzBox\FileShare\Action::SharesAsTable:
-                $this->UpdateFormField('RefreshInterval', 'enabled', $Value);
-                $this->UpdateFormField('Icons', 'enabled', $Value);
-                $this->UpdateFormField('ShowImage', 'enabled', $Value);
-                $this->UpdateFormField('Table', 'enabled', $Value);
-                $this->UpdateFormField('Columns', 'enabled', $Value);
-                $this->UpdateFormField('Rows', 'enabled', $Value);
-                $this->UpdateFormField('HTMLExpansionPanel', 'expanded', $Value);
-                return;
-        }
-        trigger_error($this->Translate('Invalid Ident.'), E_USER_NOTICE);
-        return false;
-    }
-
-    public function GetConfigurationForm()
+    public function GetConfigurationForm(): string
     {
         $Form = json_decode(file_get_contents(__DIR__ . '/form.json'), true);
         if ($this->GetStatus() == IS_CREATING) {
@@ -100,7 +78,7 @@ class FritzBoxFileShare extends FritzBoxModulBase
         return json_encode($Form);
     }
 
-    public function RefreshFileShareTable()
+    public function RefreshFileShareTable(): mixed
     {
         $Table = $this->ReadPropertyBoolean(\FritzBox\FileShare\Property::SharesAsTable);
         if (!$Table) {
@@ -113,14 +91,14 @@ class FritzBoxFileShare extends FritzBoxModulBase
         return $this->CreateHostHTMLTable($Data);
     }
 
-    public function GetNumberOfFilelinkEntries()
+    public function GetNumberOfFilelinkEntries(): int|false
     {
         $result = $this->Send(__FUNCTION__);
         if ($result === false) {
             return false;
         }
 
-        return $result;
+        return (int) $result;
     }
 
     public function NewFilelinkEntry(
@@ -149,7 +127,7 @@ class FritzBoxFileShare extends FritzBoxModulBase
         return $result !== false;
     }
 
-    public function GetGenericFilelinkEntry(int $Index)
+    public function GetGenericFilelinkEntry(int $Index): mixed
     {
         $result = $this->Send(__FUNCTION__, [
             'NewIndex'=> $Index
@@ -160,7 +138,7 @@ class FritzBoxFileShare extends FritzBoxModulBase
         return $result;
     }
 
-    public function GetSpecificFilelinkEntry(string $Id)
+    public function GetSpecificFilelinkEntry(string $Id): mixed
     {
         $result = $this->Send(__FUNCTION__, [
             'NewID'=> $Id
@@ -171,7 +149,7 @@ class FritzBoxFileShare extends FritzBoxModulBase
         return $result;
     }
 
-    public function DeleteFilelinkEntry(string $Id)
+    public function DeleteFilelinkEntry(string $Id): bool
     {
         $result = $this->Send(__FUNCTION__, [
             'NewID'=> $Id
@@ -179,13 +157,35 @@ class FritzBoxFileShare extends FritzBoxModulBase
         return $result !== false;
     }
 
-    public function GetFilelinkListPath()
+    public function GetFilelinkListPath(): mixed
     {
         $result = $this->Send(__FUNCTION__);
         if ($result === false) {
             return false;
         }
         return $result;
+    }
+
+    protected function ProcessRequestAction(string $Ident, mixed $Value): mixed
+    {
+        if (parent::ProcessRequestAction($Ident, $Value)) {
+            return true;
+        }
+        switch ($Ident) {
+            case \FritzBox\Base\Action::RefreshState:
+                return $this->RefreshFileShareTable();
+            case \FritzBox\FileShare\Action::SharesAsTable:
+                $this->UpdateFormField('RefreshInterval', 'enabled', $Value);
+                $this->UpdateFormField('Icons', 'enabled', $Value);
+                $this->UpdateFormField('ShowImage', 'enabled', $Value);
+                $this->UpdateFormField('Table', 'enabled', $Value);
+                $this->UpdateFormField('Columns', 'enabled', $Value);
+                $this->UpdateFormField('Rows', 'enabled', $Value);
+                $this->UpdateFormField('HTMLExpansionPanel', 'expanded', $Value);
+                return true;
+        }
+        trigger_error($this->Translate('Invalid Ident.'), E_USER_NOTICE);
+        return false;
     }
 
     private function GetShareList()

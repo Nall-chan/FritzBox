@@ -20,7 +20,7 @@ class FritzBoxHostFilter extends FritzBoxModulBase
     protected static $SecondEventGUID = \FritzBox\GUID::NewHostListEvent;
     protected static $DefaultIndex = 0;
 
-    public function Create()
+    public function Create(): void
     {
         //Never delete this line!
         parent::Create();
@@ -32,7 +32,7 @@ class FritzBoxHostFilter extends FritzBoxModulBase
         $this->RegisterTimer(\FritzBox\Base\Timer::RefreshState, 0, 'IPS_RequestAction(' . $this->InstanceID . ',"' . \FritzBox\Base\Action::RefreshState . '",true);');
     }
 
-    public function ApplyChanges()
+    public function ApplyChanges(): void
     {
         $this->SetTimerInterval(\FritzBox\Base\Timer::RefreshState, 0);
         parent::ApplyChanges();
@@ -55,55 +55,7 @@ class FritzBoxHostFilter extends FritzBoxModulBase
         $this->RefreshHostList();
     }
 
-    public function RequestAction($Ident, $Value)
-    {
-        if (parent::RequestAction($Ident, $Value)) {
-            return true;
-        }
-
-        switch ($Ident) {
-            case \FritzBox\HostFilter\Action::ReloadForm:
-                IPS_Sleep(2000);
-                $this->ReloadForm();
-                return;
-            case \FritzBox\Base\Action::RefreshState:
-                return $this->UpdateInfo();
-            case \FritzBox\HostFilter\Action::HostAsVariable:
-                $this->UpdateFormField('AutoAddHostVariables', 'enabled', (bool) $Value);
-                $this->UpdateFormField('RenameHostVariables', 'enabled', (bool) $Value);
-                $this->UpdateFormField('HostvariablesPanel', 'expanded', (bool) $Value);
-                $this->UpdateFormField('HostVariables', 'enabled', (bool) $Value);
-                return;
-            case \FritzBox\HostFilter\Action::HostvariablesPanel:
-                if ($this->ShowVariableWarning) {
-                    $this->UpdateFormField('ErrorPopup', 'visible', true);
-                    $this->UpdateFormField('ErrorTitle', 'caption', 'Attention!');
-                    $this->UpdateFormField('ErrorText', 'caption', 'Deselecting a host causes the associated status variable to be deleted.');
-                    $this->ShowVariableWarning = false;
-                }
-                return;
-            case \FritzBox\HostFilter\Action::DelHostVariable:
-                $ObjectId = @$this->GetIDForIdent($Value);
-                if ($ObjectId > 0) {
-                    $this->DelSubObjects($ObjectId);
-                    $this->UnregisterVariable($Value);
-                }
-                return;
-        }
-        if (strpos($Ident, 'IP') === 0) {
-            $IPAddress = str_replace('_', '.', substr($Ident, 2));
-            if ($this->DisallowWANAccessByIP($IPAddress, (bool) $Value)) {
-                $this->SetValue($Ident, $Value);
-                return true;
-            } else {
-                return false;
-            }
-        }
-        trigger_error($this->Translate('Invalid Ident.'), E_USER_NOTICE);
-        return false;
-    }
-
-    public function GetConfigurationForm()
+    public function GetConfigurationForm(): string
     {
         $Form = json_decode(file_get_contents(__DIR__ . '/form.json'), true);
         if ($this->GetStatus() == IS_CREATING) {
@@ -141,7 +93,7 @@ class FritzBoxHostFilter extends FritzBoxModulBase
         return json_encode($Form);
     }
 
-    public function RefreshHostList()
+    public function RefreshHostList(): bool
     {
         if ($this->ParentID == 0) {
             return false;
@@ -202,22 +154,21 @@ class FritzBoxHostFilter extends FritzBoxModulBase
         return true;
     }
 
-    public function ReceiveData($JSONString)
+    public function ReceiveData(string $JSONString): string
     {
-        $Processed = parent::ReceiveData($JSONString);
-        if ($Processed !== null) {
-            return $Processed;
-        }
         $data = json_decode($JSONString, true);
+        if ($data['DataID'] == \FritzBox\GUID::SendEventToChildren) {
+            return parent::ReceiveData($JSONString);
+        }
         unset($data['DataID']);
         if ($data['Function'] == \FritzBox\IOFunction::NewHostListEvent) {
             $this->SendDebug('NewHostListEvent', '', 0);
             $this->RefreshHostList();
         }
-        return true;
+        return '';
     }
 
-    public function MarkTicket()
+    public function MarkTicket(): mixed
     {
         $result = $this->Send(__FUNCTION__);
         if ($result === false) {
@@ -226,7 +177,7 @@ class FritzBoxHostFilter extends FritzBoxModulBase
         return $result;
     }
 
-    public function GetTicketIDStatus(int $TicketID)
+    public function GetTicketIDStatus(int $TicketID): mixed
     {
         $result = $this->Send(__FUNCTION__, [
             'NewTicketID'=> $TicketID
@@ -237,7 +188,7 @@ class FritzBoxHostFilter extends FritzBoxModulBase
         return $result;
     }
 
-    public function DiscardAllTickets()
+    public function DiscardAllTickets(): bool
     {
         $result = $this->Send(__FUNCTION__);
         if ($result === false) {
@@ -246,7 +197,7 @@ class FritzBoxHostFilter extends FritzBoxModulBase
         return true;
     }
 
-    public function DisallowWANAccessByIP(string $IPv4Address, bool $Disallow)
+    public function DisallowWANAccessByIP(string $IPv4Address, bool $Disallow): bool
     {
         $result = $this->Send(__FUNCTION__, [
             'NewIPv4Address'=> $IPv4Address,
@@ -258,7 +209,7 @@ class FritzBoxHostFilter extends FritzBoxModulBase
         return true;
     }
 
-    public function GetWANAccessByIP(string $IPv4Address)
+    public function GetWANAccessByIP(string $IPv4Address): mixed
     {
         $result = $this->Send(__FUNCTION__, [
             'NewIPv4Address'=> $IPv4Address
@@ -274,7 +225,7 @@ class FritzBoxHostFilter extends FritzBoxModulBase
      *
      * @return string|false Liste der Profile, wie von der FritzBox geliefert
      */
-    public function GetFilterProfiles()
+    public function GetFilterProfiles(): mixed
     {
         return $this->Send(__FUNCTION__);
     }
@@ -286,7 +237,7 @@ class FritzBoxHostFilter extends FritzBoxModulBase
      *
      * @return string|false
      */
-    public function GetFilterProfileByID(string $FilterProfileID)
+    public function GetFilterProfileByID(string $FilterProfileID): mixed
     {
         if ($FilterProfileID === '') {
             $this->ReportError($this->Translate('Invalid profile ID.'));
@@ -304,7 +255,7 @@ class FritzBoxHostFilter extends FritzBoxModulBase
      *
      * @return array|false
      */
-    public function GetHostEntryByIP(string $IPv4Address)
+    public function GetHostEntryByIP(string $IPv4Address): mixed
     {
         if (!filter_var($IPv4Address, FILTER_VALIDATE_IP, FILTER_FLAG_IPV4)) {
             $this->ReportError($this->Translate('Invalid IP address.'));
@@ -323,7 +274,7 @@ class FritzBoxHostFilter extends FritzBoxModulBase
      *
      * @return bool
      */
-    public function AddHostEntryToFilterProfile(string $IPv4Address, string $FilterProfileID)
+    public function AddHostEntryToFilterProfile(string $IPv4Address, string $FilterProfileID): bool
     {
         if (!filter_var($IPv4Address, FILTER_VALIDATE_IP, FILTER_FLAG_IPV4)) {
             $this->ReportError($this->Translate('Invalid IP address.'));
@@ -347,7 +298,7 @@ class FritzBoxHostFilter extends FritzBoxModulBase
      *
      * @return array|false
      */
-    public function AddTicketTimeToHostEntryByIP(string $IPv4Address)
+    public function AddTicketTimeToHostEntryByIP(string $IPv4Address): mixed
     {
         if (!filter_var($IPv4Address, FILTER_VALIDATE_IP, FILTER_FLAG_IPV4)) {
             $this->ReportError($this->Translate('Invalid IP address.'));
@@ -356,6 +307,54 @@ class FritzBoxHostFilter extends FritzBoxModulBase
         return $this->Send(__FUNCTION__, [
             'NewIPv4Address'=> $IPv4Address
         ]);
+    }
+
+    protected function ProcessRequestAction(string $Ident, mixed $Value): mixed
+    {
+        if (parent::ProcessRequestAction($Ident, $Value)) {
+            return true;
+        }
+
+        switch ($Ident) {
+            case \FritzBox\HostFilter\Action::ReloadForm:
+                usleep((2000) * 1000);
+                $this->ReloadForm();
+                return true;
+            case \FritzBox\Base\Action::RefreshState:
+                return $this->UpdateInfo();
+            case \FritzBox\HostFilter\Action::HostAsVariable:
+                $this->UpdateFormField('AutoAddHostVariables', 'enabled', (bool) $Value);
+                $this->UpdateFormField('RenameHostVariables', 'enabled', (bool) $Value);
+                $this->UpdateFormField('HostvariablesPanel', 'expanded', (bool) $Value);
+                $this->UpdateFormField('HostVariables', 'enabled', (bool) $Value);
+                return true;
+            case \FritzBox\HostFilter\Action::HostvariablesPanel:
+                if ($this->ShowVariableWarning) {
+                    $this->UpdateFormField('ErrorPopup', 'visible', true);
+                    $this->UpdateFormField('ErrorTitle', 'caption', 'Attention!');
+                    $this->UpdateFormField('ErrorText', 'caption', 'Deselecting a host causes the associated status variable to be deleted.');
+                    $this->ShowVariableWarning = false;
+                }
+                return true;
+            case \FritzBox\HostFilter\Action::DelHostVariable:
+                $ObjectId = @$this->GetIDForIdent($Value);
+                if ($ObjectId > 0) {
+                    $this->DelSubObjects($ObjectId);
+                    $this->UnregisterVariable($Value);
+                }
+                return true;
+        }
+        if (strpos($Ident, 'IP') === 0) {
+            $IPAddress = str_replace('_', '.', substr($Ident, 2));
+            if ($this->DisallowWANAccessByIP($IPAddress, (bool) $Value)) {
+                $this->SetValue($Ident, $Value);
+                return true;
+            } else {
+                return false;
+            }
+        }
+        trigger_error($this->Translate('Invalid Ident.'), E_USER_NOTICE);
+        return false;
     }
 
     private function UpdateInfo()
