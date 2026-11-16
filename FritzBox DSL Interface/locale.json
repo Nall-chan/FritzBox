@@ -1,6 +1,18 @@
 {
     "translations": {
         "de": {
+            "Entries": "Einträge",
+            "All": "Alle",
+            "Cancel": "Abbrechen",
+            "OK": "OK",
+            "Show chart": "Diagramm anzeigen",
+            "of": "von",
+            "No data": "Keine Daten",
+            "Download": "Download",
+            "Upload": "Upload",
+            "Noise margin": "Störabstand",
+            "Attenuation": "Dämpfung",
+            "Errors": "Fehler",
             "Refresh Interval": "Aktualisierungsintervall",
             "seconds": "Sekunden",
             "Update Values": "Werte aktualisieren",

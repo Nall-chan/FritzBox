@@ -1,6 +1,19 @@
 {
     "translations": {
         "de": {
+            "Entries": "Einträge",
+            "Cancel": "Abbrechen",
+            "OK": "OK",
+            "Show chart": "Diagramm anzeigen",
+            "on": "an",
+            "via": "über",
+            "Found by reverse search": "Über Rückwärtssuche gefunden",
+            "No active calls": "Keine aktiven Gespräche",
+            "Ringing": "Klingelt",
+            "Dialing": "Wählt",
+            "Connected": "Verbunden",
+            "Tile visualization": "Kachel-Visualisierung",
+            "Open the tile as popup on incoming calls": "Kachel bei eingehenden Anrufen als Popup öffnen",
             "FritzBox Callmonitor": "FritzBox Anrufmonitor",
             "Area code": "Ortsvorwahl",
             "Country code": "Ländervorwahl",

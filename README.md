@@ -266,6 +266,21 @@ Für das Discovery werden Pakete über die Multicast-Adresse `239.255.255.250` a
 >
 > FritzBox DECT, FritzBox Powerline und FritzBox WLAN: Modell, Update verfügbar, Geschwindigkeit und Signalstärke je Gerät sind jetzt eigene Statusvariablen der Instanz (z.B. `Model_DECT3`, `Speed_MAC001122AABBCC`) statt Untervariablen unterhalb der Gerätevariable. Die alten Untervariablen werden nicht mehr aktualisiert. Skripte, Ereignisse und Archivdaten, die sie nutzen, müssen auf die neuen Variablen umgestellt werden. Gelöscht werden die alten Untervariablen nur über die Schaltfläche `Alte Untervariablen löschen` im Formular der Instanz.
 
+**Neue Instanz-Kacheln (Kachel-Visualisierung)**
+
+Folgende Instanzen bringen eine eigene Kachel mit (Darstellung je Kachel in der Visualisierung wählbar, Farben aus dem Design der Visualisierung, maximierte Kachel ab Symcon 9.1):
+
+- FritzBox Anrufbeantworter: neue Nachrichten, Schalter, Nachrichtenliste mit Abspielen, Markieren und Löschen.  
+- FritzBox Telefonie: verpasste Anrufe, Anrufliste mit Filter und Rückruf über die Wählhilfe, Rufumleitungen und Rufsperren.  
+- FritzBox Anrufmonitor: aktive Gespräche mit laufender Dauer; neue Eigenschaft `Kachel bei eingehenden Anrufen als Popup öffnen`.  
+- FritzBox Netzwerkgeräte: Geräteliste mit Filter, Suche und Wake-On-LAN.  
+- FritzBox WLAN: Schalter, verbundene Geräte mit Signalstärke (Diagramm bei geloggter Variable), QR-Code und Passwort, sofern aktiviert.  
+- FritzBox Host Filter: Internetzugang je Gerät, Zugangsprofil und Online-Ticket.  
+- FritzBox DECT und FritzBox Powerline: Geräte mit Modell und Update.  
+- FritzBox WAN Physical Interface: aktuelle Auslastung und Verlauf als Diagramm.  
+- FritzBox Dateifreigabe: Freigaben mit Link kopieren und Löschen.  
+- FritzBox DSL-Schnittstelle: Synchronisationsraten, Störabstand, Dämpfung und Fehlerzähler.  
+
 **Neue Statusvariablen**
 
 - FritzBox DECT und FritzBox Powerline: je Gerät `Modell` und `Update verfügbar` als eigene Statusvariablen, einzeln in der Instanz abwählbar; werden beim automatischen Umbenennen mit umbenannt.  
@@ -276,6 +291,12 @@ Für das Discovery werden Pakete über die Multicast-Adresse `239.255.255.250` a
 - Alle Module: Umstellung auf IPSModuleStrict. Alle Instanz-Funktionen haben feste Typen für Parameter und Rückgabewerte.  
 - Alle Module: Statusvariablen nutzen Darstellungen statt Variablenprofile. Die eigenen Profile `FB.*` werden gelöscht, sobald keine Variable sie mehr nutzt. Ein selbst zugewiesenes eigenes Profil einer Variable bleibt erhalten.  
 - FritzBox Firmware Info: Der Modus der automatischen Aktualisierung kennt jetzt den Wert `Nur benachrichtigen`.  
+- FritzBox Telefonie, FritzBox Dateifreigabe, FritzBox WLAN und FritzBox Host Filter: Anrufliste, Freigaben bzw. Geräteliste werden für die Instanz-Kachel auch geladen, wenn die HTML-Box bzw. die Variablen je Gerät abgewählt sind. Intervall und Laden der Anrufliste bzw. Freigaben sind deshalb immer einstellbar.  
+- FritzBox Anrufbeantworter: Der Webhook für das Abspielen ist immer angemeldet (auch ohne HTML-Tabelle), weil die Instanz-Kachel ihn nutzt.  
+
+**Fehlerbehebungen**
+
+- FritzBox WLAN: Das Abwählen von `Erzeuge Variable für WLAN Passwort` löschte das QR-Code-Bild, das Abwählen von `Erzeuge Medien-Objekt mit QR-Code` die Passwort-Variable. Jetzt wird jeweils das richtige Objekt entfernt.  
 
 **Version 0.94:**  
 

@@ -86,6 +86,10 @@ Der Ident der Gerätevariable ist die MAC-Adresse ohne Trennzeichen, z.B. `0896D
 
 ### Kachel Visualisierung
 
+**Instanz-Kachel:** Die Instanz bringt eine eigene Kachel mit. Sie zeigt die Geräte mit Zustand, Modell und dem Kennzeichen `Update verfügbar`. Modell und Update erscheinen nur, wenn die Variablen in der Instanz aktiviert sind. Bei verfügbarem Update startet die Schaltfläche das Update (mit Sicherheitsabfrage).  
+*Update aus der Instanz-Kachel ist nicht live getestet.*  
+Ob die Kachel oder die Liste der Variablen erscheint, wird in der Kachel-Visualisierung je Kachel eingestellt. Die Kachel passt sich ihrer Größe an und übernimmt die Farben des Designs der Visualisierung. Die maximierte Kachel benötigt Symcon ab 9.1.  
+
 Die Instanz wird als Kachel in der Darstellung `Liste` angezeigt. Das Bild zeigt die maximierte Kachel mit allen Variablen.  
 Jedes Powerline-Gerät wird als An/Aus-Wert (aktiv/inaktiv) dargestellt, `Update verfügbar` ebenfalls als An/Aus-Wert und `Modell` als Text. Keine der Variablen ist bedienbar.  
 

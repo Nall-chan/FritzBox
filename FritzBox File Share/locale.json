@@ -1,6 +1,20 @@
 {
     "translations": {
         "de": {
+            "Entries": "Einträge",
+            "All": "Alle",
+            "Cancel": "Abbrechen",
+            "OK": "OK",
+            "Show chart": "Diagramm anzeigen",
+            "Accesses": "Zugriffe",
+            "Expires": "Läuft ab",
+            "Invalid": "Ungültig",
+            "Copy link": "Link kopieren",
+            "Delete the file share %s?": "Freigabe %s löschen?",
+            "Delete": "Löschen",
+            "No file shares": "Keine Freigaben",
+            "Link copied": "Link kopiert",
+            "Unknown file share.": "Unbekannte Freigabe.",
             "FritzBox File Share": "FritzBox Dateifreigabe",
             "Refresh Interval": "Aktualisierungsintervall",
             "seconds": "Sekunden",

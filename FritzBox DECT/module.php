@@ -2,16 +2,22 @@
 
 declare(strict_types=1);
 require_once __DIR__ . '/../libs/FritzBoxBase.php';
+require_once __DIR__ . '/../libs/FritzBoxTile.php';
 
 /**
  * DECT-Geräte (Mobilteile) der FritzBox.
  * Je Gerät eine Variable (angemeldet/aktiv) und, abschaltbar, je eine Variable für Modell und verfügbares Update.
+ * Die Instanz-Kachel (HTML-SDK) zeigt die Geräte mit Modell und Update (libs/tile/devices.js).
+ *
+ * @property array $TileDevices Geräte für die Kachel (Ident der Variable, Kennung in der FritzBox)
  */
 class FritzBoxDECT extends FritzBoxModulBase
 {
+    use \FritzBoxModul\Tile;
     protected static $ControlUrlArray = [
         '/upnp/control/x_dect'
     ];
+
     protected static $EventSubURLArray = [];
     protected static $LegacySubVariables = [
         \FritzBox\DECT\Variables::Model,
@@ -26,6 +32,7 @@ class FritzBoxDECT extends FritzBoxModulBase
     {
         //Never delete this line!
         parent::Create();
+        $this->TileDevices = [];
 
         $this->RegisterPropertyInteger(\FritzBox\Base\Property::RefreshInterval, 300);
         $this->RegisterPropertyBoolean(\FritzBox\DECT\Property::RenameDeviceVariables, false);
@@ -52,7 +59,9 @@ class FritzBoxDECT extends FritzBoxModulBase
     public function ApplyChanges(): void
     {
         $this->SetTimerInterval(\FritzBox\Base\Timer::RefreshInfo, 0);
+        $this->TileDevices = [];
         parent::ApplyChanges();
+        $this->RegisterTile();
         $this->RemoveDisabledDeviceInfoVariables([
             \FritzBox\DECT\Variables::Model           => $this->ReadPropertyBoolean(\FritzBox\DECT\Property::ModelVariables),
             \FritzBox\DECT\Variables::UpdateAvailable => $this->ReadPropertyBoolean(\FritzBox\DECT\Property::UpdateAvailableVariables)
@@ -147,12 +156,53 @@ class FritzBoxDECT extends FritzBoxModulBase
         if (parent::ProcessRequestAction($Ident, $Value)) {
             return true;
         }
+        if ($this->ProcessTileAction($Ident, $Value)) {
+            return true;
+        }
         switch ($Ident) {
             case \FritzBox\Base\Action::RefreshInfo:
                 return $this->UpdateInfo();
+            case \FritzBox\Tile\Action::DeviceUpdate:
+                // Nur für Geräte der Liste (Kennung aus der FritzBox)
+                if (!in_array((string) $Value, array_column($this->TileDevices, 'key'), true)) {
+                    trigger_error($this->Translate('Unknown device.'), E_USER_NOTICE);
+                    return false;
+                }
+                return $this->DectDoUpdate((string) $Value);
         }
         trigger_error($this->Translate('Invalid Ident.'), E_USER_NOTICE);
         return false;
+    }
+
+    /**
+     * Daten der Kachel: je Gerät die Gerätevariable und, sofern angelegt, Modell und verfügbares Update.
+     */
+    protected function GetTileData(): array
+    {
+        $Devices = [];
+        foreach ($this->TileDevices as $Device) {
+            $Variable = $this->TileVariable($Device['ident']);
+            if ($Variable === null) {
+                continue;
+            }
+            $Devices[] = [
+                'key'    => $Device['key'],
+                'device' => $Variable,
+                'model'  => $this->TileVariable(\FritzBox\DECT\Variables::Model . '_' . $Device['ident']),
+                'update' => $this->TileVariable(\FritzBox\DECT\Variables::UpdateAvailable . '_' . $Device['ident'])
+            ];
+        }
+        return ['devices' => $Devices];
+    }
+
+    protected function GetTileTextKeys(): array
+    {
+        return ['Devices', 'active', 'inactive', 'Update available', 'Start update', 'Start the update of %s?', 'No devices'];
+    }
+
+    protected function GetTileScriptFile(): string
+    {
+        return __DIR__ . '/../libs/tile/devices.js';
     }
 
     private function UpdateInfo()
@@ -164,6 +214,7 @@ class FritzBoxDECT extends FritzBoxModulBase
         $ReturnValue = true;
         $Rename = $this->ReadPropertyBoolean(\FritzBox\DECT\Property::RenameDeviceVariables);
         $ShowModel = $this->ReadPropertyBoolean(\FritzBox\DECT\Property::ModelVariables);
+        $TileDevices = [];
         $ShowUpdate = $this->ReadPropertyBoolean(\FritzBox\DECT\Property::UpdateAvailableVariables);
         for ($i = 0; $i < $NumberOfEntries; $i++) {
             $Result = $this->GetGenericDectEntry($i);
@@ -181,7 +232,10 @@ class FritzBoxDECT extends FritzBoxModulBase
             $DeviceName = IPS_GetName($VarId);
             $this->SetDeviceInfoVariable($ShowModel, \FritzBox\DECT\Variables::Model, $Ident, $DeviceName . ' - ' . $this->Translate('Model'), (string) $Result['NewModel'], VARIABLETYPE_STRING, Rename: $Rename);
             $this->SetDeviceInfoVariable($ShowUpdate, \FritzBox\DECT\Variables::UpdateAvailable, $Ident, $DeviceName . ' - ' . $this->Translate('Update available'), (int) $Result['NewUpdateAvailable'] > 0, VARIABLETYPE_BOOLEAN, Rename: $Rename);
+            $TileDevices[] = ['ident' => $Ident, 'key' => (string) $Result['NewID']];
         }
+        $this->TileDevices = $TileDevices;
+        $this->PushTile();
         return $ReturnValue;
     }
 }

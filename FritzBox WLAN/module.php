@@ -4,17 +4,24 @@ declare(strict_types=1);
 
 require_once __DIR__ . '/../libs/FritzBoxBase.php';
 require_once __DIR__ . '/../libs/FritzBoxTable.php';
+require_once __DIR__ . '/../libs/FritzBoxTile.php';
 
 /**
+ * Ein WLAN der FritzBox (je Funknetz bzw. Gastnetz eine Instanz).
+ * Die Instanz-Kachel (HTML-SDK) zeigt WLAN an/aus, SSID, die verbundenen Geräte mit Signal und Geschwindigkeit und,
+ * sofern in der Instanz aktiviert, QR-Code und Passwort.
+ *
  * @property int $APEnabledId
  * @property int $HostNumberOfEntriesId
  * @property bool $APisGuest
  * @property int $Channel
  * @property bool $ShowVariableWarning
+ * @property array $TileHosts Verbundene Geräte für die Kachel (letzter Abruf)
  */
 class FritzBoxWLAN extends FritzBoxModulBase
 {
     use \FritzBoxModul\HTMLTable;
+    use \FritzBoxModul\Tile;
 
     protected static $ControlUrlArray = [
         '/upnp/control/wlanconfig1',
@@ -99,13 +106,16 @@ class FritzBoxWLAN extends FritzBoxModulBase
     public function ApplyChanges(): void
     {
         $this->SetTimerInterval(\FritzBox\Base\Timer::RefreshState, 0);
-        if (!$this->ReadPropertyBoolean(\FritzBox\WLAN\Property::ShowWLanKeyAsVariable)) {
+        $this->TileHosts = [];
+        $this->RegisterTile();
+        // QR-Code-Bild gehört zu ShowWLanKeyAsQRCode, die Passwort-Variable zu ShowWLanKeyAsVariable (bis 0.94 vertauscht)
+        if (!$this->ReadPropertyBoolean(\FritzBox\WLAN\Property::ShowWLanKeyAsQRCode)) {
             $QRCodeID = @IPS_GetObjectIDByIdent(\FritzBox\WLAN\Media::QRCodeIMG, $this->InstanceID);
             if ($QRCodeID !== false) {
                 IPS_DeleteMedia($QRCodeID, true);
             }
         }
-        if (!$this->ReadPropertyBoolean(\FritzBox\WLAN\Property::ShowWLanKeyAsQRCode)) {
+        if (!$this->ReadPropertyBoolean(\FritzBox\WLAN\Property::ShowWLanKeyAsVariable)) {
             $this->UnregisterVariable(\FritzBox\WLAN\Variables::KeyPassphrase);
         }
         if (!$this->ReadPropertyBoolean(\FritzBox\WLAN\Property::InfoVariables)) {
@@ -171,6 +181,7 @@ class FritzBoxWLAN extends FritzBoxModulBase
             case VM_UPDATE:
                 if ($SenderID == $this->APEnabledId) {
                     $this->GetTotalAssociations();
+                    $this->PushTile();
                     return;
                 }
                 if ($SenderID == $this->HostNumberOfEntriesId) {
@@ -281,9 +292,7 @@ class FritzBoxWLAN extends FritzBoxModulBase
         $Table = $this->ReadPropertyBoolean(\FritzBox\WLAN\Property::HostAsTable);
         $Variable = $this->ReadPropertyBoolean(\FritzBox\WLAN\Property::HostAsVariable);
         $Rename = $this->ReadPropertyBoolean(\FritzBox\WLAN\Property::RenameHostVariables);
-        if (!($Variable || ($Table))) {
-            return true;
-        }
+        // Die Geräteliste wird auch ohne Variablen und HTML-Box geladen, die Kachel zeigt sie
         // Host holen für Namen
         $XMLData = $this->GetFile('Hosts');
         if ($XMLData === false) {
@@ -328,6 +337,7 @@ class FritzBoxWLAN extends FritzBoxModulBase
         $HostVariables = array_column(json_decode($this->ReadPropertyString(\FritzBox\WLAN\Property::HostVariables), true), 'use', 'ident');
 
         $TableData = [];
+        $TileHosts = [];
 
         $ChildsOld = IPS_GetChildrenIDs($this->InstanceID);
         $ChildsNew = [];
@@ -341,6 +351,14 @@ class FritzBoxWLAN extends FritzBoxModulBase
                     $Hostname = (string) $Xpath[0];
                 }
             }
+            $TileHosts[] = [
+                'ident'  => $Ident,
+                'name'   => $Hostname,
+                'ip'     => (string) $xmlItem->AssociatedDeviceIPAddress,
+                'mac'    => (string) $xmlItem->AssociatedDeviceMACAddress,
+                'speed'  => (int) $xmlItem->{'X_AVM-DE_Speed'},
+                'signal' => (int) $xmlItem->{'X_AVM-DE_SignalStrength'}
+            ];
             if ($Table) {
                 $TableData[] = [
                     'Hostname'      => $Hostname,
@@ -398,6 +416,8 @@ class FritzBoxWLAN extends FritzBoxModulBase
         if ($Table) {
             $this->CreateWLANHTMLTable($TableData);
         }
+        $this->TileHosts = $TileHosts;
+        $this->PushTile();
         return null;
     }
 
@@ -806,6 +826,43 @@ class FritzBoxWLAN extends FritzBoxModulBase
         return $result;
     }
 
+    /**
+     * Daten der Kachel. QR-Code und Passwort nur, wenn in der Instanz aktiviert (ShowWLanKeyAsQRCode bzw. ShowWLanKeyAsVariable).
+     * Zu jedem Gerät die Variable der Signalstärke, wenn geloggt (dann öffnet die Kachel das Diagramm).
+     */
+    protected function GetTileData(): array
+    {
+        $Hosts = [];
+        foreach ($this->TileHosts as $Host) {
+            $SignalId = (int) @$this->GetIDForIdent(\FritzBox\WLAN\Variables::Signal . '_' . $Host['ident']);
+            $Host['var'] = (int) @$this->GetIDForIdent($Host['ident']);
+            $Host['chart'] = (($SignalId > 0) && $this->IsTileVariableLogged($SignalId)) ? $SignalId : 0;
+            unset($Host['ident']);
+            $Hosts[] = $Host;
+        }
+        $QRCode = '';
+        if ($this->ReadPropertyBoolean(\FritzBox\WLAN\Property::ShowWLanKeyAsQRCode)) {
+            $QRCodeID = @IPS_GetObjectIDByIdent(\FritzBox\WLAN\Media::QRCodeIMG, $this->InstanceID);
+            if ($QRCodeID !== false) {
+                $QRCode = (string) IPS_GetMediaContent($QRCodeID);
+            }
+        }
+        return [
+            'enable'     => $this->TileVariable(\FritzBox\WLAN\Variables::X_AVM_DE_APEnabled),
+            'ssid'       => $this->TileVariable(\FritzBox\WLAN\Variables::SSID),
+            'count'      => $this->TileVariable(\FritzBox\WLAN\Variables::HostNumberOfEntries),
+            'timeRemain' => $this->TileVariable(\FritzBox\WLAN\Variables::TimeRemain),
+            'password'   => $this->TileVariable(\FritzBox\WLAN\Variables::KeyPassphrase),
+            'qrcode'     => $QRCode,
+            'hosts'      => $Hosts
+        ];
+    }
+
+    protected function GetTileTextKeys(): array
+    {
+        return ['WLAN', 'Devices', 'No devices', 'Password', 'Signal', 'Show chart', 'Open variable', 'Remain time', 'Show password', 'Scan to connect'];
+    }
+
     protected function ProcessRequestAction(string $Ident, mixed $Value): mixed
     {
         if (parent::ProcessRequestAction($Ident, $Value)) {
@@ -1148,6 +1205,7 @@ class FritzBoxWLAN extends FritzBoxModulBase
                 IPS_SetMediaContent($QRCodeID, base64_encode($QRData));
             }
         }
+        $this->PushTile();
         return true;
     }
 

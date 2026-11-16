@@ -3,12 +3,20 @@
 declare(strict_types=1);
 
 require_once __DIR__ . '/../libs/FritzBoxBase.php';
+require_once __DIR__ . '/../libs/FritzBoxTile.php';
 
 /**
+ * Host Filter: Internetzugang je Netzwerkgerät sperren, Zugangsprofile und Online-Tickets.
+ * Die Instanz-Kachel (HTML-SDK) zeigt alle Geräte mit Sperre; Zugangsprofil und Ticket je Gerät auf Klick
+ * (die FritzBox liefert das Profil nur einzeln je Gerät).
+ *
  * @property bool $ShowVariableWarning
+ * @property array $TileHosts Geräte für die Kachel (letzter Abruf)
  */
 class FritzBoxHostFilter extends FritzBoxModulBase
 {
+    use \FritzBoxModul\Tile;
+
     protected static $ControlUrlArray = [
         '/upnp/control/x_hostfilter'
     ];
@@ -35,7 +43,9 @@ class FritzBoxHostFilter extends FritzBoxModulBase
     public function ApplyChanges(): void
     {
         $this->SetTimerInterval(\FritzBox\Base\Timer::RefreshState, 0);
+        $this->TileHosts = [];
         parent::ApplyChanges();
+        $this->RegisterTile();
         $this->SetTimerInterval(\FritzBox\Base\Timer::RefreshState, $this->ReadPropertyInteger(\FritzBox\Base\Property::RefreshInterval) * 1000);
         $HostVariables = json_decode($this->ReadPropertyString(\FritzBox\HostFilter\Property::HostVariables), true);
         foreach ($HostVariables as $HostVariable) {
@@ -101,9 +111,7 @@ class FritzBoxHostFilter extends FritzBoxModulBase
         $Variable = $this->ReadPropertyBoolean(\FritzBox\HostFilter\Property::HostAsVariable);
         $Rename = $this->ReadPropertyBoolean(\FritzBox\HostFilter\Property::RenameHostVariables);
         $AutoAdd = $this->ReadPropertyBoolean(\FritzBox\HostFilter\Property::AutoAddHostVariables);
-        if (!$Variable) {
-            return false;
-        }
+        // Die Geräteliste wird auch ohne Variablen gelesen, die Kachel zeigt sie
         $XMLData = $this->GetFile('Hosts');
         if ($XMLData === false) {
             $this->SendDebug('XML not found', 'Hosts', 0);
@@ -118,6 +126,8 @@ class FritzBoxHostFilter extends FritzBoxModulBase
             return false;
         }
         $HostVariables = array_column(json_decode($this->ReadPropertyString(\FritzBox\HostFilter\Property::HostVariables), true), 'use', 'ident');
+        $KnownHostNames = [];
+        $TileHosts = [];
         foreach ($xmlHosts as $Host) {
             if ((string) $Host->IPAddress == '') {
                 continue;
@@ -127,6 +137,17 @@ class FritzBoxHostFilter extends FritzBoxModulBase
                 'Hostname' => (string) $Host->HostName,
                 'Disallow' => ((int) $Host->{'X_AVM-DE_Disallow'} == 1) ? true : false
             ];
+            $TileHosts[] = [
+                'name'     => (string) $Host->HostName,
+                'ip'       => (string) $Host->IPAddress,
+                'active'   => (int) $Host->Active == 1,
+                'disallow' => (int) $Host->{'X_AVM-DE_Disallow'} == 1
+            ];
+        }
+        $this->TileHosts = $TileHosts;
+        $this->PushTile();
+        if (!$Variable) {
+            return true;
         }
         foreach ($KnownHostNames as $Ident => $HostData) {
             if (array_key_exists($Ident, $HostVariables)) {
@@ -314,8 +335,35 @@ class FritzBoxHostFilter extends FritzBoxModulBase
         if (parent::ProcessRequestAction($Ident, $Value)) {
             return true;
         }
+        if ($this->ProcessTileAction($Ident, $Value)) {
+            return true;
+        }
 
         switch ($Ident) {
+            case \FritzBox\Tile\Action::Disallow:
+                $Data = json_decode((string) $Value, true);
+                if (!is_array($Data) || !$this->DisallowWANAccessByIP((string) ($Data['ip'] ?? ''), (bool) ($Data['value'] ?? false))) {
+                    return false;
+                }
+                $VariableIdent = 'IP' . str_replace('.', '_', (string) $Data['ip']);
+                if (@$this->GetIDForIdent($VariableIdent) > 0) {
+                    $this->SetValue($VariableIdent, (bool) $Data['value']);
+                }
+                $this->SetTileHostDisallow((string) $Data['ip'], (bool) $Data['value']);
+                return true;
+            case \FritzBox\Tile\Action::HostEntry:
+                return $this->PushTileHostEntry((string) $Value);
+            case \FritzBox\Tile\Action::FilterProfile:
+                $Data = json_decode((string) $Value, true);
+                if (!is_array($Data) || !$this->AddHostEntryToFilterProfile((string) ($Data['ip'] ?? ''), (string) ($Data['profile'] ?? ''))) {
+                    return false;
+                }
+                return $this->PushTileHostEntry((string) $Data['ip']);
+            case \FritzBox\Tile\Action::Ticket:
+                if ($this->AddTicketTimeToHostEntryByIP((string) $Value) === false) {
+                    return false;
+                }
+                return $this->PushTileHostEntry((string) $Value);
             case \FritzBox\HostFilter\Action::ReloadForm:
                 usleep((2000) * 1000);
                 $this->ReloadForm();
@@ -348,6 +396,7 @@ class FritzBoxHostFilter extends FritzBoxModulBase
             $IPAddress = str_replace('_', '.', substr($Ident, 2));
             if ($this->DisallowWANAccessByIP($IPAddress, (bool) $Value)) {
                 $this->SetValue($Ident, $Value);
+                $this->SetTileHostDisallow($IPAddress, (bool) $Value);
                 return true;
             } else {
                 return false;
@@ -355,6 +404,70 @@ class FritzBoxHostFilter extends FritzBoxModulBase
         }
         trigger_error($this->Translate('Invalid Ident.'), E_USER_NOTICE);
         return false;
+    }
+
+    /**
+     * Daten der Kachel: alle Geräte mit IPv4-Adresse und ihre Sperre.
+     */
+    protected function GetTileData(): array
+    {
+        return ['hosts' => $this->TileHosts];
+    }
+
+    protected function GetTileTextKeys(): array
+    {
+        return [
+            'Internet access', 'Blocked', 'Allowed', 'Blocked devices', 'Search', 'No devices', 'Access profile', 'Online ticket', 'Add ticket',
+            'Online time today', 'min', 'Details', 'Loading…'
+        ];
+    }
+
+    /**
+     * Sperre eines Gerätes in der Liste der Kachel nachführen und senden.
+     */
+    private function SetTileHostDisallow(string $IPAddress, bool $Disallow): void
+    {
+        $Hosts = $this->TileHosts;
+        foreach ($Hosts as &$Host) {
+            if ($Host['ip'] == $IPAddress) {
+                $Host['disallow'] = $Disallow;
+            }
+        }
+        $this->TileHosts = $Hosts;
+        $this->PushTile();
+    }
+
+    /**
+     * Zugangsprofil, Online-Zeit und Tickets eines Gerätes sowie die Liste der Profile an die Kachel senden.
+     */
+    private function PushTileHostEntry(string $IPAddress): bool
+    {
+        $Entry = $this->GetHostEntryByIP($IPAddress);
+        if ($Entry === false) {
+            return false;
+        }
+        $Profiles = [];
+        $XML = $this->GetFilterProfiles();
+        if (is_string($XML) && ($XML != '')) {
+            try {
+                foreach ((new \SimpleXMLElement($XML))->FilterProfile as $Profile) {
+                    $Profiles[] = ['id' => (string) $Profile->FilterProfileID, 'name' => (string) $Profile->Name];
+                }
+            } catch (\Throwable $th) {
+                $this->SendDebug('FilterProfiles', $th->getMessage(), 0);
+            }
+        }
+        $this->UpdateVisualizationValue(json_encode([
+            'type'     => 'hostEntry',
+            'ip'       => $IPAddress,
+            'profile'  => (string) ($Entry['NewFilterProfileID'] ?? ''),
+            'wan'      => (string) ($Entry['NewWANAccess'] ?? ''),
+            'timeUsed' => (int) ($Entry['NewTimeUsed'] ?? 0),
+            'timeMax'  => (int) ($Entry['NewTimeMax'] ?? 0),
+            'tickets'  => (int) ($Entry['NewTicketsInAdvance'] ?? 0),
+            'profiles' => $Profiles
+        ], self::$TileJsonFlags));
+        return true;
     }
 
     private function UpdateInfo()

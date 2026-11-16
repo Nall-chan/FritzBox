@@ -3,9 +3,19 @@
 declare(strict_types=1);
 
 require_once __DIR__ . '/../libs/FritzBoxBase.php';
+require_once __DIR__ . '/../libs/FritzBoxTile.php';
 
+/**
+ * Physikalische WAN-Schnittstelle: Zugangsart, Status und maximale Bitraten.
+ * Die Instanz-Kachel (HTML-SDK) zeigt zusätzlich die Auslastung der letzten Messpunkte als Diagramm
+ * (aus GetCommonLinkProperties, kein zusätzlicher Abruf).
+ *
+ * @property array $TileMonitor Auslastung für die Kachel (Messpunkte Down/Up, maximale Bitraten)
+ */
 class FritzBoxWANPhysicalInterface extends FritzBoxModulBase
 {
+    use \FritzBoxModul\Tile;
+
     protected static $ControlUrlArray = [
         '/upnp/control/wancommonifconfig1'
     ];
@@ -21,6 +31,7 @@ class FritzBoxWANPhysicalInterface extends FritzBoxModulBase
     {
         //Never delete this line!
         parent::Create();
+        $this->TileMonitor = [];
         $this->RegisterPropertyInteger(\FritzBox\Base\Property::RefreshInterval, 60);
         $this->RegisterTimer(\FritzBox\WANPhysicalInterface\Timer::RefreshLinkProperties, 0, 'IPS_RequestAction(' . $this->InstanceID . ',"' . \FritzBox\WANPhysicalInterface\Action::RefreshLinkProperties . '",true);');
     }
@@ -34,7 +45,9 @@ class FritzBoxWANPhysicalInterface extends FritzBoxModulBase
     public function ApplyChanges(): void
     {
         $this->SetTimerInterval(\FritzBox\WANPhysicalInterface\Timer::RefreshLinkProperties, 0);
+        $this->TileMonitor = [];
         parent::ApplyChanges();
+        $this->RegisterTile();
         if (IPS_GetKernelRunlevel() != KR_READY) {
             return;
         }
@@ -127,6 +140,9 @@ class FritzBoxWANPhysicalInterface extends FritzBoxModulBase
         if (parent::ProcessRequestAction($Ident, $Value)) {
             return true;
         }
+        if ($this->ProcessTileAction($Ident, $Value)) {
+            return true;
+        }
         switch ($Ident) {
             case \FritzBox\WANPhysicalInterface\Variables::WANAccessType:
                 return $this->SetWANAccessType($Value);
@@ -135,6 +151,25 @@ class FritzBoxWANPhysicalInterface extends FritzBoxModulBase
         }
         trigger_error($this->Translate('Invalid Ident.'), E_USER_NOTICE);
         return false;
+    }
+
+    /**
+     * Daten der Kachel: Zugangsart, Status und maximale Bitraten (Variablen) sowie die Auslastung der letzten Messpunkte.
+     */
+    protected function GetTileData(): array
+    {
+        return [
+            'accessType' => $this->TileVariable(\FritzBox\WANPhysicalInterface\Variables::WANAccessType),
+            'linkStatus' => $this->TileVariable(\FritzBox\WANPhysicalInterface\Variables::PhysicalLinkStatus),
+            'maxDown'    => $this->TileVariable(\FritzBox\WANPhysicalInterface\Variables::DownstreamMaxBitRate),
+            'maxUp'      => $this->TileVariable(\FritzBox\WANPhysicalInterface\Variables::UpstreamMaxBitRate),
+            'monitor'    => (object) $this->TileMonitor
+        ];
+    }
+
+    protected function GetTileTextKeys(): array
+    {
+        return ['Download', 'Upload', 'Utilization', 'max.', 'No data'];
     }
 
     private function UpdateCommonLinkProperties()
@@ -150,6 +185,16 @@ class FritzBoxWANPhysicalInterface extends FritzBoxModulBase
         $Upstream = (int) ((int) $result['NewLayer1UpstreamMaxBitRate'] / 1000);
         $this->setIPSVariable(\FritzBox\WANPhysicalInterface\Variables::UpstreamMaxBitRate, 'Upstream Max kBitrate', $Upstream, VARIABLETYPE_INTEGER, 'FB.kBit');
         $this->setIPSVariable(\FritzBox\WANPhysicalInterface\Variables::DownstreamMaxBitRate, 'Downstream Max kBitrate', $Downstream, VARIABLETYPE_INTEGER, 'FB.kBit');
+        // Auslastung der letzten Messpunkte (kommagetrennt). Annahme: Byte/s wie beim Online-Monitor
+        // (Plausibilität: Newmax_ds = maximale Bitrate / 8, siehe README), nicht von AVM dokumentiert.
+        $Split = fn (string $List): array => array_map('intval', array_filter(explode(',', $List), 'strlen'));
+        $this->TileMonitor = [
+            'down'    => $Split((string) ($result['NewX_AVM-DE_DownstreamCurrentUtilization'] ?? '')),
+            'up'      => $Split((string) ($result['NewX_AVM-DE_UpstreamCurrentUtilization'] ?? '')),
+            'maxDown' => (int) $result['NewLayer1DownstreamMaxBitRate'],
+            'maxUp'   => (int) $result['NewLayer1UpstreamMaxBitRate']
+        ];
+        $this->PushTile();
         return true;
     }
 }

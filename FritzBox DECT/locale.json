@@ -1,6 +1,18 @@
 {
     "translations": {
         "de": {
+            "Entries": "Einträge",
+            "All": "Alle",
+            "Cancel": "Abbrechen",
+            "OK": "OK",
+            "Show chart": "Diagramm anzeigen",
+            "Start the update of %s?": "Update von %s starten?",
+            "Start update": "Update starten",
+            "Devices": "Geräte",
+            "No devices": "Keine Geräte",
+            "active": "aktiv",
+            "inactive": "inaktiv",
+            "Unknown device.": "Unbekanntes Gerät.",
             "Delete old sub variables": "Alte Untervariablen löschen",
             "Delete the variables created below the device variables up to version 0.94?": "Die bis Version 0.94 unterhalb der Geräte-Variablen angelegten Variablen löschen?",
             "%d old sub variables deleted.": "%d alte Untervariablen gelöscht.",

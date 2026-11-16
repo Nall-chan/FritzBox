@@ -111,6 +111,11 @@ Die Variablen werden nur angelegt, wenn die zugehörige Einstellung (`CallLogAsV
 
 ### Kachel Visualisierung
 
+**Instanz-Kachel:** Die Instanz bringt eine eigene Kachel mit. Klein zeigt sie die verpassten Anrufe von heute, größer die Anrufliste mit Filter (alle, eingehend, verpasst, ausgehend) und Rückruf über die Wählhilfe (mit Sicherheitsabfrage). Ist die Wählhilfe in der FritzBox nicht eingerichtet, erscheint ein Hinweis in der Kachel. Breit zeigt sie zusätzlich die Schalter der Rufumleitungen und Rufsperren, sofern sie als Variable angelegt sind. Die Anzahl der angezeigten Anrufe ist in der Kachel einstellbar.  
+Die Anrufliste wird für die Kachel auch geladen, wenn `Zeige Anrufliste als HTML-Box Variable` abgewählt ist (abschaltbar über `Lade Anrufliste`).  
+*Rückruf und Auflegen aus der Instanz-Kachel sind nicht live getestet.*  
+Ob die Kachel oder die Liste der Variablen erscheint, wird in der Kachel-Visualisierung je Kachel eingestellt. Die Kachel passt sich ihrer Größe an und übernimmt die Farben des Designs der Visualisierung. Die maximierte Kachel benötigt Symcon ab 9.1.  
+
 Die Instanz wird als Kachel in der Darstellung `Liste` angezeigt. Das Bild zeigt die maximierte Kachel mit allen Variablen.  
 `Anrufliste` ist eine HTML-Box; das Symbol in der Liste öffnet die Tabelle der Anrufe.  
 Rufumleitungen und Rufsperren werden als Schalter dargestellt; nur die Rufumleitungen können direkt in der Kachel geschaltet werden.  

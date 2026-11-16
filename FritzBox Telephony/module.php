@@ -5,12 +5,20 @@ declare(strict_types=1);
 require_once __DIR__ . '/../libs/FritzBoxBase.php';
 require_once __DIR__ . '/../libs/FritzBoxTelHelper.php';
 require_once __DIR__ . '/../libs/FritzBoxTable.php';
-//require_once __DIR__ . '/../libs/helper/WebhookHelper.php';
+require_once __DIR__ . '/../libs/FritzBoxTile.php';
 
+/**
+ * Telefonie: Telefonbücher, Anrufliste, Rufumleitungen, Rufsperren und Wählhilfe.
+ * Die Instanz-Kachel (HTML-SDK) zeigt die Anrufliste (unabhängig von der HTML-Box), Rückruf über die Wählhilfe
+ * sowie die Schalter der Rufumleitungen und Rufsperren, sofern als Variable angelegt.
+ *
+ * @property array $TileCalls Anrufliste für die Kachel (letzter Abruf)
+ */
 class FritzBoxTelephony extends FritzBoxModulBase
 {
     use \FritzBoxModul\HTMLTable;
     use \FritzBoxModul\TelHelper;
+    use \FritzBoxModul\Tile;
 
     public const Call_Incoming = 1;
     public const Call_Missed = 2;
@@ -25,7 +33,8 @@ class FritzBoxTelephony extends FritzBoxModulBase
     public const FoundMarker = 20;
     /** Index von X_VoIP in $ServiceTypeArray */
     private const VoIPIndex = 1;
-    //use \WebhookHelper;
+    /** Höchstzahl der Anrufe in der Kachel. */
+    private const TileMaxCalls = 100;
 
     protected static $ControlUrlArray = [
         '/upnp/control/x_contact',
@@ -46,6 +55,7 @@ class FritzBoxTelephony extends FritzBoxModulBase
     {
         //Never delete this line!
         parent::Create();
+        $this->TileCalls = [];
 
         $this->RegisterPropertyInteger(\FritzBox\Telephony\Property::RefreshIntervalPhonebook, 60);
         $this->RegisterPropertyInteger(\FritzBox\Telephony\Property::RefreshIntervalDeflectionList, 60);
@@ -88,8 +98,10 @@ class FritzBoxTelephony extends FritzBoxModulBase
 
     public function ApplyChanges(): void
     {
+        $this->TileCalls = [];
         //Never delete this line!
         parent::ApplyChanges();
+        $this->RegisterTile();
         if (IPS_GetKernelRunlevel() != KR_READY) {
             return;
         }
@@ -98,10 +110,14 @@ class FritzBoxTelephony extends FritzBoxModulBase
 
         if ($this->ReadPropertyBoolean(\FritzBox\Telephony\Property::CallLogAsVariable)) {
             $this->RegisterVariableString(\FritzBox\Telephony\Variables::CallLog, $this->Translate('Call log'), $this->GetPresentation('~HTMLBox', VARIABLETYPE_STRING), -1);
+        } else {
+            $this->UnregisterVariable(\FritzBox\Telephony\Variables::CallLog);
+        }
+        // Die Anrufliste wird auch ohne HTML-Box geladen, die Kachel zeigt sie (Laden abschaltbar über LoadListType)
+        if ($this->ReadPropertyInteger(\FritzBox\Telephony\Property::LoadListType) != -1) {
             $this->RefreshCallLog();
             $this->SetNewCallLogRefreshTimer();
         } else {
-            $this->UnregisterVariable(\FritzBox\Telephony\Variables::CallLog);
             $this->SetTimerInterval(\FritzBox\Telephony\Timer::RefreshCallLog, 0);
         }
 
@@ -145,26 +161,21 @@ class FritzBoxTelephony extends FritzBoxModulBase
             }
         }
         if (!$this->ReadPropertyBoolean(\FritzBox\Telephony\Property::CallLogAsVariable)) {
-            $Form['elements'][0]['items'][0]['items'][2]['enabled'] = false;
             $Form['elements'][3]['items'][0]['items'][0]['enabled'] = false;
             $Form['elements'][3]['items'][0]['items'][1]['enabled'] = false;
             $Form['elements'][3]['items'][1]['items'][0]['enabled'] = false;
             $Form['elements'][3]['items'][1]['items'][1]['enabled'] = false;
             $Form['elements'][3]['items'][2]['enabled'] = false;
             $Form['elements'][3]['items'][3]['enabled'] = false;
-            $Form['actions'][0]['enabled'] = false;
-        } else {
-            if ($this->ParentID) {
-                $CallMonitorOpen = $this->IsCallMonitorActive();
-                if ($CallMonitorOpen) {
-                    $Form['elements'][0]['items'][0]['items'][2]['enabled'] = false;
-                    $Form['elements'][0]['items'][0]['items'][3] = [
-                        'type'   => 'Label',
-                        'width'  => '300px',
-                        'caption'=> 'Call log is automatically reloaded'
-                    ];
-                }
-            }
+        }
+        // Die Anrufliste lädt auch ohne HTML-Box (Kachel), Intervall und Laden bleiben daher immer einstellbar
+        if ($this->ParentID && $this->IsCallMonitorActive()) {
+            $Form['elements'][0]['items'][0]['items'][2]['enabled'] = false;
+            $Form['elements'][0]['items'][0]['items'][3] = [
+                'type'   => 'Label',
+                'width'  => '300px',
+                'caption'=> 'Call log is automatically reloaded'
+            ];
         }
         if ($this->ReadPropertyInteger(\FritzBox\TelHelper\Property::CustomSearchScriptID) > 1) {
             $Form['elements'][0]['items'][1]['expanded'] = false;
@@ -607,7 +618,20 @@ class FritzBoxTelephony extends FritzBoxModulBase
         if (parent::ProcessRequestAction($Ident, $Value)) {
             return true;
         }
+        if ($this->ProcessTileAction($Ident, $Value)) {
+            return true;
+        }
         switch ($Ident) {
+            case \FritzBox\Tile\Action::Dial:
+                // Voraussetzung: Wählhilfe in der FritzBox eingerichtet; sonst Hinweis in der Kachel
+                $Config = $this->GetDialConfig();
+                if (($Config === false) || ($Config == '') || ($Config == 'unconfigured')) {
+                    $this->PushTileNotice($this->Translate('The dialing help is not set up in the FritzBox.'));
+                    return true;
+                }
+                return $this->DialNumber((string) $Value);
+            case \FritzBox\Tile\Action::Hangup:
+                return $this->DialHangup();
             case \FritzBox\Telephony\Action::RefreshPhonebook:
                 return $this->RefreshPhonebook();
             case \FritzBox\Telephony\Action::RefreshCallLog:
@@ -648,21 +672,13 @@ class FritzBoxTelephony extends FritzBoxModulBase
                 }
                 return true;
             case \FritzBox\Telephony\Action::CallLogAsVariable:
-                $this->UpdateFormField('LastEntries', 'enabled', $Value);
-                $this->UpdateFormField('LoadListType', 'enabled', $Value);
                 $this->UpdateFormField('Icons', 'enabled', $Value);
                 $this->UpdateFormField('ShowImage', 'enabled', $Value);
                 $this->UpdateFormField('Table', 'enabled', $Value);
                 $this->UpdateFormField('UseRelativDate', 'enabled', $Value);
                 $this->UpdateFormField('Columns', 'enabled', $Value);
                 $this->UpdateFormField('Rows', 'enabled', $Value);
-                $this->UpdateFormField('ReloadCallLogButton', 'enabled', $Value);
                 $this->UpdateFormField('HTMLExpansionPanel', 'expanded', $Value);
-                $CallMonitorOpen = false;
-                if ($this->ParentID) {
-                    $CallMonitorOpen = $this->IsCallMonitorActive();
-                }
-                $this->UpdateFormField('RefreshIntervalCallLog', 'enabled', ($CallMonitorOpen ? false : $Value));
                 return true;
             case \FritzBox\Telephony\Action::InstallCIRSModule:
                 $this->UpdateFormField('ReversSearchPopup', 'visible', false);
@@ -673,7 +689,9 @@ class FritzBoxTelephony extends FritzBoxModulBase
         }
 
         if (substr($Ident, 0, 2) == 'D_') {
-            return $this->RefreshDeflectionList($Ident, $Value);
+            $Result = $this->RefreshDeflectionList($Ident, $Value);
+            $this->PushTile();
+            return $Result;
         }
 
         trigger_error($this->Translate('Invalid Ident.'), E_USER_NOTICE);
@@ -722,6 +740,39 @@ class FritzBoxTelephony extends FritzBoxModulBase
     }
 
     /**
+     * Daten der Kachel: Anrufliste, Rufumleitungen (D_…) und Rufsperren (C_…), sofern als Variable angelegt.
+     */
+    protected function GetTileData(): array
+    {
+        $Deflections = [];
+        $Barrings = [];
+        foreach (IPS_GetChildrenIDs($this->InstanceID) as $ChildID) {
+            if (!IPS_VariableExists($ChildID)) {
+                continue;
+            }
+            $Ident = IPS_GetObject($ChildID)['ObjectIdent'];
+            if (str_starts_with($Ident, 'D_')) {
+                $Deflections[] = $this->TileVariable($Ident);
+            } elseif (str_starts_with($Ident, 'C_')) {
+                $Barrings[] = $this->TileVariable($Ident);
+            }
+        }
+        return [
+            'calls'       => $this->TileCalls,
+            'deflections' => $Deflections,
+            'barrings'    => $Barrings
+        ];
+    }
+
+    protected function GetTileTextKeys(): array
+    {
+        return [
+            'Call log', 'Missed calls', 'today', 'yesterday', 'No calls', 'Call back', 'Hang up', 'Call deflections', 'Call barring',
+            'Incoming', 'Missed', 'Outgoing', 'Fax', 'Rejected', 'Active', 'Found by reverse search', 'via', 'Call back %s?'
+        ];
+    }
+
+    /**
      * Prüft, ob der Anrufmonitor (Client Socket der IO) aktiv ist.
      * Dann wird die Anrufliste bei Gesprächsende automatisch neu geladen.
      *
@@ -754,9 +805,6 @@ class FritzBoxTelephony extends FritzBoxModulBase
     private function RefreshCallLog()
     {
         $this->SendDebug('RefreshCallLog', 'start', 0);
-        if (!$this->ReadPropertyBoolean(\FritzBox\Telephony\Property::CallLogAsVariable)) {
-            return true;
-        }
         $result = $this->GetCallLog();
         if (!$result) {
             return false;
@@ -791,6 +839,7 @@ class FritzBoxTelephony extends FritzBoxModulBase
         $UnknownName = $this->ReadPropertyString(\FritzBox\TelHelper\Property::UnknownNumberName);
         $SearchMarker = $this->ReadPropertyString(\FritzBox\Telephony\Property::SearchMarker);
         $this->SendDebug('count(Call)', count($Calls), 0);
+        $TileCalls = [];
         foreach ($Calls as $i => $Call) {
             $Data[$i]['Name'] = $Call['Name'];
             $Data[$i]['Caller'] = $Call['Caller'];
@@ -803,6 +852,17 @@ class FritzBoxTelephony extends FritzBoxModulBase
             } else {
                 $Data[$i]['Name'] = \FritzBox\Phonebook::TruncateName($Data[$i]['Name'], $MaxNameSize);
             }
+            // Kachel: Name ohne Markierung der Rückwärtssuche, Treffer als Kennzeichen
+            $TileCalls[] = [
+                'type'     => ($Call['Port'] == \FritzBox\CallLog::PortFax) ? self::Call_Fax : (int) $Call['Type'],
+                'name'     => trim(str_replace('{ICON}', '', $Data[$i]['Name'])),
+                'found'    => str_contains($Data[$i]['Name'], '{ICON}'),
+                'number'   => $Call['Number'],
+                'called'   => ($Call['Type'] == self::Call_Outgoing) ? $Call['Caller'] : $Call['Called'],
+                'date'     => $Call['Date'],
+                'duration' => ($Call['Port'] == \FritzBox\CallLog::PortFax) ? '' : $Call['Duration'],
+                'device'   => $Call['Device']
+            ];
             $Data[$i]['Name'] = str_replace('{ICON}', '<div class="Icon' . $this->InstanceID . self::FoundMarker . '"></div>', $Data[$i]['Name']);
             $Data[$i]['Fax'] = '';
             // Fax-Anruf (Port 5 laut AVM)
@@ -831,6 +891,12 @@ class FritzBoxTelephony extends FritzBoxModulBase
             $PhoneDevices[$Call['Port']] = $Call['Device'];
         }
         $this->SetPhoneDevices($PhoneDevices);
+        $this->TileCalls = array_slice($TileCalls, 0, self::TileMaxCalls);
+        $this->PushTile();
+        if (!$this->ReadPropertyBoolean(\FritzBox\Telephony\Property::CallLogAsVariable)) {
+            $this->SendDebug('RefreshCallLog', 'done (tile only)', 0);
+            return true;
+        }
         $Config_Icons = json_decode($this->ReadPropertyString(\FritzBox\Telephony\Property::Icons), true);
         $Icon_CSS = '<div id="scoped-content"><style type="text/css" scoped>' . "\r\n";
         foreach ($Config_Icons as $Config_Icon) {

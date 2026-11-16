@@ -94,6 +94,10 @@ Der Ident setzt sich aus `IP` und der IP-Adresse mit `_` statt `.` zusammen, z.B
 
 ### Kachel Visualisierung
 
+**Instanz-Kachel:** Die Instanz bringt eine eigene Kachel mit. Klein zeigt sie die Anzahl gesperrter Geräte, größer die Geräteliste mit Suche und dem Schalter für den Internetzugang je Gerät. Der Pfeil je Gerät lädt Zugangsprofil und Online-Zeit von der FritzBox; dort lässt sich das Profil wechseln und ein Online-Ticket hinzufügen. Die Geräteliste erscheint auch ohne Variablen je Gerät.  
+*Sperren, Profilwechsel und Ticket aus der Instanz-Kachel sind nicht live getestet.*  
+Ob die Kachel oder die Liste der Variablen erscheint, wird in der Kachel-Visualisierung je Kachel eingestellt. Die Kachel passt sich ihrer Größe an und übernimmt die Farben des Designs der Visualisierung. Die maximierte Kachel benötigt Symcon ab 9.1.  
+
 Die Instanz wird als Kachel in der Darstellung `Liste` angezeigt. Das Bild zeigt die maximierte Kachel mit allen Variablen.  
 Jede Variable wird als Schalter mit dem Hostnamen als Beschriftung dargestellt und kann direkt in der Kachel geschaltet werden. `An` sperrt den Internetzugang des Netzwerkgerätes.  
 

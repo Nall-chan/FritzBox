@@ -4,13 +4,19 @@ declare(strict_types=1);
 
 require_once __DIR__ . '/../libs/FritzBoxBase.php';
 require_once __DIR__ . '/../libs/FritzBoxTable.php';
+require_once __DIR__ . '/../libs/FritzBoxTile.php';
 /**
+ * Netzwerkgeräte der FritzBox als Variablen und/oder HTML-Tabelle.
+ * Die Instanz-Kachel (HTML-SDK) zeigt die Geräteliste mit Suche und Filter, Wake-On-LAN und Sprung zur Variable des Gerätes.
+ *
  * @property int $HostNumberOfEntriesId
  * @property bool $ShowVariableWarning
+ * @property array $TileHosts Geräteliste für die Kachel (letzter Abruf)
  */
 class FritzBoxHosts extends FritzBoxModulBase
 {
     use \FritzBoxModul\HTMLTable;
+    use \FritzBoxModul\Tile;
 
     protected static $ControlUrlArray = [
         '/upnp/control/hosts'
@@ -30,6 +36,7 @@ class FritzBoxHosts extends FritzBoxModulBase
         //Never delete this line!
         parent::Create();
         $this->HostNumberOfEntriesId = 0;
+        $this->TileHosts = [];
         $this->RegisterPropertyBoolean(\FritzBox\Hosts\Property::HostAsVariable, false);
         $UsedVariableIdents = array_map(function ($VariableID)
         {
@@ -72,6 +79,8 @@ class FritzBoxHosts extends FritzBoxModulBase
     {
         $this->UnregisterMessage($this->HostNumberOfEntriesId, VM_UPDATE);
         $this->SetTimerInterval(\FritzBox\Hosts\Timer::RefreshHosts, 0);
+        $this->TileHosts = [];
+        $this->RegisterTile();
         // IPSModuleStrict: RegisterVariable* liefert bool, die ID kommt über GetIDForIdent
         $this->RegisterVariableInteger(\FritzBox\Hosts\Variables::HostNumberOfEntries, $this->Translate('Number of network devices'), '', -2);
         $this->HostNumberOfEntriesId = (int) $this->GetIDForIdent(\FritzBox\Hosts\Variables::HostNumberOfEntries);
@@ -214,6 +223,7 @@ class FritzBoxHosts extends FritzBoxModulBase
         $HostVariables = array_column(json_decode($this->ReadPropertyString(\FritzBox\Hosts\Property::HostVariables), true), 'use', 'ident');
         $OnlineCounter = 0;
         $TableData = [];
+        $TileHosts = [];
         foreach ($xml as $xmlItem) {
             if ((string) $xmlItem->MACAddress == '') {
                 $Ident = 'IP' . strtoupper($this->ConvertIdent((string) $xmlItem->IPAddress));
@@ -245,6 +255,17 @@ class FritzBoxHosts extends FritzBoxModulBase
                     }
                 }
             }
+            $FriendlyName = (string) $xmlItem->{'X_AVM-DE_FriendlyName'};
+            $TileHosts[] = [
+                'name'   => ($FriendlyName != '') ? $FriendlyName : (string) $xmlItem->HostName,
+                'ip'     => (string) $xmlItem->IPAddress,
+                'mac'    => (string) $xmlItem->MACAddress,
+                'active' => (int) $xmlItem->Active == 1,
+                'iface'  => (string) $xmlItem->InterfaceType,
+                'speed'  => (int) $xmlItem->{'X_AVM-DE_Speed'},
+                'guest'  => (int) $xmlItem->{'X_AVM-DE_Guest'} == 1,
+                'var'    => (int) @$this->GetIDForIdent($Ident)
+            ];
             if ((int) $xmlItem->Active == 1) {
                 $OnlineCounter++;
                 $xmlItem->Active = '<div class="isactive">' . $this->Translate('Active') . '</div>';
@@ -259,6 +280,8 @@ class FritzBoxHosts extends FritzBoxModulBase
         if ($Table) {
             $this->CreateHostHTMLTable($TableData);
         }
+        $this->TileHosts = $TileHosts;
+        $this->PushTile();
         return true;
     }
 
@@ -502,7 +525,12 @@ class FritzBoxHosts extends FritzBoxModulBase
         if (parent::ProcessRequestAction($Ident, $Value)) {
             return true;
         }
+        if ($this->ProcessTileAction($Ident, $Value)) {
+            return true;
+        }
         switch ($Ident) {
+            case \FritzBox\Tile\Action::WakeOnLan:
+                return $this->WakeOnLANByMACAddress((string) $Value);
             case \FritzBox\Hosts\Action::ReloadForm:
                 usleep((2000) * 1000);
                 $this->ReloadForm();
@@ -545,6 +573,23 @@ class FritzBoxHosts extends FritzBoxModulBase
         }
         trigger_error($this->Translate('Invalid Ident.'), E_USER_NOTICE);
         return false;
+    }
+
+    /**
+     * Daten der Kachel: Anzahl der Geräte und die Geräteliste des letzten Abrufs.
+     */
+    protected function GetTileData(): array
+    {
+        return [
+            'total'  => $this->TileVariable(\FritzBox\Hosts\Variables::HostNumberOfEntries),
+            'online' => $this->TileVariable(\FritzBox\Hosts\Variables::HostNumberActive),
+            'hosts'  => $this->TileHosts
+        ];
+    }
+
+    protected function GetTileTextKeys(): array
+    {
+        return ['Network devices', 'online', 'Search', 'All', 'Online', 'Offline', 'LAN', 'WLAN', 'Guest', 'Wake on LAN', 'Wake up %s?', 'Open variable', 'No devices'];
     }
 
     private function GetHostVariables(): array

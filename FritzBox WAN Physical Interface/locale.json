@@ -1,6 +1,16 @@
 {
     "translations": {
         "de": {
+            "Entries": "Einträge",
+            "All": "Alle",
+            "Cancel": "Abbrechen",
+            "OK": "OK",
+            "Show chart": "Diagramm anzeigen",
+            "max.": "max.",
+            "No data": "Keine Daten",
+            "Download": "Download",
+            "Upload": "Upload",
+            "Utilization": "Auslastung",
             "DSL": "DSL",
             "UMTS": "UMTS",
             "LTE": "LTE",

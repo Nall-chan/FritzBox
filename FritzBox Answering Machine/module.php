@@ -4,21 +4,29 @@ declare(strict_types=1);
 
 require_once __DIR__ . '/../libs/FritzBoxBase.php';
 require_once __DIR__ . '/../libs/FritzBoxTable.php';
+require_once __DIR__ . '/../libs/FritzBoxTile.php';
 
 /**
  * Ein Anrufbeantworter (TAM) der FritzBox, je Anrufbeantworter eine Instanz (Eigenschaft TAMIndex).
  * Schalter (aktiv), Anzahl neuer und aller Nachrichten, optional eine HTML-Box mit den Nachrichten.
  * Abspielen, als gelesen markieren und Löschen aus der Tabelle laufen über einen Webhook der Instanz.
+ * Die Instanz-Kachel (HTML-SDK) zeigt Schalter und Nachrichtenliste; Markieren und Löschen dort über requestAction,
+ * die Audiodatei weiterhin über den Webhook.
  *
  * @property array $MessagePaths Pfade der Audiodateien [Nachrichten-Index]
  * @property array $MessagesNew Nachricht war beim letzten Abruf neu [Nachrichten-Index]
+ * @property array $TileMessages Nachrichten für die Kachel (letzter Abruf)
  */
 class FritzBoxAnsweringMachine extends FritzBoxModulBase
 {
     use \FritzBoxModul\HTMLTable;
+    use \FritzBoxModul\Tile;
 
     /** Anzahl der möglichen Anrufbeantworter (Index 0 bis 4) laut AVM. */
     public const MaxTAM = 5;
+
+    /** Höchstzahl der Nachrichten in der Kachel. */
+    private const TileMaxMessages = 100;
 
     protected static $ControlUrlArray = [
         '/upnp/control/x_tam'
@@ -35,6 +43,7 @@ class FritzBoxAnsweringMachine extends FritzBoxModulBase
         parent::Create();
         $this->MessagePaths = [];
         $this->MessagesNew = [];
+        $this->TileMessages = [];
         $this->RegisterPropertyInteger(\FritzBox\AnsweringMachine\Property::TAMIndex, 0);
         $this->RegisterPropertyInteger(\FritzBox\Base\Property::RefreshInterval, 300);
         $this->RegisterPropertyBoolean(\FritzBox\AnsweringMachine\Property::MessagesAsTable, true);
@@ -60,7 +69,9 @@ class FritzBoxAnsweringMachine extends FritzBoxModulBase
         $this->SetTimerInterval(\FritzBox\Base\Timer::RefreshInfo, 0);
         $this->MessagePaths = [];
         $this->MessagesNew = [];
+        $this->TileMessages = [];
         parent::ApplyChanges();
+        $this->RegisterTile();
         if ($this->ReadAttributeString(\FritzBox\AnsweringMachine\Attribute::HookSecret) == '') {
             $this->WriteAttributeString(\FritzBox\AnsweringMachine\Attribute::HookSecret, bin2hex(random_bytes(16)));
         }
@@ -82,12 +93,8 @@ class FritzBoxAnsweringMachine extends FritzBoxModulBase
         if (IPS_GetKernelRunlevel() != KR_READY) {
             return;
         }
-        if ($this->ReadPropertyBoolean(\FritzBox\AnsweringMachine\Property::MessagesAsTable)) {
-            // IPSModuleStrict: RegisterHook setzt /hook/ selbst davor
-            $this->RegisterHook(\FritzBox\AnsweringMachine\Hook::Name . $this->InstanceID);
-        } else {
-            $this->UnregisterHook(\FritzBox\AnsweringMachine\Hook::Name . $this->InstanceID);
-        }
+        // Webhook für Tabelle und Kachel (Wiedergabe); IPSModuleStrict: RegisterHook setzt /hook/ selbst davor
+        $this->RegisterHook(\FritzBox\AnsweringMachine\Hook::Name . $this->InstanceID);
         $this->UpdateInfo();
     }
 
@@ -236,13 +243,27 @@ class FritzBoxAnsweringMachine extends FritzBoxModulBase
         if (parent::ProcessRequestAction($Ident, $Value)) {
             return true;
         }
+        if ($this->ProcessTileAction($Ident, $Value)) {
+            return true;
+        }
         switch ($Ident) {
             case \FritzBox\AnsweringMachine\Variables::Enable:
                 if (!$this->SetTAMEnable((bool) $Value)) {
                     return false;
                 }
                 $this->SetValue($Ident, (bool) $Value);
+                $this->PushTile();
                 return true;
+            case \FritzBox\Tile\Action::Mark:
+                if (!$this->MarkTAMMessage((int) $Value, true)) {
+                    return false;
+                }
+                return $this->UpdateInfo();
+            case \FritzBox\Tile\Action::Delete:
+                if (!$this->DeleteTAMMessage((int) $Value)) {
+                    return false;
+                }
+                return $this->UpdateInfo();
             case \FritzBox\Base\Action::RefreshInfo:
                 return $this->UpdateInfo();
             case \FritzBox\AnsweringMachine\Property::MessagesAsTable:
@@ -294,6 +315,40 @@ class FritzBoxAnsweringMachine extends FritzBoxModulBase
                 return;
         }
         echo $this->Translate('Action failed.');
+    }
+
+    /**
+     * Daten der Kachel: Schalter, Anzahl der Nachrichten und die Nachrichtenliste des letzten Abrufs.
+     */
+    protected function GetTileData(): array
+    {
+        $Messages = [];
+        foreach ($this->TileMessages as $Message) {
+            $Messages[] = [
+                'index'    => $Message['Index'],
+                'date'     => $Message['Date'],
+                'name'     => $Message['Name'],
+                'number'   => $Message['Number'],
+                'called'   => $Message['Called'],
+                'duration' => $Message['Duration'],
+                'new'      => $Message['New'],
+                'play'     => ($Message['Path'] != '') ? $this->HookUrl(\FritzBox\AnsweringMachine\Hook::Play, $Message['Index']) : ''
+            ];
+        }
+        return [
+            'enable'        => $this->TileVariable(\FritzBox\AnsweringMachine\Variables::Enable),
+            'newMessages'   => $this->TileVariable(\FritzBox\AnsweringMachine\Variables::NewMessages),
+            'totalMessages' => $this->TileVariable(\FritzBox\AnsweringMachine\Variables::TotalMessages),
+            'messages'      => $Messages
+        ];
+    }
+
+    protected function GetTileTextKeys(): array
+    {
+        return [
+            'Answering machine', 'New messages', 'total', 'Messages', 'No messages', 'New', 'Played', 'Play', 'Mark as read', 'Delete',
+            'Delete message?', 'Called number', 'unknown', '%d h %d min', '< 1 min', '%d min', 'Playback failed.'
+        ];
     }
 
     private function IsValidMessageIndex(int $MessageIndex): bool
@@ -382,9 +437,11 @@ class FritzBoxAnsweringMachine extends FritzBoxModulBase
         }
         $this->MessagePaths = $Paths;
         $this->MessagesNew = $NewFlags;
+        $this->TileMessages = array_slice($Messages, 0, self::TileMaxMessages);
         if ($this->ReadPropertyBoolean(\FritzBox\AnsweringMachine\Property::MessagesAsTable)) {
             $this->SetValue(\FritzBox\AnsweringMachine\Variables::Messages, $this->GetIconStyle() . $this->GetTable($TableData) . '</div>');
         }
+        $this->PushTile();
         return true;
     }
 

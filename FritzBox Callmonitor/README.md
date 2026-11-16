@@ -101,6 +101,7 @@ Konfiguration der HTML Tabelle:
 | Spalten                                    | Columns                 | string  | vordefiniert   | HTML/CSS Konfiguration der Spalten (pro Spalte)                                                               |
 | Zeilen                                     | Rows                    | string  | vordefiniert   | HTML/CSS Konfiguration der Zeilen (Überschrift, gerade und ungerade)                                          |
 | Aktionen für Ereignisse                    | Actions                 | string  | `[]`           | Liste von Aktionen, welche bei Ereignissen ausgeführt werden (siehe unten)                                    |
+| Kachel bei eingehenden Anrufen als Popup öffnen | PopupVisualization | integer | `0`            | Kachel-Visualisierung, in der ein eingehender Anruf die Instanz-Kachel öffnet; `0` = aus                       |
 
 Die Listen (`Targets`, `Notification`, `Icons`, `Table`, `Columns`, `Rows`, `Actions`) werden als JSON-String gespeichert und sollten über die Konsole bearbeitet werden.  
 
@@ -180,6 +181,10 @@ Die Variable `Aktive Gespräche` wird nur angelegt, wenn `Zeige alle Gespräche 
 ## 6. Visualisierung
 
 ### Kachel Visualisierung
+
+**Instanz-Kachel:** Die Instanz bringt eine eigene Kachel mit. Sie zeigt die aktiven Gespräche mit Zustand (klingelt, wählt, verbunden), Gegenstelle, eigener Rufnummer und laufender Dauer. Mit der Eigenschaft `Kachel bei eingehenden Anrufen als Popup öffnen` öffnet ein eingehender Anruf die Kachel in der gewählten Kachel-Visualisierung.  
+*Popup und Anzeige laufender Gespräche sind nicht live getestet.*  
+Ob die Kachel oder die Liste der Variablen erscheint, wird in der Kachel-Visualisierung je Kachel eingestellt. Die Kachel passt sich ihrer Größe an und übernimmt die Farben des Designs der Visualisierung. Die maximierte Kachel benötigt Symcon ab 9.1.  
 
 Die Instanz hat nur die Variable `Aktive Gespräche`. Sie ist eine HTML-Box mit der Tabelle der aktiven Gespräche; das Bild zeigt sie als einzelne Kachel (ohne laufendes Gespräch).  
 Benachrichtigungen (`Sende Benachrichtigung`) werden nur an WebFront-Instanzen gesendet.  

@@ -1,0 +1,112 @@
+/* FritzBox – gemeinsame Bausteine der Instanz-Kacheln.
+   Farben nur aus dem Design der Kachel-Visualisierung (CSS-Variablen der Visu), Abstufungen per color-mix().
+   Die Rückfallwerte gelten nur ohne Visu (z.B. Vorschau im Browser).
+   Größenstufen setzt tile.js als Klasse an #app: size-mini, size-compact, size-wide, size-full. */
+:root {
+  --accent: var(--accent-color, #00cdab);
+  --on-accent: var(--on-accent-color, #fff);
+  --text: var(--content-color, #1d1d1f);
+  --card: var(--card-color, #fff);
+  --on-light: var(--on-light-card-color, #1d1d1f);
+  --on-dark: var(--on-dark-card-color, #fff);
+  --chart: var(--chart-color, var(--accent));
+  --disabled: var(--disabled-color, color-mix(in srgb, var(--text) 40%, transparent));
+  --error: var(--error-color, #e5484d);
+  --on-error: var(--on-error-color, #fff);
+  --muted: color-mix(in srgb, var(--text) 60%, transparent);
+  --surface: color-mix(in srgb, var(--text) 7%, transparent);
+  --line: color-mix(in srgb, var(--text) 18%, transparent);
+  /* Platz für den Maximieren-Pfeil oben rechts (0, wenn die Kachel eine Überschrift hat; tile.js) */
+  --corner: 34px;
+}
+html, body { margin: 0; height: 100%; overflow: hidden; background: transparent; }
+body { box-sizing: border-box; padding-top: var(--title-space, 0px); font: 14px/1.35 Poppins, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; color: var(--text); }
+* { box-sizing: border-box; scrollbar-width: thin; scrollbar-color: var(--line) transparent; }
+button { font: inherit; color: inherit; background: none; border: 0; padding: 0; cursor: pointer; }
+button:disabled { cursor: default; color: var(--disabled); }
+select, input { font: inherit; color: var(--text); background: var(--surface); border: 1px solid var(--line); border-radius: 8px; padding: 2px 6px; color-scheme: light dark; }
+select option { background: var(--card); color: var(--text); }
+[hidden] { display: none !important; }
+.muted { color: var(--muted); }
+.app { position: relative; height: 100%; display: flex; flex-direction: column; gap: 8px; padding: 8px 12px 12px; }
+
+/* Kopfzeile: Kennzahlen links, rechts Platz für den Maximieren-Pfeil der Visu */
+.head { display: flex; align-items: center; gap: 8px; min-height: 26px; padding-right: var(--corner); flex: none; flex-wrap: wrap; }
+.head .title { font-weight: 500; flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.kpi { display: flex; flex-direction: column; align-items: center; justify-content: center; flex: 1; min-height: 0; text-align: center; gap: 2px; }
+.kpi .big { font-size: clamp(26px, 14vmin, 54px); font-weight: 300; line-height: 1; }
+.kpi .sub { font-size: 12px; color: var(--muted); }
+.kpi.alert .big { color: var(--error); }
+
+/* Kennzeichen */
+.badge { display: inline-flex; align-items: center; gap: 4px; padding: 1px 8px; border-radius: 999px; font-size: 11.5px; background: var(--surface); white-space: nowrap; }
+.badge.accent { background: var(--accent); color: var(--on-accent); }
+.badge.error { background: var(--error); color: var(--on-error); }
+.badge.off { color: var(--disabled); }
+.dot { width: 9px; height: 9px; border-radius: 50%; flex: none; background: var(--disabled); }
+.dot.on { background: var(--accent); }
+.dot.err { background: var(--error); }
+
+/* Schalter und Schaltflächen */
+.toggle { display: inline-flex; align-items: center; gap: 8px; padding: 4px 10px 4px 4px; border-radius: 999px; background: var(--surface); white-space: nowrap; max-width: 100%; text-align: left; }
+.toggle > span:last-child { overflow: hidden; text-overflow: ellipsis; min-width: 0; }
+.switches { display: flex; flex-direction: column; gap: 6px; align-items: stretch; overflow: auto; min-height: 0; }
+.toggle .knob { width: 34px; height: 20px; border-radius: 999px; background: var(--line); position: relative; flex: none; transition: background .15s; }
+.toggle .knob::after { content: ''; position: absolute; top: 2px; left: 2px; width: 16px; height: 16px; border-radius: 50%; background: var(--card); box-shadow: 0 1px 2px #0004; transition: left .15s; }
+.toggle.on .knob { background: var(--sw, var(--accent)); }
+.toggle.on .knob::after { left: 16px; }
+.toggle:disabled .knob { opacity: .5; }
+.btn { display: inline-grid; place-items: center; min-width: 30px; height: 30px; padding: 0 6px; border-radius: 8px; font-size: 15px; }
+.btn:hover:not(:disabled) { background: var(--line); }
+.btn.accent { background: var(--accent); color: var(--on-accent); }
+.btn.danger:hover:not(:disabled) { background: var(--error); color: var(--on-error); }
+.tool { padding: 4px 12px; border-radius: 8px; background: var(--surface); font-size: 13px; white-space: nowrap; }
+.tool:hover:not(:disabled) { background: var(--line); }
+.tool.primary { background: var(--accent); color: var(--on-accent); }
+.tool.danger { background: var(--error); color: var(--on-error); }
+.seg { display: inline-flex; border-radius: 999px; background: var(--surface); padding: 3px; gap: 2px; }
+.seg button { padding: 3px 10px; border-radius: 999px; font-size: 12.5px; white-space: nowrap; }
+.seg button.on { background: var(--accent); color: var(--on-accent); }
+.seg button:hover:not(.on) { background: var(--line); }
+
+/* Gruppen mit Überschrift (maximierte Kachel) */
+.group { display: flex; flex-direction: column; min-height: 0; background: color-mix(in srgb, var(--text) 4%, transparent); border: 1px solid var(--line); border-radius: 12px; padding: 4px 10px 8px; }
+.group.grow { flex: 1; }
+.ghead { display: flex; align-items: center; gap: 8px; padding: 6px 0; font-weight: 500; font-size: 12px; text-transform: uppercase; letter-spacing: .06em; color: var(--muted); flex: none; flex-wrap: wrap; }
+.ghead > span:first-child { flex: 1; }
+.ghead select { font-size: 12px; text-transform: none; letter-spacing: 0; }
+
+/* Listen (bilden die HTML-Tabellen ab) */
+.list { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 4px; overflow: auto; min-height: 0; flex: 1; }
+.row { display: flex; align-items: center; gap: 10px; padding: 5px 8px; border-radius: 10px; background: var(--surface); min-height: 38px; }
+.row.new { box-shadow: inset 3px 0 0 var(--accent); }
+.row.off { color: var(--disabled); }
+.row .main { flex: 1; min-width: 0; display: flex; flex-direction: column; }
+.row .main > * { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.row .l1 { font-weight: 500; }
+.row .l2 { font-size: 12px; color: var(--muted); }
+.row .side { display: flex; align-items: center; gap: 2px; flex: none; font-size: 12px; color: var(--muted); white-space: nowrap; }
+.row .ico { width: 22px; text-align: center; flex: none; color: var(--muted); }
+.row .ico.accent { color: var(--accent); }
+.row .ico.error { color: var(--error); }
+.size-mini .row .l2, .size-compact .row .hide-compact { display: none; }
+.empty { padding: 16px; text-align: center; color: var(--muted); }
+
+/* Balken und Fortschritt */
+.bar { position: relative; height: 6px; border-radius: 3px; background: var(--line); overflow: hidden; min-width: 40px; flex: 1; }
+.bar > i { position: absolute; inset: 0 auto 0 0; background: var(--chart); border-radius: 3px; }
+button.bar { height: 8px; padding: 0; }
+
+/* Hinweis bei fehlender Voraussetzung (verschwindet nach einigen Sekunden) */
+.notice { position: absolute; left: 12px; right: 12px; bottom: 12px; z-index: 5; padding: 8px 12px; border-radius: 10px; background: var(--error); color: var(--on-error); font-size: 13px; box-shadow: 0 2px 8px #0004; }
+
+/* Sicherheitsabfrage innerhalb der Kachel */
+.dialog { position: absolute; inset: 0; z-index: 10; display: grid; place-items: center; background: color-mix(in srgb, var(--card) 70%, transparent); }
+.dialog > div { max-width: 90%; padding: 14px 16px; border-radius: 12px; background: var(--card); border: 1px solid var(--line); box-shadow: 0 4px 16px #0004; display: flex; flex-direction: column; gap: 12px; }
+.dialog .btns { display: flex; justify-content: flex-end; gap: 8px; }
+
+/* Spalten bei breiter Kachel */
+.cols { flex: 1; min-height: 0; display: flex; gap: 14px; }
+.cols > .col { display: flex; flex-direction: column; gap: 8px; min-width: 0; min-height: 0; }
+.cols > .col.side { flex: 0 0 34%; }
+.cols > .col.main { flex: 1; }

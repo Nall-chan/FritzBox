@@ -4,9 +4,18 @@ declare(strict_types=1);
 
 require_once __DIR__ . '/../libs/FritzBoxBase.php';
 require_once __DIR__ . '/../libs/FritzBoxTable.php';
+require_once __DIR__ . '/../libs/FritzBoxTile.php';
+
+/**
+ * Dateifreigaben (Filelinks) der FritzBox, optional als HTML-Tabelle.
+ * Die Instanz-Kachel (HTML-SDK) zeigt die Freigaben (unabhängig von der HTML-Box) mit Link kopieren und Löschen.
+ *
+ * @property array $TileShares Freigaben für die Kachel (letzter Abruf)
+ */
 class FritzBoxFileShare extends FritzBoxModulBase
 {
     use \FritzBoxModul\HTMLTable;
+    use \FritzBoxModul\Tile;
 
     protected const Is_File = 0;
     protected const Is_Dir = 1;
@@ -25,6 +34,7 @@ class FritzBoxFileShare extends FritzBoxModulBase
     {
         //Never delete this line!
         parent::Create();
+        $this->TileShares = [];
         $this->RegisterPropertyInteger(\FritzBox\Base\Property::RefreshInterval, 3600);
         $this->RegisterPropertyBoolean(\FritzBox\FileShare\Property::SharesAsTable, false);
         $Style = $this->GenerateHTMLStyleProperty();
@@ -43,19 +53,20 @@ class FritzBoxFileShare extends FritzBoxModulBase
     public function ApplyChanges(): void
     {
         $this->SetTimerInterval(\FritzBox\Base\Timer::RefreshState, 0);
+        $this->TileShares = [];
         parent::ApplyChanges();
+        $this->RegisterTile();
         if (IPS_GetKernelRunlevel() != KR_READY) {
             return;
         }
         if ($this->ReadPropertyBoolean(\FritzBox\FileShare\Property::SharesAsTable)) {
             $this->RegisterVariableString(\FritzBox\FileShare\Variables::SharesTable, $this->Translate('File shares'), $this->GetPresentation('~HTMLBox', VARIABLETYPE_STRING), -3);
-
-            $this->RefreshFileShareTable();
-            $this->SetTimerInterval(\FritzBox\Base\Timer::RefreshState, $this->ReadPropertyInteger(\FritzBox\Base\Property::RefreshInterval) * 1000);
         } else {
             $this->UnregisterVariable(\FritzBox\FileShare\Variables::SharesTable);
-            $this->SetTimerInterval(\FritzBox\Base\Timer::RefreshState, 0);
         }
+        // Die Freigaben werden auch ohne HTML-Box geladen, die Kachel zeigt sie
+        $this->RefreshFileShareTable();
+        $this->SetTimerInterval(\FritzBox\Base\Timer::RefreshState, $this->ReadPropertyInteger(\FritzBox\Base\Property::RefreshInterval) * 1000);
     }
 
     public function GetConfigurationForm(): string
@@ -66,7 +77,6 @@ class FritzBoxFileShare extends FritzBoxModulBase
         }
 
         if (!$this->ReadPropertyBoolean(\FritzBox\FileShare\Property::SharesAsTable)) {
-            $Form['elements'][1]['items'][0]['enabled'] = false;
             $Form['elements'][1]['items'][1]['items'][0]['items'][0]['enabled'] = false;
             $Form['elements'][1]['items'][1]['items'][0]['items'][1]['enabled'] = false;
             $Form['elements'][1]['items'][1]['items'][1]['enabled'] = false;
@@ -80,13 +90,13 @@ class FritzBoxFileShare extends FritzBoxModulBase
 
     public function RefreshFileShareTable(): mixed
     {
-        $Table = $this->ReadPropertyBoolean(\FritzBox\FileShare\Property::SharesAsTable);
-        if (!$Table) {
+        $Data = $this->GetShareList();
+        if ($Data === false) {
             return false;
         }
-        $Data = $this->GetShareList();
-        if (!$Data) {
-            return false;
+        $this->PushTile();
+        if (!$this->ReadPropertyBoolean(\FritzBox\FileShare\Property::SharesAsTable)) {
+            return true;
         }
         return $this->CreateHostHTMLTable($Data);
     }
@@ -171,11 +181,22 @@ class FritzBoxFileShare extends FritzBoxModulBase
         if (parent::ProcessRequestAction($Ident, $Value)) {
             return true;
         }
+        if ($this->ProcessTileAction($Ident, $Value)) {
+            return true;
+        }
         switch ($Ident) {
+            case \FritzBox\Tile\Action::DeleteShare:
+                if (!in_array((string) $Value, array_column($this->TileShares, 'id'), true)) {
+                    trigger_error($this->Translate('Unknown file share.'), E_USER_NOTICE);
+                    return false;
+                }
+                if (!$this->DeleteFilelinkEntry((string) $Value)) {
+                    return false;
+                }
+                return $this->RefreshFileShareTable();
             case \FritzBox\Base\Action::RefreshState:
                 return $this->RefreshFileShareTable();
             case \FritzBox\FileShare\Action::SharesAsTable:
-                $this->UpdateFormField('RefreshInterval', 'enabled', $Value);
                 $this->UpdateFormField('Icons', 'enabled', $Value);
                 $this->UpdateFormField('ShowImage', 'enabled', $Value);
                 $this->UpdateFormField('Table', 'enabled', $Value);
@@ -186,6 +207,19 @@ class FritzBoxFileShare extends FritzBoxModulBase
         }
         trigger_error($this->Translate('Invalid Ident.'), E_USER_NOTICE);
         return false;
+    }
+
+    /**
+     * Daten der Kachel: Freigaben des letzten Abrufs.
+     */
+    protected function GetTileData(): array
+    {
+        return ['shares' => $this->TileShares];
+    }
+
+    protected function GetTileTextKeys(): array
+    {
+        return ['File shares', 'No file shares', 'Copy link', 'Link copied', 'Delete', 'Delete the file share %s?', 'Accesses', 'Expires', 'Never', 'Invalid'];
     }
 
     private function GetShareList()
@@ -212,9 +246,26 @@ class FritzBoxFileShare extends FritzBoxModulBase
             return false;
         }
         $TableData = [];
+        $TileShares = [];
         /** @var \SimpleXMLElement $FileItem */
         foreach ($FileList as $FileItem) {
             $Filename = explode('/', (string) $FileItem->Path);
+            $Expires = '';
+            if ((int) $FileItem->Expire) {
+                $Date = new DateTime((string) $FileItem->ExpireDate);
+                $Expires = (string) $Date->getTimestamp();
+            }
+            $TileShares[] = [
+                'id'      => (string) $FileItem->ID,
+                'path'    => (string) $FileItem->Path,
+                'name'    => end($Filename),
+                'dir'     => (int) $FileItem->IsDirectory == 1,
+                'valid'   => (int) $FileItem->Valid == 1,
+                'url'     => (string) $FileItem->Url,
+                'count'   => (int) $FileItem->AccessCount,
+                'limit'   => (int) $FileItem->AccessCountLimit,
+                'expires' => (int) $Expires
+            ];
             $FileItem->addChild('Filename', end($Filename));
 
             if ((int) $FileItem->IsDirectory) {
@@ -240,6 +291,9 @@ class FritzBoxFileShare extends FritzBoxModulBase
             $TableData[] = (array) $FileItem;
         }
         $this->SendDebug('Table', $TableData, 0);
+        $Path = array_column($TileShares, 'path');
+        array_multisort($Path, SORT_ASC, SORT_LOCALE_STRING, $TileShares);
+        $this->TileShares = $TileShares;
         return $TableData;
     }
 

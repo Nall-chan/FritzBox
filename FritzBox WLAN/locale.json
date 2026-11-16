@@ -1,6 +1,18 @@
 {
     "translations": {
         "de": {
+            "Entries": "Einträge",
+            "All": "Alle",
+            "Cancel": "Abbrechen",
+            "OK": "OK",
+            "Show chart": "Diagramm anzeigen",
+            "Open variable": "Variable öffnen",
+            "Signal": "Signal",
+            "Devices": "Geräte",
+            "No devices": "Keine Geräte",
+            "Scan to connect": "Scannen zum Verbinden",
+            "Show password": "Passwort anzeigen",
+            "WLAN": "WLAN",
             "Delete old sub variables": "Alte Untervariablen löschen",
             "Delete the variables created below the device variables up to version 0.94?": "Die bis Version 0.94 unterhalb der Geräte-Variablen angelegten Variablen löschen?",
             "%d old sub variables deleted.": "%d alte Untervariablen gelöscht.",

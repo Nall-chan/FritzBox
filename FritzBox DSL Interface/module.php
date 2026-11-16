@@ -2,6 +2,7 @@
 
 declare(strict_types=1);
 require_once __DIR__ . '/../libs/FritzBoxBase.php';
+require_once __DIR__ . '/../libs/FritzBoxTile.php';
 
 /**
  * DSL-Schnittstelle der FritzBox (nur Boxen mit DSL-Anschluss).
@@ -10,9 +11,12 @@ require_once __DIR__ . '/../libs/FritzBoxBase.php';
  * Skalierung: Störabstand (NoiseMargin) und Dämpfung (Attenuation) liefert die FritzBox
  * laut TR-064 (WANDSLInterfaceConfig, angelehnt an TR-098) in 0,1 dB. Nicht live geprüft,
  * da keine DSL-Box zum Testen vorhanden war.
+ * Die Instanz-Kachel (HTML-SDK) zeigt Synchronisationsrate gegen Maximum, Störabstand, Dämpfung und Fehlerzähler.
  */
 class FritzBoxDSLInterface extends FritzBoxModulBase
 {
+    use \FritzBoxModul\Tile;
+
     protected static $ControlUrlArray = [
         '/upnp/control/wandslifconfig1'
     ];
@@ -40,6 +44,7 @@ class FritzBoxDSLInterface extends FritzBoxModulBase
     {
         $this->SetTimerInterval(\FritzBox\Base\Timer::RefreshInfo, 0);
         parent::ApplyChanges();
+        $this->RegisterTile();
         $this->SetTimerInterval(\FritzBox\Base\Timer::RefreshInfo, $this->ReadPropertyInteger(\FritzBox\Base\Property::RefreshInterval) * 1000);
         if (IPS_GetKernelRunlevel() != KR_READY) {
             return;
@@ -92,12 +97,46 @@ class FritzBoxDSLInterface extends FritzBoxModulBase
         if (parent::ProcessRequestAction($Ident, $Value)) {
             return true;
         }
+        if ($this->ProcessTileAction($Ident, $Value)) {
+            return true;
+        }
         switch ($Ident) {
             case \FritzBox\Base\Action::RefreshInfo:
                 return $this->UpdateInfo();
         }
         trigger_error($this->Translate('Invalid Ident.'), E_USER_NOTICE);
         return false;
+    }
+
+    /**
+     * Daten der Kachel: die Statusvariablen der Schnittstelle (fehlende Variablen fehlen auch in der Kachel).
+     */
+    protected function GetTileData(): array
+    {
+        $Data = [];
+        foreach ([
+            'status'      => \FritzBox\DSLInterface\Variables::Status,
+            'downRate'    => \FritzBox\DSLInterface\Variables::DownstreamCurrRate,
+            'upRate'      => \FritzBox\DSLInterface\Variables::UpstreamCurrRate,
+            'downMax'     => \FritzBox\DSLInterface\Variables::DownstreamMaxRate,
+            'upMax'       => \FritzBox\DSLInterface\Variables::UpstreamMaxRate,
+            'downMargin'  => \FritzBox\DSLInterface\Variables::DownstreamNoiseMargin,
+            'upMargin'    => \FritzBox\DSLInterface\Variables::UpstreamNoiseMargin,
+            'downAtt'     => \FritzBox\DSLInterface\Variables::DownstreamAttenuation,
+            'upAtt'       => \FritzBox\DSLInterface\Variables::UpstreamAttenuation,
+            'fec'         => \FritzBox\DSLInterface\Variables::FECErrors,
+            'crc'         => \FritzBox\DSLInterface\Variables::CRCErrors,
+            'erroredSecs' => \FritzBox\DSLInterface\Variables::ErroredSecs,
+            'severeSecs'  => \FritzBox\DSLInterface\Variables::SeverelyErroredSecs
+        ] as $Key => $Ident) {
+            $Data[$Key] = $this->TileVariable($Ident);
+        }
+        return $Data;
+    }
+
+    protected function GetTileTextKeys(): array
+    {
+        return ['Download', 'Upload', 'of', 'Noise margin', 'Attenuation', 'Errors', 'No data'];
     }
 
     private function UpdateInfo()
@@ -121,12 +160,14 @@ class FritzBoxDSLInterface extends FritzBoxModulBase
         $Stats = @$this->GetStatisticsTotal();
         if ($Stats === false) {
             $this->SendDebug('GetStatisticsTotal', 'not available', 0);
+            $this->PushTile();
             return true;
         }
         $this->setIPSVariable(\FritzBox\DSLInterface\Variables::FECErrors, 'FEC errors', (int) $Stats['NewFECErrors'], VARIABLETYPE_INTEGER, '', false, 10);
         $this->setIPSVariable(\FritzBox\DSLInterface\Variables::CRCErrors, 'CRC errors', (int) $Stats['NewCRCErrors'], VARIABLETYPE_INTEGER, '', false, 11);
         $this->setIPSVariable(\FritzBox\DSLInterface\Variables::ErroredSecs, 'Errored seconds', (int) $Stats['NewErroredSecs'], VARIABLETYPE_INTEGER, '', false, 12);
         $this->setIPSVariable(\FritzBox\DSLInterface\Variables::SeverelyErroredSecs, 'Severely errored seconds', (int) $Stats['NewSeverelyErroredSecs'], VARIABLETYPE_INTEGER, '', false, 13);
+        $this->PushTile();
         return true;
     }
 }

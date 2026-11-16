@@ -89,6 +89,11 @@ Die Variable `Dateifreigaben` wird nur angelegt, wenn `Zeige Freigaben als HTML-
 
 ### Kachel Visualisierung
 
+**Instanz-Kachel:** Die Instanz bringt eine eigene Kachel mit. Sie zeigt die Freigaben mit Pfad, Zugriffen und Ablauf. Je Freigabe lässt sich der Link in die Zwischenablage kopieren und die Freigabe löschen (mit Sicherheitsabfrage). Die Anzahl der angezeigten Freigaben ist in der Kachel einstellbar.  
+Die Freigaben werden für die Kachel auch geladen, wenn `Zeige Freigaben als HTML-Tabelle` abgewählt ist; das Aktualisierungsintervall gilt deshalb immer.  
+*Löschen aus der Instanz-Kachel ist nicht live getestet.*  
+Ob die Kachel oder die Liste der Variablen erscheint, wird in der Kachel-Visualisierung je Kachel eingestellt. Die Kachel passt sich ihrer Größe an und übernimmt die Farben des Designs der Visualisierung. Die maximierte Kachel benötigt Symcon ab 9.1.  
+
 Die Instanz hat nur eine Variable und wird deshalb als `Einzelnes Element` angezeigt: Die Kachel zeigt direkt die HTML-Box mit der Tabelle der Dateifreigaben.  
 
 ![Kachel](imgs/tile_instance.png)  
@@ -107,7 +112,7 @@ Alle Funktionen liefern `false`, wenn die Instanz nicht aktiv ist oder die Fritz
 bool FB_RefreshFileShareTable(integer $InstanzID);
 ```
 
-Erzeugt die HTML-Tabelle in der Statusvariable `Dateifreigaben` neu. Liefert `false`, wenn `Zeige Freigaben als HTML-Tabelle` deaktiviert ist.  
+Lädt die Freigaben neu, aktualisiert die Instanz-Kachel und, wenn `Zeige Freigaben als HTML-Tabelle` aktiviert ist, die HTML-Tabelle in der Statusvariable `Dateifreigaben`. Liefert `false`, wenn die Freigaben nicht gelesen werden konnten.  
 
 ```php
 var_dump(FB_RefreshFileShareTable(12345)); // bool(true)

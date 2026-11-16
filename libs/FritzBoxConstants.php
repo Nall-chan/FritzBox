@@ -169,6 +169,8 @@ namespace FritzBox\Callmonitor {
         public const NotShowWarning = 'NotShowWarning';
         public const SearchMarker = 'SearchMarker';
         public const Targets = 'Targets';
+        /** Kachel-Visualisierung, in der ein eingehender Anruf die Kachel als Popup öffnet (0 = aus). */
+        public const PopupVisualization = 'PopupVisualization';
     }
 
     class Action
@@ -183,6 +185,7 @@ namespace FritzBox\Callmonitor {
         public const ReverseSearchInstanceID = 'ReverseSearchInstanceID';
         public const RunActions = 'RunActions';
         public const SendNotification = 'SendNotification';
+        public const OpenPopup = 'OpenPopup';
     }
 
     class Variables
@@ -723,5 +726,38 @@ namespace FritzBox\WANIPv6Firewall {
     {
         public const FirewallEnabled = 'FirewallEnabled';
         public const InboundPinholeAllowed = 'InboundPinholeAllowed';
+    }
+}
+
+namespace FritzBox\Tile {
+    /**
+     * Aktionen der Instanz-Kacheln (HTML-SDK), Aufruf aus der Kachel per requestAction.
+     */
+    class Action
+    {
+        /** Zustand neu an die Kachel senden. */
+        public const Reload = 'TileReload';
+        /** Anrufbeantworter: Nachricht als gelesen markieren (Wert = Index der Nachricht). */
+        public const Mark = 'TileMark';
+        /** Anrufbeantworter: Nachricht löschen (Wert = Index der Nachricht). */
+        public const Delete = 'TileDelete';
+        /** Telefonie: Rufnummer über die Wählhilfe wählen (Wert = Rufnummer). */
+        public const Dial = 'TileDial';
+        /** Telefonie: Wählhilfe auflegen. */
+        public const Hangup = 'TileHangup';
+        /** Netzwerkgeräte: Wake-On-LAN (Wert = MAC-Adresse). */
+        public const WakeOnLan = 'TileWOL';
+        /** DECT/Powerline: Update des Gerätes starten (Wert = Kennung des Gerätes). */
+        public const DeviceUpdate = 'TileDeviceUpdate';
+        /** Host Filter: Internetzugang sperren/freigeben (Wert = JSON mit ip und value). */
+        public const Disallow = 'TileDisallow';
+        /** Host Filter: Zugangsprofil und Tickets eines Gerätes laden (Wert = IPv4-Adresse). */
+        public const HostEntry = 'TileHostEntry';
+        /** Host Filter: Zugangsprofil zuweisen (Wert = JSON mit ip und profile). */
+        public const FilterProfile = 'TileFilterProfile';
+        /** Host Filter: Online-Ticket hinzufügen (Wert = IPv4-Adresse). */
+        public const Ticket = 'TileTicket';
+        /** Dateifreigaben: Freigabe löschen (Wert = ID der Freigabe). */
+        public const DeleteShare = 'TileDeleteShare';
     }
 }

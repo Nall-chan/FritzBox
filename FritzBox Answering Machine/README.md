@@ -89,6 +89,10 @@ Die Statusvariablen werden automatisch angelegt. Das Löschen einzelner kann zu 
 
 ### Kachel Visualisierung
 
+**Instanz-Kachel:** Die Instanz bringt eine eigene Kachel mit. Klein zeigt sie die Anzahl neuer Nachrichten, größer zusätzlich den Schalter des Anrufbeantworters und die Nachrichtenliste mit Abspielen/Pause, Als gelesen markieren und Löschen (mit Sicherheitsabfrage). Eine neue Nachricht wird nach vollständigem Abspielen als gelesen markiert. Die Anzahl der angezeigten Nachrichten ist in der Kachel einstellbar.  
+*Abspielen, Markieren und Löschen aus der Instanz-Kachel sind nicht live getestet.*  
+Ob die Kachel oder die Liste der Variablen erscheint, wird in der Kachel-Visualisierung je Kachel eingestellt. Die Kachel passt sich ihrer Größe an und übernimmt die Farben des Designs der Visualisierung. Die maximierte Kachel benötigt Symcon ab 9.1.  
+
 Die Instanz wird als Kachel in der Darstellung `Liste` angezeigt. Das Bild zeigt die maximierte Kachel mit allen Variablen.  
 `Anrufbeantworter aktiv` wird als Schalter dargestellt und kann direkt geschaltet werden, die Anzahl der Nachrichten als Zahl. `Nachrichten` ist eine HTML-Box; das Symbol in der Liste öffnet die Tabelle.  
 

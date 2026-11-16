@@ -1,6 +1,15 @@
 {
     "translations": {
         "de": {
+            "Answering machine": "Anrufbeantworter",
+            "total": "gesamt",
+            "No messages": "Keine Nachrichten",
+            "Playback failed.": "Wiedergabe fehlgeschlagen.",
+            "Entries": "Einträge",
+            "All": "Alle",
+            "Cancel": "Abbrechen",
+            "OK": "OK",
+            "Show chart": "Diagramm anzeigen",
             "Refresh Interval": "Aktualisierungsintervall",
             "seconds": "Sekunden",
             "Update Values": "Werte aktualisieren",

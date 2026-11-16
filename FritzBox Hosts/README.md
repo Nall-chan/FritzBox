@@ -100,6 +100,10 @@ Variablen mit MAC-Adresse können ein Wake-On-LAN an das Netzwerkgerät senden. 
 
 ### Kachel Visualisierung
 
+**Instanz-Kachel:** Die Instanz bringt eine eigene Kachel mit. Klein zeigt sie die Anzahl der Netzwerkgeräte online/gesamt, größer die Geräteliste mit Filter (alle, online, offline, LAN, WLAN), Suche, IP-Adresse und Geschwindigkeit. Geräte mit MAC-Adresse, die offline sind, lassen sich per Wake-On-LAN wecken (mit Sicherheitsabfrage). Ein Klick auf den Namen öffnet die Variable des Gerätes, sofern angelegt. Die Anzahl der angezeigten Geräte ist in der Kachel einstellbar.  
+*Wake-On-LAN aus der Instanz-Kachel ist nicht live getestet.*  
+Ob die Kachel oder die Liste der Variablen erscheint, wird in der Kachel-Visualisierung je Kachel eingestellt. Die Kachel passt sich ihrer Größe an und übernimmt die Farben des Designs der Visualisierung. Die maximierte Kachel benötigt Symcon ab 9.1.  
+
 Die Instanz wird als Kachel in der Darstellung `Liste` angezeigt. Das Bild zeigt die maximierte Kachel mit allen Variablen.  
 `Netzwerkgeräte` ist eine HTML-Box; das Symbol in der Liste öffnet die Tabelle aller Netzwerkgeräte. Die Tabelle kann per Klick auf eine Spaltenüberschrift sortiert werden.  
 Die Anzahl-Variablen werden als Zahl, die Variablen der Netzwerkgeräte als Schalter (Onlinezustand) dargestellt. Ist die Standardaktion einer Variable aktiviert, sendet das Schalten ein Wake-On-LAN.  

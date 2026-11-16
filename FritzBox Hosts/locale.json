@@ -1,6 +1,22 @@
 {
     "translations": {
         "de": {
+            "Entries": "Einträge",
+            "All": "Alle",
+            "Cancel": "Abbrechen",
+            "OK": "OK",
+            "Show chart": "Diagramm anzeigen",
+            "Open variable": "Variable öffnen",
+            "Guest": "Gast",
+            "Wake up %s?": "%s aufwecken?",
+            "Wake on LAN": "Wake-On-LAN",
+            "online": "online",
+            "Search": "Suchen",
+            "No devices": "Keine Geräte",
+            "Online": "Online",
+            "Offline": "Offline",
+            "LAN": "LAN",
+            "WLAN": "WLAN",
             "Invalid IP address.": "Ungültige IP-Adresse.",
             "Invalid MAC address.": "Ungültige MAC-Adresse.",
             "Error on subscribe (parse)": "Fehler beim Anmelden der Ereignisse (Verarbeitung)",

@@ -90,6 +90,10 @@ Die Statusvariablen werden automatisch angelegt. Das Löschen einzelner kann zu 
 
 ### Kachel Visualisierung
 
+**Instanz-Kachel:** Die Instanz bringt eine eigene Kachel mit. Sie zeigt Zugangsart und Status, die aktuelle Auslastung von Download und Upload im Verhältnis zur maximalen Bitrate und, größer, den Verlauf der letzten 20 Messpunkte als Diagramm (skaliert auf den Spitzenwert). Die Zugangsart wird in der Kachel nur angezeigt.  
+Die Messpunkte liefert die FritzBox vermutlich in Byte/s (wie beim Online-Monitor, nicht von AVM dokumentiert); die Kachel rechnet in Mbit/s um.  
+Ob die Kachel oder die Liste der Variablen erscheint, wird in der Kachel-Visualisierung je Kachel eingestellt. Die Kachel passt sich ihrer Größe an und übernimmt die Farben des Designs der Visualisierung. Die maximierte Kachel benötigt Symcon ab 9.1.  
+
 Die Instanz wird als Kachel in der Darstellung `Liste` angezeigt. Das Bild zeigt die maximierte Kachel mit allen Variablen.  
 `WAN Zugangsart` wird als Auswahl dargestellt und kann in der Kachel geändert werden. Die übrigen Variablen werden als Text bzw. Bitrate in kBit/s dargestellt.  
 

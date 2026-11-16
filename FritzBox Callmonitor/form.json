@@ -631,6 +631,25 @@
                     }
                 ]
             }
+        },
+        {
+            "type": "RowLayout",
+            "items": [
+                {
+                    "type": "Label",
+                    "caption": "Tile visualization",
+                    "width": "300px"
+                },
+                {
+                    "name": "PopupVisualization",
+                    "type": "SelectInstance",
+                    "caption": "Open the tile as popup on incoming calls",
+                    "validModules": [
+                        "{B5B875BB-9B76-45FD-4E67-2607E45B3AC4}"
+                    ],
+                    "width": "450px"
+                }
+            ]
         }
     ],
     "actions": [

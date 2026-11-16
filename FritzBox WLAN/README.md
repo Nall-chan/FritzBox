@@ -138,6 +138,10 @@ Die übrigen Variablen haben keine Darstellung (Zahl bzw. Text).
 
 ### Kachel Visualisierung
 
+**Instanz-Kachel:** Die Instanz bringt eine eigene Kachel mit. Sie zeigt den Schalter des WLAN mit SSID, die Anzahl und die Liste der verbundenen Geräte mit Signalstärke und Geschwindigkeit. Wird die Variable der Signalstärke geloggt, öffnet ein Klick auf den Signalbalken das Diagramm. Ist `Erzeuge Medien-Objekt mit QR-Code` bzw. `Erzeuge Variable für WLAN Passwort` aktiviert, zeigt die breite Kachel den QR-Code bzw. das Passwort (verdeckt, per Klick sichtbar).  
+Die Geräteliste wird für die Kachel auch geladen, wenn weder Variablen noch HTML-Box aktiviert sind.  
+Ob die Kachel oder die Liste der Variablen erscheint, wird in der Kachel-Visualisierung je Kachel eingestellt. Die Kachel passt sich ihrer Größe an und übernimmt die Farben des Designs der Visualisierung. Die maximierte Kachel benötigt Symcon ab 9.1.  
+
 Die Instanz wird als Kachel in der Darstellung `Liste` angezeigt. Das Bild zeigt die maximierte Kachel mit allen Variablen.  
 `WLAN Status` wird als Schalter dargestellt und kann direkt in der Kachel geschaltet werden. `Host Tabelle` (HTML-Box) und `QR-Code` (Bild) werden über das Symbol in der Liste geöffnet, die übrigen Variablen als Text, Zahl, Schalter (nur Anzeige) bzw. Datum/Uhrzeit dargestellt.  
 

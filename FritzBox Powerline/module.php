@@ -2,12 +2,21 @@
 
 declare(strict_types=1);
 require_once __DIR__ . '/../libs/FritzBoxBase.php';
+require_once __DIR__ . '/../libs/FritzBoxTile.php';
 
+/**
+ * Powerline-Geräte der FritzBox.
+ * Die Instanz-Kachel (HTML-SDK) zeigt die Geräte mit Modell und Update (libs/tile/devices.js).
+ *
+ * @property array $TileDevices Geräte für die Kachel (Ident der Variable, MAC-Adresse)
+ */
 class FritzBoxPowerline extends FritzBoxModulBase
 {
+    use \FritzBoxModul\Tile;
     protected static $ControlUrlArray = [
         '/upnp/control/x_homeplug'
     ];
+
     protected static $EventSubURLArray = [];
     protected static $LegacySubVariables = [
         \FritzBox\Powerline\Variables::Model,
@@ -21,6 +30,7 @@ class FritzBoxPowerline extends FritzBoxModulBase
     {
         //Never delete this line!
         parent::Create();
+        $this->TileDevices = [];
 
         $this->RegisterPropertyInteger(\FritzBox\Base\Property::RefreshInterval, 60);
         $this->RegisterPropertyBoolean(\FritzBox\Powerline\Property::RenameDeviceVariables, false);
@@ -47,7 +57,9 @@ class FritzBoxPowerline extends FritzBoxModulBase
     public function ApplyChanges(): void
     {
         $this->SetTimerInterval(\FritzBox\Base\Timer::RefreshInfo, 0);
+        $this->TileDevices = [];
         parent::ApplyChanges();
+        $this->RegisterTile();
         $this->RemoveDisabledDeviceInfoVariables([
             \FritzBox\Powerline\Variables::Model           => $this->ReadPropertyBoolean(\FritzBox\Powerline\Property::ModelVariables),
             \FritzBox\Powerline\Variables::UpdateAvailable => $this->ReadPropertyBoolean(\FritzBox\Powerline\Property::UpdateAvailableVariables)
@@ -110,12 +122,53 @@ class FritzBoxPowerline extends FritzBoxModulBase
         if (parent::ProcessRequestAction($Ident, $Value)) {
             return true;
         }
+        if ($this->ProcessTileAction($Ident, $Value)) {
+            return true;
+        }
         switch ($Ident) {
             case \FritzBox\Base\Action::RefreshInfo:
                 return $this->UpdateInfo();
+            case \FritzBox\Tile\Action::DeviceUpdate:
+                // Nur für Geräte der Liste (Kennung aus der FritzBox)
+                if (!in_array((string) $Value, array_column($this->TileDevices, 'key'), true)) {
+                    trigger_error($this->Translate('Unknown device.'), E_USER_NOTICE);
+                    return false;
+                }
+                return $this->UpdatePowerlineDevice((string) $Value);
         }
         trigger_error($this->Translate('Invalid Ident.'), E_USER_NOTICE);
         return false;
+    }
+
+    /**
+     * Daten der Kachel: je Gerät die Gerätevariable und, sofern angelegt, Modell und verfügbares Update.
+     */
+    protected function GetTileData(): array
+    {
+        $Devices = [];
+        foreach ($this->TileDevices as $Device) {
+            $Variable = $this->TileVariable($Device['ident']);
+            if ($Variable === null) {
+                continue;
+            }
+            $Devices[] = [
+                'key'    => $Device['key'],
+                'device' => $Variable,
+                'model'  => $this->TileVariable(\FritzBox\Powerline\Variables::Model . '_' . $Device['ident']),
+                'update' => $this->TileVariable(\FritzBox\Powerline\Variables::UpdateAvailable . '_' . $Device['ident'])
+            ];
+        }
+        return ['devices' => $Devices];
+    }
+
+    protected function GetTileTextKeys(): array
+    {
+        return ['Devices', 'active', 'inactive', 'Update available', 'Start update', 'Start the update of %s?', 'No devices'];
+    }
+
+    protected function GetTileScriptFile(): string
+    {
+        return __DIR__ . '/../libs/tile/devices.js';
     }
 
     private function UpdateInfo()
@@ -127,6 +180,7 @@ class FritzBoxPowerline extends FritzBoxModulBase
         $ReturnValue = true;
         $Rename = $this->ReadPropertyBoolean(\FritzBox\Powerline\Property::RenameDeviceVariables);
         $ShowModel = $this->ReadPropertyBoolean(\FritzBox\Powerline\Property::ModelVariables);
+        $TileDevices = [];
         $ShowUpdate = $this->ReadPropertyBoolean(\FritzBox\Powerline\Property::UpdateAvailableVariables);
         for ($i = 0; $i < $NumberOfDeviceEntries; $i++) {
             $Result = $this->GetGenericDeviceEntry($i);
@@ -144,7 +198,10 @@ class FritzBoxPowerline extends FritzBoxModulBase
             $DeviceName = IPS_GetName($VarId);
             $this->SetDeviceInfoVariable($ShowModel, \FritzBox\Powerline\Variables::Model, $Ident, $DeviceName . ' - ' . $this->Translate('Model'), (string) $Result['NewModel'], VARIABLETYPE_STRING, Rename: $Rename);
             $this->SetDeviceInfoVariable($ShowUpdate, \FritzBox\Powerline\Variables::UpdateAvailable, $Ident, $DeviceName . ' - ' . $this->Translate('Update available'), (int) $Result['NewUpdateAvailable'] > 0, VARIABLETYPE_BOOLEAN, Rename: $Rename);
+            $TileDevices[] = ['ident' => $Ident, 'key' => (string) $Result['NewMACAddress']];
         }
+        $this->TileDevices = $TileDevices;
+        $this->PushTile();
         return $ReturnValue;
     }
 }
