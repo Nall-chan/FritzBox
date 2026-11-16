@@ -263,8 +263,19 @@ Für das Discovery werden Pakete über die Multicast-Adresse `239.255.255.250` a
 
 > [!IMPORTANT]
 > Folgende Funktionen liefern jetzt eine Zahl statt eines Textes: `FB_GetHostNumberOfEntries`, `FB_GetChangeCounter` (Netzwerkgeräte), `FB_GetIPInterfaceNumberOfEntries` (DHCP-Server), `FB_GetNumberOfFilelinkEntries` (Dateifreigabe), `FB_GetNumberOfDeviceEntries` (Powerline) und `FB_GetNumberOfDeflections` (Telefonie). Skripte, die das Ergebnis mit einem Text vergleichen (z.B. `=== '5'`), müssen angepasst werden.
+>
+> FritzBox DECT, FritzBox Powerline und FritzBox WLAN: Modell, Update verfügbar, Geschwindigkeit und Signalstärke je Gerät sind jetzt eigene Statusvariablen der Instanz (z.B. `Model_DECT3`, `Speed_MAC001122AABBCC`) statt Untervariablen unterhalb der Gerätevariable. Die alten Untervariablen werden nicht mehr aktualisiert. Skripte, Ereignisse und Archivdaten, die sie nutzen, müssen auf die neuen Variablen umgestellt werden. Gelöscht werden die alten Untervariablen nur über die Schaltfläche `Alte Untervariablen löschen` im Formular der Instanz.
+
+**Neue Statusvariablen**
+
+- FritzBox DECT und FritzBox Powerline: je Gerät `Modell` und `Update verfügbar` als eigene Statusvariablen, einzeln in der Instanz abwählbar; werden beim automatischen Umbenennen mit umbenannt.  
+- FritzBox WLAN: je WLAN-Gerät `Geschwindigkeit` und `Signalstärke` als eigene Statusvariablen, einzeln in der Instanz abwählbar; werden beim automatischen Umbenennen mit umbenannt.  
+
+**Geändertes Verhalten**
 
 - Alle Module: Umstellung auf IPSModuleStrict. Alle Instanz-Funktionen haben feste Typen für Parameter und Rückgabewerte.  
+- Alle Module: Statusvariablen nutzen Darstellungen statt Variablenprofile. Die eigenen Profile `FB.*` werden gelöscht, sobald keine Variable sie mehr nutzt. Ein selbst zugewiesenes eigenes Profil einer Variable bleibt erhalten.  
+- FritzBox Firmware Info: Der Modus der automatischen Aktualisierung kennt jetzt den Wert `Nur benachrichtigen`.  
 
 **Version 0.94:**  
 

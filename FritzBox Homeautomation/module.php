@@ -31,32 +31,6 @@ class FritzBoxHomeautomation extends FritzBoxModulBase
     {
         $this->SetTimerInterval(\FritzBox\Base\Timer::RefreshInfo, 0);
         parent::ApplyChanges();
-        $this->RegisterProfileStringEx('FB.AHA.Present', '', '', '', [
-            ['DISCONNECTED', 'disconnected', '', -1],
-            ['REGISTRERED', 'registrered', '', -1],
-            ['CONNECTED', 'connected', '', -1],
-            ['UNKNOWN', 'unknown', '', -1]
-        ]);
-        $this->RegisterProfileStringEx('FB.AHA.Valid', '', '', '', [
-            ['INVALID', 'invalid', '', -1],
-            ['VALID', 'valid', '', -1],
-            ['UNDEFINED', 'undefined', '', -1]
-        ]);
-        $this->RegisterProfileStringEx('FB.AHA.Mode', '', '', '', [
-            ['AUTO', 'automatic', '', -1],
-            ['MANUAL', 'manual', '', -1],
-            ['UNDEFINED', 'undefined', '', -1]
-        ]);
-        $this->RegisterProfileStringEx('FB.AHA.State', '', '', '', [
-            ['OFF', 'off', '', -1],
-            ['ON', 'on', '', -1],
-            ['TOGGLE', 'toggle', '', -1]
-        ]);
-        $this->RegisterProfileStringEx('FB.AHA.VentilState', '', '', '', [
-            ['CLOSED', 'closed', '', -1],
-            ['OPEN', 'open', '', -1],
-            ['TEMP', 'temp controlled', '', -1]
-        ]);
         if ($this->ReadPropertyString(\FritzBox\Homeautomation\Property::AIN) != '') {
             $this->SetTimerInterval(\FritzBox\Base\Timer::RefreshInfo, $this->ReadPropertyInteger(\FritzBox\Base\Property::RefreshInterval) * 1000);
         }

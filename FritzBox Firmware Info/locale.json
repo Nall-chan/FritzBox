@@ -1,6 +1,19 @@
 {
     "translations": {
         "de": {
+            "Notify only": "Nur benachrichtigen",
+            "Release": "Release",
+            "Intern": "Intern",
+            "Work": "Work",
+            "Personal": "Personal",
+            "Inhaus": "Inhaus",
+            "Labor (Beta)": "Labor (Beta)",
+            "Labor (RC)": "Labor (RC)",
+            "Labor (DSL)": "Labor (DSL)",
+            "Labor (Phone)": "Labor (Telefonie)",
+            "Labor": "Labor",
+            "Labor (Test)": "Labor (Test)",
+            "Labor (Plus)": "Labor (Plus)",
             "FritzBox Firmware Info": "FritzBox Firmware Informationen",
             "Refresh Interval": "Aktualisierungsintervall",
             "seconds": "Sekunden",

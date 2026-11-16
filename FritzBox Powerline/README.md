@@ -56,32 +56,38 @@ Unter 'Instanz hinzufügen' ist das 'FritzBox Powerline'-Modul unter dem Herstel
 | --------------------------------------- | --------------------- | ------- | ------------ | ------------------------------------------------------------------- |
 | Aktualisierungsintervall                | RefreshInterval       | integer | 60           | Intervall in Sekunden, in dem die Werte abgefragt werden; `0` = aus |
 | Geräte-Variablen automatisch umbenennen | RenameDeviceVariables | boolean | false        | Variablen umbenennen, wenn sich der Gerätename in der FritzBox ändert |
+| Variable für das Modell je Gerät anlegen | ModelVariables       | boolean | true         | Je Gerät die Variable `Modell` anlegen; abgewählt werden die Variablen gelöscht |
+| Variable für verfügbares Update je Gerät anlegen | UpdateAvailableVariables | boolean | true | Je Gerät die Variable `Update verfügbar` anlegen; abgewählt werden die Variablen gelöscht |
 
 Beispiel:  
 
 ```php
 IPS_SetProperty(12345, 'RenameDeviceVariables', true);
+IPS_SetProperty(12345, 'ModelVariables', false);
 IPS_ApplyChanges(12345);
 ```
+
+Bis Version 0.94 lagen `Model` und `Update verfügbar` als Untervariablen unterhalb der Gerätevariable. Diese werden nicht mehr aktualisiert. Solange es sie gibt, zeigt das Formular die Schaltfläche `Alte Untervariablen löschen`, die sie nach einer Sicherheitsabfrage löscht.
 
 ## 5. Statusvariablen
 
 Die Statusvariablen werden automatisch angelegt. Das Löschen einzelner kann zu Fehlfunktionen führen.
 
-| Ident           | Name             | Typ     | Beschreibung                                            |
-| --------------- | ---------------- | ------- | ------------------------------------------------------- |
-| `MAC`           | Name vom Gerät   | boolean | Je Powerline-Gerät: Gerät ist aktiv                     |
-| UpdateAvailable | Update verfügbar | boolean | Unterhalb der Gerätevariable: neue Firmware verfügbar   |
-| Model           | Model            | string  | Unterhalb der Gerätevariable: Modell des Gerätes        |
+| Ident                   | Name                              | Typ     | Beschreibung                                  |
+| ----------------------- | --------------------------------- | ------- | --------------------------------------------- |
+| `MAC`                   | Name vom Gerät                    | boolean | Je Powerline-Gerät: Gerät ist aktiv           |
+| `UpdateAvailable_<MAC>` | Name vom Gerät - Update verfügbar | boolean | Je Powerline-Gerät: neue Firmware verfügbar   |
+| `Model_<MAC>`           | Name vom Gerät - Modell           | string  | Je Powerline-Gerät: Modell des Gerätes        |
 
-Der Ident der Gerätevariable ist die MAC-Adresse ohne Trennzeichen, z.B. `0896D7FAB2F1`.  
+Der Ident der Gerätevariable ist die MAC-Adresse ohne Trennzeichen, z.B. `0896D7FAB2F1` und `Model_0896D7FAB2F1`.  
+`Modell` und `Update verfügbar` lassen sich in der Instanz abwählen. Ihre Namen werden beim Anlegen aus dem Namen der Gerätevariable gebildet. Ist das automatische Umbenennen aktiv, werden sie mit der Gerätevariable umbenannt, sonst danach nicht mehr geändert.  
 
 ## 6. Visualisierung
 
 ### Kachel Visualisierung
 
 Die Instanz wird als Kachel in der Darstellung `Liste` angezeigt. Das Bild zeigt die maximierte Kachel mit allen Variablen.  
-Jedes Powerline-Gerät wird als An/Aus-Wert (aktiv/inaktiv) dargestellt, `Update verfügbar` ebenfalls als An/Aus-Wert und `Model` als Text. Keine der Variablen ist bedienbar.  
+Jedes Powerline-Gerät wird als An/Aus-Wert (aktiv/inaktiv) dargestellt, `Update verfügbar` ebenfalls als An/Aus-Wert und `Modell` als Text. Keine der Variablen ist bedienbar.  
 
 ![Kachel Liste](imgs/tile_list.png)  
 

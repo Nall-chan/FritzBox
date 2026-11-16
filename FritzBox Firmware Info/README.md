@@ -18,7 +18,7 @@ Auslesen von Informationen zur Firmware der FritzBox.
 - [3. Software-Installation](#3-software-installation)
 - [4. Einrichten der Instanzen in IP-Symcon](#4-einrichten-der-instanzen-in-ip-symcon)
 - [5. Statusvariablen](#5-statusvariablen)
-  - [Profile](#profile)
+  - [Darstellungen](#darstellungen)
 - [6. Visualisierung](#6-visualisierung)
   - [Kachel Visualisierung](#kachel-visualisierung)
   - [WebFront Visualisierung](#webfront-visualisierung)
@@ -82,14 +82,19 @@ Die Statusvariablen werden automatisch angelegt. Das Löschen einzelner kann zu 
 | UpdateState      | Update Status              | string  | Status einer laufenden Aktualisierung |
 | UpdateTime       | Updatezeit                 | integer | Zeitpunkt der letzten Installation    |
 
-### Profile
+### Darstellungen
 
-| Name                | Typ    | Werte                                                                                                                                                    |
-| ------------------- | ------ | -------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| FB.UpdateState      | string | `Started`, `Stopped`, `Error`, `NoUpdate`, `UpdateAvailable`, `Unknown`                                                                                  |
-| FB.BuildType        | string | `Release`, `Intern`, `Work`, `Personal`, `Modified`, `Inhaus`, `Labor_Beta`, `Labor_RC`, `Labor_DSL`, `Labor_Phone`, `Labor`, `Labor_Test`, `Labor_Plus` |
-| FB.AutoUpdateMode   | string | `off` = Aus, `all` = Alle, `important` = Wichtige                                                                                                        |
-| FB.UpdateSuccessful | string | `unknown`, `failed`, `succeeded`                                                                                                                         |
+| Ident            | Darstellung   | Einstellungen |
+| ---------------- | ------------- | ------------- |
+| AutoUpdateMode   | Aufzählung    | `off` = Aus, `all` = Alle, `important` = Wichtige, `notify` = Nur benachrichtigen |
+| BuildType        | Wertanzeige   | `Release`, `Intern`, `Work`, `Personal`, `Modified` = Modifiziert, `Inhaus`, `Labor_Beta` = Labor (Beta), `Labor_RC` = Labor (RC), `Labor_DSL` = Labor (DSL), `Labor_Phone` = Labor (Telefonie), `Labor`, `Labor_Test` = Labor (Test), `Labor_Plus` = Labor (Plus) |
+| WarrantyDate     | Datum/Uhrzeit | nur Datum |
+| UpgradeAvailable | –             | An/Aus-Wert ohne Darstellung |
+| UpdateSuccessful | Wertanzeige   | `unknown` = unbekannt, `failed` = Fehlgeschlagen, `succeeded` = Erfolgreich |
+| UpdateState      | Wertanzeige   | `Started` = Gestartet, `Stopped` = Angehalten, `Error` = Fehler, `NoUpdate` = Kein Update verfügbar, `UpdateAvailable` = Update verfügbar, `Unknown` = unbekannt |
+| UpdateTime       | Datum/Uhrzeit | Datum und Uhrzeit |
+
+Die Firmware-Versionen haben keine Darstellung (Text). FRITZ!OS 8.25 kennt für den Autoupdate-Modus nur noch `all`, `important` und `notify`, ältere Versionen auch `off`.  
 
 ## 6. Visualisierung
 
@@ -120,8 +125,8 @@ Liefert allgemeine Informationen zur Firmware als Array. Alle Werte sind Strings
 | Schlüssel                        | Beschreibung                                                |
 | -------------------------------- | ----------------------------------------------------------- |
 | NewUpgradeAvailable              | `1` = neue Firmware verfügbar                               |
-| NewX_AVM-DE_UpdateState          | Status einer Aktualisierung (siehe Profil `FB.UpdateState`) |
-| NewX_AVM-DE_BuildType            | Build-Typ (siehe Profil `FB.BuildType`)                     |
+| NewX_AVM-DE_UpdateState          | Status einer Aktualisierung (siehe [Darstellungen](#darstellungen)) |
+| NewX_AVM-DE_BuildType            | Build-Typ (siehe [Darstellungen](#darstellungen))                   |
 | NewX_AVM-DE_Version              | Version der verfügbaren Firmware (leer, wenn keine)         |
 | NewX_AVM-DE_DownloadURL          | Download-Adresse der verfügbaren Firmware                   |
 | NewX_AVM-DE_InfoURL              | Adresse mit Informationen zur verfügbaren Firmware          |

@@ -28,6 +28,10 @@ class FritzBoxWLAN extends FritzBoxModulBase
         '/upnp/control/wlanconfig3',
         '/upnp/control/wlanconfig4'
     ];
+    protected static $LegacySubVariables = [
+        \FritzBox\WLAN\Variables::Speed,
+        \FritzBox\WLAN\Variables::Signal
+    ];
     protected static $ServiceTypeArray = [
         'urn:dslforum-org:service:WLANConfiguration:1',
         'urn:dslforum-org:service:WLANConfiguration:2',
@@ -66,6 +70,8 @@ class FritzBoxWLAN extends FritzBoxModulBase
         $this->RegisterPropertyBoolean(\FritzBox\WLAN\Property::InfoVariables, false);
         $this->RegisterPropertyBoolean(\FritzBox\WLAN\Property::AutoAddHostVariables, true);
         $this->RegisterPropertyBoolean(\FritzBox\WLAN\Property::RenameHostVariables, false);
+        $this->RegisterPropertyBoolean(\FritzBox\WLAN\Property::SpeedVariables, true);
+        $this->RegisterPropertyBoolean(\FritzBox\WLAN\Property::SignalVariables, true);
         $this->RegisterPropertyBoolean(\FritzBox\WLAN\Property::ShowWLanKeyAsVariable, false);
         $this->RegisterPropertyBoolean(\FritzBox\WLAN\Property::ShowWLanKeyAsQRCode, false);
         $this->RegisterPropertyInteger(\FritzBox\WLAN\Property::QRCodeSize, 20);
@@ -82,7 +88,6 @@ class FritzBoxWLAN extends FritzBoxModulBase
     public function Destroy(): void
     {
         if (!IPS_InstanceExists($this->InstanceID)) {
-            $this->UnregisterProfile('FB.MBits');
             $QRCodeID = @IPS_GetObjectIDByIdent(\FritzBox\WLAN\Media::QRCodeIMG, $this->InstanceID);
             if ($QRCodeID > 0) {
                 @IPS_DeleteMedia($QRCodeID, true);
@@ -110,14 +115,17 @@ class FritzBoxWLAN extends FritzBoxModulBase
             $this->UnregisterVariable(\FritzBox\WLAN\Variables::OffTime);
             $this->UnregisterVariable(\FritzBox\WLAN\Variables::ForcedOff);
         }
+        $this->RemoveDisabledDeviceInfoVariables([
+            \FritzBox\WLAN\Variables::Speed  => $this->ReadPropertyBoolean(\FritzBox\WLAN\Property::SpeedVariables),
+            \FritzBox\WLAN\Variables::Signal => $this->ReadPropertyBoolean(\FritzBox\WLAN\Property::SignalVariables)
+        ]);
         if ($this->ReadPropertyBoolean(\FritzBox\WLAN\Property::HostAsTable)) {
-            $this->RegisterVariableString(\FritzBox\WLAN\Variables::HostTable, $this->Translate('Host Table'), '~HTMLBox', -1);
+            $this->RegisterVariableString(\FritzBox\WLAN\Variables::HostTable, $this->Translate('Host Table'), $this->GetPresentation('~HTMLBox', VARIABLETYPE_STRING), -1);
         } else {
             $this->UnregisterVariable(\FritzBox\WLAN\Variables::HostTable);
         }
-        $this->RegisterProfileInteger('FB.MBits', '', '', ' MBit/s', 0, 0, 0);
         // IPSModuleStrict: RegisterVariable* liefert bool, die ID kommt über GetIDForIdent
-        $this->RegisterVariableBoolean(\FritzBox\WLAN\Variables::X_AVM_DE_APEnabled, $this->Translate('WLAN state'), '~Switch', -11);
+        $this->RegisterVariableBoolean(\FritzBox\WLAN\Variables::X_AVM_DE_APEnabled, $this->Translate('WLAN state'), $this->GetPresentation('~Switch', VARIABLETYPE_BOOLEAN, true), -11);
         $this->APEnabledId = (int) $this->GetIDForIdent(\FritzBox\WLAN\Variables::X_AVM_DE_APEnabled);
         $this->EnableAction(\FritzBox\WLAN\Variables::X_AVM_DE_APEnabled);
         $this->UnregisterMessage($this->APEnabledId, VM_UPDATE);
@@ -131,6 +139,7 @@ class FritzBoxWLAN extends FritzBoxModulBase
                     $this->DelSubObjects($VarId);
                     $this->UnregisterVariable($Ident);
                 }
+                $this->UnregisterHostInfoVariables($Ident);
             }
         }
         $Index = $this->ReadPropertyInteger(\FritzBox\Base\Property::Index);
@@ -230,6 +239,8 @@ class FritzBoxWLAN extends FritzBoxModulBase
             $this->ShowVariableWarning = false;
             $Form['elements'][4]['items'][0]['items'][1]['enabled'] = false;
             $Form['elements'][4]['items'][0]['items'][2]['enabled'] = false;
+            $Form['elements'][4]['items'][0]['items'][3]['enabled'] = false;
+            $Form['elements'][4]['items'][0]['items'][4]['enabled'] = false;
             $Form['elements'][4]['items'][1]['items'][0]['enabled'] = false;
         } else {
             $this->ShowVariableWarning = true;
@@ -242,6 +253,7 @@ class FritzBoxWLAN extends FritzBoxModulBase
             $Values = json_decode($this->ReadPropertyString(\FritzBox\WLAN\Property::HostVariables), true);
         }
         $Form['elements'][4]['items'][1]['items'][0]['values'] = $Values;
+        $Form = $this->ShowLegacySubVariablesButton($Form);
         $this->SendDebug('FORM', json_encode($Form), 0);
         $this->SendDebug('FORM', json_last_error_msg(), 0);
         return json_encode($Form);
@@ -351,10 +363,7 @@ class FritzBoxWLAN extends FritzBoxModulBase
                     if ($Rename && (IPS_GetName($VarId) != $Hostname)) {
                         IPS_SetName($VarId, $Hostname);
                     }
-                    $SpeedId = $this->RegisterSubVariable($VarId, 'Speed', 'Speed', VARIABLETYPE_INTEGER, 'FB.MBits');
-                    SetValueInteger($SpeedId, (int) $xmlItem->{'X_AVM-DE_Speed'});
-                    $SignalId = $this->RegisterSubVariable($VarId, 'Signal', 'Signalstrength', VARIABLETYPE_INTEGER, '~Intensity.100');
-                    SetValueInteger($SignalId, (int) $xmlItem->{'X_AVM-DE_SignalStrength'});
+                    $this->SetHostInfoVariables($Ident, IPS_GetName($VarId), (int) $xmlItem->{'X_AVM-DE_Speed'}, (int) $xmlItem->{'X_AVM-DE_SignalStrength'});
                 }
             }
         }
@@ -379,11 +388,9 @@ class FritzBoxWLAN extends FritzBoxModulBase
                                 }
                             }
                         }
-                        $this->SetValue($Ident, false);
-                        $SpeedId = $this->RegisterSubVariable($VarId, 'Speed', 'Speed', VARIABLETYPE_INTEGER, 'FB.MBits');
-                        SetValueInteger($SpeedId, 0);
-                        $SignalId = $this->RegisterSubVariable($VarId, 'Signal', 'Signalstrength', VARIABLETYPE_INTEGER, '~Intensity.100');
-                        SetValueInteger($SignalId, 0);
+                        // über setIPSVariable, damit auch Hosts, die offline sind, die Darstellung erhalten
+                        $this->setIPSVariable($Ident, IPS_GetName($VarId), false, VARIABLETYPE_BOOLEAN, '~Switch', false);
+                        $this->SetHostInfoVariables($Ident, IPS_GetName($VarId), 0, 0);
                     }
                 }
             }
@@ -825,6 +832,8 @@ class FritzBoxWLAN extends FritzBoxModulBase
             case \FritzBox\WLAN\Action::HostAsVariable:
                 $this->UpdateFormField('AutoAddHostVariables', 'enabled', (bool) $Value);
                 $this->UpdateFormField('RenameHostVariables', 'enabled', (bool) $Value);
+                $this->UpdateFormField(\FritzBox\WLAN\Property::SpeedVariables, 'enabled', (bool) $Value);
+                $this->UpdateFormField(\FritzBox\WLAN\Property::SignalVariables, 'enabled', (bool) $Value);
                 $this->UpdateFormField('HostvariablesPanel', 'expanded', (bool) $Value);
                 $this->UpdateFormField('HostVariables', 'enabled', (bool) $Value);
                 return true;
@@ -842,10 +851,41 @@ class FritzBoxWLAN extends FritzBoxModulBase
                     $this->DelSubObjects($ObjectId);
                     $this->UnregisterVariable($Value);
                 }
+                $this->UnregisterHostInfoVariables((string) $Value);
                 return true;
         }
         trigger_error($this->Translate('Invalid Ident.'), E_USER_NOTICE);
         return false;
+    }
+
+    /**
+     * Schreibt Geschwindigkeit und Signalstärke eines Hosts in eigene Statusvariablen
+     * (Ident Speed_<Host-Ident>/Signal_<Host-Ident>) oder entfernt sie, wenn sie abgewählt sind.
+     *
+     * @param string $HostIdent Ident der Hostvariable (MAC…).
+     * @param string $HostName  Aktueller Name der Hostvariable, Basis für den Namen beim Anlegen.
+     * @param int    $Speed     Geschwindigkeit in MBit/s.
+     * @param int    $Signal    Signalstärke in %.
+     */
+    private function SetHostInfoVariables(string $HostIdent, string $HostName, int $Speed, int $Signal): void
+    {
+        $Rename = $this->ReadPropertyBoolean(\FritzBox\WLAN\Property::RenameHostVariables);
+        $this->SetDeviceInfoVariable($this->ReadPropertyBoolean(\FritzBox\WLAN\Property::SpeedVariables), \FritzBox\WLAN\Variables::Speed, $HostIdent, $HostName . ' - ' . $this->Translate('Speed'), $Speed, VARIABLETYPE_INTEGER, 'FB.MBits', $Rename);
+        $this->SetDeviceInfoVariable($this->ReadPropertyBoolean(\FritzBox\WLAN\Property::SignalVariables), \FritzBox\WLAN\Variables::Signal, $HostIdent, $HostName . ' - ' . $this->Translate('Signalstrength'), $Signal, VARIABLETYPE_INTEGER, '~Intensity.100', $Rename);
+    }
+
+    /**
+     * Entfernt Geschwindigkeit und Signalstärke eines Hosts, dessen Hostvariable entfernt wurde.
+     *
+     * @param string $HostIdent Ident der Hostvariable (MAC…).
+     */
+    private function UnregisterHostInfoVariables(string $HostIdent): void
+    {
+        foreach ([\FritzBox\WLAN\Variables::Speed, \FritzBox\WLAN\Variables::Signal] as $Info) {
+            if (@$this->GetIDForIdent($Info . '_' . $HostIdent) > 0) {
+                $this->UnregisterVariable($Info . '_' . $HostIdent);
+            }
+        }
     }
 
     private function CreateWLANHTMLTable(array $TableData)

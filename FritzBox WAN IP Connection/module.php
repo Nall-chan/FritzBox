@@ -68,10 +68,6 @@ class FritzBoxWANIPConnection extends FritzBoxModulBase
 
     public function Destroy(): void
     {
-        if (!IPS_InstanceExists($this->InstanceID)) {
-            $this->UnregisterProfile('FB.Connect');
-            $this->UnregisterProfile('FB.ConnectionStatus');
-        }
         //Never delete this line!
         parent::Destroy();
     }
@@ -80,25 +76,6 @@ class FritzBoxWANIPConnection extends FritzBoxModulBase
     {
         $this->SetTimerInterval(\FritzBox\Base\Timer::RefreshInfo, 0);
 
-        $this->RegisterProfileIntegerEx(
-            'FB.Connect',
-            '',
-            '',
-            '',
-            [
-                [0, 'Reconnect', '', 0xff0000]
-            ]
-        );
-        $this->RegisterProfileBooleanEx(
-            'FB.ConnectionStatus',
-            '',
-            '',
-            '',
-            [
-                [false, 'Disconnected', '', 0xff0000],
-                [true, 'Connected', '', 0x00ff00]
-            ]
-        );
         parent::ApplyChanges();
         $Index = $this->ReadPropertyInteger(\FritzBox\Base\Property::Index);
         if ($Index == -1) {
@@ -109,7 +86,7 @@ class FritzBoxWANIPConnection extends FritzBoxModulBase
             return;
         }
         //$this->UpdateInfo();
-        $this->RegisterVariableInteger(\FritzBox\WANIPConnection\Variables::ConnectionAction, $this->Translate('Control connection'), 'FB.Connect', 0);
+        $this->RegisterVariableInteger(\FritzBox\WANIPConnection\Variables::ConnectionAction, $this->Translate('Control connection'), $this->GetPresentation('FB.Connect', VARIABLETYPE_INTEGER, true), 0);
         $this->EnableAction(\FritzBox\WANIPConnection\Variables::ConnectionAction);
 
         $this->SetTimerInterval(\FritzBox\Base\Timer::RefreshInfo, $this->ReadPropertyInteger(\FritzBox\Base\Property::RefreshInterval) * 1000);

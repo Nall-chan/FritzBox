@@ -1,6 +1,11 @@
 {
     "translations": {
         "de": {
+            "Delete old sub variables": "Alte Untervariablen löschen",
+            "Delete the variables created below the device variables up to version 0.94?": "Die bis Version 0.94 unterhalb der Geräte-Variablen angelegten Variablen löschen?",
+            "%d old sub variables deleted.": "%d alte Untervariablen gelöscht.",
+            "Create variable for model per device": "Variable für das Modell je Gerät anlegen",
+            "Create variable for available update per device": "Variable für verfügbares Update je Gerät anlegen",
             "Refresh Interval": "Aktualisierungsintervall",
             "seconds": "Sekunden",
             "Update Values": "Werte aktualisieren",

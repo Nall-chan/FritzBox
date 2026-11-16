@@ -6,6 +6,7 @@ namespace FritzBox;
 
 require_once __DIR__ . '/FritzBoxConstants.php';
 require_once __DIR__ . '/FritzBoxParser.php';
+require_once __DIR__ . '/FritzBoxPresentations.php';
 
 /**
  * Ergebnisse, die die IO über ForwardData an die Kinder zurückgibt (serialisiert).

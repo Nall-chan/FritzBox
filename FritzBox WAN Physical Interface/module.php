@@ -27,10 +27,6 @@ class FritzBoxWANPhysicalInterface extends FritzBoxModulBase
 
     public function Destroy(): void
     {
-        if (!IPS_InstanceExists($this->InstanceID)) {
-            $this->UnregisterProfile('FB.kBit');
-            $this->UnregisterProfile('FB.AccessType');
-        }
         //Never delete this line!
         parent::Destroy();
     }
@@ -38,16 +34,6 @@ class FritzBoxWANPhysicalInterface extends FritzBoxModulBase
     public function ApplyChanges(): void
     {
         $this->SetTimerInterval(\FritzBox\WANPhysicalInterface\Timer::RefreshLinkProperties, 0);
-        $this->RegisterProfileInteger('FB.kBit', '', '', ' kBit/s', 0, 0, 0);
-        $this->RegisterProfileStringEx('FB.AccessType', '', '', '', [
-            ['DSL', 'DSL', '', -1],
-            ['Ethernet', 'Ethernet', '', -1],
-            ['X_AVM-DE_Fiber', 'Fiber', '', -1],
-            ['X_AVM-DE_UMTS', 'UMTS', '', -1],
-            ['X_AVM-DE_Cable', 'Cable', '', -1],
-            ['X_AVM-DE_LTE', 'LTE', '', -1],
-            ['unknown', 'unknown', '', -1]
-        ]);
         parent::ApplyChanges();
         if (IPS_GetKernelRunlevel() != KR_READY) {
             return;

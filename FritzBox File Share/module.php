@@ -48,7 +48,7 @@ class FritzBoxFileShare extends FritzBoxModulBase
             return;
         }
         if ($this->ReadPropertyBoolean(\FritzBox\FileShare\Property::SharesAsTable)) {
-            $this->RegisterVariableString(\FritzBox\FileShare\Variables::SharesTable, $this->Translate('File shares'), '~HTMLBox', -3);
+            $this->RegisterVariableString(\FritzBox\FileShare\Variables::SharesTable, $this->Translate('File shares'), $this->GetPresentation('~HTMLBox', VARIABLETYPE_STRING), -3);
 
             $this->RefreshFileShareTable();
             $this->SetTimerInterval(\FritzBox\Base\Timer::RefreshState, $this->ReadPropertyInteger(\FritzBox\Base\Property::RefreshInterval) * 1000);

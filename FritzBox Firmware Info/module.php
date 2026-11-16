@@ -26,12 +26,6 @@ class FritzBoxFirmwareInfo extends FritzBoxModulBase
 
     public function Destroy(): void
     {
-        if (!IPS_InstanceExists($this->InstanceID)) {
-            $this->UnregisterProfile('FB.UpdateState');
-            $this->UnregisterProfile('FB.BuildType');
-            $this->UnregisterProfile('FB.AutoUpdateMode');
-            $this->UnregisterProfile('FB.UpdateSuccessful');
-        }
         //Never delete this line!
         parent::Destroy();
     }
@@ -40,39 +34,6 @@ class FritzBoxFirmwareInfo extends FritzBoxModulBase
     {
         //Never delete this line!
         parent::ApplyChanges();
-        $this->RegisterProfileStringEx('FB.UpdateState', '', '', '', [
-            ['Started', $this->Translate('Started'), '', -1],
-            ['Stopped', $this->Translate('Stopped'), '', -1],
-            ['Error', $this->Translate('Error'), '', -1],
-            ['NoUpdate', $this->Translate('No Update Available'), '', -1],
-            ['UpdateAvailable', $this->Translate('Update Available'), '', -1],
-            ['Unknown', $this->Translate('Unknown'), '', -1]
-        ]);
-        $this->RegisterProfileStringEx('FB.BuildType', '', '', '', [
-            ['Release', $this->Translate('Release'), '', -1],
-            ['Intern', $this->Translate('Intern'), '', -1],
-            ['Work', $this->Translate('Work'), '', -1],
-            ['Personal', $this->Translate('Personal'), '', -1],
-            ['Modified', $this->Translate('Modified'), '', -1],
-            ['Inhaus', $this->Translate('Inhaus'), '', -1],
-            ['Labor_Beta', $this->Translate('Labor (Beta)'), '', -1],
-            ['Labor_RC', $this->Translate('Labor (RC)'), '', -1],
-            ['Labor_DSL', $this->Translate('Labor (DSL)'), '', -1],
-            ['Labor_Phone', $this->Translate('Labor (Phone)'), '', -1],
-            ['Labor', $this->Translate('Labor'), '', -1],
-            ['Labor_Test', $this->Translate('Labor (Test)'), '', -1],
-            ['Labor_Plus', $this->Translate('Labor (Plus)'), '', -1]
-        ]);
-        $this->RegisterProfileStringEx('FB.AutoUpdateMode', '', '', '', [
-            ['off', $this->Translate('Off'), '', -1],
-            ['all', $this->Translate('All'), '', -1],
-            ['important', $this->Translate('Important'), '', -1]
-        ]);
-        $this->RegisterProfileStringEx('FB.UpdateSuccessful', '', '', '', [
-            ['unknown', $this->Translate('Unknown'), '', -1],
-            ['failed', $this->Translate('Failed'), '', -1],
-            ['succeeded', $this->Translate('Succeeded'), '', -1]
-        ]);
         $this->SetTimerInterval(\FritzBox\Base\Timer::RefreshState, $this->ReadPropertyInteger(\FritzBox\Base\Property::RefreshInterval) * 1000);
         if (IPS_GetKernelRunlevel() != KR_READY) {
             return;

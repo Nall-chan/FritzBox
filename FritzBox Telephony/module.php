@@ -97,7 +97,7 @@ class FritzBoxTelephony extends FritzBoxModulBase
         $this->SetTimerInterval(\FritzBox\Telephony\Timer::RefreshPhonebook, $this->ReadPropertyInteger(\FritzBox\Telephony\Property::RefreshIntervalPhonebook) * 60000);
 
         if ($this->ReadPropertyBoolean(\FritzBox\Telephony\Property::CallLogAsVariable)) {
-            $this->RegisterVariableString(\FritzBox\Telephony\Variables::CallLog, $this->Translate('Call log'), '~HTMLBox', -1);
+            $this->RegisterVariableString(\FritzBox\Telephony\Variables::CallLog, $this->Translate('Call log'), $this->GetPresentation('~HTMLBox', VARIABLETYPE_STRING), -1);
             $this->RefreshCallLog();
             $this->SetNewCallLogRefreshTimer();
         } else {

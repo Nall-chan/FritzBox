@@ -18,7 +18,7 @@ Auslesen und steuern des Fernzugriff und der DynDNS Funktionen.
 - [3. Software-Installation](#3-software-installation)
 - [4. Einrichten der Instanzen in IP-Symcon](#4-einrichten-der-instanzen-in-ip-symcon)
 - [5. Statusvariablen](#5-statusvariablen)
-  - [Profile](#profile)
+  - [Darstellungen](#darstellungen)
 - [6. Visualisierung](#6-visualisierung)
   - [Kachel Visualisierung](#kachel-visualisierung)
   - [WebFront Visualisierung](#webfront-visualisierung)
@@ -79,11 +79,15 @@ Die Statusvariablen werden automatisch angelegt. Das Löschen einzelner kann zu 
 | IPv4State    | IPv4 Status       | string  | Status der letzten IPv4 Aktualisierung |
 | IPv6State    | IPv6 Status       | string  | Status der letzten IPv6 Aktualisierung |
 
-### Profile
+### Darstellungen
 
-| Name           | Typ    | Werte                                                                                                                                                                                                                       |
-| -------------- | ------ | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| FB.DynDnyState | string | `offline`, `checking`, `updating`, `updated`, `verifying`, `complete`, `new-address`, `account-disabled`, `internet-not-connected`, `undefined` (Anzeige übersetzt, z.B. `complete` = Abgeschlossen) |
+| Ident                | Darstellung | Einstellungen   |
+| -------------------- | ----------- | --------------- |
+| Enable               | Schalter    |                 |
+| EnableDDNS           | Schalter    | nicht bedienbar |
+| IPv4State, IPv6State | Wertanzeige | `offline` = Offline, `checking` = Prüfe, `updating` = Aktualisiere, `updated` = Aktualisiert, `verifying` = Überprüfe, `complete` = Abgeschlossen, `new-address` = Neue Adresse, `account-disabled` = Zugang gesperrt, `internet-not-connected` = Internet nicht verbunden, `undefined` = nicht definiert |
+
+`Anbieter` und `Domain` haben keine Darstellung (Text).  
 
 ## 6. Visualisierung
 
@@ -150,8 +154,8 @@ Liefert die DynDNS-Einstellungen als Array. Alle Werte sind Strings. Das Passwor
 | NewMode         | `ddns_v4`, `ddns_v6`, `ddns_both` oder `ddns_together`           |
 | NewServerIPv4   | DNS-Server IPv4 (falls vom Anbieter benötigt)                    |
 | NewServerIPv6   | DNS-Server IPv6 (falls vom Anbieter benötigt)                    |
-| NewStatusIPv4   | Status der letzten IPv4 Aktualisierung (siehe Profil `FB.DynDnyState`) |
-| NewStatusIPv6   | Status der letzten IPv6 Aktualisierung (siehe Profil `FB.DynDnyState`) |
+| NewStatusIPv4   | Status der letzten IPv4 Aktualisierung (Werte siehe [Darstellungen](#darstellungen)) |
+| NewStatusIPv6   | Status der letzten IPv6 Aktualisierung (Werte siehe [Darstellungen](#darstellungen)) |
 
 ```php
 $Result = FB_GetDDNSInfo(12345);

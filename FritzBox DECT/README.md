@@ -58,25 +58,31 @@ Unter 'Instanz hinzufügen' ist das 'FritzBox DECT'-Modul unter dem Hersteller '
 | --------------------------------------- | --------------------- | ------- | ------------ | --------------------------------------------------------------------- |
 | Aktualisierungsintervall                | RefreshInterval       | integer | 300          | Intervall in Sekunden, in dem die Werte abgefragt werden; `0` = aus   |
 | Geräte-Variablen automatisch umbenennen | RenameDeviceVariables | boolean | false        | Variablen umbenennen, wenn sich der Gerätename in der FritzBox ändert |
+| Variable für das Modell je Gerät anlegen | ModelVariables       | boolean | true         | Je Gerät die Variable `Modell` anlegen; abgewählt werden die Variablen gelöscht |
+| Variable für verfügbares Update je Gerät anlegen | UpdateAvailableVariables | boolean | true | Je Gerät die Variable `Update verfügbar` anlegen; abgewählt werden die Variablen gelöscht |
 
 Beispiel:  
 
 ```php
 IPS_SetProperty(12345, 'RenameDeviceVariables', true);
+IPS_SetProperty(12345, 'ModelVariables', false);
 IPS_ApplyChanges(12345);
 ```
+
+Bis Version 0.94 lagen `Modell` und `Update verfügbar` als Untervariablen unterhalb der Gerätevariable. Diese werden nicht mehr aktualisiert. Solange es sie gibt, zeigt das Formular die Schaltfläche `Alte Untervariablen löschen`, die sie nach einer Sicherheitsabfrage löscht.
 
 ## 5. Statusvariablen
 
 Die Statusvariablen werden automatisch angelegt. Das Löschen einzelner kann zu Fehlfunktionen führen.
 
-| Ident           | Name             | Typ     | Beschreibung                                           |
-| --------------- | ---------------- | ------- | ------------------------------------------------------ |
-| `DECT<ID>`      | Name vom Gerät   | boolean | Je DECT-Gerät: Gerät ist laut FritzBox aktiv           |
-| UpdateAvailable | Update verfügbar | boolean | Unterhalb der Gerätevariable: neue Firmware verfügbar  |
-| Model           | Modell           | string  | Unterhalb der Gerätevariable: Modell des Gerätes       |
+| Ident                      | Name                             | Typ     | Beschreibung                                  |
+| -------------------------- | -------------------------------- | ------- | --------------------------------------------- |
+| `DECT<ID>`                 | Name vom Gerät                   | boolean | Je DECT-Gerät: Gerät ist laut FritzBox aktiv  |
+| `UpdateAvailable_DECT<ID>` | Name vom Gerät - Update verfügbar | boolean | Je DECT-Gerät: neue Firmware verfügbar        |
+| `Model_DECT<ID>`           | Name vom Gerät - Modell          | string  | Je DECT-Gerät: Modell des Gerätes             |
 
-`<ID>` ist die ID des Gerätes in der FritzBox (`NewID` aus `FB_GetGenericDectEntry`), z.B. `DECT3`.  
+`<ID>` ist die ID des Gerätes in der FritzBox (`NewID` aus `FB_GetGenericDectEntry`), z.B. `DECT3` und `Model_DECT3`.  
+`Modell` und `Update verfügbar` lassen sich in der Instanz abwählen. Ihre Namen werden beim Anlegen aus dem Namen der Gerätevariable gebildet. Ist das automatische Umbenennen aktiv, werden sie mit der Gerätevariable umbenannt, sonst danach nicht mehr geändert.  
 
 > [!NOTE]
 > Was die FritzBox unter `aktiv` versteht, ist von AVM nicht beschrieben. An der Test-Box waren ein FRITZ!Fon im Standby und ein Heizkörperregler beide nicht aktiv.

@@ -1,6 +1,8 @@
 {
     "translations": {
         "de": {
+            "Start": "Start",
+            "Stop": "Stopp",
             "Refresh Interval": "Aktualisierungsintervall",
             "seconds": "Sekunden",
             "Update Values": "Werte aktualisieren",

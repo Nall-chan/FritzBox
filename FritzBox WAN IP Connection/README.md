@@ -18,7 +18,7 @@ Auslesen der WAN IP Verbindung.
 - [3. Software-Installation](#3-software-installation)
 - [4. Einrichten der Instanzen in IP-Symcon](#4-einrichten-der-instanzen-in-ip-symcon)
 - [5. Statusvariablen](#5-statusvariablen)
-  - [Profile](#profile)
+  - [Darstellungen](#darstellungen)
 - [6. Visualisierung](#6-visualisierung)
   - [Kachel Visualisierung](#kachel-visualisierung)
   - [WebFront Visualisierung](#webfront-visualisierung)
@@ -94,12 +94,14 @@ Die Statusvariablen werden automatisch angelegt. Das Löschen einzelner kann zu 
 | IPv6DNSServer1      | IPv6 DNS-Server 1            | string  |
 | IPv6DNSServer2      | IPv6 DNS-Server 2            | string  |
 
-### Profile
+### Darstellungen
 
-| Name                | Typ     | Werte                                |
-| ------------------- | ------- | ------------------------------------ |
-| FB.Connect          | integer | `0` = Neu verbinden                  |
-| FB.ConnectionStatus | boolean | `false` = Getrennt, `true` = Verbunden |
+| Ident            | Darstellung | Einstellungen                                        |
+| ---------------- | ----------- | ---------------------------------------------------- |
+| ConnectionAction | Aufzählung  | `0` = Neu verbinden (rot)                            |
+| ConnectionStatus | Wertanzeige | `false` = Getrennt (rot), `true` = Verbunden (grün) |
+
+Die übrigen Variablen haben keine Darstellung (Zahl bzw. Text).  
 
 ## 6. Visualisierung
 

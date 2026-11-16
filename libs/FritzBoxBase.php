@@ -3,7 +3,6 @@
 declare(strict_types=1);
 
 eval('declare(strict_types=1);namespace FritzBoxModulBase {?>' . file_get_contents(__DIR__ . '/../libs/helper/BufferHelper.php') . '}');
-eval('declare(strict_types=1);namespace FritzBoxModulBase {?>' . file_get_contents(__DIR__ . '/../libs/helper/VariableProfileHelper.php') . '}');
 eval('declare(strict_types=1);namespace FritzBoxModulBase {?>' . file_get_contents(__DIR__ . '/../libs/helper/DebugHelper.php') . '}');
 eval('declare(strict_types=1);namespace FritzBoxModulBase {?>' . file_get_contents(__DIR__ . '/../libs/helper/ParentIOHelper.php') . '}');
 require_once __DIR__ . '/../libs/FritzBoxModule.php';
@@ -14,18 +13,11 @@ require_once __DIR__ . '/../libs/FritzBoxModule.php';
  * @property int $ParentID
  * @method bool SendDebug(string $Message, mixed $Data, int $Format)
  * @method int RegisterParent()
- * @method void UnregisterProfile(string $Name)
- * @method void RegisterProfileBooleanEx(string $Name, string $Icon, string $Prefix, string $Suffix, array $Associations)
- * @method void RegisterProfileInteger(string $Name, string $Icon, string $Prefix, string $Suffix, int $MinValue, int $MaxValue, int $StepSize)
- * @method void RegisterProfileIntegerEx(string $Name, string $Icon, string $Prefix, string $Suffix, array $Associations, int $MaxValue = -1, float $StepSize = 0)
- * @method void RegisterProfileStringEx(string $Name, string $Icon, string $Prefix, string $Suffix, array $Associations)
- * @method void RegisterProfileFloat(string $Name, string $Icon, string $Prefix, string $Suffix, float $MinValue, float $MaxValue, float $StepSize, int $Digits)
  */
 class FritzBoxModulBase extends IPSModuleStrict
 {
     use \FritzBoxModulBase\BufferHelper;
     use \FritzBoxModulBase\DebugHelper;
-    use \FritzBoxModulBase\VariableProfileHelper;
     use \FritzBoxModulBase\InstanceStatus {
         \FritzBoxModulBase\InstanceStatus::MessageSink as IOMessageSink;
         \FritzBoxModulBase\InstanceStatus::RequestAction as IORequestAction;
@@ -36,6 +28,14 @@ class FritzBoxModulBase extends IPSModuleStrict
     protected static $EventSubURLArray = [];
     protected static $SecondEventGUID = '';
     protected static $DefaultIndex = -1;
+    /**
+     * Idents der Untervariablen, die bis 0.94 unterhalb der Statusvariablen je Gerät angelegt wurden.
+     * Seit 1.0 sind es eigene Statusvariablen der Instanz, die alten löscht nur der Nutzer
+     * (Schaltfläche im Formular mit Sicherheitsabfrage).
+     *
+     * @var string[]
+     */
+    protected static $LegacySubVariables = [];
 
     /**
      * true, solange der aktuelle Aufruf über RequestAction läuft.
@@ -104,6 +104,7 @@ class FritzBoxModulBase extends IPSModuleStrict
             }
         }
         $this->Subscribe();
+        $this->RemoveUnusedLegacyProfiles();
     }
 
     /**
@@ -168,7 +169,126 @@ class FritzBoxModulBase extends IPSModuleStrict
             $this->Subscribe();
             return true;
         }
+        if ($Ident == \FritzBox\Base\Action::DeleteLegacySubVariables) {
+            $this->DeleteLegacySubVariables();
+            return true;
+        }
         return false;
+    }
+
+    /**
+     * Blendet die Schaltfläche zum Löschen der alten Untervariablen ein, wenn es welche gibt.
+     *
+     * @param array $Form Formular aus form.json.
+     *
+     * @return array Angepasstes Formular.
+     */
+    protected function ShowLegacySubVariablesButton(array $Form): array
+    {
+        if (count($this->GetLegacySubVariables()) === 0) {
+            return $Form;
+        }
+        foreach ($Form['actions'] as &$Action) {
+            if (($Action['name'] ?? '') === \FritzBox\Base\Action::DeleteLegacySubVariables) {
+                $Action['visible'] = true;
+            }
+        }
+        return $Form;
+    }
+
+    /**
+     * Liefert die alten Untervariablen (bis 0.94) unterhalb der eigenen Statusvariablen.
+     *
+     * @return int[] IDs der Untervariablen.
+     */
+    protected function GetLegacySubVariables(): array
+    {
+        if (count(static::$LegacySubVariables) === 0) {
+            return [];
+        }
+        $Result = [];
+        foreach (IPS_GetChildrenIDs($this->InstanceID) as $ParentID) {
+            if (!IPS_VariableExists($ParentID)) {
+                continue;
+            }
+            foreach (IPS_GetChildrenIDs($ParentID) as $ChildID) {
+                if (IPS_VariableExists($ChildID) && in_array(IPS_GetObject($ChildID)['ObjectIdent'], static::$LegacySubVariables, true)) {
+                    $Result[] = $ChildID;
+                }
+            }
+        }
+        return $Result;
+    }
+
+    /**
+     * Löscht die alten Untervariablen (bis 0.94). Nur über die Schaltfläche im Formular,
+     * die vorher eine Sicherheitsabfrage zeigt.
+     */
+    protected function DeleteLegacySubVariables(): void
+    {
+        $Count = 0;
+        foreach ($this->GetLegacySubVariables() as $VariableID) {
+            if (in_array($VariableID, $this->GetReferenceList())) {
+                $this->UnregisterReference($VariableID);
+            }
+            if (IPS_DeleteVariable($VariableID)) {
+                $Count++;
+            }
+        }
+        $this->UpdateFormField(\FritzBox\Base\Action::DeleteLegacySubVariables, 'visible', false);
+        echo sprintf($this->Translate('%d old sub variables deleted.'), $Count);
+    }
+
+    /**
+     * Entfernt alle Zusatzvariablen je Gerät (Ident <Info>_…) einer Info, die der Nutzer abgewählt hat.
+     * Aufruf in ApplyChanges, damit das Abwählen sofort wirkt und auch Geräte erfasst, welche die FritzBox nicht mehr meldet.
+     *
+     * @param array<string, bool> $Infos Info (Präfix des Idents) => Eigenschaft der Instanz, ob gewünscht.
+     */
+    protected function RemoveDisabledDeviceInfoVariables(array $Infos): void
+    {
+        foreach ($Infos as $Info => $Enabled) {
+            if ($Enabled) {
+                continue;
+            }
+            foreach (IPS_GetChildrenIDs($this->InstanceID) as $ChildID) {
+                $Ident = IPS_GetObject($ChildID)['ObjectIdent'];
+                if (IPS_VariableExists($ChildID) && str_starts_with($Ident, $Info . '_')) {
+                    $this->UnregisterVariable($Ident);
+                }
+            }
+        }
+    }
+
+    /**
+     * Legt eine Zusatzvariable je Gerät an (z.B. Modell, Signal) oder entfernt sie, wenn der Nutzer sie abgewählt hat.
+     * Ident: <Info>_<Ident der Gerätevariable>. So bleiben die Idents der Gerätevariablen (z.B. MAC…) eindeutig erkennbar.
+     *
+     * @param bool   $Enabled     Eigenschaft der Instanz, ob die Variable gewünscht ist.
+     * @param string $Info        Art der Information (Konstante aus Variables), Präfix des Idents.
+     * @param string $DeviceIdent Ident der Gerätevariable.
+     * @param string $Name        Name der Variable (bereits übersetzt).
+     * @param mixed  $Value       Wert.
+     * @param int    $Type        Variablentyp.
+     * @param string $Profile     Profilname für die Darstellung.
+     * @param bool   $Rename      Eigenschaft der Instanz, ob Variablen automatisch umbenannt werden (wie die Gerätevariable).
+     */
+    protected function SetDeviceInfoVariable(bool $Enabled, string $Info, string $DeviceIdent, string $Name, mixed $Value, int $Type, string $Profile = '', bool $Rename = false): void
+    {
+        $Ident = $Info . '_' . $DeviceIdent;
+        if (!$Enabled) {
+            if (@$this->GetIDForIdent($Ident) > 0) {
+                $this->UnregisterVariable($Ident);
+            }
+            return;
+        }
+        $this->setIPSVariable($Ident, $Name, $Value, $Type, $Profile);
+        if ($Rename) {
+            $VarId = $this->GetIDForIdent($Ident);
+            if (IPS_GetName($VarId) != $Name) {
+                IPS_SetName($VarId, $Name);
+            }
+        }
     }
 
     protected function DecodeEvent(array $Event): void
@@ -474,9 +594,41 @@ class FritzBoxModulBase extends IPSModuleStrict
         trigger_error($Message, E_USER_NOTICE);
     }
 
+    /**
+     * Darstellung zum früheren Profilnamen (siehe \FritzBox\Presentation).
+     */
+    protected function GetPresentation(string $Profile, int $Type, bool $Action = false): array|string
+    {
+        return \FritzBox\Presentation::Get($Profile, $Type, $Action, [$this, 'Translate']);
+    }
+
+    /**
+     * Löscht die eigenen Profile bis 0.94, sobald keine Variable sie mehr nutzt
+     * (weder als Profil noch als eigenes Profil des Nutzers).
+     */
+    protected function RemoveUnusedLegacyProfiles(): void
+    {
+        $Legacy = array_filter(\FritzBox\Presentation::LegacyProfiles, 'IPS_VariableProfileExists');
+        if (count($Legacy) === 0) {
+            return;
+        }
+        $Used = [];
+        foreach (IPS_GetVariableList() as $VarID) {
+            $Variable = IPS_GetVariable($VarID);
+            $Used[$Variable['VariableProfile']] = true;
+            $Used[$Variable['VariableCustomProfile']] = true;
+        }
+        foreach ($Legacy as $Profile) {
+            if (!isset($Used[$Profile])) {
+                IPS_DeleteVariableProfile($Profile);
+                $this->SendDebug('Profile deleted', $Profile, 0);
+            }
+        }
+    }
+
     protected function setIPSVariable(string $ident, string $name, mixed $value, int $type, string $profile = '', bool $action = false, int $pos = 0): void
     {
-        $this->MaintainVariable($ident, $this->Translate($name), $type, $profile, $pos, true);
+        $this->MaintainVariable($ident, $this->Translate($name), $type, $this->GetPresentation($profile, $type, $action), $pos, true);
         if ($action) {
             $this->EnableAction($ident);
         }
@@ -505,64 +657,6 @@ class FritzBoxModulBase extends IPSModuleStrict
     protected function ConvertIdent(string $Ident): string
     {
         return preg_replace('/[^a-zA-Z0-9_]/', '', $Ident);
-    }
-
-    /**
-     * Erstellt eine Untervariable in IPS.
-     *
-     * @param int    $ParentID IPS-ID der übergeordneten Variable.
-     * @param string $Ident    IDENT der neuen Statusvariable.
-     * @param string $Name     Name der neuen Statusvariable.
-     * @param int    $Type     Der zu erstellende Typ von Variable.
-     * @param string $Profile  Das dazugehörige Variabelprofil.
-     * @param int    $Position Position der Variable.
-     *
-     * @throws Exception Wenn Variable nicht erstellt werden konnte.
-     *
-     * @return int IPS-ID der neuen Variable.
-     */
-    protected function RegisterSubVariable(int $ParentID, string $Ident, string $Name, int $Type, string $Profile = '', int $Position = 0): int
-    {
-        if ($Profile != '') {
-            if (IPS_VariableProfileExists('~' . $Profile)) {
-                $Profile = '~' . $Profile;
-            }
-            if (!IPS_VariableProfileExists($Profile)) {
-                throw new Exception('Profile with name ' . $Profile . ' does not exist', E_USER_NOTICE);
-            }
-        }
-
-        $vid = @IPS_GetObjectIDByIdent($Ident, $ParentID);
-
-        if ($vid === false) {
-            $vid = 0;
-        }
-
-        if ($vid > 0) {
-            if (!IPS_VariableExists($vid)) {
-                throw new Exception('Ident with name ' . $Ident . ' is used for wrong object type', E_USER_NOTICE); //bail out
-            }
-            if (IPS_GetVariable($vid)['VariableType'] != $Type) {
-                IPS_DeleteVariable($vid);
-                $vid = 0;
-            }
-        }
-
-        if ($vid == 0) {
-            $vid = IPS_CreateVariable($Type);
-
-            IPS_SetParent($vid, $ParentID);
-            IPS_SetIdent($vid, $Ident);
-            IPS_SetName($vid, $this->Translate($Name));
-            IPS_SetPosition($vid, $Position);
-            //IPS_SetReadOnly($vid, true);
-        }
-
-        IPS_SetVariableCustomProfile($vid, $Profile);
-        if (!in_array($vid, $this->GetReferenceList())) {
-            $this->RegisterReference($vid);
-        }
-        return $vid;
     }
 
     protected function DelSubObjects(int $ObjectId): void

@@ -26,8 +26,6 @@ class FritzBoxDSLInterface extends FritzBoxModulBase
     {
         //Never delete this line!
         parent::Create();
-        $this->RegisterProfileInteger('FB.kBit', '', '', ' kBit/s', 0, 0, 0);
-        $this->RegisterProfileFloat('FB.dB', '', '', ' dB', 0, 0, 0, 1);
         $this->RegisterPropertyInteger(\FritzBox\Base\Property::RefreshInterval, 60);
         $this->RegisterTimer(\FritzBox\Base\Timer::RefreshInfo, 0, 'IPS_RequestAction(' . $this->InstanceID . ',"' . \FritzBox\Base\Action::RefreshInfo . '",true);');
     }

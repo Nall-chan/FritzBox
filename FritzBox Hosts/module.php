@@ -79,7 +79,7 @@ class FritzBoxHosts extends FritzBoxModulBase
         $Table = $this->ReadPropertyBoolean(\FritzBox\Hosts\Property::HostAsTable);
         $Variable = $this->ReadPropertyBoolean(\FritzBox\Hosts\Property::HostAsVariable);
         if ($Table) {
-            $this->RegisterVariableString(\FritzBox\Hosts\Variables::HostTable, $this->Translate('Network devices'), '~HTMLBox', -3);
+            $this->RegisterVariableString(\FritzBox\Hosts\Variables::HostTable, $this->Translate('Network devices'), $this->GetPresentation('~HTMLBox', VARIABLETYPE_STRING), -3);
         } else {
             $this->UnregisterVariable(\FritzBox\Hosts\Variables::HostTable);
         }

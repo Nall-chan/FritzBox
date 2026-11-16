@@ -27,17 +27,12 @@ class FritzBoxWANFiber extends FritzBoxModulBase
     {
         //Never delete this line!
         parent::Create();
-        $this->RegisterProfileInteger('FB.kBit', '', '', ' kBit/s', 0, 0, 0);
-        $this->RegisterProfileFloat(\FritzBox\WANFiber\Profile::Dbm, '', '', ' dBm', 0, 0, 0, 2);
         $this->RegisterPropertyInteger(\FritzBox\Base\Property::RefreshInterval, 60);
         $this->RegisterTimer(\FritzBox\Base\Timer::RefreshInfo, 0, 'IPS_RequestAction(' . $this->InstanceID . ',"' . \FritzBox\Base\Action::RefreshInfo . '",true);');
     }
 
     public function Destroy(): void
     {
-        if (!IPS_InstanceExists($this->InstanceID)) {
-            $this->UnregisterProfile(\FritzBox\WANFiber\Profile::Dbm);
-        }
         //Never delete this line!
         parent::Destroy();
     }
@@ -47,7 +42,6 @@ class FritzBoxWANFiber extends FritzBoxModulBase
         $this->SetTimerInterval(\FritzBox\Base\Timer::RefreshInfo, 0);
         parent::ApplyChanges();
         $this->SetTimerInterval(\FritzBox\Base\Timer::RefreshInfo, $this->ReadPropertyInteger(\FritzBox\Base\Property::RefreshInterval) * 1000);
-        $this->MigrateDbmProfile();
         if (IPS_GetKernelRunlevel() != KR_READY) {
             return;
         }
@@ -96,38 +90,6 @@ class FritzBoxWANFiber extends FritzBoxModulBase
         }
         trigger_error($this->Translate('Invalid Ident.'), E_USER_NOTICE);
         return false;
-    }
-
-    /**
-     * Bis 0.93 nutzten die Pegel das Float-Profil FB.dBm, das mit dem gleichnamigen
-     * Integer-Profil der Mobilfunk-Instanz kollidierte. Stellt die eigenen Pegel-Variablen auf
-     * FB.dBm.Float um und löscht das alte Profil, wenn es vom Typ Float ist und keine andere
-     * Variable es nutzt. Ein Integer-Profil FB.dBm gehört der Mobilfunk-Instanz und bleibt.
-     */
-    private function MigrateDbmProfile(): void
-    {
-        $Legacy = \FritzBox\WANFiber\Profile::LegacyDbm;
-        if (!IPS_VariableProfileExists($Legacy)) {
-            return;
-        }
-        if (IPS_GetVariableProfile($Legacy)['ProfileType'] != VARIABLETYPE_FLOAT) {
-            return;
-        }
-        $Levels = [
-            \FritzBox\WANFiber\Variables::OpticalSignalLevel   => ['Optical signal level', 2],
-            \FritzBox\WANFiber\Variables::TransmitOpticalLevel => ['Transmit optical level', 3]
-        ];
-        foreach ($Levels as $Ident => [$Name, $Position]) {
-            $VariableID = @$this->GetIDForIdent($Ident);
-            if (($VariableID === false) || ($VariableID === 0)) {
-                continue;
-            }
-            if (IPS_GetVariable($VariableID)['VariableProfile'] != $Legacy) {
-                continue;
-            }
-            $this->MaintainVariable($Ident, $this->Translate($Name), VARIABLETYPE_FLOAT, \FritzBox\WANFiber\Profile::Dbm, $Position, true);
-        }
-        $this->UnregisterProfile($Legacy);
     }
 
     private function UpdateInfo()

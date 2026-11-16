@@ -69,6 +69,7 @@ namespace FritzBox\Base {
         public const Subscribe = 'Subscribe';
         public const RefreshInfo = 'RefreshInfo';
         public const RefreshState = 'RefreshState';
+        public const DeleteLegacySubVariables = 'DeleteLegacySubVariables';
     }
 }
 
@@ -379,6 +380,15 @@ namespace FritzBox\Powerline {
     class Property
     {
         public const RenameDeviceVariables = 'RenameDeviceVariables';
+        public const ModelVariables = 'ModelVariables';
+        public const UpdateAvailableVariables = 'UpdateAvailableVariables';
+    }
+
+    class Variables
+    {
+        // Präfix der Zusatzvariablen je Gerät, bis 0.94 Ident der Untervariable
+        public const Model = 'Model';
+        public const UpdateAvailable = 'UpdateAvailable';
     }
 }
 
@@ -552,6 +562,8 @@ namespace FritzBox\WLAN {
         public const RenameHostVariables = 'RenameHostVariables';
         public const ShowWLanKeyAsQRCode = 'ShowWLanKeyAsQRCode';
         public const ShowWLanKeyAsVariable = 'ShowWLanKeyAsVariable';
+        public const SpeedVariables = 'SpeedVariables';
+        public const SignalVariables = 'SignalVariables';
     }
 
     class Action
@@ -571,6 +583,9 @@ namespace FritzBox\WLAN {
         public const HostTable = 'HostTable';
         public const KeyPassphrase = 'KeyPassphrase';
         public const OffTime = 'OffTime';
+        // Präfix der Zusatzvariablen je Host, bis 0.94 Ident der Untervariable
+        public const Signal = 'Signal';
+        public const Speed = 'Speed';
         public const SSID = 'SSID';
         public const TimeoutActive = 'TimeoutActive';
         public const TimeRemain = 'TimeRemain';
@@ -633,10 +648,13 @@ namespace FritzBox\DECT {
     class Property
     {
         public const RenameDeviceVariables = 'RenameDeviceVariables';
+        public const ModelVariables = 'ModelVariables';
+        public const UpdateAvailableVariables = 'UpdateAvailableVariables';
     }
 
     class Variables
     {
+        // Präfix der Zusatzvariablen je Gerät, bis 0.94 Ident der Untervariable
         public const Model = 'Model';
         public const UpdateAvailable = 'UpdateAvailable';
     }
@@ -697,8 +715,6 @@ namespace FritzBox\WANFiber {
     {
         /** Optische Pegel in dBm (Rohwert dBm/1000 umgerechnet), Float-Profil. */
         public const Dbm = 'FB.dBm.Float';
-        /** Bis 0.93 genutztes Float-Profil, kollidierte mit dem Integer-Profil der Mobilfunk-Instanz. */
-        public const LegacyDbm = 'FB.dBm';
     }
 }
 

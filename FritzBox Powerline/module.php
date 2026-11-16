@@ -9,6 +9,10 @@ class FritzBoxPowerline extends FritzBoxModulBase
         '/upnp/control/x_homeplug'
     ];
     protected static $EventSubURLArray = [];
+    protected static $LegacySubVariables = [
+        \FritzBox\Powerline\Variables::Model,
+        \FritzBox\Powerline\Variables::UpdateAvailable
+    ];
     protected static $ServiceTypeArray = [
         'urn:dslforum-org:service:X_AVM-DE_Homeplug:1'
     ];
@@ -20,6 +24,8 @@ class FritzBoxPowerline extends FritzBoxModulBase
 
         $this->RegisterPropertyInteger(\FritzBox\Base\Property::RefreshInterval, 60);
         $this->RegisterPropertyBoolean(\FritzBox\Powerline\Property::RenameDeviceVariables, false);
+        $this->RegisterPropertyBoolean(\FritzBox\Powerline\Property::ModelVariables, true);
+        $this->RegisterPropertyBoolean(\FritzBox\Powerline\Property::UpdateAvailableVariables, true);
         $this->RegisterTimer(\FritzBox\Base\Timer::RefreshInfo, 0, 'IPS_RequestAction(' . $this->InstanceID . ',"' . \FritzBox\Base\Action::RefreshInfo . '",true);');
     }
 
@@ -29,10 +35,23 @@ class FritzBoxPowerline extends FritzBoxModulBase
         parent::Destroy();
     }
 
+    public function GetConfigurationForm(): string
+    {
+        $Form = json_decode(file_get_contents(__DIR__ . '/form.json'), true);
+        if ($this->GetStatus() == IS_CREATING) {
+            return json_encode($Form);
+        }
+        return json_encode($this->ShowLegacySubVariablesButton($Form));
+    }
+
     public function ApplyChanges(): void
     {
         $this->SetTimerInterval(\FritzBox\Base\Timer::RefreshInfo, 0);
         parent::ApplyChanges();
+        $this->RemoveDisabledDeviceInfoVariables([
+            \FritzBox\Powerline\Variables::Model           => $this->ReadPropertyBoolean(\FritzBox\Powerline\Property::ModelVariables),
+            \FritzBox\Powerline\Variables::UpdateAvailable => $this->ReadPropertyBoolean(\FritzBox\Powerline\Property::UpdateAvailableVariables)
+        ]);
         $this->SetTimerInterval(\FritzBox\Base\Timer::RefreshInfo, $this->ReadPropertyInteger(\FritzBox\Base\Property::RefreshInterval) * 1000);
         if (IPS_GetKernelRunlevel() != KR_READY) {
             return;
@@ -107,6 +126,8 @@ class FritzBoxPowerline extends FritzBoxModulBase
         }
         $ReturnValue = true;
         $Rename = $this->ReadPropertyBoolean(\FritzBox\Powerline\Property::RenameDeviceVariables);
+        $ShowModel = $this->ReadPropertyBoolean(\FritzBox\Powerline\Property::ModelVariables);
+        $ShowUpdate = $this->ReadPropertyBoolean(\FritzBox\Powerline\Property::UpdateAvailableVariables);
         for ($i = 0; $i < $NumberOfDeviceEntries; $i++) {
             $Result = $this->GetGenericDeviceEntry($i);
             if ($Result === false) {
@@ -120,11 +141,9 @@ class FritzBoxPowerline extends FritzBoxModulBase
             if ($Rename && (IPS_GetName($VarId) != $Name)) {
                 IPS_SetName($VarId, $Name);
             }
-
-            $ModelId = $this->RegisterSubVariable($VarId, 'Model', 'Model', VARIABLETYPE_STRING);
-            SetValueString($ModelId, (string) $Result['NewModel']);
-            $UpdateAvailableId = $this->RegisterSubVariable($VarId, 'UpdateAvailable', $this->Translate('Update available'), VARIABLETYPE_BOOLEAN);
-            SetValueBoolean($UpdateAvailableId, (int) $Result['NewUpdateAvailable'] > 0);
+            $DeviceName = IPS_GetName($VarId);
+            $this->SetDeviceInfoVariable($ShowModel, \FritzBox\Powerline\Variables::Model, $Ident, $DeviceName . ' - ' . $this->Translate('Model'), (string) $Result['NewModel'], VARIABLETYPE_STRING, Rename: $Rename);
+            $this->SetDeviceInfoVariable($ShowUpdate, \FritzBox\Powerline\Variables::UpdateAvailable, $Ident, $DeviceName . ' - ' . $this->Translate('Update available'), (int) $Result['NewUpdateAvailable'] > 0, VARIABLETYPE_BOOLEAN, Rename: $Rename);
         }
         return $ReturnValue;
     }

@@ -18,7 +18,7 @@ Status des WAN Zugang in Symcon darstellen.
 - [3. Software-Installation](#3-software-installation)
 - [4. Einrichten der Instanzen in IP-Symcon](#4-einrichten-der-instanzen-in-ip-symcon)
 - [5. Statusvariablen](#5-statusvariablen)
-  - [Profile](#profile)
+  - [Darstellungen](#darstellungen)
 - [6. Visualisierung](#6-visualisierung)
   - [Kachel Visualisierung](#kachel-visualisierung)
   - [WebFront Visualisierung](#webfront-visualisierung)
@@ -77,12 +77,14 @@ Die Statusvariablen werden automatisch angelegt. Das Löschen einzelner kann zu 
 | UpstreamMaxBitRate   | Upstream Max kBitrate            | integer |
 | DownstreamMaxBitRate | Downstream Max kBitrate          | integer |
 
-### Profile
+### Darstellungen
 
-| Name          | Typ     | Werte                                                                                                                                         |
-| ------------- | ------- | --------------------------------------------------------------------------------------------------------------------------------------------- |
-| FB.kBit       | integer | Suffix ` kBit/s`                                                                                                                              |
-| FB.AccessType | string  | `DSL`, `Ethernet` = Netzwerk, `X_AVM-DE_Fiber` = Glasfaser, `X_AVM-DE_Cable` = Kabelanschluss, `X_AVM-DE_LTE`, `X_AVM-DE_UMTS`, `unknown`     |
+| Ident                                    | Darstellung | Einstellungen |
+| ---------------------------------------- | ----------- | ------------- |
+| WANAccessType                            | Aufzählung  | `DSL`, `Ethernet` = Netzwerk, `X_AVM-DE_Fiber` = Glasfaser, `X_AVM-DE_Cable` = Kabelanschluss, `X_AVM-DE_LTE` = LTE, `X_AVM-DE_UMTS` = UMTS, `unknown` = unbekannt |
+| UpstreamMaxBitRate, DownstreamMaxBitRate | Wertanzeige | Suffix ` kBit/s` |
+
+`Status der physischen Verbindung` hat keine Darstellung (Text).  
 
 ## 6. Visualisierung
 
@@ -126,7 +128,7 @@ Liefert Zugangsart, Status, Bitraten und aktuelle Auslastung der WAN-Schnittstel
 
 | Schlüssel                                  | Beschreibung                                                          |
 | ------------------------------------------ | --------------------------------------------------------------------- |
-| NewWANAccessType                           | Zugangsart (siehe Profil `FB.AccessType`)                             |
+| NewWANAccessType                           | Zugangsart (siehe [Darstellungen](#darstellungen))                    |
 | NewPhysicalLinkStatus                      | Status der physischen Verbindung, z.B. `Up`                           |
 | NewLayer1UpstreamMaxBitRate                | Maximale Upload-Bitrate in Bit/s                                      |
 | NewLayer1DownstreamMaxBitRate              | Maximale Download-Bitrate in Bit/s                                    |
@@ -187,7 +189,7 @@ $Download = explode(',', $Result['Newds_current_bps']);
 bool FB_SetWANAccessType(integer $InstanzID, string $WanAccessType);
 ```
 
-Setzt die Zugangsart der WAN-Schnittstelle (Werte siehe Profil `FB.AccessType`). Liefert `true` bei Erfolg.  
+Setzt die Zugangsart der WAN-Schnittstelle (Werte siehe [Darstellungen](#darstellungen)). Liefert `true` bei Erfolg.  
 *Nicht live getestet.*  
 
 > [!WARNING]

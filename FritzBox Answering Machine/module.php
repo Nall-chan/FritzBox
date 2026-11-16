@@ -64,12 +64,12 @@ class FritzBoxAnsweringMachine extends FritzBoxModulBase
         if ($this->ReadAttributeString(\FritzBox\AnsweringMachine\Attribute::HookSecret) == '') {
             $this->WriteAttributeString(\FritzBox\AnsweringMachine\Attribute::HookSecret, bin2hex(random_bytes(16)));
         }
-        $this->RegisterVariableBoolean(\FritzBox\AnsweringMachine\Variables::Enable, $this->Translate('Answering machine active'), '~Switch', 1);
+        $this->RegisterVariableBoolean(\FritzBox\AnsweringMachine\Variables::Enable, $this->Translate('Answering machine active'), $this->GetPresentation('~Switch', VARIABLETYPE_BOOLEAN, true), 1);
         $this->EnableAction(\FritzBox\AnsweringMachine\Variables::Enable);
         $this->RegisterVariableInteger(\FritzBox\AnsweringMachine\Variables::NewMessages, $this->Translate('New messages'), '', 2);
         $this->RegisterVariableInteger(\FritzBox\AnsweringMachine\Variables::TotalMessages, $this->Translate('Number of messages'), '', 3);
         if ($this->ReadPropertyBoolean(\FritzBox\AnsweringMachine\Property::MessagesAsTable)) {
-            $this->RegisterVariableString(\FritzBox\AnsweringMachine\Variables::Messages, $this->Translate('Messages'), '~HTMLBox', 4);
+            $this->RegisterVariableString(\FritzBox\AnsweringMachine\Variables::Messages, $this->Translate('Messages'), $this->GetPresentation('~HTMLBox', VARIABLETYPE_STRING), 4);
         } else {
             $this->UnregisterVariable(\FritzBox\AnsweringMachine\Variables::Messages);
         }

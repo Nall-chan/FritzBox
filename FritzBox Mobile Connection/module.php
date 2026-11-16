@@ -24,7 +24,6 @@ class FritzBoxMobileConnection extends FritzBoxModulBase
     {
         //Never delete this line!
         parent::Create();
-        $this->RegisterProfileInteger(\FritzBox\MobileConnection\Profile::Dbm, '', '', ' dBm', 0, 0, 0);
         $this->RegisterPropertyInteger(\FritzBox\Base\Property::RefreshInterval, 60);
         $this->RegisterTimer(\FritzBox\Base\Timer::RefreshInfo, 0, 'IPS_RequestAction(' . $this->InstanceID . ',"' . \FritzBox\Base\Action::RefreshInfo . '",true);');
     }

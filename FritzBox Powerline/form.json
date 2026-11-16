@@ -12,6 +12,18 @@
             "type": "CheckBox",
             "caption": "Automatically rename device variables",
             "width": "400px"
+        },
+        {
+            "name": "ModelVariables",
+            "type": "CheckBox",
+            "caption": "Create variable for model per device",
+            "width": "400px"
+        },
+        {
+            "name": "UpdateAvailableVariables",
+            "type": "CheckBox",
+            "caption": "Create variable for available update per device",
+            "width": "400px"
         }
     ],
     "actions": [
@@ -19,6 +31,14 @@
             "type": "Button",
             "caption": "Update Values",
             "onClick": "IPS_RequestAction($id,'RefreshInfo',true);"
+        },
+        {
+            "type": "Button",
+            "name": "DeleteLegacySubVariables",
+            "caption": "Delete old sub variables",
+            "visible": false,
+            "confirm": "Delete the variables created below the device variables up to version 0.94?",
+            "onClick": "IPS_RequestAction($id,'DeleteLegacySubVariables',true);"
         },
         {
             "type": "TestCenter"

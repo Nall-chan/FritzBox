@@ -23,7 +23,6 @@ class FritzBoxWANCommonInterface extends FritzBoxModulBase
     {
         //Never delete this line!
         parent::Create();
-        $this->UnregisterProfile('FB.MByte');
         $this->RegisterPropertyInteger(\FritzBox\Base\Property::RefreshInterval, 5);
         $this->RegisterPropertyInteger(\FritzBox\WANCommonInterface\Property::RefreshLinkPropertiesInterval, 60);
         $this->RegisterTimer(\FritzBox\Base\Timer::RefreshInfo, 0, 'IPS_RequestAction(' . $this->InstanceID . ',"' . \FritzBox\Base\Action::RefreshInfo . '",true);');
@@ -34,13 +33,6 @@ class FritzBoxWANCommonInterface extends FritzBoxModulBase
 
     public function Destroy(): void
     {
-        if (!IPS_InstanceExists($this->InstanceID)) {
-            $this->UnregisterProfile('FB.kBit');
-            $this->UnregisterProfile('FB.Speed');
-            $this->UnregisterProfile('FB.MByte');
-            $this->UnregisterProfile('FB.kbs');
-            $this->UnregisterProfile('FB.AvmAccessType');
-        }
         //Never delete this line!
         parent::Destroy();
     }
@@ -48,23 +40,6 @@ class FritzBoxWANCommonInterface extends FritzBoxModulBase
     public function ApplyChanges(): void
     {
         $this->SetTimerInterval(\FritzBox\Base\Timer::RefreshInfo, 0);
-        $this->RegisterProfileInteger('FB.kBit', '', '', ' kBit/s', 0, 0, 0);
-        $this->RegisterProfileFloat('FB.Speed', '', '', '%', 0, 100, 0, 2);
-        $this->RegisterProfileFloat('FB.MByte', '', '', ' MB', 0, 0, 0, 2);
-        $this->RegisterProfileFloat('FB.kbs', '', '', ' kb/s', 0, 0, 0, 2);
-        $this->RegisterProfileStringEx('FB.AvmAccessType', '', '', '', [
-            ['DSL', 'DSL', '', -1],
-            ['ATA', 'ATA', '', -1],
-            ['USB-Tethering', 'USB-Tethering', '', -1],
-            ['Cable', 'Cable', '', -1],
-            ['LTE', 'LTE', '', -1],
-            ['Serial', 'Serial', '', -1],
-            ['WLAN', 'WLAN', '', -1],
-            ['ISDN', 'ISDN', '', -1],
-            ['IP-Client', 'IP-Client', '', -1],
-            ['Fiber', 'Fiber', '', -1],
-            ['Other', 'Other', '', -1]
-        ]);
         parent::ApplyChanges();
 
         $Index = $this->ReadPropertyInteger(\FritzBox\Base\Property::Index);

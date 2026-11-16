@@ -111,7 +111,7 @@ class FritzBoxCallmonitor extends FritzBoxModulBase
             }
         }
         if ($this->ReadPropertyBoolean(\FritzBox\Callmonitor\Property::CallsAsTable)) {
-            $this->RegisterVariableString(\FritzBox\Callmonitor\Variables::CallList, $this->Translate('Active calls'), '~HTMLBox', 0);
+            $this->RegisterVariableString(\FritzBox\Callmonitor\Variables::CallList, $this->Translate('Active calls'), $this->GetPresentation('~HTMLBox', VARIABLETYPE_STRING), 0);
             $this->RebuildTable();
         } else {
             $this->UnregisterVariable(\FritzBox\Callmonitor\Variables::CallList);

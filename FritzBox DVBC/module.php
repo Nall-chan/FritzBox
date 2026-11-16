@@ -23,10 +23,6 @@ class FritzBoxDVBC extends FritzBoxModulBase
 
     public function Destroy(): void
     {
-        if (!IPS_InstanceExists($this->InstanceID)) {
-            $this->UnregisterProfile('FB.Intensity');
-            $this->UnregisterProfile('FB.ActiveInactive');
-        }
         //Never delete this line!
         parent::Destroy();
     }
@@ -35,16 +31,7 @@ class FritzBoxDVBC extends FritzBoxModulBase
     {
         $this->SetTimerInterval(\FritzBox\Base\Timer::RefreshInfo, 0);
         parent::ApplyChanges();
-        $this->RegisterProfileInteger('FB.Intensity', 'FB.Intensity', '', ' %', 0, 100, 1);
-        $this->RegisterProfileStringEx('FB.ActiveInactive', '', '', '', [
-            ['active', 'active', '', -1],
-            ['inactive', 'inactive', '', -1]
-        ]);
-        $this->RegisterProfileStringEx('FB.StartStop', '', '', '', [
-            ['start', 'Start', '', -1],
-            ['stop', 'Stop', '', -1]
-        ]);
-        $this->RegisterVariableString(\FritzBox\DVBC\Variables::StationSearchMode, $this->Translate('Station search'), 'FB.StartStop', 0);
+        $this->RegisterVariableString(\FritzBox\DVBC\Variables::StationSearchMode, $this->Translate('Station search'), $this->GetPresentation('FB.StartStop', VARIABLETYPE_STRING, true), 0);
         $this->EnableAction(\FritzBox\DVBC\Variables::StationSearchMode);
         $this->SetTimerInterval(\FritzBox\Base\Timer::RefreshInfo, $this->ReadPropertyInteger(\FritzBox\Base\Property::RefreshInterval) * 1000);
         if (IPS_GetKernelRunlevel() != KR_READY) {

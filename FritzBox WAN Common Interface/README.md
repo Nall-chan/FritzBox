@@ -18,7 +18,7 @@ Auslesen der aktuell genutzten WAN Verbindung.
 - [3. Software-Installation](#3-software-installation)
 - [4. Einrichten der Instanzen in IP-Symcon](#4-einrichten-der-instanzen-in-ip-symcon)
 - [5. Statusvariablen](#5-statusvariablen)
-  - [Profile](#profile)
+  - [Darstellungen](#darstellungen)
 - [6. Visualisierung](#6-visualisierung)
   - [Kachel Visualisierung](#kachel-visualisierung)
   - [WebFront Visualisierung](#webfront-visualisierung)
@@ -91,22 +91,25 @@ Die Statusvariablen werden automatisch angelegt. Das Löschen einzelner kann zu 
 | VoipDNSServer1       | VoIP DNS-Server 1                                | string  |
 | VoipDNSServer2       | VoIP DNS-Server 2                                | string  |
 
-### Profile
+### Darstellungen
 
-| Name             | Typ     | Werte                                                                                                           |
-| ---------------- | ------- | --------------------------------------------------------------------------------------------------------------- |
-| FB.kBit          | integer | Suffix ` kBit/s`                                                                                                |
-| FB.Speed         | float   | Suffix `%`, 2 Nachkommastellen                                                                                  |
-| FB.MByte         | float   | Suffix ` MB`, 2 Nachkommastellen                                                                                |
-| FB.kbs           | float   | Suffix ` kb/s`, 2 Nachkommastellen                                                                              |
-| FB.AvmAccessType | string  | `DSL`, `ATA`, `USB-Tethering`, `Cable` = Kabelanschluss, `LTE`, `Serial`, `WLAN`, `ISDN`, `IP-Client`, `Fiber` = Glasfaser, `Other` = Anders |
+| Ident                                      | Darstellung | Einstellungen |
+| ------------------------------------------ | ----------- | ------------- |
+| WANAccessType                              | Wertanzeige | `DSL`, `ATA`, `USB-Tethering`, `Cable` = Kabelanschluss, `LTE`, `Serial` = Seriell, `WLAN`, `ISDN`, `IP-Client`, `Fiber` = Glasfaser, `Other` = Anders |
+| UpstreamMaxBitRate, DownstreamMaxBitRate   | Wertanzeige | Suffix ` kBit/s` |
+| KByteSendRate, KByteReceiveRate            | Wertanzeige | Suffix ` kb/s`, 2 Nachkommastellen |
+| LevelReceiveRate, LevelSendRate            | Wertanzeige | Suffix `%`, 2 Nachkommastellen, 0 bis 100 |
+| TotalMBytesSent, TotalMBytesReceived       | Wertanzeige | Suffix ` MB`, 2 Nachkommastellen |
+| UpnpControlEnabled                         | Schalter    | nicht bedienbar |
+
+Status der physischen Verbindung und die DNS-Server haben keine Darstellung (Text).  
 
 ## 6. Visualisierung
 
 ### Kachel Visualisierung
 
 Die Instanz wird als Kachel in der Darstellung `Liste` angezeigt. Das Bild zeigt die maximierte Kachel mit allen Variablen.  
-Alle Variablen werden als Messwerte bzw. Text mit den Einheiten der Profile dargestellt, `Automatische Portweiterleitung per UPnP erlauben` als An/Aus-Wert. Keine der Variablen ist bedienbar.  
+Alle Variablen werden als Messwerte mit Einheit bzw. als Text dargestellt, `Automatische Portweiterleitung per UPnP erlauben` als An/Aus-Wert. Keine der Variablen ist bedienbar.  
 
 ![Kachel Liste](imgs/tile_list.png)  
 

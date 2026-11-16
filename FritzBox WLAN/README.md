@@ -18,7 +18,7 @@ Auslesen und steuern der WLAN Funktionen.
 - [3. Software-Installation](#3-software-installation)
 - [4. Einrichten der Instanzen in IP-Symcon](#4-einrichten-der-instanzen-in-ip-symcon)
 - [5. Statusvariablen](#5-statusvariablen)
-  - [Profile](#profile)
+  - [Darstellungen](#darstellungen)
 - [6. Visualisierung](#6-visualisierung)
   - [Kachel Visualisierung](#kachel-visualisierung)
   - [WebFront Visualisierung](#webfront-visualisierung)
@@ -68,6 +68,8 @@ Unter 'Instanz hinzufügen' ist das 'FritzBox WLAN'-Modul unter dem Hersteller '
 | Erzeuge Variable pro WLAN Gerät                     | HostAsVariable        | boolean | false        | Für verbundene WLAN-Geräte je eine Statusvariable anlegen                                                                          |
 | Automatisch Variablen für neue WLAN-Geräte erstellen | AutoAddHostVariables  | boolean | true         | Für neu erkannte WLAN-Geräte automatisch eine Variable anlegen                                                                     |
 | WLAN Geräte-Variablen automatisch umbenennen        | RenameHostVariables   | boolean | false        | Variablen umbenennen, wenn sich der Hostname in der FritzBox ändert                                                                |
+| Variable für die Geschwindigkeit je WLAN-Gerät anlegen | SpeedVariables     | boolean | true         | Je WLAN-Gerät die Variable `Geschwindigkeit` anlegen; abgewählt werden die Variablen gelöscht                                     |
+| Variable für die Signalstärke je WLAN-Gerät anlegen | SignalVariables       | boolean | true         | Je WLAN-Gerät die Variable `Signalstärke` anlegen; abgewählt werden die Variablen gelöscht                                         |
 | Statusvariablen                                     | HostVariables         | string  | `[]`         | Liste der WLAN-Geräte mit Auswahl (`Benutzt`), für welche eine Variable angelegt wird                                              |
 | Zeige alle WLAN Gerät als HTML-Tabelle              | HostAsTable           | boolean | false        | Ausgabe der verbundenen WLAN-Geräte als HTML-Tabelle in der Statusvariable `Host Tabelle`                                          |
 | Darstellung Tabelle                                 | Table                 | string  | vordefiniert | HTML/CSS Konfiguration der HTML-Tabelle                                                                                            |
@@ -81,7 +83,9 @@ Die Listen (`HostVariables`, `Table`, `Columns`, `Rows`) werden als JSON-String 
 > Mit `Erzeuge Variable für WLAN Passwort` und `Erzeuge Medien-Objekt mit QR-Code` stehen die WLAN-Zugangsdaten im Klartext in Symcon und sind für jeden sichtbar, der diese Objekte sehen kann.
 
 > [!WARNING]
-> Wird ein WLAN-Gerät in der Liste `Statusvariablen` abgewählt, wird die zugehörige Statusvariable gelöscht.
+> Wird ein WLAN-Gerät in der Liste `Statusvariablen` abgewählt, werden die zugehörigen Statusvariablen gelöscht.
+
+Bis Version 0.94 lagen `Speed` und `Signalstrength` als Untervariablen unterhalb der Gerätevariable. Diese werden nicht mehr aktualisiert. Solange es sie gibt, zeigt das Formular die Schaltfläche `Alte Untervariablen löschen`, die sie nach einer Sicherheitsabfrage löscht.
 
 Beispiel:  
 
@@ -109,17 +113,26 @@ Die Statusvariablen werden automatisch angelegt. Das Löschen einzelner kann zu 
 | QRCodeIMG           | QR-Code                           | Medien-Objekt | PNG Bild mit WLAN QR-Code     |
 | HostTable           | Host Tabelle                      | string        | HTML Tabelle der Hosts        |
 | `MAC` + MAC Adresse | Name des Hosts                    | boolean       | WLAN-Gerät verbunden          |
-| Speed               | Speed                             | integer       | Unterhalb der Gerätevariable: Datenrate in MBit/s |
-| Signal              | Signalstrength                    | integer       | Unterhalb der Gerätevariable: Signalstärke in %   |
+| `Speed_MAC…`        | Name des Hosts - Geschwindigkeit  | integer       | Je WLAN-Gerät: Datenrate in MBit/s, `0` wenn nicht verbunden |
+| `Signal_MAC…`       | Name des Hosts - Signalstärke     | integer       | Je WLAN-Gerät: Signalstärke in %, `0` wenn nicht verbunden   |
 
 Welche Variablen angelegt werden, hängt von den Einstellungen und der Art des WLAN (z.B. Gast-WLAN) ab.  
-Der Ident der WLAN-Geräte besteht aus `MAC` und der MAC-Adresse ohne Trennzeichen, z.B. `MAC001122AABBCC`.  
+Der Ident der WLAN-Geräte besteht aus `MAC` und der MAC-Adresse ohne Trennzeichen, z.B. `MAC001122AABBCC`, `Speed_MAC001122AABBCC` und `Signal_MAC001122AABBCC`.  
+Die Namen von Geschwindigkeit und Signalstärke werden beim Anlegen aus dem Namen der Gerätevariable gebildet. Ist das automatische Umbenennen aktiv, werden sie mit der Gerätevariable umbenannt, sonst danach nicht mehr geändert.  
 
-### Profile
+### Darstellungen
 
-| Name     | Typ     | Werte              |
-| -------- | ------- | ------------------ |
-| FB.MBits | integer | Suffix ` MBit/s`   |
+| Ident                              | Darstellung   | Einstellungen     |
+| ---------------------------------- | ------------- | ----------------- |
+| X_AVM_DE_APEnabled                 | Schalter      |                   |
+| TimeoutActive, ForcedOff           | Schalter      | nicht bedienbar   |
+| `MAC…`                             | Schalter      | nicht bedienbar   |
+| OffTime                            | Datum/Uhrzeit | Datum und Uhrzeit |
+| HostTable                          | Web-Inhalt    |                   |
+| `Speed_MAC…`                       | Wertanzeige   | Suffix ` MBit/s`  |
+| `Signal_MAC…`                      | Wertanzeige   | Suffix ` %`, 0 bis 100 |
+
+Die übrigen Variablen haben keine Darstellung (Zahl bzw. Text).  
 
 ## 6. Visualisierung
 

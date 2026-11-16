@@ -1,6 +1,9 @@
 {
     "translations": {
         "de": {
+            "DSL": "DSL",
+            "UMTS": "UMTS",
+            "LTE": "LTE",
             "Invalid index.": "Ungültiger Index.",
             "FritzBox WAN Physical Interface": "FritzBox physikalische WAN-Schnittstelle",
             "Service": "Dienst",

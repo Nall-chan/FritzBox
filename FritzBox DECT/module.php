@@ -5,7 +5,7 @@ require_once __DIR__ . '/../libs/FritzBoxBase.php';
 
 /**
  * DECT-Geräte (Mobilteile) der FritzBox.
- * Je Gerät eine Variable (angemeldet/aktiv) mit Untervariablen für Modell und verfügbares Update.
+ * Je Gerät eine Variable (angemeldet/aktiv) und, abschaltbar, je eine Variable für Modell und verfügbares Update.
  */
 class FritzBoxDECT extends FritzBoxModulBase
 {
@@ -13,6 +13,10 @@ class FritzBoxDECT extends FritzBoxModulBase
         '/upnp/control/x_dect'
     ];
     protected static $EventSubURLArray = [];
+    protected static $LegacySubVariables = [
+        \FritzBox\DECT\Variables::Model,
+        \FritzBox\DECT\Variables::UpdateAvailable
+    ];
     protected static $ServiceTypeArray = [
         'urn:dslforum-org:service:X_AVM-DE_Dect:1'
     ];
@@ -25,6 +29,8 @@ class FritzBoxDECT extends FritzBoxModulBase
 
         $this->RegisterPropertyInteger(\FritzBox\Base\Property::RefreshInterval, 300);
         $this->RegisterPropertyBoolean(\FritzBox\DECT\Property::RenameDeviceVariables, false);
+        $this->RegisterPropertyBoolean(\FritzBox\DECT\Property::ModelVariables, true);
+        $this->RegisterPropertyBoolean(\FritzBox\DECT\Property::UpdateAvailableVariables, true);
         $this->RegisterTimer(\FritzBox\Base\Timer::RefreshInfo, 0, 'IPS_RequestAction(' . $this->InstanceID . ',"' . \FritzBox\Base\Action::RefreshInfo . '",true);');
     }
 
@@ -34,10 +40,23 @@ class FritzBoxDECT extends FritzBoxModulBase
         parent::Destroy();
     }
 
+    public function GetConfigurationForm(): string
+    {
+        $Form = json_decode(file_get_contents(__DIR__ . '/form.json'), true);
+        if ($this->GetStatus() == IS_CREATING) {
+            return json_encode($Form);
+        }
+        return json_encode($this->ShowLegacySubVariablesButton($Form));
+    }
+
     public function ApplyChanges(): void
     {
         $this->SetTimerInterval(\FritzBox\Base\Timer::RefreshInfo, 0);
         parent::ApplyChanges();
+        $this->RemoveDisabledDeviceInfoVariables([
+            \FritzBox\DECT\Variables::Model           => $this->ReadPropertyBoolean(\FritzBox\DECT\Property::ModelVariables),
+            \FritzBox\DECT\Variables::UpdateAvailable => $this->ReadPropertyBoolean(\FritzBox\DECT\Property::UpdateAvailableVariables)
+        ]);
         $this->SetTimerInterval(\FritzBox\Base\Timer::RefreshInfo, $this->ReadPropertyInteger(\FritzBox\Base\Property::RefreshInterval) * 1000);
         if (IPS_GetKernelRunlevel() != KR_READY) {
             return;
@@ -144,6 +163,8 @@ class FritzBoxDECT extends FritzBoxModulBase
         }
         $ReturnValue = true;
         $Rename = $this->ReadPropertyBoolean(\FritzBox\DECT\Property::RenameDeviceVariables);
+        $ShowModel = $this->ReadPropertyBoolean(\FritzBox\DECT\Property::ModelVariables);
+        $ShowUpdate = $this->ReadPropertyBoolean(\FritzBox\DECT\Property::UpdateAvailableVariables);
         for ($i = 0; $i < $NumberOfEntries; $i++) {
             $Result = $this->GetGenericDectEntry($i);
             if ($Result === false) {
@@ -157,10 +178,9 @@ class FritzBoxDECT extends FritzBoxModulBase
             if ($Rename && ($Name != '') && (IPS_GetName($VarId) != $Name)) {
                 IPS_SetName($VarId, $Name);
             }
-            $ModelId = $this->RegisterSubVariable($VarId, \FritzBox\DECT\Variables::Model, 'Model', VARIABLETYPE_STRING);
-            SetValueString($ModelId, (string) $Result['NewModel']);
-            $UpdateAvailableId = $this->RegisterSubVariable($VarId, \FritzBox\DECT\Variables::UpdateAvailable, 'Update available', VARIABLETYPE_BOOLEAN);
-            SetValueBoolean($UpdateAvailableId, (int) $Result['NewUpdateAvailable'] > 0);
+            $DeviceName = IPS_GetName($VarId);
+            $this->SetDeviceInfoVariable($ShowModel, \FritzBox\DECT\Variables::Model, $Ident, $DeviceName . ' - ' . $this->Translate('Model'), (string) $Result['NewModel'], VARIABLETYPE_STRING, Rename: $Rename);
+            $this->SetDeviceInfoVariable($ShowUpdate, \FritzBox\DECT\Variables::UpdateAvailable, $Ident, $DeviceName . ' - ' . $this->Translate('Update available'), (int) $Result['NewUpdateAvailable'] > 0, VARIABLETYPE_BOOLEAN, Rename: $Rename);
         }
         return $ReturnValue;
     }

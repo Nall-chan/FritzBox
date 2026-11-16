@@ -18,7 +18,7 @@ DVB-C Receivers der FritzBox auslesen und steuern.
 - [3. Software-Installation](#3-software-installation)
 - [4. Einrichten der Instanzen in IP-Symcon](#4-einrichten-der-instanzen-in-ip-symcon)
 - [5. Statusvariablen](#5-statusvariablen)
-  - [Profile](#profile)
+  - [Darstellungen](#darstellungen)
 - [6. Visualisierung](#6-visualisierung)
   - [Kachel Visualisierung](#kachel-visualisierung)
   - [WebFront Visualisierung](#webfront-visualisierung)
@@ -80,13 +80,14 @@ Die Statusvariablen werden automatisch angelegt. Das Löschen einzelner kann zu 
 | StationSearchStatus | Status Sendersuchlauf      | string  | Zustand vom Sendersuchlauf                                 |
 | SearchProgress      | Fortschritt Sendersuchlauf | integer | Fortschritt in Prozent                                     |
 
-### Profile
+### Darstellungen
 
-| Name              | Typ     | Werte                                    |
-| ----------------- | ------- | ---------------------------------------- |
-| FB.Intensity      | integer | Prozent (`%`)                            |
-| FB.StartStop      | string  | `start` = Start, `stop` = Stop           |
-| FB.ActiveInactive | string  | `active` = Aktiv, `inactive` = Inaktiv   |
+| Ident               | Darstellung | Einstellungen                          |
+| ------------------- | ----------- | -------------------------------------- |
+| DVBCEnabled         | Schalter    |                                        |
+| StationSearchMode   | Aufzählung  | `start` = Start, `stop` = Stopp        |
+| StationSearchStatus | Wertanzeige | `active` = Aktiv, `inactive` = Inaktiv |
+| SearchProgress      | Wertanzeige | Suffix ` %`, 0 bis 100                 |
 
 ## 6. Visualisierung
 

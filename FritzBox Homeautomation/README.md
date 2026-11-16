@@ -18,7 +18,7 @@ TR64 Geräte Instanz für SmartHome Geräte der FRitzBox.
 - [3. Software-Installation](#3-software-installation)
 - [4. Einrichten der Instanzen in IP-Symcon](#4-einrichten-der-instanzen-in-ip-symcon)
 - [5. Statusvariablen](#5-statusvariablen)
-  - [Profile](#profile)
+  - [Darstellungen](#darstellungen)
 - [6. Visualisierung](#6-visualisierung)
   - [Kachel Visualisierung](#kachel-visualisierung)
   - [WebFront Visualisierung](#webfront-visualisierung)
@@ -97,15 +97,21 @@ Die Statusvariablen werden automatisch angelegt. Das Löschen einzelner kann zu 
 | HkrComfortTemperature  | Heizungsthermostat (Komforttemperatur)      | float   |
 | HkrComfortVentilStatus | Heizungsthermostat (Ventilstatus Komfort)   | integer |
 
-### Profile
+### Darstellungen
 
-| Name               | Typ    | Werte                                          |
-| ------------------ | ------ | ---------------------------------------------- |
-| FB.AHA.Present     | string | `DISCONNECTED`, `REGISTRERED`, `CONNECTED`     |
-| FB.AHA.Valid       | string | `INVALID`, `VALID`, `UNDEFINED`                |
-| FB.AHA.Mode        | string | `AUTO`, `MANUAL`, `UNDEFINED`                  |
-| FB.AHA.State       | string | `OFF`, `ON`, `TOGGLE`                          |
-| FB.AHA.VentilState | string | `CLOSED`, `OPEN`, `TEMP` (temperaturgeregelt)  |
+| Ident                                                   | Darstellung | Einstellungen |
+| ------------------------------------------------------- | ----------- | ------------- |
+| Present                                                 | Wertanzeige | `DISCONNECTED` = Getrennt, `REGISTRERED` = Registriert, `CONNECTED` = Verbunden, `UNKNOWN` = Unbekannt |
+| MultimeterIsValid, TemperatureIsValid, SwitchIsValid    | Wertanzeige | `INVALID` = Ungültig, `VALID` = Gültig, `UNDEFINED` = Undefiniert |
+| MultimeterPower                                         | Wertanzeige | Suffix ` W`, 1 Nachkommastelle |
+| MultimeterEnergy                                        | Wertanzeige | Suffix ` Wh`, 2 Nachkommastellen |
+| TemperatureCelsius, TemperatureOffset, Hkr…Temperature  | Wertanzeige | Suffix ` °C`, 1 Nachkommastelle |
+| SwitchState                                             | Aufzählung  | `OFF` = Aus, `ON` = Ein, `TOGGLE` = Umschalten |
+| SwitchMode                                              | Wertanzeige | `AUTO` = Automatik, `MANUAL` = Manuell, `UNDEFINED` = Undefiniert |
+| SwitchLock                                              | Schalter    | nicht bedienbar |
+| Hkr…VentilStatus                                        | Wertanzeige | `CLOSED` = Geschlossen, `OPEN` = Offen, `TEMP` = Temperaturgesteuert |
+
+*Nicht live geprüft, da kein SmartHome-Gerät zum Testen vorhanden war.*  
 
 ## 6. Visualisierung
 

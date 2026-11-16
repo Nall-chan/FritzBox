@@ -23,9 +23,6 @@ class FritzBoxDynDns extends FritzBoxModulBase
 
     public function Destroy(): void
     {
-        if (!IPS_InstanceExists($this->InstanceID)) {
-            $this->UnregisterProfile('FB.DynDnyState');
-        }
         //Never delete this line!
         parent::Destroy();
     }
@@ -34,19 +31,6 @@ class FritzBoxDynDns extends FritzBoxModulBase
     {
         $this->SetTimerInterval(\FritzBox\Base\Timer::RefreshInfo, 0);
 
-        $this->RegisterProfileStringEx('FB.DynDnyState', 'Network', '', '', [
-            ['offline', $this->Translate('offline'), '', -1],
-            ['checking', $this->Translate('checking'), '', -1],
-            ['updating', $this->Translate('updating'), '', -1],
-            ['updated', $this->Translate('updated'), '', -1],
-            ['verifying', $this->Translate('verifying'), '', -1],
-            ['complete', $this->Translate('complete'), '', -1],
-            ['new-address', $this->Translate('new address'), '', -1],
-            ['new address', $this->Translate('new address'), '', -1],
-            ['account-disabled', $this->Translate('account disabled'), '', -1],
-            ['internet-not-connected', $this->Translate('internet not connected'), '', -1],
-            ['undefined', $this->Translate('undefined'), '', -1]
-        ]);
         parent::ApplyChanges();
 
         if (IPS_GetKernelRunlevel() != KR_READY) {
