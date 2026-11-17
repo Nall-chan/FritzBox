@@ -299,6 +299,8 @@ Folgende Instanzen bringen eine eigene Kachel mit (Darstellung je Kachel in der 
 - FritzBox WLAN: Das Abwählen von `Erzeuge Variable für WLAN Passwort` löschte das QR-Code-Bild, das Abwählen von `Erzeuge Medien-Objekt mit QR-Code` die Passwort-Variable. Jetzt wird jeweils das richtige Objekt entfernt.
 - FritzBox Discovery: Gab es für eine FritzBox schon eine FritzBox IO ohne Konfigurator (z.B. von Hand angelegt), legte die Discovery eine zweite IO samt Client Socket an. Jetzt wird nur der Konfigurator angelegt und mit der vorhandenen IO verbunden.  
 - FritzBox Konfigurator: Beim Anlegen bot die Konsole als Gateway nur neue FritzBox IOs oder IOs ohne andere Instanzen an. Jetzt ist auch eine vorhandene IO wählbar.  
+- FritzBox Anrufmonitor und FritzBox Telefonie: Ein gelöschtes Skript für die eigene Rückwärtssuche oder eine gelöschte WebFront-Instanz für Benachrichtigungen führte zu Fehlermeldungen. Sie werden jetzt übergangen.  
+- Konsole: Einige Module (u.a. FritzBox Host Filter) erschienen in der Modulliste nur mit englischem Namen. Der Konfigurator benennt neue Instanzen von FritzBox Firmware Info jetzt deutsch.  
 
 **Version 0.94:**  
 

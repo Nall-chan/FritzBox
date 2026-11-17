@@ -1,6 +1,7 @@
 {
     "translations": {
         "de": {
+            "FritzBox DVBC": "FritzBox DVBC",
             "Start": "Start",
             "Stop": "Stopp",
             "Refresh Interval": "Aktualisierungsintervall",

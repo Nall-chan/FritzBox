@@ -86,11 +86,11 @@ Konfiguration der HTML Tabelle:
 | ------------------------------------------ | ----------------------- | ------- | -------------- | ------------------------------------------------------------------------------------------------------------- |
 | Ländervorwahl                              | CountryCode             | string  | (aus FritzBox) | Ländervorwahl mit `+`, z.B. `+49`                                                                             |
 | Ortsvorwahl                                | AreaCode                | string  | (aus FritzBox) | Ortsvorwahl mit führender `0`, z.B. `030`                                                                     |
-| Instanz für Rückwärtsuche                  | ReverseSearchInstanceID | integer | 0              | ObjektID einer Instanz des Moduls `Rückwärtssuche`, `0` = keine                                               |
+| Instanz für Rückwärtsuche                  | ReverseSearchInstanceID | integer | 1              | ObjektID einer Instanz des Moduls `Rückwärtssuche`, `1` = keine                                               |
 | kürze Namen auf                            | MaxNameSize             | integer | 30             | Namen der Gesprächspartner werden auf diese Anzahl Zeichen gekürzt (mindestens 5)                             |
 | Suffix für Treffer Rückwärtssuche          | SearchMarker            | string  | `(*) `         | Zeichenkette, die dem Namen vorangestellt wird, wenn der Name aus der Rückwärtssuche stammt                    |
 | Anzeigename für unbekannte Nummern         | UnknownNumberName       | string  | `(unbekannt)`  | Wird bei unterdrückter Rufnummer angezeigt. Nicht gefundene Rufnummern werden als `(Rufnummer)` angezeigt     |
-| Skript für eigene Rückwärtsuche            | CustomSearchScriptID    | integer | 0              | ObjektID eines eigenen Skriptes für die Rückwärtssuche, `0` = keines (siehe unten)                             |
+| Skript für eigene Rückwärtsuche            | CustomSearchScriptID    | integer | 1              | ObjektID eines eigenen Skriptes für die Rückwärtssuche, `1` = keines (siehe unten)                             |
 | Meldung nicht erneut anzeigen              | NotShowWarning          | boolean | false          | Warnmeldung abschalten, wenn das Modul `Rückwärtssuche` nicht installiert ist                                 |
 | Sende Benachrichtigung                     | CallsAsNotification     | boolean | true           | Änderungen von Anrufen/Gesprächen als Benachrichtigung an WebFronts senden                                     |
 | WebFronts für Benachrichtigung             | Targets                 | string  | `[]`           | Liste der WebFront-Instanzen, welche eine Benachrichtigung erhalten                                           |
@@ -101,7 +101,7 @@ Konfiguration der HTML Tabelle:
 | Spalten                                    | Columns                 | string  | vordefiniert   | HTML/CSS Konfiguration der Spalten (pro Spalte)                                                               |
 | Zeilen                                     | Rows                    | string  | vordefiniert   | HTML/CSS Konfiguration der Zeilen (Überschrift, gerade und ungerade)                                          |
 | Aktionen für Ereignisse                    | Actions                 | string  | `[]`           | Liste von Aktionen, welche bei Ereignissen ausgeführt werden (siehe unten)                                    |
-| Kachel bei eingehenden Anrufen als Popup öffnen | PopupVisualization | integer | `0`            | Kachel-Visualisierung, in der ein eingehender Anruf die Instanz-Kachel öffnet; `0` = aus                       |
+| Kachel bei eingehenden Anrufen als Popup öffnen | PopupVisualization | integer | `1`            | Kachel-Visualisierung, in der ein eingehender Anruf die Instanz-Kachel öffnet; `1` = aus                       |
 
 Die Listen (`Targets`, `Notification`, `Icons`, `Table`, `Columns`, `Rows`, `Actions`) werden als JSON-String gespeichert und sollten über die Konsole bearbeitet werden.  
 

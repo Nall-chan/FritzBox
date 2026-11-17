@@ -149,7 +149,7 @@
                                     "name": "target",
                                     "caption": "WebFront",
                                     "width": "400px",
-                                    "add": 0,
+                                    "add": 1,
                                     "edit": {
                                         "type": "SelectInstance",
                                         "validModules": [

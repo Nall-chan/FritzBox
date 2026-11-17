@@ -50,8 +50,8 @@ class FritzBoxCallmonitor extends FritzBoxModulBase
         $this->RegisterPropertyString(\FritzBox\Callmonitor\Property::AreaCode, '');
         $this->RegisterPropertyString(\FritzBox\Callmonitor\Property::CountryCode, '');
 
-        $this->RegisterPropertyInteger(\FritzBox\TelHelper\Property::ReverseSearchInstanceID, 0);
-        $this->RegisterPropertyInteger(\FritzBox\TelHelper\Property::CustomSearchScriptID, 0);
+        $this->RegisterPropertyInteger(\FritzBox\TelHelper\Property::ReverseSearchInstanceID, 1);
+        $this->RegisterPropertyInteger(\FritzBox\TelHelper\Property::CustomSearchScriptID, 1);
         $this->RegisterPropertyInteger(\FritzBox\TelHelper\Property::MaxNameSize, 30);
         $this->RegisterPropertyString(\FritzBox\Callmonitor\Property::SearchMarker, '(*) ');
         $this->RegisterPropertyString(\FritzBox\TelHelper\Property::UnknownNumberName, $this->Translate('(unknown)'));
@@ -62,7 +62,7 @@ class FritzBoxCallmonitor extends FritzBoxModulBase
         $this->RegisterPropertyString(\FritzBox\Callmonitor\Property::Targets, json_encode([]));
         $this->RegisterPropertyString(\FritzBox\Callmonitor\Property::Notification, json_encode($this->GenerateDefaultNotificationProperty()));
         $this->RegisterPropertyString(\FritzBox\Callmonitor\Property::Actions, json_encode([]));
-        $this->RegisterPropertyInteger(\FritzBox\Callmonitor\Property::PopupVisualization, 0);
+        $this->RegisterPropertyInteger(\FritzBox\Callmonitor\Property::PopupVisualization, 1);
         $Style = $this->GenerateHTMLStyleProperty();
         $this->RegisterPropertyString(\FritzBox\Table\Property::Table, json_encode($Style['Table']));
         $this->RegisterPropertyString(\FritzBox\Table\Property::Columns, json_encode($Style['Columns']));
@@ -107,19 +107,21 @@ class FritzBoxCallmonitor extends FritzBoxModulBase
             $this->UnregisterReference($Reference);
         }
         foreach (json_decode($this->ReadPropertyString(\FritzBox\Callmonitor\Property::Targets), true) as $Target) {
-            $this->RegisterReference($Target['target']);
+            if (IPS_InstanceExists($Target['target'])) {
+                $this->RegisterReference($Target['target']);
+            }
         }
         foreach (json_decode($this->ReadPropertyString(\FritzBox\Callmonitor\Property::Actions), true) as $Action) {
             $ActionData = json_decode($Action['action'], true);
             $this->SendDebug('ActionData', $ActionData, 0);
             // Nicht jede Aktion hat ein Ziel (z.B. PHP-Code ausführen)
             $Target = $ActionData['parameters']['TARGET'] ?? 0;
-            if ($Target > 0) {
+            if (IPS_ObjectExists($Target)) {
                 $this->RegisterReference($Target);
             }
         }
         $Visualization = $this->ReadPropertyInteger(\FritzBox\Callmonitor\Property::PopupVisualization);
-        if ($Visualization > 1) {
+        if (IPS_InstanceExists($Visualization)) {
             $this->RegisterReference($Visualization);
         }
         if ($this->ReadPropertyBoolean(\FritzBox\Callmonitor\Property::CallsAsTable)) {
@@ -148,14 +150,14 @@ class FritzBoxCallmonitor extends FritzBoxModulBase
                 $Form['elements'][5]['visible'] = true;
             }
         }
-        if ($this->ReadPropertyInteger(\FritzBox\TelHelper\Property::CustomSearchScriptID) > 1) {
+        if (IPS_ScriptExists($this->ReadPropertyInteger(\FritzBox\TelHelper\Property::CustomSearchScriptID))) {
             $Form['elements'][0]['items'][1]['expanded'] = false;
             $Form['elements'][0]['items'][1]['items'][0]['items'][0]['enabled'] = false;
             $Form['elements'][0]['items'][1]['items'][0]['items'][1]['enabled'] = false;
             $Form['elements'][0]['items'][1]['items'][1]['items'][0]['enabled'] = false;
             $Form['elements'][0]['items'][1]['items'][1]['items'][1]['enabled'] = false;
         }
-        if ($this->ReadPropertyInteger(\FritzBox\TelHelper\Property::ReverseSearchInstanceID) > 1) {
+        if (IPS_InstanceExists($this->ReadPropertyInteger(\FritzBox\TelHelper\Property::ReverseSearchInstanceID))) {
             $Form['elements'][1]['items'][1]['enabled'] = false;
         }
         if (!$this->ReadPropertyBoolean(\FritzBox\Callmonitor\Property::CallsAsTable)) {
@@ -263,7 +265,7 @@ class FritzBoxCallmonitor extends FritzBoxModulBase
         // HTML-Tabelle (falls aktiv) und Kachel neu aufbauen
         IPS_RunScriptText('IPS_RequestAction(' . $this->InstanceID . ',\'RefreshCallList\',true);');
         // Eingehender Anruf: Kachel als Popup in der gewählten Kachel-Visualisierung öffnen
-        if (($CallEvent[1] == 'RING') && ($this->ReadPropertyInteger(\FritzBox\Callmonitor\Property::PopupVisualization) > 1)) {
+        if (($CallEvent[1] == 'RING') && IPS_InstanceExists($this->ReadPropertyInteger(\FritzBox\Callmonitor\Property::PopupVisualization))) {
             IPS_RunScriptText('IPS_RequestAction(' . $this->InstanceID . ',\'' . \FritzBox\Callmonitor\Action::OpenPopup . '\',true);');
         }
         //nur wenn Aktions aktiv
@@ -319,14 +321,14 @@ class FritzBoxCallmonitor extends FritzBoxModulBase
                 $this->UpdateFormField('IconPreview', 'visible', true);
                 return true;
             case \FritzBox\Callmonitor\Action::ReverseSearchInstanceID:
-                if ($Value > 1) {
+                if (IPS_InstanceExists((int) $Value)) {
                     $this->UpdateFormField('CustomSearchScriptID', 'enabled', false);
                 } else {
                     $this->UpdateFormField('CustomSearchScriptID', 'enabled', true);
                 }
                 return true;
             case \FritzBox\Callmonitor\Action::CustomSearchScriptID:
-                if ($Value > 1) {
+                if (IPS_ScriptExists((int) $Value)) {
                     $this->UpdateFormField('MaxNameSize', 'enabled', false);
                     $this->UpdateFormField('ReverseSearchInstanceID', 'enabled', false);
                     $this->UpdateFormField('SearchMarker', 'enabled', false);
@@ -427,6 +429,9 @@ class FritzBoxCallmonitor extends FritzBoxModulBase
         $Title = str_replace($Pattern, $Values, $Title);
         $Text = str_replace($Pattern, $Values, $Text);
         foreach ($WFC_IDs as $Target) {
+            if (!IPS_InstanceExists($Target['target'])) {
+                continue;
+            }
             WFC_SendNotification($Target['target'], $Title, $Text, $Icon, $Timeout);
         }
     }
@@ -487,7 +492,7 @@ class FritzBoxCallmonitor extends FritzBoxModulBase
     private function OpenPopup(): bool
     {
         $Visualization = $this->ReadPropertyInteger(\FritzBox\Callmonitor\Property::PopupVisualization);
-        if (($Visualization < 10000) || !IPS_InstanceExists($Visualization)) {
+        if (!IPS_InstanceExists($Visualization)) {
             return false;
         }
         $this->SendDebug('OpenPopup', $Visualization, 0);

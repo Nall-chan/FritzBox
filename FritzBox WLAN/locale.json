@@ -1,6 +1,7 @@
 {
     "translations": {
         "de": {
+            "FritzBox WLAN": "FritzBox WLAN",
             "Entries": "Einträge",
             "All": "Alle",
             "Cancel": "Abbrechen",

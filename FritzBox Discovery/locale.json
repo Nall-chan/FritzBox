@@ -1,6 +1,7 @@
 {
     "translations": {
         "de": {
+            "FritzBox Discovery": "FritzBox Discovery",
             "Device identifier": "Gerätekennung",
             "Device": "Gerät",
             "No Devices found!": "Keine Geräte gefunden",

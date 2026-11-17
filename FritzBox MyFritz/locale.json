@@ -1,6 +1,7 @@
 {
     "translations": {
         "de": {
+            "FritzBox MyFritz": "FritzBox MyFritz",
             "Refresh Interval": "Aktualisierungsintervall",
             "seconds": "Sekunden",
             "Update Values": "Werte aktualisieren",

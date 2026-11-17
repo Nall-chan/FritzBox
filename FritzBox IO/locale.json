@@ -1,6 +1,7 @@
 {
     "translations": {
         "de": {
+            "FritzBox IO": "FritzBox IO",
             "Error on subscribe (Result)": "Fehler beim Anmelden der Ereignisse (Ergebnis)",
             "Interface connected": "Verbindung hergestellt",
             "Interface closed": "Verbindung geschlossen",

@@ -1,6 +1,7 @@
 {
     "translations": {
         "de": {
+            "FritzBox UPnP MediaServer": "FritzBox UPnP MediaServer",
             "Refresh Interval": "Aktualisierungsintervall",
             "seconds": "Sekunden",
             "Update Values": "Werte aktualisieren",

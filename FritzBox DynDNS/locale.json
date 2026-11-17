@@ -1,6 +1,7 @@
 {
     "translations": {
         "de": {
+            "FritzBox DynDns": "FritzBox DynDns",
             "Refresh Interval": "Aktualisierungsintervall",
             "seconds": "Sekunden",
             "Username": "Benutzername",

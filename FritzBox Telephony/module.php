@@ -73,8 +73,8 @@ class FritzBoxTelephony extends FritzBoxModulBase
         $this->RegisterPropertyString(\FritzBox\Table\Property::Rows, json_encode($Style['Rows']));
         $this->RegisterPropertyString(\FritzBox\Telephony\Property::Icons, json_encode($Style['Icons']));
 
-        $this->RegisterPropertyInteger(\FritzBox\TelHelper\Property::ReverseSearchInstanceID, 0);
-        $this->RegisterPropertyInteger(\FritzBox\TelHelper\Property::CustomSearchScriptID, 0);
+        $this->RegisterPropertyInteger(\FritzBox\TelHelper\Property::ReverseSearchInstanceID, 1);
+        $this->RegisterPropertyInteger(\FritzBox\TelHelper\Property::CustomSearchScriptID, 1);
 
         $this->RegisterPropertyInteger(\FritzBox\Telephony\Property::LoadListType, 2);
         $this->RegisterPropertyInteger(\FritzBox\Telephony\Property::LastEntries, 20);
@@ -177,14 +177,14 @@ class FritzBoxTelephony extends FritzBoxModulBase
                 'caption'=> 'Call log is automatically reloaded'
             ];
         }
-        if ($this->ReadPropertyInteger(\FritzBox\TelHelper\Property::CustomSearchScriptID) > 1) {
+        if (IPS_ScriptExists($this->ReadPropertyInteger(\FritzBox\TelHelper\Property::CustomSearchScriptID))) {
             $Form['elements'][0]['items'][1]['expanded'] = false;
             $Form['elements'][0]['items'][1]['items'][0]['items'][0]['enabled'] = false;
             $Form['elements'][0]['items'][1]['items'][0]['items'][1]['enabled'] = false;
             $Form['elements'][0]['items'][1]['items'][1]['items'][0]['enabled'] = false;
             $Form['elements'][0]['items'][1]['items'][1]['items'][1]['enabled'] = false;
         }
-        if ($this->ReadPropertyInteger(\FritzBox\TelHelper\Property::ReverseSearchInstanceID) > 1) {
+        if (IPS_InstanceExists($this->ReadPropertyInteger(\FritzBox\TelHelper\Property::ReverseSearchInstanceID))) {
             $Form['elements'][1]['items'][1]['enabled'] = false;
         }
         $this->SendDebug('FORM', json_encode($Form), 0);
@@ -652,14 +652,14 @@ class FritzBoxTelephony extends FritzBoxModulBase
                 $this->UpdateFormField('IconPreview', 'visible', true);
                 return true;
             case \FritzBox\Telephony\Action::ReverseSearchInstanceID:
-                if ($Value > 1) {
+                if (IPS_InstanceExists((int) $Value)) {
                     $this->UpdateFormField('CustomSearchScriptID', 'enabled', false);
                 } else {
                     $this->UpdateFormField('CustomSearchScriptID', 'enabled', true);
                 }
                 return true;
             case \FritzBox\Telephony\Action::CustomSearchScriptID:
-                if ($Value > 1) {
+                if (IPS_ScriptExists((int) $Value)) {
                     $this->UpdateFormField('MaxNameSize', 'enabled', false);
                     $this->UpdateFormField('ReverseSearchInstanceID', 'enabled', false);
                     $this->UpdateFormField('SearchMarker', 'enabled', false);

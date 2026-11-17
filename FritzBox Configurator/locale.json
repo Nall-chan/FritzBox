@@ -1,6 +1,8 @@
 {
     "translations": {
         "de": {
+            "FritzBox Firmware Info": "FritzBox Firmware Informationen",
+            "FritzBox DVBC": "FritzBox DVBC",
             "FritzBox Configurator": "FritzBox Konfigurator",
             "Not connected!": "Nicht verbunden!",
             "The 'FritzBox IO' instance is not connected or missing.": "Die 'FritzBox IO' Instanz ist nicht verbunden oder fehlt.",

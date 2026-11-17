@@ -1,6 +1,7 @@
 {
     "translations": {
         "de": {
+            "FritzBox Host Filter": "FritzBox Netzwerkgeräte Filter",
             "Entries": "Einträge",
             "All": "Alle",
             "Cancel": "Abbrechen",

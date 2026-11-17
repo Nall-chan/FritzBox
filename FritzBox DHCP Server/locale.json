@@ -1,6 +1,7 @@
 {
     "translations": {
         "de": {
+            "FritzBox DHCP Server": "FritzBox DHCP Server",
             "Refresh Interval": "Aktualisierungsintervall",
             "seconds": "Sekunden",
             "Update Values": "Werte aktualisieren",

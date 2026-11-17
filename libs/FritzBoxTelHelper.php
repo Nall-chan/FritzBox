@@ -86,16 +86,12 @@ trait TelHelper
         $ReverseSearchInstanceID = $this->ReadPropertyInteger(\FritzBox\TelHelper\Property::ReverseSearchInstanceID);
         $CustomSearchScriptID = $this->ReadPropertyInteger(\FritzBox\TelHelper\Property::CustomSearchScriptID);
 
-        if ($CustomSearchScriptID > 1) {
+        if (IPS_ScriptExists($CustomSearchScriptID)) {
             return IPS_RunScriptWaitEx($CustomSearchScriptID, ['SENDER'=>'FritzBox', 'NUMBER'=>$Number]);
         }
 
-        if ($ReverseSearchInstanceID > 1) {
-            // Gelöschte Instanz der Rückwärtssuche: keine Warnung bei jedem Anruf, nur Debug.
-            if (!IPS_InstanceExists($ReverseSearchInstanceID)) {
-                $this->SendDebug('Reverse search', 'Instance ' . $ReverseSearchInstanceID . ' does not exist', 0);
-                return $UnknownName;
-            }
+        // Keine oder gelöschte Instanz der Rückwärtssuche: keine Warnung bei jedem Anruf
+        if (IPS_InstanceExists($ReverseSearchInstanceID)) {
             $Name = CIRS_GetName($ReverseSearchInstanceID, $Number);
             if ($Name === false) {
                 return $UnknownName;

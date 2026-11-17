@@ -1,6 +1,7 @@
 {
     "translations": {
         "de": {
+            "FritzBox NAS Storage": "FritzBox NAS Storage",
             "Refresh Interval": "Aktualisierungsintervall",
             "seconds": "Sekunden",
             "Update Values": "Werte aktualisieren",
