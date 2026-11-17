@@ -69,6 +69,7 @@ class FritzBoxDiscovery extends IPSModuleStrict
                 $DevicesAddress[$InstanceIDConfigurator] = ($Url ? $Url : '');
             }
         }
+        $IOsWithoutConfigurator = $this->GetIOsWithoutConfigurator();
         foreach ($Devices as $UUID => $Data) {
             $Data['Hosts'] = array_unique($Data['Hosts']);
             ksort($Data['Hosts']);
@@ -126,6 +127,19 @@ class FritzBoxDiscovery extends IPSModuleStrict
                     $CallMonitorSocket
                 ];
             }
+            if ($AddDevice['instanceID'] == 0) {
+                // Vorhandene IO ohne Konfigurator: nur den Konfigurator an diese IO hängen
+                foreach ($Data['Hosts'] as $Host) {
+                    if (isset($IOsWithoutConfigurator[$Host])) {
+                        $AddDevice['host'] = $Host;
+                        $AddDevice['create'] = array_merge([[
+                            'moduleID'      => \FritzBox\GUID::Configurator,
+                            'configuration' => new stdClass()
+                        ]], $IOsWithoutConfigurator[$Host]);
+                        break;
+                    }
+                }
+            }
             $DeviceValues[] = $AddDevice;
         }
         foreach ($DevicesAddress as $id => $Url) {
@@ -144,6 +158,64 @@ class FritzBoxDiscovery extends IPSModuleStrict
         $this->SendDebug('FORM', json_encode($Form), 0);
         $this->SendDebug('FORM', json_last_error_msg(), 0);
         return json_encode($Form);
+    }
+
+    /**
+     * Sucht FritzBox IOs, an denen kein Konfigurator hängt (z.B. von Hand angelegt).
+     *
+     * Symcon verwendet in einer create-Kette eine vorhandene Instanz wieder, wenn die angegebenen
+     * Eigenschaften übereinstimmen. Deshalb werden Host der IO sowie Host, Port und Open des
+     * Client Socket unverändert übernommen; sonst entstünde eine zweite IO für dieselbe FritzBox.
+     * Voraussetzung: Der Konfigurator meldet in GetCompatibleParents 'connect' (bei 'require'
+     * werden nur IOs ohne andere Kinder wiederverwendet). Live geprüft 2026-11-17.
+     *
+     * @return array Adresse (klein geschrieben, wie von Discover() geliefert) => Kette aus IO und Client Socket
+     */
+    protected function GetIOsWithoutConfigurator(): array
+    {
+        $UsedIOs = [];
+        foreach (IPS_GetInstanceListByModuleID(\FritzBox\GUID::Configurator) as $InstanceIDConfigurator) {
+            $UsedIOs[] = IPS_GetInstance($InstanceIDConfigurator)['ConnectionID'];
+        }
+        $Result = [];
+        foreach (IPS_GetInstanceListByModuleID(\FritzBox\GUID::FritzBoxIO) as $InstanceIDIO) {
+            if (in_array($InstanceIDIO, $UsedIOs)) {
+                continue;
+            }
+            $Url = (string) IPS_GetProperty($InstanceIDIO, \FritzBox\IO\Property::Host);
+            // Die IO akzeptiert auch eine Adresse ohne Schema
+            $Address = parse_url(strpos($Url, '://') === false ? 'http://' . $Url : $Url, PHP_URL_HOST);
+            if (!$Address) {
+                continue;
+            }
+            $Address = strtolower($Address);
+            // Symcon vergleicht alle Eigenschaften, deshalb die vollständige Konfiguration (inkl. Zugangsdaten)
+            $Chain = [[
+                'moduleID'      => \FritzBox\GUID::FritzBoxIO,
+                'configuration' => [\FritzBox\IO\Property::Host => $Url]
+            ]];
+            $InstanceIDSocket = IPS_GetInstance($InstanceIDIO)['ConnectionID'];
+            if (($InstanceIDSocket > 1) && (IPS_GetInstance($InstanceIDSocket)['ModuleInfo']['ModuleID'] == \FritzBox\GUID::ClientSocket)) {
+                $Chain[] = [
+                    'moduleID'      => \FritzBox\GUID::ClientSocket,
+                    // Der Client Socket wird über Host und Port wiedererkannt; keine Schlüssel/Zertifikate übernehmen
+                    'configuration' => [
+                        \FritzBox\ClientSocket\Property::Host => IPS_GetProperty($InstanceIDSocket, \FritzBox\ClientSocket\Property::Host),
+                        \FritzBox\ClientSocket\Property::Port => IPS_GetProperty($InstanceIDSocket, \FritzBox\ClientSocket\Property::Port),
+                        \FritzBox\ClientSocket\Property::Open => IPS_GetProperty($InstanceIDSocket, \FritzBox\ClientSocket\Property::Open)
+                    ]
+                ];
+            }
+            $Result[$Address] = $Chain;
+            // Hostname (z.B. fritz.box): auch unter der IPv4-Adresse finden, die die Discovery liefert
+            if (!filter_var(trim($Address, '[]'), FILTER_VALIDATE_IP)) {
+                $IP = gethostbyname($Address);
+                if ($IP !== $Address) {
+                    $Result[$IP] = $Chain;
+                }
+            }
+        }
+        return $Result;
     }
 
     /**

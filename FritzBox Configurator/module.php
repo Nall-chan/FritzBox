@@ -26,7 +26,8 @@ class FritzBoxConfigurator extends IPSModuleStrict
      */
     public function GetCompatibleParents(): string
     {
-        return json_encode(['type' => 'require', 'moduleIDs' => [\FritzBox\GUID::FritzBoxIO]]);
+        // connect: auch eine vorhandene IO mit Geräte-Instanzen ist ein gültiges Gateway (require legte immer eine neue IO an)
+        return json_encode(['type' => 'connect', 'moduleIDs' => [\FritzBox\GUID::FritzBoxIO]]);
     }
 
     public function Destroy(): void
