@@ -108,6 +108,12 @@
                             "caption": "Create variable per call barring rule",
                             "type": "CheckBox",
                             "width": "300px"
+                        },
+                        {
+                            "name": "TileDialHelp",
+                            "caption": "Dialing help in the tile (call back)",
+                            "type": "CheckBox",
+                            "width": "300px"
                         }
                     ]
                 },
@@ -133,6 +139,7 @@
                     "name": "LoadListType",
                     "type": "Select",
                     "caption": "Load call log",
+                    "onChange": "IPS_RequestAction($id,'LoadListType',$LoadListType);",
                     "options": [
                         {
                             "caption": "not load",

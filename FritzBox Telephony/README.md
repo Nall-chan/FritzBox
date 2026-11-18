@@ -67,8 +67,9 @@ Unter 'Instanz hinzufügen' ist das 'FritzBox Telefonie'-Modul unter dem Herstel
 | Zeige Anrufliste als HTML-Box Variable | CallLogAsVariable             | boolean | true          | Ausgabe der Anrufliste als HTML-Tabelle in der Statusvariable `Anrufliste`                                   |
 | Variable pro Rufumleitung erstellen    | DeflectionAsVariable          | boolean | false         | Für jede Rufumleitung eine schaltbare Statusvariable anlegen                                                 |
 | Variable pro Anrufsperrregel erstellen | CallBarringAsVariable         | boolean | false         | Für jede Rufsperre eine Statusvariable anlegen                                                               |
+| Wählhilfe in der Kachel (Rückruf)      | TileDialHelp                  | boolean | true          | Rückruf und „Wählvorgang abbrechen“ über die Wählhilfe in der Instanz-Kachel anbieten                        |
 | Lade Anrufliste                        | LoadListType                  | integer | 2             | Umfang der Anrufliste: `-1` = nicht laden, `0` = vollständig, `1` = Anzahl Tage, `2` = Anzahl Einträge       |
-| Anzahl Tage oder Einträge              | LastEntries                   | integer | 20            | Anzahl Tage bzw. Einträge für `LoadListType` `1` und `2`                                                     |
+| Anzahl Tage oder Einträge              | LastEntries                   | integer | 20            | Anzahl Tage bzw. Einträge für `LoadListType` `1` und `2`; bei `-1` und `0` im Formular gesperrt                                             |
 | Instanz für Rückwärtsuche              | ReverseSearchInstanceID       | integer | 1             | ObjektID einer Instanz des Moduls `Rückwärtssuche`, `1` = keine                                              |
 | kürze Namen auf                        | MaxNameSize                   | integer | 30            | Namen der Gesprächspartner werden auf diese Anzahl Zeichen gekürzt (mindestens 5)                            |
 | Suffix für Treffer Rückwärtssuche      | SearchMarker                  | string  | `{ICON}`      | Zeichenkette, die dem Namen vorangestellt wird, wenn der Name aus der Rückwärtssuche stammt. `{ICON}` zeigt ein Icon in der Tabelle |
@@ -111,9 +112,20 @@ Die Variablen werden nur angelegt, wenn die zugehörige Einstellung (`CallLogAsV
 
 ### Kachel Visualisierung
 
-**Instanz-Kachel:** Die Instanz bringt eine eigene Kachel mit. Klein zeigt sie die verpassten Anrufe von heute, größer die Anrufliste mit Filter (alle, eingehend, verpasst, ausgehend) und Rückruf über die Wählhilfe (mit Sicherheitsabfrage). Ist die Wählhilfe in der FritzBox nicht eingerichtet, erscheint ein Hinweis in der Kachel. Breit zeigt sie zusätzlich die Schalter der Rufumleitungen und Rufsperren, sofern sie als Variable angelegt sind. Die Anzahl der angezeigten Anrufe ist in der Kachel einstellbar.  
+**Instanz-Kachel:** Die Instanz bringt eine eigene Kachel mit. Klein zeigt sie die verpassten Anrufe von heute, größer die Anrufliste mit Filter (alle, eingehend, verpasst, ausgehend) und Rückruf über die Wählhilfe (mit Sicherheitsabfrage, abschaltbar über `TileDialHelp`). „Wählvorgang abbrechen“ ist nach einem Rückruf für 60 Sekunden bedienbar und beendet nur den Wählvorgang der Wählhilfe, solange das Telefon noch klingelt, kein verbundenes Gespräch (Einschränkung der FritzBox). Die verpassten Anrufe zählen die Einträge `verpasst` und `abgelehnt` mit dem heutigen Datum der Anrufliste, die Anzeige beginnt also um Mitternacht wieder bei 0. Ist die Wählhilfe in der FritzBox nicht eingerichtet, erscheint ein Hinweis in der Kachel. Breit zeigt sie zusätzlich die Schalter der Rufumleitungen und Rufsperren, sofern sie als Variable angelegt sind. Die Anzahl der angezeigten Anrufe ist in der Kachel einstellbar.  
 Die Anrufliste wird für die Kachel auch geladen, wenn `Zeige Anrufliste als HTML-Box Variable` abgewählt ist (abschaltbar über `Lade Anrufliste`).  
-*Rückruf und Auflegen aus der Instanz-Kachel sind nicht live getestet.*  
+
+**Bedienung in der Kachel:**
+
+- Filter `Alle | Eingehend | Verpasst | Ausgehend`: schränkt die Anrufliste ein.
+- Telefon-Symbol je Anruf: ruft die Nummer über die Wählhilfe der FritzBox zurück (mit Sicherheitsabfrage; abschaltbar über `TileDialHelp`).
+- „Wählvorgang abbrechen“ (Symbol oben, nach einem Rückruf 60 Sekunden lang rot und bedienbar): bricht den Wählvorgang ab, solange das Telefon noch klingelt.
+- Schalter der Rufumleitungen (breite Kachel, nur wenn als Variable angelegt): schalten die Rufumleitung ein bzw. aus. Rufsperren werden nur angezeigt.
+- Verpasste Anrufe (kleine Kachel und Kennzeichen oben): zählen die Einträge `verpasst` und `abgelehnt` mit heutigem Datum; die Anzeige beginnt um Mitternacht wieder bei 0.
+- `Einträge`: Anzahl der angezeigten Anrufe (merkt sich der Browser).
+
+<!-- Screenshot folgt: imgs/tile_instance.png (Instanz-Kachel, siehe readme-regeln.md) -->
+
 Ob die Kachel oder die Liste der Variablen erscheint, wird in der Kachel-Visualisierung je Kachel eingestellt. Die Kachel passt sich ihrer Größe an und übernimmt die Farben des Designs der Visualisierung. Die maximierte Kachel benötigt Symcon ab 9.1.  
 
 Die Instanz wird als Kachel in der Darstellung `Liste` angezeigt. Das Bild zeigt die maximierte Kachel mit allen Variablen.  
@@ -411,7 +423,7 @@ bool FB_DialNumber(integer $InstanzID, string $PhoneNumber);
 bool FB_DialHangup(integer $InstanzID);
 ```
 
-`FB_DialNumber` startet einen Anruf zu `$PhoneNumber`: Die FritzBox baut zuerst die abgehende Verbindung auf, erst wenn diese steht, klingelt das für die Wählhilfe eingestellte Telefon. Nach dem Abheben ist man mit dem Angerufenen verbunden. Erlaubt sind nur Ziffern sowie `*`, `#` und `+`, andere Zeichen werden vor dem Senden mit einer Meldung abgelehnt. `FB_DialHangup` beendet den Wählvorgang. Liefern `true` bei Erfolg.  
+`FB_DialNumber` startet einen Anruf zu `$PhoneNumber`: Die FritzBox baut zuerst die abgehende Verbindung auf, erst wenn diese steht, klingelt das für die Wählhilfe eingestellte Telefon. Nach dem Abheben ist man mit dem Angerufenen verbunden. Erlaubt sind nur Ziffern sowie `*`, `#` und `+`, andere Zeichen werden vor dem Senden mit einer Meldung abgelehnt. `FB_DialHangup` bricht den Wählvorgang ab, solange das Telefon der Wählhilfe noch nicht abgehoben ist; ein verbundenes Gespräch beendet es nicht (laut AVM „Disconnect the dialling process“). Liefern `true` bei Erfolg.  
 Voraussetzung ist die manuell in der FritzBox aktivierte Wählhilfe (Telefonie → Anrufe → Wählhilfe).  
 *Live getestet mit in der FritzBox eingerichteter Wählhilfe (Nutzer bestätigt: funktioniert): `FB_DialNumber` und `FB_DialHangup` liefern `true`. Ohne Einrichtung liefert `FB_DialNumber` den Fehler `501 Action Failed`.*  
 

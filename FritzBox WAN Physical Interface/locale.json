@@ -1,6 +1,7 @@
 {
     "translations": {
         "de": {
+            "Link copied": "Link kopiert",
             "Entries": "Einträge",
             "All": "Alle",
             "Cancel": "Abbrechen",
@@ -46,7 +47,22 @@
             "DNS-Server 2": "DNS-Server 2",
             "VoIP DNS-Server 1": "VoIP DNS-Server 1",
             "VoIP DNS-Server 2": "VoIP DNS-Server 2",
-            "This module is free for non-commercial use,\r\nDonations in support of the author are accepted here:": "Dieses Modul ist für die nicht kommerzielle Nutzung kostenlos,\r\nSchenkungen als Unterstützung für den Autor werden hier akzeptiert:"
+            "This module is free for non-commercial use,\r\nDonations in support of the author are accepted here:": "Dieses Modul ist für die nicht kommerzielle Nutzung kostenlos,\r\nSchenkungen als Unterstützung für den Autor werden hier akzeptiert:",
+            "Refresh interval rates and utilization": "Aktualisierungsintervall Raten und Auslastung",
+            "Refresh interval access type, status and max. bitrates": "Aktualisierungsintervall Zugangsart, Status und max. Bitraten",
+            "Create variables for current rates": "Variablen für aktuelle Raten anlegen",
+            "Create variables for utilization": "Variablen für Auslastung anlegen",
+            "Create variables for totals since connected": "Variablen für Summen seit Verbindungsaufbau anlegen",
+            "Create variables for fallback access (if supported by the FritzBox)": "Variablen für Fallback-Zugang anlegen (wenn die FritzBox es unterstützt)",
+            "Download rate": "Downloadrate",
+            "Upload rate": "Uploadrate",
+            "Fallback active": "Fallback aktiv",
+            "Primary access": "Primärer Zugang",
+            "Secondary access": "Sekundärer Zugang",
+            "LAN": "LAN",
+            "Mobile": "Mobilfunk",
+            "On": "An",
+            "Off": "Aus"
         }
     }
 }

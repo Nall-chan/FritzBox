@@ -125,7 +125,7 @@ class Phonebook
      *
      * @return string|false Name oder false, wenn kein Kontakt gefunden wurde.
      */
-    public static function FindName(string $Xml, array $Numbers, int $MaxNameSize)
+    public static function FindName(string $Xml, array $Numbers, int $MaxNameSize): string|false
     {
         $PhoneBook = XmlLoader::Load($Xml);
         foreach ($Numbers as $Number) {

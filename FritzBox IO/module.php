@@ -199,6 +199,9 @@ class FritzBoxIO extends IPSModuleStrict
             case \FritzBox\IOFunction::LoadAndSaveFile:
                 $ret = $this->LoadAndSaveFile($data['Uri'], $data['Filename']);
                 break;
+            case \FritzBox\IOFunction::LoadWebData:
+                $ret = $this->LoadWebData($data['Uri']);
+                break;
             case \FritzBox\IOFunction::GetFile:
                 $ret = $this->GetFile($data['Filename']);
                 break;
@@ -478,6 +481,31 @@ class FritzBoxIO extends IPSModuleStrict
             return false;
         }
         $this->SendDebug('Load File: ' . \FritzBox\DebugMask::Url($Url), $Data, 0);
+        return $Data;
+    }
+
+    /**
+     * Lädt eine Datei vom Webserver der FritzBox: Schema und Host wie konfiguriert, aber Standardport (80/443),
+     * denn der TR-064-Port (49000/49443) liefert z.B. die DVB-C Senderlisten nicht.
+     *
+     * @param string $Uri Pfad auf der FritzBox (beginnt mit /).
+     *
+     * @return string|false
+     */
+    private function LoadWebData(string $Uri): string|false
+    {
+        $Scheme = parse_url($this->Url, PHP_URL_SCHEME);
+        $Host = parse_url($this->Url, PHP_URL_HOST);
+        if (!is_string($Scheme) || !is_string($Host) || !str_starts_with($Uri, '/')) {
+            return false;
+        }
+        $Url = $Scheme . '://' . $Host . $Uri;
+        $Data = @Sys_GetURLContentEx($Url, ['Timeout' => 15000, 'VerifyHost' => false, 'VerifyPeer' => false]);
+        if ($Data === false) {
+            $this->SendDebug('Error on load web file', \FritzBox\DebugMask::Url($Url), 0);
+            return false;
+        }
+        $this->SendDebug('Load web file: ' . \FritzBox\DebugMask::Url($Url), strlen($Data) . ' bytes', 0);
         return $Data;
     }
 

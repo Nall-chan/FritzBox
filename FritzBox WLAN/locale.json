@@ -1,6 +1,12 @@
 {
     "translations": {
         "de": {
+            "Migration of old sub variables failed: %s": "Migration der alten Untervariablen fehlgeschlagen: %s",
+            "%d old sub variables migrated.": "%d alte Untervariablen migriert.",
+            "Link copied": "Link kopiert",
+            "On": "An",
+            "Off": "Aus",
+            "Search": "Suchen",
             "FritzBox WLAN": "FritzBox WLAN",
             "Entries": "Einträge",
             "All": "Alle",

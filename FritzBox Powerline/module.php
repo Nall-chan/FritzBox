@@ -19,8 +19,8 @@ class FritzBoxPowerline extends FritzBoxModulBase
 
     protected static $EventSubURLArray = [];
     protected static $LegacySubVariables = [
-        \FritzBox\Powerline\Variables::Model,
-        \FritzBox\Powerline\Variables::UpdateAvailable
+        \FritzBox\Powerline\Variables::Model           => ['Model', \FritzBox\Powerline\Property::ModelVariables],
+        \FritzBox\Powerline\Variables::UpdateAvailable => ['Update available', \FritzBox\Powerline\Property::UpdateAvailableVariables]
     ];
     protected static $ServiceTypeArray = [
         'urn:dslforum-org:service:X_AVM-DE_Homeplug:1'
@@ -129,9 +129,8 @@ class FritzBoxPowerline extends FritzBoxModulBase
             case \FritzBox\Base\Action::RefreshInfo:
                 return $this->UpdateInfo();
             case \FritzBox\Tile\Action::DeviceUpdate:
-                // Nur für Geräte der Liste (Kennung aus der FritzBox)
-                if (!in_array((string) $Value, array_column($this->TileDevices, 'key'), true)) {
-                    trigger_error($this->Translate('Unknown device.'), E_USER_NOTICE);
+                // Nur für Geräte der Liste (Kennung aus der FritzBox), die online sind
+                if (!$this->TileDeviceReadyForUpdate($this->TileDevices, (string) $Value)) {
                     return false;
                 }
                 return $this->UpdatePowerlineDevice((string) $Value);

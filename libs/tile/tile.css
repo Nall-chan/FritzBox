@@ -37,6 +37,12 @@ select option { background: var(--card); color: var(--text); }
 .kpi .big { font-size: clamp(26px, 14vmin, 54px); font-weight: 300; line-height: 1; }
 .kpi .sub { font-size: 12px; color: var(--muted); }
 .kpi.alert .big { color: var(--error); }
+/* Großanzeige (Anrufmonitor-Popup): Titel und Text groß und zentriert */
+.kpi.popup { gap: 12px; padding: 16px; }
+.kpi.popup .big { font-size: clamp(40px, 18vmin, 96px); }
+.kpi.popup .ptitle { font-size: clamp(22px, 7vmin, 48px); font-weight: 500; line-height: 1.15; overflow-wrap: anywhere; }
+.kpi.popup .ptext { font-size: clamp(16px, 4.5vmin, 30px); color: var(--muted); overflow-wrap: anywhere; }
+.kpi.popup .pstate { display: flex; align-items: center; gap: 10px; font-size: clamp(14px, 3.5vmin, 22px); }
 
 /* Kennzeichen */
 .badge { display: inline-flex; align-items: center; gap: 4px; padding: 1px 8px; border-radius: 999px; font-size: 11.5px; background: var(--surface); white-space: nowrap; }
@@ -58,8 +64,12 @@ select option { background: var(--card); color: var(--text); }
 .toggle:disabled .knob { opacity: .5; }
 .btn { display: inline-grid; place-items: center; min-width: 30px; height: 30px; padding: 0 6px; border-radius: 8px; font-size: 15px; }
 .btn:hover:not(:disabled) { background: var(--line); }
+a.btn { color: inherit; text-decoration: none; }
+.btn.busy, .btn.busy:hover:not(:disabled) { background: var(--accent); color: var(--on-accent); }
 .btn.accent { background: var(--accent); color: var(--on-accent); }
 .btn.danger:hover:not(:disabled) { background: var(--error); color: var(--on-error); }
+/* Aktiv bedienbar und dringend (z. B. „Wählvorgang abbrechen“ während des Wählens) */
+.btn.alarm, .btn.alarm:hover:not(:disabled) { background: var(--error); color: var(--on-error); }
 .tool { padding: 4px 12px; border-radius: 8px; background: var(--surface); font-size: 13px; white-space: nowrap; }
 .tool:hover:not(:disabled) { background: var(--line); }
 .tool.primary { background: var(--accent); color: var(--on-accent); }
@@ -74,13 +84,22 @@ select option { background: var(--card); color: var(--text); }
 .group.grow { flex: 1; }
 .ghead { display: flex; align-items: center; gap: 8px; padding: 6px 0; font-weight: 500; font-size: 12px; text-transform: uppercase; letter-spacing: .06em; color: var(--muted); flex: none; flex-wrap: wrap; }
 .ghead > span:first-child { flex: 1; }
+/* Umschalter als Überschrift (Netzwerkgeräte: Geräte | Mesh): feste Position links, Rest rechtsbündig */
+.ghead > .seg:first-child { flex: none; margin-right: auto; }
 .ghead select { font-size: 12px; text-transform: none; letter-spacing: 0; }
 
 /* Listen (bilden die HTML-Tabellen ab) */
 .list { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 4px; overflow: auto; min-height: 0; flex: 1; }
+/* Einträge nicht stauchen (sonst überlappen aufgeklappte Zeilen in einer Liste mit begrenzter Höhe) */
+.list > * { flex: none; }
 .row { display: flex; align-items: center; gap: 10px; padding: 5px 8px; border-radius: 10px; background: var(--surface); min-height: 38px; }
 .row.new { box-shadow: inset 3px 0 0 var(--accent); }
 .row.off { color: var(--disabled); }
+/* Aufgeklappte Zeile: Details in derselben Karte, unter Name/IP eingerückt (Punkt 9 px + Abstand 10 px) */
+.row.open { flex-wrap: wrap; row-gap: 6px; }
+.rowdetails { flex-basis: 100%; display: flex; flex-wrap: wrap; align-items: center; gap: 6px 14px; margin-left: 19px; padding-top: 6px;
+  border-top: 1px solid var(--line); font-size: 12px; color: var(--text); cursor: default; }
+.rowdetails select { font-size: 12px; }
 .row .main { flex: 1; min-width: 0; display: flex; flex-direction: column; }
 .row .main > * { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .row .l1 { font-weight: 500; }
@@ -110,3 +129,13 @@ button.bar { height: 8px; padding: 0; }
 .cols > .col { display: flex; flex-direction: column; gap: 8px; min-width: 0; min-height: 0; }
 .cols > .col.side { flex: 0 0 34%; }
 .cols > .col.main { flex: 1; }
+
+/* Baum (z.B. Mesh-Übersicht): aufklappbare Knoten, eingerückt mit Linie */
+.tree { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 4px; }
+.tree .tree { margin-left: 14px; padding-left: 10px; border-left: 1px solid var(--line); }
+.tree summary { list-style: none; cursor: pointer; }
+.tree summary::-webkit-details-marker { display: none; }
+.tree summary .caret { width: 14px; flex: none; color: var(--muted); transition: transform .15s; }
+.tree details[open] > summary .caret { transform: rotate(90deg); }
+.tree .ifhead { display: flex; align-items: center; gap: 8px; padding: 4px 8px; font-size: 12px; color: var(--muted); font-weight: 500; }
+.scroll { overflow: auto; min-height: 0; flex: 1; }

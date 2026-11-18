@@ -89,9 +89,16 @@ Die Variable `Dateifreigaben` wird nur angelegt, wenn `Zeige Freigaben als HTML-
 
 ### Kachel Visualisierung
 
-**Instanz-Kachel:** Die Instanz bringt eine eigene Kachel mit. Sie zeigt die Freigaben mit Pfad, Zugriffen und Ablauf. Je Freigabe lässt sich der Link in die Zwischenablage kopieren und die Freigabe löschen (mit Sicherheitsabfrage). Die Anzahl der angezeigten Freigaben ist in der Kachel einstellbar.  
+**Instanz-Kachel:** Die Instanz bringt eine eigene Kachel mit. Sie zeigt die Freigaben mit Pfad, Zugriffen und Ablauf. Je Freigabe lässt sich der Link öffnen oder in die Zwischenablage kopieren und die Freigabe löschen (mit Sicherheitsabfrage). Der Link wird mit der MyFRITZ!-Adresse der Box vervollständigt (`https://…myfritz.net:Port/nas/filelink.lua?id=…`); ist MyFRITZ! nicht aktiv, fehlen die Schaltflächen zum Öffnen und Kopieren, weil die FritzBox nur den Pfad liefert. Die Anzahl der angezeigten Freigaben ist in der Kachel einstellbar.  
 Die Freigaben werden für die Kachel auch geladen, wenn `Zeige Freigaben als HTML-Tabelle` abgewählt ist; das Aktualisierungsintervall gilt deshalb immer.  
-*Löschen aus der Instanz-Kachel ist nicht live getestet.*  
+
+**Bedienung in der Kachel:**
+
+- Öffnen-Symbol je Freigabe: öffnet den vollständigen Link (MyFRITZ!-Adresse) in einem neuen Browserfenster (Download der Datei bzw. Anzeige des Ordners); die Kachel lädt die Freigaben danach neu, damit der Zugriffszähler stimmt.
+- Kopieren-Symbol je Freigabe: kopiert den vollständigen Link (MyFRITZ!-Adresse) in die Zwischenablage.
+- Löschen-Symbol je Freigabe: löscht die Freigabe in der FritzBox (mit Sicherheitsabfrage).
+- `Einträge`: Anzahl der angezeigten Freigaben (merkt sich der Browser).
+
 Ob die Kachel oder die Liste der Variablen erscheint, wird in der Kachel-Visualisierung je Kachel eingestellt. Die Kachel passt sich ihrer Größe an und übernimmt die Farben des Designs der Visualisierung. Die maximierte Kachel benötigt Symcon ab 9.1.  
 
 Die Instanz hat nur eine Variable und wird deshalb als `Einzelnes Element` angezeigt: Die Kachel zeigt direkt die HTML-Box mit der Tabelle der Dateifreigaben.  

@@ -3,16 +3,49 @@
         {
             "name": "RefreshInterval",
             "type": "NumberSpinner",
-            "caption": "Refresh Interval",
+            "caption": "Refresh interval access type, status and max. bitrates",
             "suffix": "seconds",
-            "minimum": 0
+            "minimum": 0,
+            "width": "600px"
+        },
+        {
+            "name": "RefreshMonitorInterval",
+            "type": "NumberSpinner",
+            "caption": "Refresh interval rates and utilization",
+            "suffix": "seconds",
+            "minimum": 0,
+            "width": "600px"
+        },
+        {
+            "name": "RateVariables",
+            "type": "CheckBox",
+            "caption": "Create variables for current rates",
+            "width": "600px"
+        },
+        {
+            "name": "LoadVariables",
+            "type": "CheckBox",
+            "caption": "Create variables for utilization",
+            "width": "600px"
+        },
+        {
+            "name": "TotalVariables",
+            "type": "CheckBox",
+            "caption": "Create variables for totals since connected",
+            "width": "600px"
+        },
+        {
+            "name": "FallbackVariables",
+            "type": "CheckBox",
+            "caption": "Create variables for fallback access (if supported by the FritzBox)",
+            "width": "600px"
         }
     ],
     "actions": [
         {
             "type": "Button",
             "caption": "Update Values",
-            "onClick": "IPS_RequestAction($id,'RefreshLinkProperties',true);"
+            "onClick": "IPS_RequestAction($id,'RefreshLinkProperties',true);IPS_RequestAction($id,'RefreshInfo',true);"
         },
         {
             "type": "TestCenter"

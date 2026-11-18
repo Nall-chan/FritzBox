@@ -198,10 +198,8 @@ class FritzBoxWANPortMapping extends FritzBoxModulBase
                 }
             }
 
-            $this->setIPSVariable($Ident, $result['NewPortMappingDescription'], $result['NewEnabled'], VARIABLETYPE_BOOLEAN, '~Switch', false, $i);
-            if (in_array((string) $result['NewInternalClient'], $MyIPs)) {
-                $this->EnableAction($Ident);
-            }
+            // Schaltbar (Aktion und Darstellung Schalter) nur für Regeln auf den Symcon-Host
+            $this->setIPSVariable($Ident, $result['NewPortMappingDescription'], $result['NewEnabled'], VARIABLETYPE_BOOLEAN, '~Switch', in_array((string) $result['NewInternalClient'], $MyIPs), $i);
         }
         return $ReturnValue;
     }

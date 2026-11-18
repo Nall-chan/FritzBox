@@ -1,6 +1,8 @@
 {
     "translations": {
         "de": {
+            "On": "An",
+            "Off": "Aus",
             "FritzBox WAN Port Mapping": "FritzBox WAN Port-Weiterleitung",
             "Type": "Typ",
             "<none>": "<keiner>",

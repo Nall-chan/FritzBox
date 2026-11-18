@@ -20,8 +20,8 @@ class FritzBoxDECT extends FritzBoxModulBase
 
     protected static $EventSubURLArray = [];
     protected static $LegacySubVariables = [
-        \FritzBox\DECT\Variables::Model,
-        \FritzBox\DECT\Variables::UpdateAvailable
+        \FritzBox\DECT\Variables::Model           => ['Model', \FritzBox\DECT\Property::ModelVariables],
+        \FritzBox\DECT\Variables::UpdateAvailable => ['Update available', \FritzBox\DECT\Property::UpdateAvailableVariables]
     ];
     protected static $ServiceTypeArray = [
         'urn:dslforum-org:service:X_AVM-DE_Dect:1'
@@ -163,9 +163,8 @@ class FritzBoxDECT extends FritzBoxModulBase
             case \FritzBox\Base\Action::RefreshInfo:
                 return $this->UpdateInfo();
             case \FritzBox\Tile\Action::DeviceUpdate:
-                // Nur für Geräte der Liste (Kennung aus der FritzBox)
-                if (!in_array((string) $Value, array_column($this->TileDevices, 'key'), true)) {
-                    trigger_error($this->Translate('Unknown device.'), E_USER_NOTICE);
+                // Nur für Geräte der Liste (Kennung aus der FritzBox), die online sind
+                if (!$this->TileDeviceReadyForUpdate($this->TileDevices, (string) $Value)) {
                     return false;
                 }
                 return $this->DectDoUpdate((string) $Value);

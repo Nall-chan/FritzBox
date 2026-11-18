@@ -264,22 +264,28 @@ Für das Discovery werden Pakete über die Multicast-Adresse `239.255.255.250` a
 > [!IMPORTANT]
 > Folgende Funktionen liefern jetzt eine Zahl statt eines Textes: `FB_GetHostNumberOfEntries`, `FB_GetChangeCounter` (Netzwerkgeräte), `FB_GetIPInterfaceNumberOfEntries` (DHCP-Server), `FB_GetNumberOfFilelinkEntries` (Dateifreigabe), `FB_GetNumberOfDeviceEntries` (Powerline) und `FB_GetNumberOfDeflections` (Telefonie). Skripte, die das Ergebnis mit einem Text vergleichen (z.B. `=== '5'`), müssen angepasst werden.
 >
-> FritzBox DECT, FritzBox Powerline und FritzBox WLAN: Modell, Update verfügbar, Geschwindigkeit und Signalstärke je Gerät sind jetzt eigene Statusvariablen der Instanz (z.B. `Model_DECT3`, `Speed_MAC001122AABBCC`) statt Untervariablen unterhalb der Gerätevariable. Die alten Untervariablen werden nicht mehr aktualisiert. Skripte, Ereignisse und Archivdaten, die sie nutzen, müssen auf die neuen Variablen umgestellt werden. Gelöscht werden die alten Untervariablen nur über die Schaltfläche `Alte Untervariablen löschen` im Formular der Instanz.
+> FritzBox DECT, FritzBox Powerline und FritzBox WLAN: Modell, Update verfügbar, Geschwindigkeit und Signalstärke je Gerät sind jetzt eigene Statusvariablen der Instanz (z.B. `Model_DECT3`, `Speed_MAC001122AABBCC`) statt Untervariablen unterhalb der Gerätevariable. Beim Update verschiebt jede Instanz die alten Untervariablen einmalig an die Instanz und macht sie zu den neuen Variablen: ID, Archivdaten, Ereignisse, Links und Skripte, die die ID nutzen, bleiben erhalten (Skripte mit Zugriff über den Ident müssen auf den neuen Ident umgestellt werden). Der Name wird nur angepasst, wenn er noch der Standardname war. Übrig bleiben nur abgewählte Variablen; sie löscht die Schaltfläche `Alte Untervariablen löschen` im Formular der Instanz.
 
 **Neue Instanz-Kacheln (Kachel-Visualisierung)**
 
 Folgende Instanzen bringen eine eigene Kachel mit (Darstellung je Kachel in der Visualisierung wählbar, Farben aus dem Design der Visualisierung, maximierte Kachel ab Symcon 9.1):
 
 - FritzBox Anrufbeantworter: neue Nachrichten, Schalter, Nachrichtenliste mit Abspielen, Markieren und Löschen.  
-- FritzBox Telefonie: verpasste Anrufe, Anrufliste mit Filter und Rückruf über die Wählhilfe, Rufumleitungen und Rufsperren.  
-- FritzBox Anrufmonitor: aktive Gespräche mit laufender Dauer; neue Eigenschaft `Kachel bei eingehenden Anrufen als Popup öffnen`.  
-- FritzBox Netzwerkgeräte: Geräteliste mit Filter, Suche und Wake-On-LAN.  
+- FritzBox Telefonie: verpasste Anrufe, Anrufliste mit Filter und Rückruf über die Wählhilfe (per Eigenschaft abschaltbar), Rufumleitungen und Rufsperren.  
+- FritzBox Anrufmonitor: aktive Gespräche mit laufender Dauer; neue Eigenschaft `Instanz in der Kachel-Visualisierung bei eingehendem Anruf als Vollbild öffnen` (schließt sich wieder, sobald der Anruf nicht mehr klingelt).  
+- FritzBox Netzwerkgeräte: Geräteliste mit Filter, Suche und Aufwecken über die Aktion der Statusvariable (z. B. Wake-On-LAN); Mesh-Übersicht als Baum (FritzBox, Repeater, Powerline, Geräte mit Datenrate).  
 - FritzBox WLAN: Schalter, verbundene Geräte mit Signalstärke (Diagramm bei geloggter Variable), QR-Code und Passwort, sofern aktiviert.  
 - FritzBox Host Filter: Internetzugang je Gerät, Zugangsprofil und Online-Ticket.  
-- FritzBox DECT und FritzBox Powerline: Geräte mit Modell und Update.  
+- FritzBox DECT und FritzBox Powerline: Geräte mit Modell und Update (Update starten nur bei Geräten, die online sind).  
 - FritzBox WAN Physical Interface: aktuelle Auslastung und Verlauf als Diagramm.  
-- FritzBox Dateifreigabe: Freigaben mit Link kopieren und Löschen.  
+- FritzBox Dateifreigabe: Freigaben mit Link öffnen und kopieren (vollständige MyFRITZ!-Adresse) und Löschen.  
 - FritzBox DSL-Schnittstelle: Synchronisationsraten, Störabstand, Dämpfung und Fehlerzähler.  
+- FritzBox DVBC: Senderlisten (TV HD, TV SD, Radio) mit Suche und Link (RTSP-Adresse) kopieren.  
+
+**Neue Funktionen und Aktionen**
+
+- FritzBox Anrufmonitor: Benachrichtigungen können jetzt auch an Kachel-Visualisierungen gehen (Benachrichtigungszentrale und Push-Nachricht).  
+- FritzBox Telefonie: Neue Eigenschaft `Wählhilfe in der Kachel (Rückruf)`.  
 
 **Neue Statusvariablen**
 
@@ -288,8 +294,13 @@ Folgende Instanzen bringen eine eigene Kachel mit (Darstellung je Kachel in der 
 
 **Geändertes Verhalten**
 
+- FritzBox WAN Physical Interface: neue Variablen Download- und Uploadrate, Auslastung und Summen seit Verbindungsaufbau, Status des Fallback-Zugangs (wenn die FritzBox es unterstützt), je Gruppe abwählbar. Die Kachel zeigt den aktiven Zugang und kann bei mehreren Zugängen umschalten. `Aktualisierungsintervall` gilt wie bisher für Zugangsart, Status und maximale Bitraten, neu `Aktualisierungsintervall Raten und Auslastung` (5 Sekunden, auch für vorhandene Instanzen sofort aktiv). Neue Funktionen `FB_GetAddonInfos` und `FB_GetFallbackProtectionInfo`.  
+- FritzBox WAN Physical Interface und FritzBox WAN Common Interface: `Status der physischen Verbindung` hat jetzt eine Darstellung (Verbunden, Getrennt, Initialisieren, Nicht verfügbar) statt des englischen Rohwerts.  
+- FritzBox Konfigurator: bietet die FritzBox WAN Common Interface (UPnP) nicht mehr an, ihre Werte liefern die WAN Physical Interface und die WAN IP-Verbindung. Vorhandene Instanzen arbeiten weiter und erscheinen im Konfigurator als ungültig.  
 - Alle Module: Umstellung auf IPSModuleStrict. Alle Instanz-Funktionen haben feste Typen für Parameter und Rückgabewerte.  
 - Alle Module: Statusvariablen nutzen Darstellungen statt Variablenprofile. Die eigenen Profile `FB.*` werden gelöscht, sobald keine Variable sie mehr nutzt. Ein selbst zugewiesenes eigenes Profil einer Variable bleibt erhalten.  
+- Alle Module: Ja/Nein-Variablen ohne Aktion (z.B. WLAN-Geräte, DECT-Geräte, Rufsperren) zeigen An/Aus als Wert statt eines nicht bedienbaren Schalters.  
+- FritzBox Netzwerkgeräte: Neue Gerätevariablen haben die Standardaktion aktiv (Schalten auf An sendet Wake-On-LAN). Bestehende Variablen behalten ihre Einstellung.  
 - FritzBox Firmware Info: Der Modus der automatischen Aktualisierung kennt jetzt den Wert `Nur benachrichtigen`.  
 - FritzBox Telefonie, FritzBox Dateifreigabe, FritzBox WLAN und FritzBox Host Filter: Anrufliste, Freigaben bzw. Geräteliste werden für die Instanz-Kachel auch geladen, wenn die HTML-Box bzw. die Variablen je Gerät abgewählt sind. Intervall und Laden der Anrufliste bzw. Freigaben sind deshalb immer einstellbar.  
 - FritzBox Anrufbeantworter: Der Webhook für das Abspielen ist immer angemeldet (auch ohne HTML-Tabelle), weil die Instanz-Kachel ihn nutzt.  
@@ -298,6 +309,8 @@ Folgende Instanzen bringen eine eigene Kachel mit (Darstellung je Kachel in der 
 
 - FritzBox WLAN: Das Abwählen von `Erzeuge Variable für WLAN Passwort` löschte das QR-Code-Bild, das Abwählen von `Erzeuge Medien-Objekt mit QR-Code` die Passwort-Variable. Jetzt wird jeweils das richtige Objekt entfernt.
 - FritzBox Discovery: Gab es für eine FritzBox schon eine FritzBox IO ohne Konfigurator (z.B. von Hand angelegt), legte die Discovery eine zweite IO samt Client Socket an. Jetzt wird nur der Konfigurator angelegt und mit der vorhandenen IO verbunden.  
+- FritzBox Netzwerkgeräte: Das Schalten einer Netzwerkgeräte-Variable (Standardaktion Wake-On-LAN) meldete nach dem Senden zusätzlich „Ungültiger Ident.“.  
+- FritzBox Anrufmonitor: Bei klingelnden (`Ankommend`) und abgehenden (`Abgehend`) Anrufen fehlte `STATUS` in den Daten für Aktionen und Benachrichtigungen; die Kachel konnte klingelnde Anrufe deshalb nicht hervorheben.  
 - FritzBox Konfigurator: Beim Anlegen bot die Konsole als Gateway nur neue FritzBox IOs oder IOs ohne andere Instanzen an. Jetzt ist auch eine vorhandene IO wählbar.  
 - FritzBox Anrufmonitor und FritzBox Telefonie: Ein gelöschtes Skript für die eigene Rückwärtssuche oder eine gelöschte WebFront-Instanz für Benachrichtigungen führte zu Fehlermeldungen. Sie werden jetzt übergangen.  
 - Konsole: Einige Module (u.a. FritzBox Host Filter) erschienen in der Modulliste nur mit englischem Namen. Der Konfigurator benennt neue Instanzen von FritzBox Firmware Info jetzt deutsch.  

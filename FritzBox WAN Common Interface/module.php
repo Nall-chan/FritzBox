@@ -170,7 +170,7 @@ class FritzBoxWANCommonInterface extends FritzBoxModulBase
     protected function DecodeEvent(array $Event): void
     {
         if (array_key_exists('PhysicalLinkStatus', $Event)) {
-            $this->setIPSVariable(\FritzBox\WANCommonInterface\Variables::PhysicalLinkStatus, 'Physical Link Status', (string) $Event['PhysicalLinkStatus'], VARIABLETYPE_STRING);
+            $this->setIPSVariable(\FritzBox\WANCommonInterface\Variables::PhysicalLinkStatus, 'Physical Link Status', (string) $Event['PhysicalLinkStatus'], VARIABLETYPE_STRING, 'FB.PhysicalLinkStatus');
             unset($Event['PhysicalLinkStatus']);
             $this->UpdateCommonLinkProperties();
         }
@@ -185,7 +185,7 @@ class FritzBoxWANCommonInterface extends FritzBoxModulBase
             return false;
         }
 
-        $this->setIPSVariable(\FritzBox\WANCommonInterface\Variables::PhysicalLinkStatus, 'Physical Link Status', (string) $result['NewPhysicalLinkStatus'], VARIABLETYPE_STRING);
+        $this->setIPSVariable(\FritzBox\WANCommonInterface\Variables::PhysicalLinkStatus, 'Physical Link Status', (string) $result['NewPhysicalLinkStatus'], VARIABLETYPE_STRING, 'FB.PhysicalLinkStatus');
         $Downstream = (int) ((int) $result['NewLayer1DownstreamMaxBitRate'] / 1000);
         $Upstream = (int) ((int) $result['NewLayer1UpstreamMaxBitRate'] / 1000);
         $this->WriteAttributeInteger(\FritzBox\WANCommonInterface\Attribute::Upstream, $Upstream);

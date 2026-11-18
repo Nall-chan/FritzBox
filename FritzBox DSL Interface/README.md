@@ -101,6 +101,13 @@ Die Statusvariablen werden automatisch angelegt. Das Löschen einzelner kann zu 
 
 **Instanz-Kachel:** Die Instanz bringt eine eigene Kachel mit. Sie zeigt den DSL-Status, die Synchronisationsraten im Verhältnis zur maximal möglichen Rate, Störabstand und Dämpfung sowie, breit, die Fehlerzähler.  
 *Nicht live getestet (keine DSL-Box).*  
+
+**Bedienung in der Kachel:**
+
+- Keine Bedienelemente, nur Anzeige.
+
+<!-- Screenshot folgt: imgs/tile_instance.png (Instanz-Kachel, siehe readme-regeln.md) -->
+
 Ob die Kachel oder die Liste der Variablen erscheint, wird in der Kachel-Visualisierung je Kachel eingestellt. Die Kachel passt sich ihrer Größe an und übernimmt die Farben des Designs der Visualisierung. Die maximierte Kachel benötigt Symcon ab 9.1.  
 
 Die Instanz wird als Kachel in der Darstellung `Liste` angezeigt. Alle Werte werden als Text bzw. Zahl mit Einheit dargestellt. Keine der Variablen ist bedienbar.  

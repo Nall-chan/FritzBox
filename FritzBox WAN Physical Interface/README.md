@@ -33,7 +33,10 @@ Status des WAN Zugang in Symcon darstellen.
 
 - Alte Variablen vom FB-Project **sind** kompatibel.  
 - Status des WAN Zugang in Symcon darstellen.  
-- Setzen der WAN Zugangsart aus Symcon.  
+- Setzen der WAN Zugangsart aus Symcon (z.B. Umschalten zwischen zwei Zugängen).  
+- Aktuelle Download- und Uploadrate, Auslastung in Prozent und Summen seit Verbindungsaufbau.  
+- Status des Fallback-Zugangs (primärer/sekundärer Zugang, Fallback aktiv), sofern die FritzBox es unterstützt.  
+- Nutzt nur TR-064, die Einstellung „Statusinformationen über UPnP übertragen“ der FritzBox ist nicht nötig (Ausnahme: Summen, siehe unten).  
   
 ## 2. Voraussetzungen
 
@@ -57,7 +60,17 @@ Unter 'Instanz hinzufügen' ist das 'FritzBox physikalische WAN-Schnittstelle'-M
 
 | Eigenschaft              | Name            | Typ     | Standardwert | Beschreibung                                                        |
 | ------------------------ | --------------- | ------- | ------------ | ------------------------------------------------------------------- |
-| Aktualisierungsintervall | RefreshInterval | integer | 60           | Intervall in Sekunden, in dem die Werte abgefragt werden; `0` = aus |
+| Eigenschaft                                                      | Name                          | Typ     | Standardwert | Beschreibung                                                                                   |
+| ---------------------------------------------------------------- | ----------------------------- | ------- | ------------ | ---------------------------------------------------------------------------------------------- |
+| Aktualisierungsintervall Zugangsart, Status und max. Bitraten    | RefreshInterval               | integer | 60           | Intervall in Sekunden für Zugangsart, Status, maximale Bitraten und Fallback; `0` = aus         |
+| Aktualisierungsintervall Raten und Auslastung                    | RefreshMonitorInterval        | integer | 5            | Intervall in Sekunden für Raten, Auslastung, Summen und Kachel; `0` = aus                       |
+| Variablen für aktuelle Raten anlegen                             | RateVariables                 | boolean | true         | Variablen `Downloadrate` und `Uploadrate`                                                      |
+| Variablen für Auslastung anlegen                                 | LoadVariables                 | boolean | true         | Variablen `Auslastung Download` und `Auslastung Upload`                                        |
+| Variablen für Summen seit Verbindungsaufbau anlegen              | TotalVariables                | boolean | true         | Variablen `Empfangen seit verbunden` und `Gesendet seit verbunden`                             |
+| Variablen für Fallback-Zugang anlegen (wenn die FritzBox es unterstützt) | FallbackVariables     | boolean | true         | Variablen `Fallback aktiv`, `Primärer Zugang`, `Sekundärer Zugang`                             |
+
+Abgewählte Variablen werden beim Übernehmen der Konfiguration gelöscht.
+Die FritzBox misst etwa alle 5 Sekunden, ein kürzeres Intervall bringt keine neuen Werte.
 
 Beispiel:  
 
@@ -76,6 +89,19 @@ Die Statusvariablen werden automatisch angelegt. Das Löschen einzelner kann zu 
 | PhysicalLinkStatus   | Status der physischen Verbindung | string  |
 | UpstreamMaxBitRate   | Upstream Max kBitrate            | integer |
 | DownstreamMaxBitRate | Downstream Max kBitrate          | integer |
+| RateDownstream       | Downloadrate                     | float   |
+| RateUpstream         | Uploadrate                       | float   |
+| LoadDownstream       | Auslastung Download              | float   |
+| LoadUpstream         | Auslastung Upload                | float   |
+| TotalReceived        | Empfangen seit verbunden         | float   |
+| TotalSent            | Gesendet seit verbunden          | float   |
+| FallbackActive       | Fallback aktiv                   | boolean |
+| PrimaryAccess        | Primärer Zugang                  | string  |
+| SecondaryAccess      | Sekundärer Zugang                | string  |
+
+**Raten und Auslastung** stammen aus dem Online-Monitor der FritzBox (`FB_GetOnlineMonitor`), jeweils vom aktiven Zugang (Synchronisationsgruppe mit Maximalwert und dem meisten Verkehr). Die Auslastung bezieht sich auf den Maximalwert dieses Zugangs. Meldet der Zugang keinen Maximalwert (z.B. Ethernet ohne eingestellte Rate), behält die Auslastung ihren letzten Wert.
+**Summen** zählen seit dem letzten Verbindungsaufbau (64 Bit). Laut AVM liefert die FritzBox sie nur, wenn „Statusinformationen über UPnP übertragen“ aktiv ist, sonst 0; die Variablen behalten dann ihren letzten Wert.
+**Fallback** fragt die Instanz nur ab, wenn die FritzBox die Funktion kennt (z.B. 5690, 7690; nicht 6690). Sonst werden die Variablen nicht angelegt. *Nicht live getestet.*
 
 ### Darstellungen
 
@@ -83,15 +109,28 @@ Die Statusvariablen werden automatisch angelegt. Das Löschen einzelner kann zu 
 | ---------------------------------------- | ----------- | ------------- |
 | WANAccessType                            | Aufzählung  | `DSL`, `Ethernet` = Netzwerk, `X_AVM-DE_Fiber` = Glasfaser, `X_AVM-DE_Cable` = Kabelanschluss, `X_AVM-DE_LTE` = LTE, `X_AVM-DE_UMTS` = UMTS, `unknown` = unbekannt |
 | UpstreamMaxBitRate, DownstreamMaxBitRate | Wertanzeige | Suffix ` kBit/s` |
+| RateDownstream, RateUpstream             | Wertanzeige | Suffix ` Mbit/s`, 2 Nachkommastellen |
+| LoadDownstream, LoadUpstream             | Wertanzeige | Suffix `%`, 2 Nachkommastellen, 0 bis 100 |
+| TotalReceived, TotalSent                 | Wertanzeige | Suffix ` GB`, 2 Nachkommastellen |
+| FallbackActive                           | Wertanzeige | `An`/`Aus` |
 
-`Status der physischen Verbindung` hat keine Darstellung (Text).  
+`Status der physischen Verbindung` ist eine Aufzählung: `Up` = Verbunden (grün), `Down` = Getrennt (rot), `Initializing` = Initialisieren, `Unavailable` = Nicht verfügbar.  
 
 ## 6. Visualisierung
 
 ### Kachel Visualisierung
 
 **Instanz-Kachel:** Die Instanz bringt eine eigene Kachel mit. Sie zeigt Zugangsart und Status, die aktuelle Auslastung von Download und Upload im Verhältnis zur maximalen Bitrate und, größer, den Verlauf der letzten 20 Messpunkte als Diagramm (skaliert auf den Spitzenwert). Die Zugangsart wird in der Kachel nur angezeigt.  
-Die Messpunkte liefert die FritzBox vermutlich in Byte/s (wie beim Online-Monitor, nicht von AVM dokumentiert); die Kachel rechnet in Mbit/s um.  
+Die Messpunkte (Byte/s laut AVM) stammen aus dem Online-Monitor des aktiven Zugangs; die Kachel rechnet in Mbit/s um. Melden mehrere Zugänge Daten (z.B. Kabel und LTE-Fallback), lässt sich in der Kachel zwischen ihnen umschalten.  
+Die Kachel folgt der Auswahl der Variablen: ohne `Variablen für aktuelle Raten` keine Mbit/s (Balken mit Prozent), ohne `Variablen für Auslastung` kein Balken (nur Mbit/s), ohne `Variablen für Summen` kein Verlauf.  
+
+**Bedienung in der Kachel:**
+
+- Umschalter der Zugänge (nur wenn mehrere Zugänge Daten melden): zeigt Balken und Verlauf des gewählten Zugangs.
+- Sonst nur Anzeige. Die Zugangsart lässt sich in der Kachel nicht umschalten (das würde die Verbindung unterbrechen), dafür die Variable `WAN Zugangsart` bzw. `FB_SetWANAccessType` nutzen.
+
+<!-- Screenshot folgt: imgs/tile_instance.png (Instanz-Kachel, siehe readme-regeln.md) -->
+
 Ob die Kachel oder die Liste der Variablen erscheint, wird in der Kachel-Visualisierung je Kachel eingestellt. Die Kachel passt sich ihrer Größe an und übernimmt die Farben des Designs der Visualisierung. Die maximierte Kachel benötigt Symcon ab 9.1.  
 
 Die Instanz wird als Kachel in der Darstellung `Liste` angezeigt. Das Bild zeigt die maximierte Kachel mit allen Variablen.  
@@ -186,6 +225,22 @@ $Result = FB_GetOnlineMonitor(12345, 0);
 echo $Result['NewSyncGroupMode']; // CABLE
 $Download = explode(',', $Result['Newds_current_bps']);
 ```
+
+---
+
+```php
+array|false FB_GetAddonInfos(integer $InstanzID);
+```
+
+Liefert manuelle, Sync-, Brutto-, Vertrags- und L2-Raten des aktiven Zugangs in Bit/s sowie die Zugangsart (`NewX_AVM-DE_…`). Nicht jede FritzBox kennt die Funktion (z.B. 5690, 7690), sonst Fehlermeldung und `false`. *Nicht live getestet.*
+
+---
+
+```php
+array|false FB_GetFallbackProtectionInfo(integer $InstanzID);
+```
+
+Liefert den Status des Fallback-Zugangs: `NewX_AVM-DE_FallbackMode`, `NewX_AVM-DE_PrimaryAccess`, `NewX_AVM-DE_SecondaryAccess`, `NewX_AVM-DE_FallbackDowntime`, `NewX_AVM-DE_FallbackReverttime`, `NewX_AVM-DE_FallbackActive`. Nicht jede FritzBox kennt die Funktion (z.B. 5690, 7690), sonst Fehlermeldung und `false`. *Nicht live getestet.*
 
 ---
 

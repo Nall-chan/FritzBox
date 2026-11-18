@@ -1,6 +1,7 @@
 {
     "translations": {
         "de": {
+            "Link copied": "Link kopiert",
             "Entries": "Einträge",
             "All": "Alle",
             "Cancel": "Abbrechen",
@@ -13,6 +14,15 @@
             "online": "online",
             "Search": "Suchen",
             "No devices": "Keine Geräte",
+            "Devices": "Geräte",
+            "Mesh": "Mesh",
+            "Refresh": "Aktualisieren",
+            "Loading…": "Lädt…",
+            "Mesh master": "Mesh Master",
+            "Mesh repeater": "Mesh Repeater",
+            "%d devices": "%d Geräte",
+            "%d devices without connection": "%d Geräte ohne Verbindung",
+            "Mesh overview not available.": "Mesh-Übersicht nicht verfügbar.",
             "Online": "Online",
             "Offline": "Offline",
             "LAN": "LAN",
@@ -30,6 +40,8 @@
             "Read network devices": "Lese Netzwerkgeräte",
             "Event subscribe error": "Ereignisabonnementfehler",
             "Invalid Ident.": "Ungültiger Ident.",
+            "Wake-On-LAN requires a MAC address.": "Wake-On-LAN benötigt eine MAC-Adresse.",
+            "The status variable of this device has no action.": "Die Statusvariable dieses Gerätes hat keine Aktion.",
             "Number of network devices": "Anzahl der Netzwerkgeräte",
             "Number of active network devices": "Anzahl der aktiven Netzwerkgeräte",
             "Hostname": "Hostname",

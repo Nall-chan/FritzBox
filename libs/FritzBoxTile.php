@@ -32,7 +32,7 @@ trait Tile
      *
      * @var string[]
      */
-    private static array $TileCoreTexts = ['Entries', 'All', 'Cancel', 'OK', 'Show chart'];
+    private static array $TileCoreTexts = ['Entries', 'All', 'Cancel', 'OK', 'Show chart', 'Link copied'];
 
     /**
      * Interne Funktion des SDK.
@@ -109,6 +109,41 @@ trait Tile
     }
 
     /**
+     * Bedienbar, wenn die Variable eine Aktion hat (Standard- oder eigene Aktion) und der Nutzer sie nicht deaktiviert hat.
+     *
+     * @param int $VariableId ID der Statusvariable.
+     */
+    protected function TileVariableHasAction(int $VariableId): bool
+    {
+        if (!IPS_VariableExists($VariableId)) {
+            return false;
+        }
+        return HasAction($VariableId) && (IPS_GetVariable($VariableId)['VariableCustomAction'] != VARIABLE_ACTION_DISABLED);
+    }
+
+    /**
+     * Prüft ein Gerät der Gerätekachel (DECT, Powerline) vor dem Update: bekannt (Kennung aus der FritzBox) und online.
+     * Die FritzBox nimmt den Update-Befehl auch für Geräte an, die offline sind, und meldet keinen Fehler.
+     *
+     * @param array  $Devices Geräte der Kachel (je Eintrag `ident` der Gerätevariable und `key` der FritzBox).
+     * @param string $Key     Kennung des Gerätes aus der Kachel.
+     */
+    protected function TileDeviceReadyForUpdate(array $Devices, string $Key): bool
+    {
+        $Index = array_search($Key, array_column($Devices, 'key'), true);
+        if ($Index === false) {
+            trigger_error($this->Translate('Unknown device.'), E_USER_NOTICE);
+            return false;
+        }
+        $VariableId = @$this->GetIDForIdent($Devices[$Index]['ident']);
+        if ($VariableId && !GetValueBoolean($VariableId)) {
+            trigger_error($this->Translate('The device is offline, the update cannot be started.'), E_USER_NOTICE);
+            return false;
+        }
+        return true;
+    }
+
+    /**
      * Beschreibung einer Statusvariable für die Kachel: Wert, formatierter Wert, bedienbar und Farbe/Symbol laut Darstellung.
      *
      * @param string $Ident Ident der Statusvariable.
@@ -129,8 +164,7 @@ trait Tile
             'name'   => IPS_GetName($VariableId),
             'value'  => $Value,
             'text'   => GetValueFormatted($VariableId),
-            // Bedienbar, wenn die Variable eine Aktion hat und der Nutzer sie nicht deaktiviert hat
-            'action' => HasAction($VariableId) && ($Variable['VariableCustomAction'] != VARIABLE_ACTION_DISABLED),
+            'action' => $this->TileVariableHasAction($VariableId),
             'color'  => -1,
             'icon'   => ''
         ];

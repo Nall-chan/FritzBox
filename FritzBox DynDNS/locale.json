@@ -1,6 +1,8 @@
 {
     "translations": {
         "de": {
+            "On": "An",
+            "Off": "Aus",
             "FritzBox DynDns": "FritzBox DynDns",
             "Refresh Interval": "Aktualisierungsintervall",
             "seconds": "Sekunden",

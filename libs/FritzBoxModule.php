@@ -6,6 +6,9 @@ namespace FritzBox;
 
 require_once __DIR__ . '/FritzBoxConstants.php';
 require_once __DIR__ . '/FritzBoxParser.php';
+require_once __DIR__ . '/FritzBoxMesh.php';
+require_once __DIR__ . '/FritzBoxM3U.php';
+require_once __DIR__ . '/FritzBoxOnlineMonitor.php';
 require_once __DIR__ . '/FritzBoxPresentations.php';
 
 /**

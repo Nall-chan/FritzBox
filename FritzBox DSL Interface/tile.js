@@ -14,9 +14,9 @@
   function pair(label, down, up) {
     if (!down && !up) return '';
     return '<li class="row"><span class="main"><span class="l1">' + esc(T(label)) + '</span></span><span class="side">' +
-      (down ? '↓ ' + esc(down.text) : '') + (up ? '&nbsp;&nbsp;↑ ' + esc(up.text) : '') + '</span></li>';
+      (down ? '↓ ' + esc(FB.vtext(down)) : '') + (up ? '&nbsp;&nbsp;↑ ' + esc(FB.vtext(up)) : '') + '</span></li>';
   }
-  const value = v => v ? '<li class="row"><span class="main"><span class="l1">' + esc(v.name) + '</span></span><span class="side">' + esc(v.text) + '</span></li>' : '';
+  const value = v => v ? '<li class="row"><span class="main"><span class="l1">' + esc(v.name) + '</span></span><span class="side">' + esc(FB.vtext(v)) + '</span></li>' : '';
 
   FB.render = (d, size) => {
     if (!d.downRate && !d.upRate) return '<div class="empty">' + esc(T('No data')) + '</div>';

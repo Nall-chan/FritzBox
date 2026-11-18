@@ -94,19 +94,32 @@ Die Statusvariablen werden automatisch angelegt. Das Löschen einzelner kann zu 
 | `IP` + IP Adresse    | Hostname                          | boolean | Onlinezustand (Netzwerkgeräte ohne MAC-Adresse)                   |
 
 Der Ident der Netzwerkgeräte besteht aus `MAC` bzw. `IP` und der Adresse ohne Trennzeichen, z.B. `MAC001122AABBCC` oder `IP19216820110`.  
-Variablen mit MAC-Adresse können ein Wake-On-LAN an das Netzwerkgerät senden. Diese Standardaktion ist beim Anlegen deaktiviert und kann in den Einstellungen der Variable aktiviert werden.  
+Die Variablen der Netzwerkgeräte haben eine Aktion: Schalten auf An sendet bei Variablen mit MAC-Adresse ein Wake-On-LAN an das Netzwerkgerät; Variablen ohne MAC-Adresse (`IP…`) melden „Wake-On-LAN benötigt eine MAC-Adresse.“. Bis Version 0.94 wurde die Standardaktion beim Anlegen deaktiviert; bei diesen Variablen bleibt sie deaktiviert, bis sie in den Einstellungen der Variable aktiviert wird.  
 
 ## 6. Visualisierung
 
 ### Kachel Visualisierung
 
-**Instanz-Kachel:** Die Instanz bringt eine eigene Kachel mit. Klein zeigt sie die Anzahl der Netzwerkgeräte online/gesamt, größer die Geräteliste mit Filter (alle, online, offline, LAN, WLAN), Suche, IP-Adresse und Geschwindigkeit. Geräte mit MAC-Adresse, die offline sind, lassen sich per Wake-On-LAN wecken (mit Sicherheitsabfrage). Ein Klick auf den Namen öffnet die Variable des Gerätes, sofern angelegt. Die Anzahl der angezeigten Geräte ist in der Kachel einstellbar.  
-*Wake-On-LAN aus der Instanz-Kachel ist nicht live getestet.*  
+**Instanz-Kachel:** Die Instanz bringt eine eigene Kachel mit. Klein zeigt sie die Anzahl der Netzwerkgeräte online/gesamt, größer die Geräteliste mit Filter (alle, online, offline, LAN, WLAN), Suche, IP-Adresse und Geschwindigkeit. Geräte, die offline sind, lassen sich aufwecken (mit Sicherheitsabfrage), wenn ihre Statusvariable eine Aktion hat: Die Kachel löst diese Aktion aus, also das Wake-On-LAN der Standardaktion oder eine eigene Aktion. Ohne Statusvariable oder mit deaktivierter Aktion zeigt die Kachel keinen Button. Ein Klick auf den Namen öffnet die Variable des Gerätes, sofern angelegt. Die Anzahl der angezeigten Geräte ist in der Kachel einstellbar.  
+Über den Umschalter `Geräte | Mesh` (ersetzt die Überschrift) zeigt die Kachel die Mesh-Übersicht der FritzBox als Baum: FritzBox (Mesh Master) → Anschluss (LAN, WLAN-Band, Powerline) → Geräte, darunter wieder die Geräte hinter Mesh-Repeatern, Powerline-Adaptern und Switches mit Datenrate je Verbindung. Die Übersicht wird nur geladen, wenn die Ansicht offen ist, und lässt sich in der Kachel aktualisieren. Die gewählte Ansicht merkt sich der Browser.  
+*Mesh-Übersicht live nur mit LAN und Powerline getestet (ohne WLAN-Geräte und Mesh-Repeater).*  
+
+**Bedienung in der Kachel:**
+
+- Umschalter `Geräte | Mesh` (statt der Überschrift): wechselt zwischen Geräteliste und Mesh-Übersicht (merkt sich der Browser).
+- Filter `Alle | Online | Offline | LAN | WLAN` und Suchfeld (ab breiter Kachel, Name, IP- und MAC-Adresse): schränken die Geräteliste ein.
+- Klick auf den Namen eines Gerätes: öffnet seine Statusvariable als Vollbild, bei geloggter Variable mit dem zugehörigen Diagramm (nur, wenn die Variable angelegt ist).
+- Power-Symbol bei Geräten, die offline sind: löst die Aktion der Statusvariable aus, z.B. Wake-On-LAN (mit Sicherheitsabfrage; nur, wenn die Variable eine Aktion hat).
+- Mesh-Übersicht: Klick auf einen Knoten klappt die Geräte dahinter auf bzw. zu (bleibt beim Aktualisieren erhalten); das Symbol rechts oben lädt die Übersicht neu von der FritzBox. Switches ohne eigene Mesh-Funktion meldet die FritzBox nicht; Geräte dahinter erscheinen direkt am LAN-Anschluss der FritzBox.
+- `Einträge`: Anzahl der angezeigten Geräte (merkt sich der Browser).
+
+<!-- Screenshot folgt: imgs/tile_instance.png (Instanz-Kachel, siehe readme-regeln.md) -->
+
 Ob die Kachel oder die Liste der Variablen erscheint, wird in der Kachel-Visualisierung je Kachel eingestellt. Die Kachel passt sich ihrer Größe an und übernimmt die Farben des Designs der Visualisierung. Die maximierte Kachel benötigt Symcon ab 9.1.  
 
 Die Instanz wird als Kachel in der Darstellung `Liste` angezeigt. Das Bild zeigt die maximierte Kachel mit allen Variablen.  
 `Netzwerkgeräte` ist eine HTML-Box; das Symbol in der Liste öffnet die Tabelle aller Netzwerkgeräte. Die Tabelle kann per Klick auf eine Spaltenüberschrift sortiert werden.  
-Die Anzahl-Variablen werden als Zahl, die Variablen der Netzwerkgeräte als Schalter (Onlinezustand) dargestellt. Ist die Standardaktion einer Variable aktiviert, sendet das Schalten ein Wake-On-LAN.  
+Die Anzahl-Variablen werden als Zahl, die Variablen der Netzwerkgeräte als Schalter (Onlinezustand) dargestellt. Schalten auf An sendet ein Wake-On-LAN (siehe oben).  
 
 ![Kachel Liste](imgs/tile_list.png)  
 

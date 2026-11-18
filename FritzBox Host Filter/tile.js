@@ -9,24 +9,38 @@
   let entry = null;    // Details des Gerätes (Nachricht hostEntry)
 
   const minutes = s => Math.round((s || 0) / 60) + ' ' + T('min');
+  // Rest in Minuten (Annahme, deckt sich mit der FritzBox-Oberfläche): verbleibendes Budget + Restminuten des laufenden
+  // Tickets + Tickets im Voraus × 45 min. Ohne Budget und ohne Ticket keine Angabe.
+  const remaining = e => (!e.timeMax && !e.ticketValid && !e.tickets) ? null
+    : Math.max(0, Math.round(((e.timeMax || 0) - (e.timeUsed || 0)) / 60)) + (e.ticketValid || 0) + (e.tickets || 0) * 45;
+  // Heute freigegebene Zeit (die FritzBox liefert sie nicht): Budget + Tickets × 45 min. Anzahl der Tickets aus der
+  // Ticket-Zeit, die über das Budget hinaus verbraucht ist, plus Restminuten des laufenden Tickets (TimeUsed zählt die
+  // Ticket-Zeit mit, live geprüft), gerundet auf ganze Tickets, plus Tickets im Voraus.
+  const ticketCount = e => Math.round((Math.max(0, (e.timeUsed || 0) - (e.timeMax || 0)) / 60 + (e.ticketValid || 0)) / 45) + (e.tickets || 0);
+  const granted = e => Math.round((e.timeMax || 0) / 60) + ticketCount(e) * 45;
 
   function details() {
-    if (!entry || entry.ip !== openIp) return '<div class="row" style="justify-content:center">' + esc(T('Loading…')) + '</div>';
+    // Details in derselben Karte wie das Gerät (unter Name/IP, eingerückt); data-on="stay": Klicks hier klappen nicht zu
+    if (!entry || entry.ip !== openIp) return '<div class="rowdetails" data-on="stay"><span class="muted">' + esc(T('Loading…')) + '</span></div>';
     const select = '<select data-profile="' + esc(entry.ip) + '">' + entry.profiles.map(p => '<option value="' + esc(p.id) + '"' + (p.id === entry.profile ? ' selected' : '') + '>' +
       esc(p.name) + '</option>').join('') + '</select>';
-    return '<div class="row" style="flex-wrap:wrap;gap:8px 14px">' +
+    return '<div class="rowdetails" data-on="stay">' +
       '<label class="muted">' + esc(T('Access profile')) + ' ' + select + '</label>' +
-      '<span class="muted">' + esc(T('Online time today')) + ': ' + esc(minutes(entry.timeUsed)) + (entry.timeMax ? ' / ' + esc(minutes(entry.timeMax)) : '') + '</span>' +
-      '<button class="tool" data-act="TileTicket" data-value="' + val(entry.ip) + '">' + icon('ticket') + ' ' + esc(T('Add ticket')) + '</button></div>';
+      '<span class="muted"' + (entry.timeMax && ticketCount(entry) ? ' title="' + esc(T('Budget') + ' ' + minutes(entry.timeMax) + ' + ' + ticketCount(entry) + ' × 45 ' + T('min') + ' ' + T('Ticket')) + '"' : '') + '>' +
+      esc(T('Online time today')) + ': ' + esc(minutes(entry.timeUsed)) + (entry.timeMax ? ' / ' + esc(granted(entry) + ' ' + T('min')) : '') +
+      (remaining(entry) !== null ? ' · ' + esc(T('Remaining')) + ': ' + esc(remaining(entry) + ' ' + T('min')) : '') + '</span>' +
+      // Online-Ticket (zusätzliche Online-Zeit) nur, wenn die FritzBox es für das Gerät freigibt (sonst lehnt sie ab)
+      (entry.ticket ? '<button class="tool" data-act="TileTicket" data-value="' + val(entry.ip) + '">' + icon('ticket') + ' ' + esc(T('Add ticket')) + '</button>' : '') + '</div>';
   }
 
   function row(h) {
     const toggle = '<button class="toggle' + (h.disallow ? ' on' : '') + '" style="--sw:var(--error)" data-act="TileDisallow" data-value="' + val(JSON.stringify({ ip: h.ip, value: !h.disallow })) +
       '" title="' + esc(T('Internet access')) + '"><span class="knob"></span><span>' + esc(T(h.disallow ? 'Blocked' : 'Allowed')) + '</span></button>';
-    return '<li class="row' + (h.active ? '' : ' off') + '"><span class="dot' + (h.active ? ' on' : '') + '"></span>' +
+    // Klick in die Zeile öffnet/schließt die Details (der Schalter hat Vorrang, data-act wird zuerst ausgewertet)
+    return '<li class="row' + (h.active ? '' : ' off') + (openIp === h.ip ? ' open' : '') + '" data-on="details" data-ip="' + esc(h.ip) + '" style="cursor:pointer"><span class="dot' + (h.active ? ' on' : '') + '"></span>' +
       '<span class="main"><span class="l1">' + esc(h.name) + '</span><span class="l2">' + esc(h.ip) + '</span></span>' +
       '<span class="side">' + toggle + '<button class="btn" data-on="details" data-ip="' + esc(h.ip) + '" title="' + esc(T('Details')) + '">' +
-      icon(openIp === h.ip ? 'chevron-up' : 'chevron-down') + '</button></span></li>' + (openIp === h.ip ? details() : '');
+      icon(openIp === h.ip ? 'chevron-up' : 'chevron-down') + '</button></span>' + (openIp === h.ip ? details() : '') + '</li>';
   }
 
   FB.render = (d, size) => {

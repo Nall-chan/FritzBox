@@ -27,6 +27,8 @@ namespace FritzBox {
         public const RefreshHostList = 'RefreshHostList';
         public const NewHostListEvent = 'NewHostListEvent';
         public const LoadAndGetData = 'LoadAndGetData';
+        /** Datei vom Webserver der FritzBox laden (Port 80/443 statt TR-064-Port), z.B. DVB-C Senderlisten. */
+        public const LoadWebData = 'LoadWebData';
         public const LoadAndSaveFile = 'LoadAndSaveFile';
         public const GetFile = 'GetFile';
         public const GetAreaCodes = 'GetAreaCodes';
@@ -55,6 +57,12 @@ namespace FritzBox\Base {
     {
         public const Index = 'Index';
         public const RefreshInterval = 'RefreshInterval';
+    }
+
+    class Attribute
+    {
+        /** Alte Untervariablen (bis 0.94) sind zu Zusatzvariablen der Instanz migriert (einmalig in Migrate). */
+        public const LegacySubVariablesMigrated = 'LegacySubVariablesMigrated';
     }
 
     class Timer
@@ -169,8 +177,15 @@ namespace FritzBox\Callmonitor {
         public const NotShowWarning = 'NotShowWarning';
         public const SearchMarker = 'SearchMarker';
         public const Targets = 'Targets';
-        /** Kachel-Visualisierung, in der ein eingehender Anruf die Kachel als Popup öffnet (0 = aus). */
-        public const PopupVisualization = 'PopupVisualization';
+        /** Bei eingehendem Anruf die Kachel in der Kachel-Visu als Vollbild öffnen. */
+        public const OpenTileOnRing = 'OpenTileOnRing';
+    }
+
+    /** Module, die als Ziel einer Benachrichtigung dienen. */
+    class Visualization
+    {
+        public const WebFront = '{3565B1F2-8F7B-4311-A4B6-1BF1D868F39E}';
+        public const Tile = '{B5B875BB-9B76-45FD-4E67-2607E45B3AC4}';
     }
 
     class Action
@@ -185,7 +200,6 @@ namespace FritzBox\Callmonitor {
         public const ReverseSearchInstanceID = 'ReverseSearchInstanceID';
         public const RunActions = 'RunActions';
         public const SendNotification = 'SendNotification';
-        public const OpenPopup = 'OpenPopup';
     }
 
     class Variables
@@ -214,6 +228,18 @@ namespace FritzBox\DVBC {
         public const SearchProgress = 'SearchProgress';
         public const StationSearchMode = 'StationSearchMode';
         public const StationSearchStatus = 'StationSearchStatus';
+    }
+
+    /**
+     * Senderlisten der FritzBox (Webserver, ohne Anmeldung), Schlüssel = Liste in der Kachel.
+     */
+    class Lists
+    {
+        public const Paths = [
+            'tvhd'  => '/dvb/m3u/tvhd.m3u',
+            'tvsd'  => '/dvb/m3u/tvsd.m3u',
+            'radio' => '/dvb/m3u/radio.m3u'
+        ];
     }
 }
 
@@ -401,6 +427,7 @@ namespace FritzBox\Telephony {
         public const CallBarringAsVariable = 'CallBarringAsVariable';
         public const CallLogAsVariable = 'CallLogAsVariable';
         public const DeflectionAsVariable = 'DeflectionAsVariable';
+        public const TileDialHelp = 'TileDialHelp';
         public const Icons = 'Icons';
         public const LastEntries = 'LastEntries';
         public const LoadListType = 'LoadListType';
@@ -417,11 +444,15 @@ namespace FritzBox\Telephony {
         public const RefreshCallLog = 'RefreshCallLog';
         public const RefreshDeflectionList = 'RefreshDeflectionList';
         public const RefreshPhonebook = 'RefreshPhonebook';
+        /** Beendet die Anzeige „Wählvorgang läuft“ der Kachel nach DialTimeout Sekunden. */
+        public const DialTimeout = 'DialTimeout';
     }
 
     class Action
     {
         public const CallLogAsVariable = 'CallLogAsVariable';
+        public const DialTimeout = 'DialTimeout';
+        public const LoadListType = 'LoadListType';
         public const CustomSearchScriptID = 'CustomSearchScriptID';
         public const InstallCIRSModule = 'InstallCIRSModule';
         public const PreviewIcon = 'PreviewIcon';
@@ -527,6 +558,16 @@ namespace FritzBox\WANIPConnection {
 }
 
 namespace FritzBox\WANPhysicalInterface {
+    class Property
+    {
+        /** Abfrage von Raten, Auslastung und Zählern (Sekunden); RefreshInterval gilt für Zugangsart, Status und maximale Bitraten. */
+        public const RefreshMonitorInterval = 'RefreshMonitorInterval';
+        public const RateVariables = 'RateVariables';
+        public const LoadVariables = 'LoadVariables';
+        public const TotalVariables = 'TotalVariables';
+        public const FallbackVariables = 'FallbackVariables';
+    }
+
     class Timer
     {
         public const RefreshLinkProperties = 'RefreshLinkProperties';
@@ -543,6 +584,23 @@ namespace FritzBox\WANPhysicalInterface {
         public const PhysicalLinkStatus = 'PhysicalLinkStatus';
         public const UpstreamMaxBitRate = 'UpstreamMaxBitRate';
         public const WANAccessType = 'WANAccessType';
+        public const RateDownstream = 'RateDownstream';
+        public const RateUpstream = 'RateUpstream';
+        public const LoadDownstream = 'LoadDownstream';
+        public const LoadUpstream = 'LoadUpstream';
+        public const TotalReceived = 'TotalReceived';
+        public const TotalSent = 'TotalSent';
+        public const FallbackActive = 'FallbackActive';
+        public const PrimaryAccess = 'PrimaryAccess';
+        public const SecondaryAccess = 'SecondaryAccess';
+
+        /** Variablen je Eigenschaft (zum Entfernen beim Abwählen). */
+        public const ByProperty = [
+            Property::RateVariables     => [self::RateDownstream, self::RateUpstream],
+            Property::LoadVariables     => [self::LoadDownstream, self::LoadUpstream],
+            Property::TotalVariables    => [self::TotalReceived, self::TotalSent],
+            Property::FallbackVariables => [self::FallbackActive, self::PrimaryAccess, self::SecondaryAccess]
+        ];
     }
 }
 
@@ -759,5 +817,9 @@ namespace FritzBox\Tile {
         public const Ticket = 'TileTicket';
         /** Dateifreigaben: Freigabe löschen (Wert = ID der Freigabe). */
         public const DeleteShare = 'TileDeleteShare';
+        /** Netzwerkgeräte: Mesh-Übersicht laden und an die Kachel senden. */
+        public const Mesh = 'TileMesh';
+        /** DVB-C: Senderlisten neu von der FritzBox laden. */
+        public const Stations = 'TileStations';
     }
 }

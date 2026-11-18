@@ -45,6 +45,9 @@ class Presentation
         'FB.MByte'        => [' MB', 2, null, null],
         'FB.kbs'          => [' kb/s', 2, null, null],
         'FB.MBits'        => [' MBit/s', 0, null, null],
+        // ab 1.0, ohne früheres Profil
+        'FB.MBits.Float'  => [' Mbit/s', 2, null, null],
+        'FB.GByte'        => [' GB', 2, null, null],
         '~Intensity.100'  => [' %', 0, 0, 100],
         '~Temperature'    => [' °C', 1, null, null],
         '~Watt'           => [' W', 1, null, null],
@@ -83,6 +86,10 @@ class Presentation
             ['DSL', 'DSL', -1], ['ATA', 'ATA', -1], ['USB-Tethering', 'USB-Tethering', -1], ['Cable', 'Cable', -1], ['LTE', 'LTE', -1],
             ['Serial', 'Serial', -1], ['WLAN', 'WLAN', -1], ['ISDN', 'ISDN', -1], ['IP-Client', 'IP-Client', -1], ['Fiber', 'Fiber', -1], ['Other', 'Other', -1]
         ],
+        // ab 1.0, ohne früheres Profil: GetCommonLinkProperties `NewPhysicalLinkStatus` (Werte laut AVM)
+        'FB.PhysicalLinkStatus' => [
+            ['Up', 'Up', 0x00ff00], ['Down', 'Down', 0xff0000], ['Initializing', 'Initializing', -1], ['Unavailable', 'Unavailable', -1]
+        ],
         'FB.AccessType' => [
             ['DSL', 'DSL', -1], ['Ethernet', 'Ethernet', -1], ['X_AVM-DE_Fiber', 'Fiber', -1], ['X_AVM-DE_UMTS', 'UMTS', -1],
             ['X_AVM-DE_Cable', 'Cable', -1], ['X_AVM-DE_LTE', 'LTE', -1], ['unknown', 'unknown', -1]
@@ -108,7 +115,24 @@ class Presentation
         }
         switch ($Profile) {
             case '~Switch':
-                return ['PRESENTATION' => self::Switch];
+                // Der Schalter ist nur für Variablen mit Aktion zulässig, sonst Wertanzeige mit An/Aus
+                if ($Action) {
+                    return ['PRESENTATION' => self::Switch];
+                }
+                $Options = [];
+                foreach ([[false, 'Off'], [true, 'On']] as [$Value, $Caption]) {
+                    $Options[] = [
+                        'Value'              => $Value,
+                        'Caption'            => $Translate($Caption),
+                        'IconActive'         => false,
+                        'IconValue'          => '',
+                        'ColorActive'        => false,
+                        'ColorValue'         => -1,
+                        'ContentColorActive' => false,
+                        'ContentColorValue'  => -1
+                    ];
+                }
+                return ['PRESENTATION' => self::ValuePresentation, 'OPTIONS' => json_encode($Options)];
             case '~HTMLBox':
                 return ['PRESENTATION' => self::WebContent];
             case '~TextBox':

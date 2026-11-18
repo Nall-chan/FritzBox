@@ -34,6 +34,7 @@ DVB-C Receivers der FritzBox auslesen und steuern.
 - De/Aktivieren des Empfängers.
 - Status des Sendersuchlauf.
 - Starten des Sendersuchlauf.
+- Senderlisten (TV HD, TV SD, Radio) in der Instanz-Kachel, Link (RTSP-Adresse) je Sender kopieren.
 
 ## 2. Voraussetzungen
 
@@ -92,6 +93,20 @@ Die Statusvariablen werden automatisch angelegt. Das Löschen einzelner kann zu 
 ## 6. Visualisierung
 
 ### Kachel Visualisierung
+
+**Instanz-Kachel:** Die Instanz bringt eine eigene Kachel mit. Sie zeigt die Senderlisten der FritzBox (TV HD, TV SD, Radio), klein nur die Anzahl der Sender. Die Listen lädt die Instanz vom Webserver der FritzBox (`/dvb/m3u/…`, ohne Anmeldung): beim Start, nach einem Sendersuchlauf und auf Anforderung in der Kachel. Die Adressen sind RTSP-Adressen der FritzBox; abspielen lassen sie sich nur im eigenen Netz und mit einem Player, der RTSP über UDP beherrscht (z.B. VLC).  
+
+**Bedienung in der Kachel:**
+
+- Umschalter `TV HD | TV SD | Radio`: wechselt die Senderliste (merkt sich der Browser).
+- Kopieren-Symbol je Sender: kopiert die RTSP-Adresse des Senders in die Zwischenablage.
+- Aktualisieren-Symbol: lädt die Senderlisten neu von der FritzBox.
+- Suchfeld (ab breiter Kachel): filtert nach dem Sendernamen.
+- `Einträge`: Anzahl der angezeigten Sender (merkt sich der Browser).
+
+<!-- Screenshot folgt: imgs/tile_instance.png (Instanz-Kachel, siehe readme-regeln.md) -->
+
+Ob die Kachel oder die Liste der Variablen erscheint, wird in der Kachel-Visualisierung je Kachel eingestellt. Die Kachel passt sich ihrer Größe an und übernimmt die Farben des Designs der Visualisierung. Die maximierte Kachel benötigt Symcon ab 9.1.  
 
 Die Instanz wird als Kachel in der Darstellung `Liste` angezeigt. Das Bild zeigt die maximierte Kachel mit allen Variablen.  
 `DVBC aktiv` wird als Schalter dargestellt, `Sendersuchlauf` als Auswahl `Start`/`Stop`. `Status Sendersuchlauf` zeigt `Aktiv` oder `Inaktiv`, `Fortschritt Sendersuchlauf` den Wert in Prozent.  

@@ -141,7 +141,10 @@ class FritzBoxHostFilter extends FritzBoxModulBase
                 'name'     => (string) $Host->HostName,
                 'ip'       => (string) $Host->IPAddress,
                 'active'   => (int) $Host->Active == 1,
-                'disallow' => (int) $Host->{'X_AVM-DE_Disallow'} == 1
+                'disallow' => (int) $Host->{'X_AVM-DE_Disallow'} == 1,
+                'guest'    => (int) $Host->{'X_AVM-DE_Guest'} == 1,
+                // Online-Ticket möglich (Angabe der FritzBox; live 0 auch bei Profil mit Zeitplan, solange nicht gesperrt)
+                'ticket'   => (int) $Host->{'X_AVM-DE_AddTicketAvailable'} == 1
             ];
         }
         $this->TileHosts = $TileHosts;
@@ -358,11 +361,22 @@ class FritzBoxHostFilter extends FritzBoxModulBase
                 if (!is_array($Data) || !$this->AddHostEntryToFilterProfile((string) ($Data['ip'] ?? ''), (string) ($Data['profile'] ?? ''))) {
                     return false;
                 }
+                // Prüfen, ob die FritzBox das Profil übernommen hat (Standard wird bei Geräten außerhalb des Gastnetzes
+                // als Gast-Profil gemeldet, siehe TileProfiles)
+                $Entry = $this->GetHostEntryByIP((string) $Data['ip']);
+                if (is_array($Entry)) {
+                    $Tile = $this->TileProfiles((string) $Data['ip'], (string) ($Entry['NewFilterProfileID'] ?? ''));
+                    if ($Tile['profile'] != (string) $Data['profile']) {
+                        $this->PushTileNotice($this->Translate('The FritzBox did not apply the access profile.'));
+                    }
+                }
                 return $this->PushTileHostEntry((string) $Data['ip']);
             case \FritzBox\Tile\Action::Ticket:
                 if ($this->AddTicketTimeToHostEntryByIP((string) $Value) === false) {
                     return false;
                 }
+                // Rückmeldung: Online-Zeit und Budget ändern sich durch ein Ticket nicht sichtbar (TimeMax ohne Ticket-Zeit)
+                $this->PushTileNotice($this->Translate('Online ticket added.'));
                 return $this->PushTileHostEntry((string) $Value);
             case \FritzBox\HostFilter\Action::ReloadForm:
                 usleep((2000) * 1000);
@@ -418,7 +432,7 @@ class FritzBoxHostFilter extends FritzBoxModulBase
     {
         return [
             'Internet access', 'Blocked', 'Allowed', 'Blocked devices', 'Search', 'No devices', 'Access profile', 'Online ticket', 'Add ticket',
-            'Online time today', 'min', 'Details', 'Loading…'
+            'Online time today', 'min', 'Details', 'Loading…', 'Remaining', 'Budget', 'Ticket'
         ];
     }
 
@@ -446,28 +460,78 @@ class FritzBoxHostFilter extends FritzBoxModulBase
         if ($Entry === false) {
             return false;
         }
+        $Tile = $this->TileProfiles($IPAddress, (string) ($Entry['NewFilterProfileID'] ?? ''));
+        $this->UpdateVisualizationValue(json_encode([
+            'type'     => 'hostEntry',
+            'ip'       => $IPAddress,
+            'profile'  => $Tile['profile'],
+            'wan'      => (string) ($Entry['NewWANAccess'] ?? ''),
+            'timeUsed' => (int) ($Entry['NewTimeUsed'] ?? 0),
+            'timeMax'  => (int) ($Entry['NewTimeMax'] ?? 0),
+            'tickets'  => (int) ($Entry['NewTicketsInAdvance'] ?? 0),
+            // Restminuten des laufenden Online-Tickets (zählt herunter, live geprüft; ein Ticket = 45 min)
+            'ticketValid' => (int) ($Entry['NewTicketValid'] ?? 0),
+            'ticket'      => $Tile['ticket'],
+            'profiles'    => $Tile['profiles']
+        ], self::$TileJsonFlags));
+        return true;
+    }
+
+    /**
+     * Zugangsprofile für die Kachel, wie sie die Oberfläche der FritzBox zeigt.
+     *
+     * Live an einer 6690 (FRITZ!OS 8.x) beobachtet, nicht von AVM dokumentiert: Für Geräte außerhalb des Gastnetzes
+     * lehnt die FritzBox das Gast-Profil mit Fehler 820 ab; `Standard` nimmt sie an, meldet danach aber die ID des
+     * Gast-Profils (die Oberfläche zeigt dann „Standard“). Für diese Geräte daher kein Gast-Profil in der Auswahl und
+     * die Gast-ID als Standard anzeigen. Profile ohne Namen (z. B. Typ Unrestricted) erhalten den übersetzten Typ.
+     *
+     * @param string $IPAddress IP-Adresse des Gerätes.
+     * @param string $ProfileID Profil des Gerätes, wie von GetHostEntryByIP geliefert.
+     *
+     * Ein Online-Ticket (zusätzliche Online-Zeit) bietet die Kachel nur an, wenn die FritzBox es für das Gerät in der
+     * Geräteliste freigibt (`X_AVM-DE_AddTicketAvailable`); sonst antwortet sie mit Fehler 820 (live: auch bei einem
+     * Profil mit Zeitplan, solange das Gerät nicht gesperrt ist).
+     *
+     * @return array ['profile' => anzuzeigende Profil-ID, 'profiles' => [['id', 'name'], …], 'ticket' => bool]
+     */
+    private function TileProfiles(string $IPAddress, string $ProfileID): array
+    {
+        $Hosts = array_column($this->TileHosts, null, 'ip');
+        $IsGuest = (bool) ($Hosts[$IPAddress]['guest'] ?? false);
         $Profiles = [];
+        $GuestIDs = [];
+        $StandardID = '';
+        $Ticket = (bool) ($Hosts[$IPAddress]['ticket'] ?? false);
         $XML = $this->GetFilterProfiles();
         if (is_string($XML) && ($XML != '')) {
             try {
+                $TypeNames = ['Unrestricted' => 'Unrestricted', 'Standard' => 'Standard', 'Guest' => 'Guest'];
                 foreach ((new \SimpleXMLElement($XML))->FilterProfile as $Profile) {
-                    $Profiles[] = ['id' => (string) $Profile->FilterProfileID, 'name' => (string) $Profile->Name];
+                    $ID = (string) $Profile->FilterProfileID;
+                    $Type = (string) $Profile->FilterProfileType;
+                    if ($Type == 'Guest') {
+                        $GuestIDs[] = $ID;
+                        if (!$IsGuest) {
+                            continue;
+                        }
+                    }
+                    if ($Type == 'Standard') {
+                        $StandardID = $ID;
+                    }
+                    $Name = trim((string) $Profile->Name);
+                    if ($Name == '') {
+                        $Name = isset($TypeNames[$Type]) ? $this->Translate($TypeNames[$Type]) : $ID;
+                    }
+                    $Profiles[] = ['id' => $ID, 'name' => $Name];
                 }
             } catch (\Throwable $th) {
                 $this->SendDebug('FilterProfiles', $th->getMessage(), 0);
             }
         }
-        $this->UpdateVisualizationValue(json_encode([
-            'type'     => 'hostEntry',
-            'ip'       => $IPAddress,
-            'profile'  => (string) ($Entry['NewFilterProfileID'] ?? ''),
-            'wan'      => (string) ($Entry['NewWANAccess'] ?? ''),
-            'timeUsed' => (int) ($Entry['NewTimeUsed'] ?? 0),
-            'timeMax'  => (int) ($Entry['NewTimeMax'] ?? 0),
-            'tickets'  => (int) ($Entry['NewTicketsInAdvance'] ?? 0),
-            'profiles' => $Profiles
-        ], self::$TileJsonFlags));
-        return true;
+        if (!$IsGuest && ($StandardID != '') && in_array($ProfileID, $GuestIDs, true)) {
+            $ProfileID = $StandardID;
+        }
+        return ['profile' => $ProfileID, 'profiles' => $Profiles, 'ticket' => $Ticket];
     }
 
     private function UpdateInfo()

@@ -16,7 +16,7 @@ trait HTMLTable
      *
      * @return string HTML-String
      */
-    protected function GetTableHeader(array $Config_Table, array $Config_Columns, bool $HookActive, bool $JSSort = false)
+    protected function GetTableHeader(array $Config_Table, array $Config_Columns, bool $HookActive, bool $JSSort = false): string
     {
         $table = '';
         if ($HookActive) {
@@ -166,7 +166,7 @@ function sortTable' . $this->InstanceID . '(column) {
      *
      * @return string Der HTML-String.
      */
-    protected function GetTable(array $Data, string $HookPrefix = '', string $HookType = '', string $HookId = '', int $CurrentLine = -1, bool $Sortable = false)
+    protected function GetTable(array $Data, string $HookPrefix = '', string $HookType = '', string $HookId = '', int $CurrentLine = -1, bool $Sortable = false): string
     {
         $Config_Table = array_column(json_decode($this->ReadPropertyString(\FritzBox\Table\Property::Table), true), 'style', 'tag');
         $Config_Columns = json_decode($this->ReadPropertyString(\FritzBox\Table\Property::Columns), true);
@@ -237,7 +237,7 @@ function sortTable' . $this->InstanceID . '(column) {
      *
      * @return string HTML-String
      */
-    protected function GetTableFooter()
+    protected function GetTableFooter(): string
     {
         $table = '</tbody>' . PHP_EOL;
         $table .= '</table>' . PHP_EOL;

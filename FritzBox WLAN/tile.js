@@ -1,29 +1,36 @@
 /* FritzBox WLAN – Kachel.
    mini = WLAN an/aus und Anzahl der Geräte, compact = zusätzlich Geräteliste, wide/full = Übersicht mit QR-Code/Passwort links.
    QR-Code und Passwort nur, wenn sie in der Instanz aktiviert sind. Klick auf den Signalbalken öffnet das Diagramm,
-   wenn die Variable der Signalstärke geloggt wird. */
+   wenn die Variable der Signalstärke geloggt wird; Klick auf den Namen das Diagramm des Zustands (verbunden), wenn geloggt,
+   sonst das der Signalstärke. Ab wide Suche nach Name, IP- und MAC-Adresse. */
 (function () {
   'use strict';
   const { T, esc, icon } = FB;
   let showPassword = false;
+  let search = '';
+  const match = h => !search || [h.name, h.ip, h.mac].some(x => String(x || '').toLowerCase().includes(search.toLowerCase()));
 
   function row(h, size) {
     const l2 = [h.ip, size === 'full' ? h.mac : '', h.speed ? h.speed + ' Mbit/s' : ''].filter(x => x).map(esc).join(' · ');
-    const name = h.var ? '<button class="l1" data-on="open" data-id="' + h.var + '" title="' + esc(T('Open variable')) + '" style="text-align:left">' + esc(h.name) + '</button>'
+    const name = h.open ? '<button class="l1" data-on="open" data-id="' + h.open + '" title="' + esc(T('Show chart')) + '" style="text-align:left">' + esc(h.name) + '</button>'
       : '<span class="l1">' + esc(h.name) + '</span>';
     const bar = '<i style="width:' + Math.max(0, Math.min(100, h.signal)) + '%"></i>';
-    const signal = h.chart ? '<button class="bar" data-on="open" data-id="' + h.chart + '" title="' + esc(T('Show chart')) + ': ' + h.signal + ' %">' + bar + '</button>'
-      : '<span class="bar" title="' + esc(T('Signal')) + ': ' + h.signal + ' %">' + bar + '</span>';
+    // Signalstärke als Balken mit Wert in %; Tooltip auf der ganzen Fläche (Balken allein ist nur 6 px hoch)
+    const title = (h.chart ? T('Show chart') : T('Signal')) + ': ' + h.signal + ' %';
+    const inner = '<span class="bar">' + bar + '</span><span class="muted" style="min-width:38px;text-align:right">' + esc(h.signal) + ' %</span>';
+    const signal = h.chart ? '<button data-on="open" data-id="' + h.chart + '" title="' + esc(title) + '" style="display:flex;align-items:center;gap:6px;width:100%">' + inner + '</button>'
+      : '<span title="' + esc(title) + '" style="display:flex;align-items:center;gap:6px;width:100%">' + inner + '</span>';
     return '<li class="row"><span class="ico">' + icon('wifi') + '</span>' +
       '<span class="main">' + name + '<span class="l2">' + l2 + '</span></span>' +
-      '<span class="side" style="width:' + (size === 'compact' ? 60 : 110) + 'px">' + signal + '</span></li>';
+      '<span class="side" style="width:' + (size === 'compact' ? 100 : 150) + 'px">' + signal + '</span></li>';
   }
 
   function hostList(d, size) {
-    const hosts = d.hosts || [];
+    const hosts = (d.hosts || []).filter(h => size === 'compact' || match(h));
     const def = size === 'compact' ? 5 : 25;
     const items = FB.slice('hosts', hosts, def);
-    return '<div class="group grow"><div class="ghead"><span>' + esc(T('Devices')) + '</span>' + FB.limitSelect('hosts', def, hosts.length) + '</div>' +
+    const tools = size === 'compact' ? '' : '<input type="search" data-search placeholder="' + esc(T('Search')) + '" value="' + esc(search) + '" style="width:140px">';
+    return '<div class="group grow"><div class="ghead"><span>' + esc(T('Devices')) + '</span>' + tools + FB.limitSelect('hosts', def, hosts.length) + '</div>' +
       (items.length ? '<ul class="list">' + items.map(h => row(h, size)).join('') + '</ul>' : '<div class="empty">' + esc(T('No devices')) + '</div>') + '</div>';
   }
 
@@ -56,5 +63,20 @@
   FB.handlers.pw = () => {
     showPassword = !showPassword;
     FB.draw();
+  };
+  // Suche: neu zeichnen und den Fokus im Suchfeld behalten
+  FB.afterRender = root => {
+    const input = root.querySelector('[data-search]');
+    if (!input) return;
+    input.addEventListener('input', () => {
+      search = input.value;
+      const pos = input.selectionStart;
+      FB.draw();
+      const again = document.querySelector('[data-search]');
+      if (again) {
+        again.focus();
+        again.setSelectionRange(pos, pos);
+      }
+    });
   };
 })();

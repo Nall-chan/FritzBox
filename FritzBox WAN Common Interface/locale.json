@@ -1,6 +1,8 @@
 {
     "translations": {
         "de": {
+            "On": "An",
+            "Off": "Aus",
             "DSL": "DSL",
             "ATA": "ATA",
             "USB-Tethering": "USB-Tethering",

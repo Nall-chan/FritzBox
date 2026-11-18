@@ -90,7 +90,18 @@ Die Statusvariablen werden automatisch angelegt. Das Löschen einzelner kann zu 
 ### Kachel Visualisierung
 
 **Instanz-Kachel:** Die Instanz bringt eine eigene Kachel mit. Klein zeigt sie die Anzahl neuer Nachrichten, größer zusätzlich den Schalter des Anrufbeantworters und die Nachrichtenliste mit Abspielen/Pause, Als gelesen markieren und Löschen (mit Sicherheitsabfrage). Eine neue Nachricht wird nach vollständigem Abspielen als gelesen markiert. Die Anzahl der angezeigten Nachrichten ist in der Kachel einstellbar.  
-*Abspielen, Markieren und Löschen aus der Instanz-Kachel sind nicht live getestet.*  
+*Markieren aus der Instanz-Kachel ist nicht live getestet.*  
+
+**Bedienung in der Kachel:**
+
+- Schalter oben: Anrufbeantworter ein- und ausschalten.
+- Abspielen/Pause je Nachricht: spielt die Nachricht im Browser ab bzw. hält sie an. Eine neue Nachricht gilt nach vollständigem Abspielen als gelesen.
+- Markieren je Nachricht: markiert die Nachricht als gelesen.
+- Löschen je Nachricht: löscht die Nachricht in der FritzBox (mit Sicherheitsabfrage).
+- `Einträge`: Anzahl der angezeigten Nachrichten (merkt sich der Browser).
+
+<!-- Screenshot folgt: imgs/tile_instance.png (Instanz-Kachel, siehe readme-regeln.md) -->
+
 Ob die Kachel oder die Liste der Variablen erscheint, wird in der Kachel-Visualisierung je Kachel eingestellt. Die Kachel passt sich ihrer Größe an und übernimmt die Farben des Designs der Visualisierung. Die maximierte Kachel benötigt Symcon ab 9.1.  
 
 Die Instanz wird als Kachel in der Darstellung `Liste` angezeigt. Das Bild zeigt die maximierte Kachel mit allen Variablen.  

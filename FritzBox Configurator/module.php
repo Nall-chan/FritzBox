@@ -146,6 +146,11 @@ class FritzBoxConfigurator extends IPSModuleStrict
                 if (array_key_exists($serviceType, \FritzBox\Services::$Data)) {
                     $guid = key(\FritzBox\Services::$Data[$serviceType]);
                     if ($guid !== null) {
+                        if ($guid == \FritzBox\GUID::WANCommonInterface) {
+                            // Ab 1.0 liefert die WAN Physical Interface (TR-064) Raten, Auslastung und Zähler, DNS die WAN IP-Verbindung;
+                            // vorhandene Instanzen laufen weiter und erscheinen hier als ungültig
+                            continue;
+                        }
                         $index = \FritzBox\Services::$Data[$serviceType][$guid];
                         if (!in_array($guid, [\FritzBox\GUID::WANPortMapping, \FritzBox\GUID::WANIPv6Firewall]) && ($index == 0) && ($Xml == 'igd2desc.xml')) {
                             $index++;

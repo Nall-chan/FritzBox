@@ -1,6 +1,15 @@
 {
     "translations": {
         "de": {
+            "Link copied": "Link kopiert",
+            "Ticket": "Ticket",
+            "Budget": "Budget",
+            "Remaining": "Rest",
+            "Online ticket added.": "Online-Ticket hinzugefügt.",
+            "The FritzBox did not apply the access profile.": "Die FritzBox hat das Zugangsprofil nicht übernommen.",
+            "Unrestricted": "Unbeschränkt",
+            "Standard": "Standard",
+            "Guest": "Gast",
             "FritzBox Host Filter": "FritzBox Netzwerkgeräte Filter",
             "Entries": "Einträge",
             "All": "Alle",

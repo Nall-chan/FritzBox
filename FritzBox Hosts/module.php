@@ -227,10 +227,8 @@ class FritzBoxHosts extends FritzBoxModulBase
         foreach ($xml as $xmlItem) {
             if ((string) $xmlItem->MACAddress == '') {
                 $Ident = 'IP' . strtoupper($this->ConvertIdent((string) $xmlItem->IPAddress));
-                $Action = false;
             } else {
                 $Ident = 'MAC' . strtoupper($this->ConvertIdent((string) $xmlItem->MACAddress));
-                $Action = true;
             }
             if ($Variable) {
                 if (array_key_exists($Ident, $HostVariables)) {
@@ -241,17 +239,10 @@ class FritzBoxHosts extends FritzBoxModulBase
 
                 if ($Used) {
                     $VarId = @$this->GetIDForIdent($Ident);
-                    $this->setIPSVariable($Ident, (string) $xmlItem->HostName, (int) $xmlItem->Active == 1, VARIABLETYPE_BOOLEAN, '~Switch', $Action);
-                    if ($VarId == 0) {
-                        $VarId = $this->GetIDForIdent($Ident);
-                        //Standard-Aktion vorhanden, aber default nicht aktiv (WOL)
-                        IPS_SetVariableCustomAction($VarId, 1);
-                    } else {
-                        if ($Rename) {
-                            if (IPS_GetName($VarId) != (string) $xmlItem->HostName) {
-                                IPS_SetName($VarId, (string) $xmlItem->HostName);
-                            }
-                        }
+                    // Immer mit Aktion: Darstellung Schalter, Schalten auf An sendet Wake-On-LAN
+                    $this->setIPSVariable($Ident, (string) $xmlItem->HostName, (int) $xmlItem->Active == 1, VARIABLETYPE_BOOLEAN, '~Switch', true);
+                    if (($VarId != 0) && $Rename && (IPS_GetName($VarId) != (string) $xmlItem->HostName)) {
+                        IPS_SetName($VarId, (string) $xmlItem->HostName);
                     }
                 }
             }
@@ -530,7 +521,9 @@ class FritzBoxHosts extends FritzBoxModulBase
         }
         switch ($Ident) {
             case \FritzBox\Tile\Action::WakeOnLan:
-                return $this->WakeOnLANByMACAddress((string) $Value);
+                return $this->TileWakeUp((int) $Value);
+            case \FritzBox\Tile\Action::Mesh:
+                return $this->PushMesh();
             case \FritzBox\Hosts\Action::ReloadForm:
                 usleep((2000) * 1000);
                 $this->ReloadForm();
@@ -568,8 +561,14 @@ class FritzBoxHosts extends FritzBoxModulBase
         if (strpos($Ident, 'MAC') === 0) {
             if ($Value === true) {
                 $MACAddress = implode(':', str_split(substr($Ident, 3), 2));
-                $this->WakeOnLANByMACAddress($MACAddress);
+                return $this->WakeOnLANByMACAddress($MACAddress);
             }
+            return true;
+        }
+        // Geräte ohne MAC-Adresse (nur IP) haben die Aktion der Darstellung wegen, können aber nicht geweckt werden
+        if (strpos($Ident, 'IP') === 0) {
+            trigger_error($this->Translate('Wake-On-LAN requires a MAC address.'), E_USER_NOTICE);
+            return false;
         }
         trigger_error($this->Translate('Invalid Ident.'), E_USER_NOTICE);
         return false;
@@ -583,13 +582,62 @@ class FritzBoxHosts extends FritzBoxModulBase
         return [
             'total'  => $this->TileVariable(\FritzBox\Hosts\Variables::HostNumberOfEntries),
             'online' => $this->TileVariable(\FritzBox\Hosts\Variables::HostNumberActive),
-            'hosts'  => $this->TileHosts
+            // Aufwecken nur über die Aktion der Statusvariable des Gerätes, ohne Variable/Aktion kein Button
+            'hosts'  => array_map(function (array $Host): array
+            {
+                $Host['action'] = ($Host['var'] > 0) && $this->TileVariableHasAction($Host['var']);
+                return $Host;
+            }, $this->TileHosts)
         ];
     }
 
     protected function GetTileTextKeys(): array
     {
-        return ['Network devices', 'online', 'Search', 'All', 'Online', 'Offline', 'LAN', 'WLAN', 'Guest', 'Wake on LAN', 'Wake up %s?', 'Open variable', 'No devices'];
+        return ['Network devices', 'online', 'Search', 'All', 'Online', 'Offline', 'LAN', 'WLAN', 'Guest', 'Wake on LAN', 'Wake up %s?', 'Open variable', 'No devices',
+            'Devices', 'Mesh', 'Refresh', 'Loading…', 'Mesh master', 'Mesh repeater', '%d devices', '%d devices without connection', 'Mesh overview not available.'];
+    }
+
+    /**
+     * Aufwecken aus der Kachel: löst die Aktion der Statusvariable des Gerätes aus (Standardaktion = Wake-On-LAN
+     * oder eine eigene Aktion des Nutzers), statt selbst ein Wake-On-LAN zu senden.
+     *
+     * @param int $VariableId Statusvariable des Gerätes (Kind dieser Instanz).
+     */
+    private function TileWakeUp(int $VariableId): bool
+    {
+        if (!IPS_VariableExists($VariableId) || (IPS_GetParent($VariableId) != $this->InstanceID)) {
+            trigger_error($this->Translate('Invalid Ident.'), E_USER_NOTICE);
+            return false;
+        }
+        $Ident = IPS_GetObject($VariableId)['ObjectIdent'];
+        if (!str_starts_with($Ident, 'MAC') && !str_starts_with($Ident, 'IP')) {
+            trigger_error($this->Translate('Invalid Ident.'), E_USER_NOTICE);
+            return false;
+        }
+        if (!$this->TileVariableHasAction($VariableId)) {
+            trigger_error($this->Translate('The status variable of this device has no action.'), E_USER_NOTICE);
+            return false;
+        }
+        return RequestAction($VariableId, true);
+    }
+
+    /**
+     * Lädt die Mesh-Übersicht der FritzBox und sendet sie als Baum an die Kachel.
+     * Nur auf Anforderung der Kachel (Ansicht „Mesh“), die Liste ist ca. 100 KB groß.
+     */
+    private function PushMesh(): bool
+    {
+        $Path = $this->GetMeshListPath();
+        $Json = is_string($Path) ? $this->LoadAndGetData($Path) : false;
+        $List = is_string($Json) ? json_decode($Json, true) : null;
+        if (!is_array($List)) {
+            $this->SendDebug('Mesh', 'not available', 0);
+            // Kachel aus dem Ladezustand holen; die Meldung zeigt die Kachel selbst
+            $this->UpdateVisualizationValue(json_encode(['type' => 'mesh', 'data' => ['root' => null, 'unlinked' => 0, 'error' => true]], self::$TileJsonFlags));
+            return false;
+        }
+        $this->UpdateVisualizationValue(json_encode(['type' => 'mesh', 'data' => \FritzBox\Mesh::Build($List)], self::$TileJsonFlags));
+        return true;
     }
 
     private function GetHostVariables(): array

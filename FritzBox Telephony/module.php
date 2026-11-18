@@ -13,6 +13,7 @@ require_once __DIR__ . '/../libs/FritzBoxTile.php';
  * sowie die Schalter der Rufumleitungen und Rufsperren, sofern als Variable angelegt.
  *
  * @property array $TileCalls Anrufliste für die Kachel (letzter Abruf)
+ * @property int $DialStarted Zeitpunkt des letzten Wählvorgangs der Wählhilfe (0 = keiner aktiv)
  */
 class FritzBoxTelephony extends FritzBoxModulBase
 {
@@ -33,6 +34,8 @@ class FritzBoxTelephony extends FritzBoxModulBase
     public const FoundMarker = 20;
     /** Index von X_VoIP in $ServiceTypeArray */
     private const VoIPIndex = 1;
+    /** Sekunden, die „Wählvorgang abbrechen“ nach dem Wählen bedienbar bleibt (Annahme: Klingeldauer der FritzBox). */
+    private const DialTimeoutSeconds = 60;
     /** Höchstzahl der Anrufe in der Kachel. */
     private const TileMaxCalls = 100;
 
@@ -56,6 +59,7 @@ class FritzBoxTelephony extends FritzBoxModulBase
         //Never delete this line!
         parent::Create();
         $this->TileCalls = [];
+        $this->DialStarted = 0;
 
         $this->RegisterPropertyInteger(\FritzBox\Telephony\Property::RefreshIntervalPhonebook, 60);
         $this->RegisterPropertyInteger(\FritzBox\Telephony\Property::RefreshIntervalDeflectionList, 60);
@@ -63,8 +67,10 @@ class FritzBoxTelephony extends FritzBoxModulBase
         $this->RegisterPropertyBoolean(\FritzBox\Telephony\Property::CallLogAsVariable, true);
         $this->RegisterPropertyBoolean(\FritzBox\Telephony\Property::DeflectionAsVariable, false);
         $this->RegisterPropertyBoolean(\FritzBox\Telephony\Property::CallBarringAsVariable, false);
+        $this->RegisterPropertyBoolean(\FritzBox\Telephony\Property::TileDialHelp, true);
         $this->RegisterTimer(\FritzBox\Telephony\Timer::RefreshPhonebook, 0, 'IPS_RequestAction(' . $this->InstanceID . ',"' . \FritzBox\Telephony\Action::RefreshPhonebook . '",true);');
         $this->RegisterTimer(\FritzBox\Telephony\Timer::RefreshCallLog, 0, 'IPS_RequestAction(' . $this->InstanceID . ',"' . \FritzBox\Telephony\Action::RefreshCallLog . '",true);');
+        $this->RegisterTimer(\FritzBox\Telephony\Timer::DialTimeout, 0, 'IPS_RequestAction(' . $this->InstanceID . ',"' . \FritzBox\Telephony\Action::DialTimeout . '",true);');
         $this->RegisterTimer(\FritzBox\Telephony\Timer::RefreshDeflectionList, 0, 'IPS_RequestAction(' . $this->InstanceID . ',"' . \FritzBox\Telephony\Action::RefreshDeflectionList . '",true);');
         $Style = $this->GenerateHTMLStyleProperty();
         $this->RegisterPropertyBoolean(\FritzBox\Telephony\Property::UseRelativDate, true);
@@ -99,8 +105,10 @@ class FritzBoxTelephony extends FritzBoxModulBase
     public function ApplyChanges(): void
     {
         $this->TileCalls = [];
+        $this->DialStarted = 0;
         //Never delete this line!
         parent::ApplyChanges();
+        $this->SetTimerInterval(\FritzBox\Telephony\Timer::DialTimeout, 0);
         $this->RegisterTile();
         if (IPS_GetKernelRunlevel() != KR_READY) {
             return;
@@ -187,6 +195,8 @@ class FritzBoxTelephony extends FritzBoxModulBase
         if (IPS_InstanceExists($this->ReadPropertyInteger(\FritzBox\TelHelper\Property::ReverseSearchInstanceID))) {
             $Form['elements'][1]['items'][1]['enabled'] = false;
         }
+        // Anzahl Tage/Einträge nur bei „letzte Tage“ bzw. „Anzahl Einträge“, Beschriftung passend zur Auswahl
+        $this->SetFormElement($Form['elements'], \FritzBox\Telephony\Property::LastEntries, $this->LastEntriesField($this->ReadPropertyInteger(\FritzBox\Telephony\Property::LoadListType)));
         $this->SendDebug('FORM', json_encode($Form), 0);
         $this->SendDebug('FORM', json_last_error_msg(), 0);
         return json_encode($Form);
@@ -530,7 +540,14 @@ class FritzBoxTelephony extends FritzBoxModulBase
         $result = $this->SendEx('X_AVM-DE_DialNumber', self::VoIPIndex, [
             'NewX_AVM-DE_PhoneNumber'=> $PhoneNumber
         ]);
-        return $result !== false;
+        if ($result === false) {
+            return false;
+        }
+        // Kachel: „Wählvorgang abbrechen“ bedienbar, bis abgebrochen oder DialTimeoutSeconds abgelaufen sind
+        $this->DialStarted = time();
+        $this->SetTimerInterval(\FritzBox\Telephony\Timer::DialTimeout, self::DialTimeoutSeconds * 1000);
+        $this->PushTile();
+        return true;
     }
 
     /**
@@ -541,7 +558,11 @@ class FritzBoxTelephony extends FritzBoxModulBase
     public function DialHangup(): bool
     {
         $result = $this->SendEx('X_AVM-DE_DialHangup', self::VoIPIndex);
-        return $result !== false;
+        if ($result === false) {
+            return false;
+        }
+        $this->EndDial();
+        return true;
     }
 
     /**
@@ -623,6 +644,10 @@ class FritzBoxTelephony extends FritzBoxModulBase
         }
         switch ($Ident) {
             case \FritzBox\Tile\Action::Dial:
+                if (!$this->ReadPropertyBoolean(\FritzBox\Telephony\Property::TileDialHelp)) {
+                    trigger_error($this->Translate('The dialing help is disabled in the tile.'), E_USER_NOTICE);
+                    return false;
+                }
                 // Voraussetzung: Wählhilfe in der FritzBox eingerichtet; sonst Hinweis in der Kachel
                 $Config = $this->GetDialConfig();
                 if (($Config === false) || ($Config == '') || ($Config == 'unconfigured')) {
@@ -631,6 +656,10 @@ class FritzBoxTelephony extends FritzBoxModulBase
                 }
                 return $this->DialNumber((string) $Value);
             case \FritzBox\Tile\Action::Hangup:
+                if (!$this->ReadPropertyBoolean(\FritzBox\Telephony\Property::TileDialHelp)) {
+                    trigger_error($this->Translate('The dialing help is disabled in the tile.'), E_USER_NOTICE);
+                    return false;
+                }
                 return $this->DialHangup();
             case \FritzBox\Telephony\Action::RefreshPhonebook:
                 return $this->RefreshPhonebook();
@@ -639,6 +668,14 @@ class FritzBoxTelephony extends FritzBoxModulBase
                 return $this->RefreshCallLog();
             case \FritzBox\Telephony\Action::RefreshDeflectionList:
                 return $this->RefreshDeflectionList();
+            case \FritzBox\Telephony\Action::DialTimeout:
+                $this->EndDial();
+                return true;
+            case \FritzBox\Telephony\Action::LoadListType:
+                foreach ($this->LastEntriesField((int) $Value) as $Parameter => $FieldValue) {
+                    $this->UpdateFormField(\FritzBox\Telephony\Property::LastEntries, $Parameter, $FieldValue);
+                }
+                return true;
             case \FritzBox\Telephony\Action::PreviewIcon:
                 $Data = unserialize($Value);
                 $ImageData = @getimagesize('data://text/plain;base64,' . $Data['Icon']);
@@ -759,6 +796,10 @@ class FritzBoxTelephony extends FritzBoxModulBase
         }
         return [
             'calls'       => $this->TileCalls,
+            // Rückruf und Wählvorgang abbrechen (Wählhilfe) in der Kachel anbieten
+            'dial'        => $this->ReadPropertyBoolean(\FritzBox\Telephony\Property::TileDialHelp),
+            // Wählvorgang läuft: „Wählvorgang abbrechen“ bedienbar
+            'dialing'     => $this->DialStarted > 0,
             'deflections' => $Deflections,
             'barrings'    => $Barrings
         ];
@@ -767,9 +808,52 @@ class FritzBoxTelephony extends FritzBoxModulBase
     protected function GetTileTextKeys(): array
     {
         return [
-            'Call log', 'Missed calls', 'today', 'yesterday', 'No calls', 'Call back', 'Hang up', 'Call deflections', 'Call barring',
+            'Call log', 'Missed calls', 'today', 'yesterday', 'No calls', 'Call back', 'Cancel dialing', 'Call deflections', 'Call barring',
             'Incoming', 'Missed', 'Outgoing', 'Fax', 'Rejected', 'Active', 'Found by reverse search', 'via', 'Call back %s?'
         ];
+    }
+
+    /**
+     * Beendet die Anzeige „Wählvorgang läuft“ in der Kachel.
+     */
+    private function EndDial(): void
+    {
+        $this->SetTimerInterval(\FritzBox\Telephony\Timer::DialTimeout, 0);
+        if ($this->DialStarted > 0) {
+            $this->DialStarted = 0;
+            $this->PushTile();
+        }
+    }
+
+    /**
+     * Eigenschaften des Feldes LastEntries passend zu LoadListType: nur bei 1 (Tage) und 2 (Einträge) bedienbar.
+     *
+     * @param int $LoadListType -1 = nicht laden, 0 = vollständig, 1 = letzte Tage, 2 = Anzahl Einträge
+     */
+    private function LastEntriesField(int $LoadListType): array
+    {
+        return match ($LoadListType) {
+            1       => ['enabled' => true, 'caption' => 'Number of days', 'suffix' => 'days'],
+            2       => ['enabled' => true, 'caption' => 'Number of entries', 'suffix' => 'entries'],
+            default => ['enabled' => false, 'caption' => 'number of last days or entries', 'suffix' => 'days / entries']
+        };
+    }
+
+    /**
+     * Setzt Parameter eines Formularelements anhand seines Namens (auch in verschachtelten Layouts).
+     */
+    private function SetFormElement(array &$Elements, string $Name, array $Values): bool
+    {
+        foreach ($Elements as &$Element) {
+            if (($Element['name'] ?? '') === $Name) {
+                $Element = array_merge($Element, $Values);
+                return true;
+            }
+            if (isset($Element['items']) && $this->SetFormElement($Element['items'], $Name, $Values)) {
+                return true;
+            }
+        }
+        return false;
     }
 
     /**

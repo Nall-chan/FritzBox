@@ -194,10 +194,8 @@ class FritzBoxMyFritz extends FritzBoxModulBase
                 $SaveResult = $result;
                 $SaveIndex = $i;
             } else {
-                $this->setIPSVariable($Ident, (string) $result['NewName'], (bool) $result['NewEnabled'], VARIABLETYPE_BOOLEAN, '~Switch', false, $i);
-                if (in_array((string) $result['NewIPv4Addresses'], $MyIPs)) {
-                    $this->EnableAction($Ident);
-                }
+                // Schaltbar (Aktion und Darstellung Schalter) nur für Dienste auf dem Symcon-Host
+                $this->setIPSVariable($Ident, (string) $result['NewName'], (bool) $result['NewEnabled'], VARIABLETYPE_BOOLEAN, '~Switch', in_array((string) $result['NewIPv4Addresses'], $MyIPs), $i);
             }
         }
         $this->ServiceIdents = $MyIdents;

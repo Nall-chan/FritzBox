@@ -67,7 +67,7 @@ IPS_SetProperty(12345, 'ModelVariables', false);
 IPS_ApplyChanges(12345);
 ```
 
-Bis Version 0.94 lagen `Model` und `Update verfügbar` als Untervariablen unterhalb der Gerätevariable. Diese werden nicht mehr aktualisiert. Solange es sie gibt, zeigt das Formular die Schaltfläche `Alte Untervariablen löschen`, die sie nach einer Sicherheitsabfrage löscht.
+Bis Version 0.94 lagen `Model` und `Update verfügbar` als Untervariablen unterhalb der Gerätevariable. Beim Update auf 1.0 verschiebt die Instanz sie einmalig an die Instanz und macht sie zu den neuen Variablen (ID, Archivdaten, Ereignisse und Links bleiben erhalten; der Name wird nur angepasst, wenn er noch der Standardname war). Nicht verschoben werden abgewählte Variablen und Geräte, für die die neue Variable schon existiert. Solange solche alten Untervariablen übrig sind, zeigt das Formular die Schaltfläche `Alte Untervariablen löschen`, die sie nach einer Sicherheitsabfrage löscht.
 
 ## 5. Statusvariablen
 
@@ -86,8 +86,16 @@ Der Ident der Gerätevariable ist die MAC-Adresse ohne Trennzeichen, z.B. `0896D
 
 ### Kachel Visualisierung
 
-**Instanz-Kachel:** Die Instanz bringt eine eigene Kachel mit. Sie zeigt die Geräte mit Zustand, Modell und dem Kennzeichen `Update verfügbar`. Modell und Update erscheinen nur, wenn die Variablen in der Instanz aktiviert sind. Bei verfügbarem Update startet die Schaltfläche das Update (mit Sicherheitsabfrage).  
+**Instanz-Kachel:** Die Instanz bringt eine eigene Kachel mit. Sie zeigt die Geräte mit Zustand, Modell und dem Kennzeichen `Update verfügbar`. Modell und Update erscheinen nur, wenn die Variablen in der Instanz aktiviert sind. Bei verfügbarem Update startet die Schaltfläche das Update (mit Sicherheitsabfrage). Die Schaltfläche erscheint nur bei Geräten, die online sind, denn die FritzBox nimmt den Befehl auch für Geräte an, die offline sind, und meldet keinen Fehler.  
 *Update aus der Instanz-Kachel ist nicht live getestet.*  
+
+**Bedienung in der Kachel:**
+
+- Update-Symbol (nur bei `Update verfügbar` und Gerät online): startet das Update des Gerätes (mit Sicherheitsabfrage).
+- `Einträge`: Anzahl der angezeigten Geräte (merkt sich der Browser).
+
+<!-- Screenshot folgt: imgs/tile_instance.png (Instanz-Kachel, siehe readme-regeln.md) -->
+
 Ob die Kachel oder die Liste der Variablen erscheint, wird in der Kachel-Visualisierung je Kachel eingestellt. Die Kachel passt sich ihrer Größe an und übernimmt die Farben des Designs der Visualisierung. Die maximierte Kachel benötigt Symcon ab 9.1.  
 
 Die Instanz wird als Kachel in der Darstellung `Liste` angezeigt. Das Bild zeigt die maximierte Kachel mit allen Variablen.  

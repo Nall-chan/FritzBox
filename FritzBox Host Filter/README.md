@@ -94,8 +94,19 @@ Der Ident setzt sich aus `IP` und der IP-Adresse mit `_` statt `.` zusammen, z.B
 
 ### Kachel Visualisierung
 
-**Instanz-Kachel:** Die Instanz bringt eine eigene Kachel mit. Klein zeigt sie die Anzahl gesperrter Geräte, größer die Geräteliste mit Suche und dem Schalter für den Internetzugang je Gerät. Der Pfeil je Gerät lädt Zugangsprofil und Online-Zeit von der FritzBox; dort lässt sich das Profil wechseln und ein Online-Ticket hinzufügen. Die Geräteliste erscheint auch ohne Variablen je Gerät.  
-*Sperren, Profilwechsel und Ticket aus der Instanz-Kachel sind nicht live getestet.*  
+**Instanz-Kachel:** Die Instanz bringt eine eigene Kachel mit. Klein zeigt sie die Anzahl gesperrter Geräte, größer die Geräteliste mit Suche und dem Schalter für den Internetzugang je Gerät. Der Pfeil je Gerät lädt Zugangsprofil und Online-Zeit von der FritzBox; dort lässt sich das Profil wechseln und ein Online-Ticket hinzufügen. Die Geräteliste erscheint auch ohne Variablen je Gerät. Die Auswahl der Zugangsprofile entspricht der Oberfläche der FritzBox: Geräte außerhalb des Gastnetzes erhalten kein Profil „Gast“ zur Auswahl (die FritzBox lehnt es mit Fehler 820 ab), und das Profil, das die FritzBox für sie als Gast-Profil meldet, erscheint wie in ihrer Oberfläche als „Standard“ (an einer 6690 beobachtet, nicht von AVM dokumentiert). Übernimmt die FritzBox ein gewähltes Profil nicht, zeigt die Kachel einen Hinweis. „Ticket hinzufügen“ gibt dem Gerät zusätzliche Online-Zeit (wie ein Online-Ticket der FritzBox). Die Schaltfläche erscheint nur, wenn die FritzBox ein Ticket für das Gerät freigibt (Angabe in ihrer Geräteliste). Laut AVM setzt das ein Zugangsprofil mit Zeitplan oder täglichem Zeitbudget voraus; bei „Unbeschränkt“ ist es nie möglich. Ein Ticket gibt 45 Minuten. Die Details zeigen die heutige Online-Zeit, die freigegebene Zeit (Budget + Tickets × 45 Minuten, von der Kachel berechnet, die FritzBox liefert sie nicht) und die Restzeit.  
+
+**Bedienung in der Kachel:**
+
+- Schalter je Gerät: sperrt den Internetzugang des Gerätes bzw. gibt ihn frei.
+- Klick in die Zeile (oder auf den Pfeil): öffnet bzw. schließt die Details des Gerätes mit Zugangsprofil, Online-Zeit heute, freigegebener Zeit (Budget + Tickets) und Restzeit.
+- Auswahl `Zugangsprofil` in den Details: weist dem Gerät ein anderes Zugangsprofil zu.
+- `Ticket hinzufügen` in den Details: löst ein Online-Ticket ein und gibt dem Gerät 45 Minuten zusätzliche Online-Zeit (nur, wenn die FritzBox es für das Gerät freigibt).
+- Suchfeld (ab breiter Kachel): filtert nach Name und IP-Adresse.
+- `Einträge`: Anzahl der angezeigten Geräte (merkt sich der Browser).
+
+<!-- Screenshot folgt: imgs/tile_instance.png (Instanz-Kachel, siehe readme-regeln.md) -->
+
 Ob die Kachel oder die Liste der Variablen erscheint, wird in der Kachel-Visualisierung je Kachel eingestellt. Die Kachel passt sich ihrer Größe an und übernimmt die Farben des Designs der Visualisierung. Die maximierte Kachel benötigt Symcon ab 9.1.  
 
 Die Instanz wird als Kachel in der Darstellung `Liste` angezeigt. Das Bild zeigt die maximierte Kachel mit allen Variablen.  

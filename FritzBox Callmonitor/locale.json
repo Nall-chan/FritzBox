@@ -1,6 +1,7 @@
 {
     "translations": {
         "de": {
+            "Link copied": "Link kopiert",
             "Entries": "Einträge",
             "Cancel": "Abbrechen",
             "OK": "OK",
@@ -12,8 +13,10 @@
             "Ringing": "Klingelt",
             "Dialing": "Wählt",
             "Connected": "Verbunden",
-            "Tile visualization": "Kachel-Visualisierung",
-            "Open the tile as popup on incoming calls": "Kachel bei eingehenden Anrufen als Popup öffnen",
+            "Open the instance in the tile visualization as full screen on incoming calls": "Instanz in der Kachel-Visualisierung bei eingehendem Anruf als Vollbild öffnen",
+            "Notification": "Benachrichtigung",
+            "Visualization": "Visualisierung",
+            "WebFronts and tile visualizations for notification": "WebFronts und Kachel-Visualisierungen für Benachrichtigung",
             "FritzBox Callmonitor": "FritzBox Anrufmonitor",
             "Area code": "Ortsvorwahl",
             "Country code": "Ländervorwahl",
@@ -30,9 +33,8 @@
             "Suffix for reverse-search hit": "Suffix für Treffer Rückwärtssuche",
             "Display name for unknown numbers": "Anzeigename für unbekannte Nummern",
             "Send notification": "Sende Benachrichtigung",
-            "WebFront Notification": "WebFront Benachrichtigung",
-            "WebFronts for notification": "WebFronts für Benachrichtigung",
-            "WebFront notification configuration": "Konfiguration WebFront Benachrichtigung",
+
+            "Notification configuration": "Konfiguration Benachrichtigung",
             "Event": "Ereignis",
             "Incoming": "Ankommend",
             "Outgoing": "Abgehend",

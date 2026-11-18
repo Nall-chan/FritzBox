@@ -1,6 +1,11 @@
 {
     "translations": {
         "de": {
+            "Entries": "Einträge",
+            "All": "Alle",
+            "Cancel": "Abbrechen",
+            "OK": "OK",
+            "Show chart": "Diagramm anzeigen",
             "FritzBox DVBC": "FritzBox DVBC",
             "Start": "Start",
             "Stop": "Stopp",
@@ -15,6 +20,16 @@
             "Search progress": "Fortschritt Sendersuchlauf",
             "active": "Aktiv",
             "inactive": "Inaktiv",
+            "TV HD": "TV HD",
+            "TV SD": "TV SD",
+            "Radio": "Radio",
+            "Stations": "Sender",
+            "Search": "Suche",
+            "Copy link": "Link kopieren",
+            "Link copied": "Link kopiert",
+            "No stations": "Keine Sender",
+            "Reload station list": "Senderliste neu laden",
+            "Station list not available.": "Senderliste nicht verfügbar.",
             "This module is free for non-commercial use,\r\nDonations in support of the author are accepted here:": "Dieses Modul ist für die nicht kommerzielle Nutzung kostenlos,\r\nSchenkungen als Unterstützung für den Autor werden hier akzeptiert:"
         }
     }

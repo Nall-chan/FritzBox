@@ -1,6 +1,8 @@
 {
     "translations": {
         "de": {
+            "On": "An",
+            "Off": "Aus",
             "FritzBox MyFritz": "FritzBox MyFritz",
             "Refresh Interval": "Aktualisierungsintervall",
             "seconds": "Sekunden",

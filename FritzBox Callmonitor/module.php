@@ -10,10 +10,12 @@ eval('declare(strict_types=1);namespace FritzBoxCallmonitor {?>' . file_get_cont
 
 /**
  * Anrufmonitor: aktive Gespräche als HTML-Tabelle, Benachrichtigungen und Aktionen je Ereignis.
- * Die Instanz-Kachel (HTML-SDK) zeigt die aktiven Gespräche mit laufender Dauer; optional öffnet ein eingehender Anruf
- * die Kachel als Popup in einer Kachel-Visualisierung (Eigenschaft PopupVisualization).
+ * Die Instanz-Kachel (HTML-SDK) zeigt die aktiven Gespräche mit laufender Dauer. Mit der Eigenschaft OpenTileOnRing öffnet
+ * sich die angezeigte Kachel bei einem eingehenden Anruf selbst als Vollbild und schließt sich wieder, sobald er nicht mehr klingelt.
+ * Benachrichtigungen gehen an WebFronts (WFC_SendNotification) und Kachel-Visualisierungen (VISU_PostNotificationEx).
  *
  * @property array $CallData
+ * @property array $Popup Letzter Anruf, für den die Kachel als Vollbild geöffnet wurde: seq, time, id (Verbindungs-ID)
  * @method bool lock(string $ident)
  * @method void unlock(string $ident)
  */
@@ -59,16 +61,17 @@ class FritzBoxCallmonitor extends FritzBoxModulBase
 
         $this->RegisterPropertyBoolean(\FritzBox\Callmonitor\Property::CallsAsTable, true);
         $this->RegisterPropertyBoolean(\FritzBox\Callmonitor\Property::CallsAsNotification, true);
+        $this->RegisterPropertyBoolean(\FritzBox\Callmonitor\Property::OpenTileOnRing, false);
         $this->RegisterPropertyString(\FritzBox\Callmonitor\Property::Targets, json_encode([]));
         $this->RegisterPropertyString(\FritzBox\Callmonitor\Property::Notification, json_encode($this->GenerateDefaultNotificationProperty()));
         $this->RegisterPropertyString(\FritzBox\Callmonitor\Property::Actions, json_encode([]));
-        $this->RegisterPropertyInteger(\FritzBox\Callmonitor\Property::PopupVisualization, 1);
         $Style = $this->GenerateHTMLStyleProperty();
         $this->RegisterPropertyString(\FritzBox\Table\Property::Table, json_encode($Style['Table']));
         $this->RegisterPropertyString(\FritzBox\Table\Property::Columns, json_encode($Style['Columns']));
         $this->RegisterPropertyString(\FritzBox\Table\Property::Rows, json_encode($Style['Rows']));
         $this->RegisterPropertyString(\FritzBox\Callmonitor\Property::Icons, json_encode($Style['Icons']));
         $this->CallData = [];
+        $this->Popup = [];
     }
 
     public function Destroy(): void
@@ -81,6 +84,7 @@ class FritzBoxCallmonitor extends FritzBoxModulBase
     {
         //Never delete this line!
         parent::ApplyChanges();
+        $this->Popup = [];
         $this->RegisterTile();
         if (IPS_GetKernelRunlevel() != KR_READY) {
             return;
@@ -119,10 +123,6 @@ class FritzBoxCallmonitor extends FritzBoxModulBase
             if (IPS_ObjectExists($Target)) {
                 $this->RegisterReference($Target);
             }
-        }
-        $Visualization = $this->ReadPropertyInteger(\FritzBox\Callmonitor\Property::PopupVisualization);
-        if (IPS_InstanceExists($Visualization)) {
-            $this->RegisterReference($Visualization);
         }
         if ($this->ReadPropertyBoolean(\FritzBox\Callmonitor\Property::CallsAsTable)) {
             $this->RegisterVariableString(\FritzBox\Callmonitor\Variables::CallList, $this->Translate('Active calls'), $this->GetPresentation('~HTMLBox', VARIABLETYPE_STRING), 0);
@@ -195,6 +195,8 @@ class FritzBoxCallmonitor extends FritzBoxModulBase
         switch ($CallEvent[1]) {
             case 'RING': // Ankommend klingelt
                 $Calls[$CallEvent[2]] = [];
+                // Neu anlegen verwirft den oben gesetzten Status, daher hier erneut setzen
+                $Calls[$CallEvent[2]]['Status'] = $CallEvent[1];
                 $Calls[$CallEvent[2]]['Type'] = 'CALLIN';
                 $Calls[$CallEvent[2]]['Event'] = self::Call_Incoming;
                 $Calls[$CallEvent[2]]['Remote'] = $CallEvent[3];
@@ -210,6 +212,8 @@ class FritzBoxCallmonitor extends FritzBoxModulBase
                 break;
             case 'CALL': //Abgehend
                 $Calls[$CallEvent[2]] = [];
+                // Neu anlegen verwirft den oben gesetzten Status, daher hier erneut setzen
+                $Calls[$CallEvent[2]]['Status'] = $CallEvent[1];
                 $Calls[$CallEvent[2]]['Event'] = self::Call_Outgoing;
                 $Calls[$CallEvent[2]]['Type'] = 'CALLOUT';
                 $Calls[$CallEvent[2]]['Device'] = $this->GetPhoneDeviceNameByID((int) $CallEvent[3]);
@@ -262,12 +266,10 @@ class FritzBoxCallmonitor extends FritzBoxModulBase
         if ($this->ReadPropertyBoolean(\FritzBox\Callmonitor\Property::CallsAsNotification)) {
             IPS_RunScriptText('IPS_RequestAction(' . $this->InstanceID . ',\'SendNotification\',\'' . serialize($NotifyData) . '\');');
         }
-        // HTML-Tabelle (falls aktiv) und Kachel neu aufbauen
-        IPS_RunScriptText('IPS_RequestAction(' . $this->InstanceID . ',\'RefreshCallList\',true);');
-        // Eingehender Anruf: Kachel als Popup in der gewählten Kachel-Visualisierung öffnen
-        if (($CallEvent[1] == 'RING') && IPS_InstanceExists($this->ReadPropertyInteger(\FritzBox\Callmonitor\Property::PopupVisualization))) {
-            IPS_RunScriptText('IPS_RequestAction(' . $this->InstanceID . ',\'' . \FritzBox\Callmonitor\Action::OpenPopup . '\',true);');
-        }
+        // HTML-Tabelle (falls aktiv) und Kachel neu aufbauen; bei eingehendem Anruf (RING) mit der Verbindungs-ID,
+        // damit die Kachel danach als Vollbild geöffnet wird (erst nach den neuen Daten, siehe RefreshCallList)
+        $Popup = (($CallEvent[1] == 'RING') && $this->ReadPropertyBoolean(\FritzBox\Callmonitor\Property::OpenTileOnRing)) ? (int) $CallEvent[2] : -1;
+        IPS_RunScriptText('IPS_RequestAction(' . $this->InstanceID . ',\'RefreshCallList\',' . $Popup . ');');
         //nur wenn Aktions aktiv
         if (count(json_decode($this->ReadPropertyString(\FritzBox\Callmonitor\Property::Actions))) > 0) {
             IPS_RunScriptText('IPS_RequestAction(' . $this->InstanceID . ',\'RunActions\',\'' . serialize($NotifyData) . '\');');
@@ -287,9 +289,11 @@ class FritzBoxCallmonitor extends FritzBoxModulBase
             case \FritzBox\Callmonitor\Action::RefreshCallList:
                 $Result = $this->RebuildTable();
                 $this->PushTile();
+                // Eingehender Anruf: angezeigte Kacheln öffnen sich als Vollbild (Wert = Verbindungs-ID, sonst -1/true)
+                if (is_int($Value) && ($Value >= 0)) {
+                    $this->OpenTileForCall($Value);
+                }
                 return $Result;
-            case \FritzBox\Callmonitor\Action::OpenPopup:
-                return $this->OpenPopup();
             case \FritzBox\Callmonitor\Action::ReadAreaCodes:
                 $Codes = $this->ReadAreaCodes();
                 if ($Codes === false) {
@@ -377,7 +381,7 @@ class FritzBoxCallmonitor extends FritzBoxModulBase
                 'since'  => $Call['Since'] ?? 0
             ];
         }
-        return ['calls' => $Calls, 'now' => time()];
+        return ['calls' => $Calls, 'now' => time(), 'popup' => $this->Popup ?: null];
     }
 
     protected function GetTileTextKeys(): array
@@ -432,8 +436,31 @@ class FritzBoxCallmonitor extends FritzBoxModulBase
             if (!IPS_InstanceExists($Target['target'])) {
                 continue;
             }
-            WFC_SendNotification($Target['target'], $Title, $Text, $Icon, $Timeout);
+            if (IPS_GetInstance($Target['target'])['ModuleInfo']['ModuleID'] == \FritzBox\Callmonitor\Visualization::Tile) {
+                // Kachel-Visualisierung: Benachrichtigung (Zentrale und Push), Tippen öffnet die Kachel des Anrufmonitors
+                VISU_PostNotificationEx($Target['target'], $Title, $Text, $Icon, '', $this->InstanceID);
+            } else {
+                WFC_SendNotification($Target['target'], $Title, $Text, $Icon, $Timeout);
+            }
         }
+    }
+
+    /**
+     * Sendet das Ereignis „eingehender Anruf“ an die Instanz-Kachel: Jede gerade angezeigte Kachel öffnet sich maximiert
+     * (openObject) und zeigt den Anrufer groß an, bis der Anruf nicht mehr klingelt. Die Verbindungs-ID steht mit Zeitpunkt
+     * auch in den Daten der Kachel, damit die neu geöffnete (maximierte) Kachel die Anzeige übernimmt.
+     *
+     * @param int $CallId Verbindungs-ID des klingelnden Anrufs.
+     */
+    private function OpenTileForCall(int $CallId): void
+    {
+        $this->Popup = [
+            'seq'  => ($this->Popup['seq'] ?? 0) + 1,
+            'time' => time(),
+            'id'   => $CallId
+        ];
+        $this->SendDebug('OpenTileForCall', $this->Popup, 0);
+        $this->UpdateVisualizationValue(json_encode(['type' => 'popup', 'data' => $this->Popup], self::$TileJsonFlags));
     }
 
     private function RunActions(array $NotifyData)
@@ -484,19 +511,6 @@ class FritzBoxCallmonitor extends FritzBoxModulBase
             }
         }
         return $Parameters;
-    }
-
-    /**
-     * Öffnet die Kachel der Instanz in der gewählten Kachel-Visualisierung (maximiert, als Popup).
-     */
-    private function OpenPopup(): bool
-    {
-        $Visualization = $this->ReadPropertyInteger(\FritzBox\Callmonitor\Property::PopupVisualization);
-        if (!IPS_InstanceExists($Visualization)) {
-            return false;
-        }
-        $this->SendDebug('OpenPopup', $Visualization, 0);
-        return @VISU_OpenObject($Visualization, $this->InstanceID, '');
     }
 
     private function RebuildTable()

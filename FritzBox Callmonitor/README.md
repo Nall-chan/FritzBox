@@ -93,15 +93,15 @@ Konfiguration der HTML Tabelle:
 | Skript für eigene Rückwärtsuche            | CustomSearchScriptID    | integer | 1              | ObjektID eines eigenen Skriptes für die Rückwärtssuche, `1` = keines (siehe unten)                             |
 | Meldung nicht erneut anzeigen              | NotShowWarning          | boolean | false          | Warnmeldung abschalten, wenn das Modul `Rückwärtssuche` nicht installiert ist                                 |
 | Sende Benachrichtigung                     | CallsAsNotification     | boolean | true           | Änderungen von Anrufen/Gesprächen als Benachrichtigung an WebFronts senden                                     |
-| WebFronts für Benachrichtigung             | Targets                 | string  | `[]`           | Liste der WebFront-Instanzen, welche eine Benachrichtigung erhalten                                           |
-| Konfiguration WebFront Benachrichtigung    | Notification            | string  | je Ereignis    | Titel, Text, Icon und Anzeigedauer der Benachrichtigung je Ereignis; Platzhalter wie `{NAME}` sind möglich     |
+| WebFronts und Kachel-Visualisierungen für Benachrichtigung | Targets | string  | `[]`           | Liste der WebFront- und Kachel-Visualisierungs-Instanzen, welche eine Benachrichtigung erhalten; Kachel-Visualisierungen zeigen sie in der Benachrichtigungszentrale und als Push-Nachricht (ohne Anzeigedauer), ein Tippen öffnet die Kachel des Anrufmonitors |
+| Konfiguration Benachrichtigung            | Notification            | string  | je Ereignis    | Titel, Text, Icon und Anzeigedauer der Benachrichtigung je Ereignis; Platzhalter wie `{NAME}` sind möglich     |
 | Zeige alle Gespräche als HTML-Tabelle      | CallsAsTable            | boolean | true           | Ausgabe der aktiven Gespräche als HTML-Tabelle in der Statusvariable `Aktive Gespräche`                        |
 | Icon für Typ des Anrufes                   | Icons                   | string  | vordefiniert   | Icon je Ereignis für die Spalte Icon der HTML-Tabelle                                                          |
 | Darstellung Tabelle                        | Table                   | string  | vordefiniert   | HTML/CSS Konfiguration der HTML-Tabelle                                                                       |
 | Spalten                                    | Columns                 | string  | vordefiniert   | HTML/CSS Konfiguration der Spalten (pro Spalte)                                                               |
 | Zeilen                                     | Rows                    | string  | vordefiniert   | HTML/CSS Konfiguration der Zeilen (Überschrift, gerade und ungerade)                                          |
 | Aktionen für Ereignisse                    | Actions                 | string  | `[]`           | Liste von Aktionen, welche bei Ereignissen ausgeführt werden (siehe unten)                                    |
-| Kachel bei eingehenden Anrufen als Popup öffnen | PopupVisualization | integer | `1`            | Kachel-Visualisierung, in der ein eingehender Anruf die Instanz-Kachel öffnet; `1` = aus                       |
+| Instanz in der Kachel-Visualisierung bei eingehendem Anruf als Vollbild öffnen | OpenTileOnRing | boolean | false | Die angezeigte Instanz-Kachel öffnet sich bei einem eingehenden Anruf maximiert und schließt sich wieder, sobald er nicht mehr klingelt |
 
 Die Listen (`Targets`, `Notification`, `Icons`, `Table`, `Columns`, `Rows`, `Actions`) werden als JSON-String gespeichert und sollten über die Konsole bearbeitet werden.  
 
@@ -135,7 +135,7 @@ Wird als Aktion ein Skript ausgeführt, stehen im Skript folgende Werte in `$_IP
 | PARENT       | integer | ObjektID der Anrufmonitor-Instanz                                                               |
 | EVENT        | integer | Ereignis als Zahl (siehe unten)                                                                 |
 | TYPE         | string  | Richtung des Gesprächs: `CALLIN` (ankommend) oder `CALLOUT` (abgehend)                          |
-| STATUS       | string  | Meldung der FritzBox: `CONNECT` oder `DISCONNECT`; nur bei Ereignis 3 bis 6 vorhanden            |
+| STATUS       | string  | Meldung der FritzBox: `RING`, `CALL`, `CONNECT` oder `DISCONNECT`                               |
 | DEVICE       | string  | Name des Endgeräts im Klartext; bei klingelnden Anrufen `*** RING ***`                          |
 | DEVICEID     | integer | Interne ID des Endgeräts in der FritzBox; `0`, solange noch kein Endgerät beteiligt ist          |
 | LOCAL        | string  | Eigene Rufnummer                                                                                |
@@ -182,12 +182,18 @@ Die Variable `Aktive Gespräche` wird nur angelegt, wenn `Zeige alle Gespräche 
 
 ### Kachel Visualisierung
 
-**Instanz-Kachel:** Die Instanz bringt eine eigene Kachel mit. Sie zeigt die aktiven Gespräche mit Zustand (klingelt, wählt, verbunden), Gegenstelle, eigener Rufnummer und laufender Dauer. Mit der Eigenschaft `Kachel bei eingehenden Anrufen als Popup öffnen` öffnet ein eingehender Anruf die Kachel in der gewählten Kachel-Visualisierung.  
-*Popup und Anzeige laufender Gespräche sind nicht live getestet.*  
+**Instanz-Kachel:** Die Instanz bringt eine eigene Kachel mit. Sie zeigt die aktiven Gespräche mit Zustand (klingelt, wählt, verbunden), Gegenstelle, eigener Rufnummer und laufender Dauer. Mit der Eigenschaft `Instanz in der Kachel-Visualisierung bei eingehendem Anruf als Vollbild öffnen` öffnet sich die Kachel bei einem eingehenden Anruf auf jedem Client, der sie gerade anzeigt, maximiert und zeigt Anrufer, Rufnummer, eigene Rufnummer, Zustand und Dauer in großer, zentrierter Schrift. Sobald der Anruf nicht mehr klingelt (angenommen oder beendet), schließt sie sich wieder. Clients, auf denen die Kachel nicht sichtbar ist, öffnen sie nicht. Verkleinert man die Kachel vorher, zeigt sie wieder die Liste der Gespräche.  
+
+**Bedienung in der Kachel:**
+
+- Keine Bedienelemente. Bei einem eingehenden Anruf öffnet sich die Kachel als Vollbild (Eigenschaft siehe oben) und schließt sich wieder, sobald der Anruf angenommen oder beendet ist. Verkleinern der Kachel zeigt wieder die Liste.
+
+<!-- Screenshot folgt: imgs/tile_instance.png (Instanz-Kachel, siehe readme-regeln.md) -->
+
 Ob die Kachel oder die Liste der Variablen erscheint, wird in der Kachel-Visualisierung je Kachel eingestellt. Die Kachel passt sich ihrer Größe an und übernimmt die Farben des Designs der Visualisierung. Die maximierte Kachel benötigt Symcon ab 9.1.  
 
 Die Instanz hat nur die Variable `Aktive Gespräche`. Sie ist eine HTML-Box mit der Tabelle der aktiven Gespräche; das Bild zeigt sie als einzelne Kachel (ohne laufendes Gespräch).  
-Benachrichtigungen (`Sende Benachrichtigung`) werden nur an WebFront-Instanzen gesendet.  
+Benachrichtigungen (`Sende Benachrichtigung`) gehen an WebFront-Instanzen und Kachel-Visualisierungen (Benachrichtigungszentrale und Push-Nachricht, ein Tippen öffnet die Kachel des Anrufmonitors).  
 
 ![Kachel HTML-Box](imgs/tile_html.png)  
 
@@ -201,7 +207,9 @@ Keine Funktionen verfügbar.
 
 ## 8. Aktionen
 
-Keine Aktionen verfügbar.
+**Grundsätzlich können alle bedienbaren Statusvariablen als Ziel einer [`Aktion`](https://www.symcon.de/service/dokumentation/konzepte/automationen/ablaufplaene/aktionen/) mit `Auf Wert schalten` angesteuert werden, so dass hier keine speziellen Aktionen benutzt werden müssen.**
+
+Keine speziellen Aktionen verfügbar.
 
 ## 9. Anhang
 

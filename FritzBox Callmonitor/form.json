@@ -130,13 +130,13 @@
                 {
                     "type": "ExpansionPanel",
                     "name": "NotificationPanel",
-                    "caption": "WebFront Notification",
+                    "caption": "Notification",
                     "width": "auto",
                     "items": [
                         {
                             "type": "List",
                             "name": "Targets",
-                            "caption": "WebFronts for notification",
+                            "caption": "WebFronts and tile visualizations for notification",
                             "rowCount": 6,
                             "add": true,
                             "delete": true,
@@ -147,13 +147,14 @@
                             "columns": [
                                 {
                                     "name": "target",
-                                    "caption": "WebFront",
+                                    "caption": "Visualization",
                                     "width": "400px",
                                     "add": 1,
                                     "edit": {
                                         "type": "SelectInstance",
                                         "validModules": [
-                                            "{3565B1F2-8F7B-4311-A4B6-1BF1D868F39E}"
+                                            "{3565B1F2-8F7B-4311-A4B6-1BF1D868F39E}",
+                                            "{B5B875BB-9B76-45FD-4E67-2607E45B3AC4}"
                                         ]
                                     }
                                 }
@@ -162,7 +163,7 @@
                         {
                             "type": "List",
                             "name": "Notification",
-                            "caption": "WebFront notification configuration",
+                            "caption": "Notification configuration",
                             "rowCount": 7,
                             "add": true,
                             "delete": true,
@@ -633,23 +634,9 @@
             }
         },
         {
-            "type": "RowLayout",
-            "items": [
-                {
-                    "type": "Label",
-                    "caption": "Tile visualization",
-                    "width": "300px"
-                },
-                {
-                    "name": "PopupVisualization",
-                    "type": "SelectInstance",
-                    "caption": "Open the tile as popup on incoming calls",
-                    "validModules": [
-                        "{B5B875BB-9B76-45FD-4E67-2607E45B3AC4}"
-                    ],
-                    "width": "450px"
-                }
-            ]
+            "name": "OpenTileOnRing",
+            "type": "CheckBox",
+            "caption": "Open the instance in the tile visualization as full screen on incoming calls"
         }
     ],
     "actions": [

@@ -31,6 +31,9 @@ Auslesen der aktuell genutzten WAN Verbindung.
 
 ## 1. Funktionsumfang
 
+> [!NOTE]
+> Ab Version 1.0 bietet der Konfigurator dieses Modul nicht mehr an. Raten, Auslastung und Summen liefert die [FritzBox physikalische WAN-Schnittstelle](../FritzBox%20WAN%20Physical%20Interface/README.md) über TR-064 (ohne die Einstellung „Statusinformationen über UPnP übertragen“), die DNS-Server die [FritzBox WAN IP-Verbindung](../FritzBox%20WAN%20IP%20Connection/README.md). Vorhandene Instanzen arbeiten unverändert weiter und erscheinen im Konfigurator als ungültig.
+
 - Alte Variablen vom FB-Project **sind** kompatibel.  
 - Auslesen der aktuell genutzten WAN Verbindung.  
   
@@ -102,7 +105,7 @@ Die Statusvariablen werden automatisch angelegt. Das Löschen einzelner kann zu 
 | TotalMBytesSent, TotalMBytesReceived       | Wertanzeige | Suffix ` MB`, 2 Nachkommastellen |
 | UpnpControlEnabled                         | Schalter    | nicht bedienbar |
 
-Status der physischen Verbindung und die DNS-Server haben keine Darstellung (Text).  
+`Status der physischen Verbindung` zeigt `Up` = Verbunden (grün), `Down` = Getrennt (rot), `Initializing` = Initialisieren, `Unavailable` = Nicht verfügbar. Die DNS-Server haben keine Darstellung (Text).  
 
 ## 6. Visualisierung
 

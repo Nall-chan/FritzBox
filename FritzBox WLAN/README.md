@@ -85,7 +85,7 @@ Die Listen (`HostVariables`, `Table`, `Columns`, `Rows`) werden als JSON-String 
 > [!WARNING]
 > Wird ein WLAN-Gerät in der Liste `Statusvariablen` abgewählt, werden die zugehörigen Statusvariablen gelöscht.
 
-Bis Version 0.94 lagen `Speed` und `Signalstrength` als Untervariablen unterhalb der Gerätevariable. Diese werden nicht mehr aktualisiert. Solange es sie gibt, zeigt das Formular die Schaltfläche `Alte Untervariablen löschen`, die sie nach einer Sicherheitsabfrage löscht.
+Bis Version 0.94 lagen `Speed` und `Signalstrength` als Untervariablen unterhalb der Gerätevariable. Beim Update auf 1.0 verschiebt die Instanz sie einmalig an die Instanz und macht sie zu den neuen Variablen (ID, Archivdaten, Ereignisse und Links bleiben erhalten; der Name wird nur angepasst, wenn er noch der Standardname war). Nicht verschoben werden abgewählte Variablen und Geräte, für die die neue Variable schon existiert. Solange solche alten Untervariablen übrig sind, zeigt das Formular die Schaltfläche `Alte Untervariablen löschen`, die sie nach einer Sicherheitsabfrage löscht.
 
 Beispiel:  
 
@@ -138,8 +138,20 @@ Die übrigen Variablen haben keine Darstellung (Zahl bzw. Text).
 
 ### Kachel Visualisierung
 
-**Instanz-Kachel:** Die Instanz bringt eine eigene Kachel mit. Sie zeigt den Schalter des WLAN mit SSID, die Anzahl und die Liste der verbundenen Geräte mit Signalstärke und Geschwindigkeit. Wird die Variable der Signalstärke geloggt, öffnet ein Klick auf den Signalbalken das Diagramm. Ist `Erzeuge Medien-Objekt mit QR-Code` bzw. `Erzeuge Variable für WLAN Passwort` aktiviert, zeigt die breite Kachel den QR-Code bzw. das Passwort (verdeckt, per Klick sichtbar).  
+**Instanz-Kachel:** Die Instanz bringt eine eigene Kachel mit. Sie zeigt den Schalter des WLAN mit SSID, die Anzahl und die Liste der verbundenen Geräte mit Signalstärke (Balken und Wert in %) und Geschwindigkeit; ab der breiten Größe mit Suche nach Name, IP- und MAC-Adresse. Wird die Variable der Signalstärke geloggt, öffnet ein Klick auf den Signalbalken das Diagramm. Ein Klick auf den Namen öffnet das Diagramm des Verbindungszustands, wenn dieser geloggt wird, sonst das der Signalstärke; wird keine der beiden geloggt, ist der Name nicht klickbar. Ist `Erzeuge Medien-Objekt mit QR-Code` bzw. `Erzeuge Variable für WLAN Passwort` aktiviert, zeigt die breite Kachel den QR-Code bzw. das Passwort (verdeckt, per Klick sichtbar).  
 Die Geräteliste wird für die Kachel auch geladen, wenn weder Variablen noch HTML-Box aktiviert sind.  
+
+**Bedienung in der Kachel:**
+
+- Schalter oben: WLAN ein- und ausschalten.
+- Klick auf den Namen eines Gerätes: öffnet das Diagramm des Verbindungszustands als Vollbild, wenn dieser geloggt wird, sonst das der Signalstärke; ohne Logging nicht klickbar.
+- Klick auf die Signalstärke: öffnet das Diagramm der Signalstärke als Vollbild (nur, wenn sie geloggt wird).
+- Augen-Symbol beim Passwort (breite Kachel, nur wenn aktiviert): zeigt das Passwort bzw. verdeckt es wieder.
+- Suchfeld (ab breiter Kachel): filtert nach Name, IP- und MAC-Adresse.
+- `Einträge`: Anzahl der angezeigten Geräte (merkt sich der Browser).
+
+<!-- Screenshot folgt: imgs/tile_instance.png (Instanz-Kachel, siehe readme-regeln.md) -->
+
 Ob die Kachel oder die Liste der Variablen erscheint, wird in der Kachel-Visualisierung je Kachel eingestellt. Die Kachel passt sich ihrer Größe an und übernimmt die Farben des Designs der Visualisierung. Die maximierte Kachel benötigt Symcon ab 9.1.  
 
 Die Instanz wird als Kachel in der Darstellung `Liste` angezeigt. Das Bild zeigt die maximierte Kachel mit allen Variablen.  

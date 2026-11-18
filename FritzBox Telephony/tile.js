@@ -1,6 +1,7 @@
 /* FritzBox Telefonie – Kachel.
    mini = verpasste Anrufe heute, compact = Anrufliste mit Filter, wide/full = zusätzlich Rufumleitungen und Rufsperren
-   (nur, wenn sie in der Instanz als Variable angelegt sind). Rückruf über die Wählhilfe der FritzBox. */
+   (nur, wenn sie in der Instanz als Variable angelegt sind). Rückruf über die Wählhilfe der FritzBox (per Eigenschaft abschaltbar);
+   „Wählvorgang abbrechen“ beendet nur den Wählvorgang der Wählhilfe, kein verbundenes Gespräch (X_AVM-DE_DialHangup). */
 (function () {
   'use strict';
   const { T, esc, icon, val } = FB;
@@ -37,7 +38,7 @@
     return d;
   };
 
-  function row(c, size) {
+  function row(c, size, dial) {
     const t = TYPES[c.type] || { icon: 'phone', text: '' };
     const l2 = [date(c.date), c.name !== c.number ? c.number : '', size === 'full' && c.device ? T('via') + ' ' + c.device : '']
       .filter(x => x).map(esc).join(' · ');
@@ -46,7 +47,7 @@
       '<span class="main"><span class="l1">' + esc(c.name || c.number) + (c.found ? ' <span class="muted" title="' + esc(T('Found by reverse search')) + '">' + icon('magnifying-glass') + '</span>' : '') +
       '</span><span class="l2">' + l2 + '</span></span>' +
       '<span class="side">' + (c.duration && c.duration !== '0:00' ? esc(c.duration) : '') +
-      (c.number ? '<button class="btn" data-act="TileDial" data-value="' + val(c.number) + '" data-confirm="' + esc(T('Call back %s?').replace('%s', c.name || c.number)) +
+      (dial && c.number ? '<button class="btn" data-act="TileDial" data-value="' + val(c.number) + '" data-confirm="' + esc(T('Call back %s?').replace('%s', c.name || c.number)) +
         '" title="' + esc(T('Call back')) + '">' + icon('phone') + '</button>' : '') +
       '</span></li>';
   }
@@ -55,11 +56,13 @@
     const all = (d.calls || []).filter(c => filter === 'all' || (TYPES[c.type] || {}).filter === filter);
     const def = size === 'compact' ? 5 : 25;
     const items = FB.slice('calls', all, def);
+    // Wählhilfe (Rückruf, Wählvorgang abbrechen) per Eigenschaft der Instanz abschaltbar
+    const dial = d.dial !== false;
     const seg = '<span class="seg">' + FILTERS.map(f => '<button data-on="filter" data-filter="' + f[0] + '"' + (f[0] === filter ? ' class="on"' : '') + '>' +
       esc(T(f[1])) + '</button>').join('') + '</span>';
     return '<div class="group grow"><div class="ghead"><span>' + esc(T('Call log')) + '</span>' + (size === 'compact' ? '' : seg) + FB.limitSelect('calls', def, all.length) +
-      '<button class="btn" data-act="TileHangup" title="' + esc(T('Hang up')) + '">' + icon('phone-hangup') + '</button></div>' +
-      (items.length ? '<ul class="list">' + items.map(c => row(c, size)).join('') + '</ul>' : '<div class="empty">' + esc(T('No calls')) + '</div>') + '</div>';
+      (dial ? '<button class="btn' + (d.dialing ? ' alarm' : '') + '" data-act="TileHangup"' + (d.dialing ? '' : ' disabled') + ' title="' + esc(T('Cancel dialing')) + '">' + icon('phone-hangup') + '</button>' : '') + '</div>' +
+      (items.length ? '<ul class="list">' + items.map(c => row(c, size, dial)).join('') + '</ul>' : '<div class="empty">' + esc(T('No calls')) + '</div>') + '</div>';
   }
 
   // Schalter je Rufumleitung bzw. Rufsperre (nur, wenn als Variable angelegt)

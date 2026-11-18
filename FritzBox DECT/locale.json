@@ -1,6 +1,11 @@
 {
     "translations": {
         "de": {
+            "Migration of old sub variables failed: %s": "Migration der alten Untervariablen fehlgeschlagen: %s",
+            "%d old sub variables migrated.": "%d alte Untervariablen migriert.",
+            "Link copied": "Link kopiert",
+            "On": "An",
+            "Off": "Aus",
             "Entries": "Einträge",
             "All": "Alle",
             "Cancel": "Abbrechen",
@@ -13,6 +18,7 @@
             "active": "aktiv",
             "inactive": "inaktiv",
             "Unknown device.": "Unbekanntes Gerät.",
+            "The device is offline, the update cannot be started.": "Das Gerät ist offline, das Update kann nicht gestartet werden.",
             "Delete old sub variables": "Alte Untervariablen löschen",
             "Delete the variables created below the device variables up to version 0.94?": "Die bis Version 0.94 unterhalb der Geräte-Variablen angelegten Variablen löschen?",
             "%d old sub variables deleted.": "%d alte Untervariablen gelöscht.",

@@ -29,11 +29,12 @@ class FritzBoxModulBase extends IPSModuleStrict
     protected static $SecondEventGUID = '';
     protected static $DefaultIndex = -1;
     /**
-     * Idents der Untervariablen, die bis 0.94 unterhalb der Statusvariablen je Gerät angelegt wurden.
-     * Seit 1.0 sind es eigene Statusvariablen der Instanz, die alten löscht nur der Nutzer
-     * (Schaltfläche im Formular mit Sicherheitsabfrage).
+     * Untervariablen, die bis 0.94 unterhalb der Statusvariablen je Gerät angelegt wurden:
+     * Ident => [Namensschlüssel (Standardname bis 0.94 und in 1.0), Eigenschaft der Auswahl der Zusatzvariable].
+     * Seit 1.0 sind es eigene Statusvariablen der Instanz; Migrate verschiebt die alten einmalig dorthin.
+     * Was dabei nicht verschoben wurde, löscht nur der Nutzer (Schaltfläche im Formular mit Sicherheitsabfrage).
      *
-     * @var string[]
+     * @var array<string, array{0: string, 1: string}>
      */
     protected static $LegacySubVariables = [];
 
@@ -42,6 +43,8 @@ class FritzBoxModulBase extends IPSModuleStrict
      * Bewusst kein Buffer: Symcon erzeugt je Aufruf ein neues Objekt.
      */
     private bool $IsRequestAction = false;
+    /** Fehler einer optionalen Zusatzabfrage nur per SendDebug melden (SendExQuiet). */
+    private bool $QuietErrors = false;
 
     public function Create(): void
     {
@@ -55,6 +58,53 @@ class FritzBoxModulBase extends IPSModuleStrict
             $this->RegisterTimer(\FritzBox\Base\Timer::RenewSubscription, 0, 'IPS_RequestAction(' . $this->InstanceID . ',"' . \FritzBox\Base\Action::Subscribe . '", true);');
         }
         $this->RegisterPropertyInteger(\FritzBox\Base\Property::Index, static::$DefaultIndex);
+        if (count(static::$LegacySubVariables) > 0) {
+            // Neue Instanzen haben keine alten Untervariablen
+            $this->RegisterAttributeBoolean(\FritzBox\Base\Attribute::LegacySubVariablesMigrated, true);
+        }
+    }
+
+    /**
+     * Wird beim Laden der gespeicherten Konfiguration aufgerufen (Start von Symcon, Modul-Update), nach Create und vor
+     * ApplyChanges; der Objektbaum ist dann vorhanden. Instanzen bis 0.94 (ohne Attribut LegacySubVariablesMigrated)
+     * migrieren ihre alten Untervariablen einmalig, danach ist das Attribut gesetzt und es passiert nichts mehr.
+     *
+     * @param string $JSONData Gespeicherte Konfiguration und Attribute der Instanz.
+     *
+     * @return string Geänderte Konfiguration/Attribute, leer ohne Änderung.
+     */
+    public function Migrate(string $JSONData): string
+    {
+        // Module ohne alte Untervariablen (z.B. WAN IP-Verbindung mit eigener Migration) brauchen hier nichts
+        if (count(static::$LegacySubVariables) === 0) {
+            return '';
+        }
+        parent::Migrate($JSONData);
+        // Als Objekt dekodieren, damit leere Objekte (attributes, configuration) nicht zu [] werden
+        $Data = json_decode($JSONData);
+        if (!is_object($Data)) {
+            return '';
+        }
+        if (!isset($Data->attributes) || !is_object($Data->attributes)) {
+            $Data->attributes = new \stdClass();
+        }
+        if (property_exists($Data->attributes, \FritzBox\Base\Attribute::LegacySubVariablesMigrated)) {
+            return '';
+        }
+        // Auswahl der Zusatzvariablen aus der Konfiguration; fehlt die Eigenschaft (Instanz bis 0.94), gilt der Standard „an“
+        $Enabled = [];
+        foreach (static::$LegacySubVariables as $Info => [, $Property]) {
+            $Enabled[$Info] = (bool) ($Data->configuration->{$Property} ?? true);
+        }
+        try {
+            $this->MigrateLegacySubVariables($Enabled);
+        } catch (\Throwable $th) {
+            // Nicht migrierte Variablen bleiben als alte Untervariablen stehen (Schaltfläche „Alte Untervariablen löschen“)
+            $this->LogMessage(sprintf($this->Translate('Migration of old sub variables failed: %s'), $th->getMessage()), KL_WARNING);
+        }
+        // Nur einmal, auch wenn einzelne Variablen nicht verschoben werden konnten
+        $Data->attributes->{\FritzBox\Base\Attribute::LegacySubVariablesMigrated} = true;
+        return json_encode($Data);
     }
 
     /**
@@ -212,12 +262,60 @@ class FritzBoxModulBase extends IPSModuleStrict
                 continue;
             }
             foreach (IPS_GetChildrenIDs($ParentID) as $ChildID) {
-                if (IPS_VariableExists($ChildID) && in_array(IPS_GetObject($ChildID)['ObjectIdent'], static::$LegacySubVariables, true)) {
+                if (IPS_VariableExists($ChildID) && array_key_exists(IPS_GetObject($ChildID)['ObjectIdent'], static::$LegacySubVariables)) {
                     $Result[] = $ChildID;
                 }
             }
         }
         return $Result;
+    }
+
+    /**
+     * Verschiebt die alten Untervariablen (bis 0.94, Kind der Gerätevariable mit Ident z.B. `Speed`) an die Instanz und
+     * gibt ihnen den Ident der Zusatzvariable (`<Info>_<Ident der Gerätevariable>`). ID, Archivdaten, Ereignisse und Links
+     * bleiben erhalten. Übersprungen werden abgewählte Arten und Geräte, für die die Zusatzvariable schon existiert.
+     * Den Namen setzt die Migration nur, wenn er noch der Standardname des Moduls ist (sonst gehört er dem Nutzer).
+     *
+     * @param array $Enabled Art der Information => gewünscht (Eigenschaft der Instanz).
+     */
+    protected function MigrateLegacySubVariables(array $Enabled): void
+    {
+        $Count = 0;
+        foreach (IPS_GetChildrenIDs($this->InstanceID) as $ParentID) {
+            if (!IPS_VariableExists($ParentID)) {
+                continue;
+            }
+            $DeviceIdent = IPS_GetObject($ParentID)['ObjectIdent'];
+            if ($DeviceIdent === '') {
+                continue;
+            }
+            foreach (IPS_GetChildrenIDs($ParentID) as $ChildID) {
+                $Info = IPS_GetObject($ChildID)['ObjectIdent'];
+                if (!IPS_VariableExists($ChildID) || !array_key_exists($Info, static::$LegacySubVariables) || !($Enabled[$Info] ?? false)) {
+                    continue;
+                }
+                $Ident = $Info . '_' . $DeviceIdent;
+                if (@IPS_GetObjectIDByIdent($Ident, $this->InstanceID) !== false) {
+                    continue;
+                }
+                // Erst den Ident (eindeutig unter der Gerätevariable), dann verschieben; misslingt das, Ident zurück
+                if (!@IPS_SetIdent($ChildID, $Ident)) {
+                    continue;
+                }
+                if (!@IPS_SetParent($ChildID, $this->InstanceID)) {
+                    @IPS_SetIdent($ChildID, $Info);
+                    continue;
+                }
+                $NameKey = static::$LegacySubVariables[$Info][0];
+                if (in_array(IPS_GetName($ChildID), [$NameKey, $this->Translate($NameKey)], true)) {
+                    IPS_SetName($ChildID, IPS_GetName($ParentID) . ' - ' . $this->Translate($NameKey));
+                }
+                $Count++;
+            }
+        }
+        if ($Count > 0) {
+            $this->LogMessage(sprintf($this->Translate('%d old sub variables migrated.'), $Count), KL_MESSAGE);
+        }
     }
 
     /**
@@ -463,6 +561,31 @@ class FritzBoxModulBase extends IPSModuleStrict
         return $this->LoadAndSaveFile($Uri, '');
     }
 
+    /**
+     * Lädt eine Datei vom Webserver der FritzBox (Schema und Host der IO, Standardport 80/443 statt TR-064-Port).
+     *
+     * @param string $Uri Pfad auf der FritzBox, z.B. `/dvb/m3u/radio.m3u`.
+     *
+     * @return string|false Inhalt der Datei, false bei Fehler.
+     */
+    protected function LoadWebData(string $Uri): string|false
+    {
+        if (!$this->HasActiveParent()) {
+            return false;
+        }
+        $this->SendDebug('Load web', $Uri, 0);
+        $Ret = $this->SendDataToParent(json_encode(
+            [
+                'DataID'     => \FritzBox\GUID::SendToFritzBoxIO,
+                'Function'   => \FritzBox\IOFunction::LoadWebData,
+                'Uri'        => $Uri
+            ]
+        ));
+        $Result = is_string($Ret) ? \FritzBox\IOResult::Decode($Ret) : false;
+        $this->SendDebug('Load web', is_string($Result) ? strlen($Result) . ' bytes' : 'failed', 0);
+        return is_string($Result) ? $Result : false;
+    }
+
     protected function LoadAndSaveFile(string $Uri, string $Filename): mixed
     {
         if (!$this->HasActiveParent()) {
@@ -547,7 +670,8 @@ class FritzBoxModulBase extends IPSModuleStrict
                 'Parameter' => $Parameter
             ]
         ));
-        if ($Ret === '') {
+        // Während module_reload liefert SendDataToParent ggf. false („Cannot find interface for instance“)
+        if (!is_string($Ret) || ($Ret === '')) {
             return false;
         }
         $Result = \FritzBox\IOResult::Decode($Ret);
@@ -585,8 +709,25 @@ class FritzBoxModulBase extends IPSModuleStrict
      *
      * @param string $Message Fehlermeldung
      */
+    /**
+     * Wie SendEx, aber für optionale Zusatzabfragen: Fehler nur per SendDebug, ohne Meldung an den Aufrufer.
+     */
+    protected function SendExQuiet(string $Function, int $Index, array $Parameter = []): mixed
+    {
+        $this->QuietErrors = true;
+        try {
+            return $this->SendEx($Function, $Index, $Parameter);
+        } finally {
+            $this->QuietErrors = false;
+        }
+    }
+
     protected function ReportError(string $Message): void
     {
+        if ($this->QuietErrors) {
+            $this->SendDebug('Error (optional query)', $Message, 0);
+            return;
+        }
         if ($this->IsRequestAction) {
             echo $Message;
             return;

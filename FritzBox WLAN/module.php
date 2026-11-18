@@ -36,8 +36,8 @@ class FritzBoxWLAN extends FritzBoxModulBase
         '/upnp/control/wlanconfig4'
     ];
     protected static $LegacySubVariables = [
-        \FritzBox\WLAN\Variables::Speed,
-        \FritzBox\WLAN\Variables::Signal
+        \FritzBox\WLAN\Variables::Speed  => ['Speed', \FritzBox\WLAN\Property::SpeedVariables],
+        \FritzBox\WLAN\Variables::Signal => ['Signalstrength', \FritzBox\WLAN\Property::SignalVariables]
     ];
     protected static $ServiceTypeArray = [
         'urn:dslforum-org:service:WLANConfiguration:1',
@@ -828,15 +828,18 @@ class FritzBoxWLAN extends FritzBoxModulBase
 
     /**
      * Daten der Kachel. QR-Code und Passwort nur, wenn in der Instanz aktiviert (ShowWLanKeyAsQRCode bzw. ShowWLanKeyAsVariable).
-     * Zu jedem Gerät die Variable der Signalstärke, wenn geloggt (dann öffnet die Kachel das Diagramm).
+     * Zu jedem Gerät die Variable der Signalstärke, wenn geloggt (dann öffnet die Kachel das Diagramm), und die Variable
+     * für den Klick auf den Namen (Zustand, wenn geloggt, sonst Signalstärke).
      */
     protected function GetTileData(): array
     {
         $Hosts = [];
         foreach ($this->TileHosts as $Host) {
             $SignalId = (int) @$this->GetIDForIdent(\FritzBox\WLAN\Variables::Signal . '_' . $Host['ident']);
-            $Host['var'] = (int) @$this->GetIDForIdent($Host['ident']);
+            $StateId = (int) @$this->GetIDForIdent($Host['ident']);
             $Host['chart'] = (($SignalId > 0) && $this->IsTileVariableLogged($SignalId)) ? $SignalId : 0;
+            // Klick auf den Namen: Diagramm des Zustands (verbunden), wenn geloggt, sonst das der Signalstärke, sonst nichts
+            $Host['open'] = (($StateId > 0) && $this->IsTileVariableLogged($StateId)) ? $StateId : $Host['chart'];
             unset($Host['ident']);
             $Hosts[] = $Host;
         }
@@ -860,12 +863,15 @@ class FritzBoxWLAN extends FritzBoxModulBase
 
     protected function GetTileTextKeys(): array
     {
-        return ['WLAN', 'Devices', 'No devices', 'Password', 'Signal', 'Show chart', 'Open variable', 'Remain time', 'Show password', 'Scan to connect'];
+        return ['WLAN', 'Devices', 'No devices', 'Password', 'Signal', 'Show chart', 'Open variable', 'Remain time', 'Show password', 'Scan to connect', 'Search'];
     }
 
     protected function ProcessRequestAction(string $Ident, mixed $Value): mixed
     {
         if (parent::ProcessRequestAction($Ident, $Value)) {
+            return true;
+        }
+        if ($this->ProcessTileAction($Ident, $Value)) {
             return true;
         }
         switch ($Ident) {
@@ -1159,7 +1165,7 @@ class FritzBoxWLAN extends FritzBoxModulBase
             return false;
         }
         $this->Channel = (int) $resultState['NewChannel'];
-        $this->setIPSVariable(\FritzBox\WLAN\Variables::X_AVM_DE_APEnabled, 'WLAN state', (int) $resultState['NewEnable'] !== 0, VARIABLETYPE_BOOLEAN, '~Switch', false, -11);
+        $this->setIPSVariable(\FritzBox\WLAN\Variables::X_AVM_DE_APEnabled, 'WLAN state', (int) $resultState['NewEnable'] !== 0, VARIABLETYPE_BOOLEAN, '~Switch', true, -11);
         $this->setIPSVariable(\FritzBox\WLAN\Variables::SSID, 'SSID Name', (string) $resultState['NewSSID'], VARIABLETYPE_STRING, '', false, -10);
         if ($this->ReadPropertyBoolean(\FritzBox\WLAN\Property::InfoVariables)) {
             $result = $this->GetWLANExtInfo();

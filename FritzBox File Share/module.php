@@ -21,12 +21,16 @@ class FritzBoxFileShare extends FritzBoxModulBase
     protected const Is_Dir = 1;
     protected const Is_InValid = 10;
     protected const Is_Valid = 11;
+    /** Index von X_AVM-DE_MyFritz in $ServiceTypeArray (Adresse der Box im Internet für vollständige Links) */
+    private const MyFritzIndex = 1;
     protected static $ControlUrlArray = [
-        '/upnp/control/x_filelinks'
+        '/upnp/control/x_filelinks',
+        '/upnp/control/x_myfritz'
     ];
     protected static $EventSubURLArray = [];
     protected static $ServiceTypeArray = [
-        'urn:dslforum-org:service:X_AVM-DE_Filelinks:1'
+        'urn:dslforum-org:service:X_AVM-DE_Filelinks:1',
+        'urn:dslforum-org:service:X_AVM-DE_MyFritz:1'
     ];
     protected static $DefaultIndex = 0;
 
@@ -219,7 +223,22 @@ class FritzBoxFileShare extends FritzBoxModulBase
 
     protected function GetTileTextKeys(): array
     {
-        return ['File shares', 'No file shares', 'Copy link', 'Link copied', 'Delete', 'Delete the file share %s?', 'Accesses', 'Expires', 'Never', 'Invalid'];
+        return ['File shares', 'No file shares', 'Open link', 'Copy link', 'Link copied', 'Delete', 'Delete the file share %s?', 'Accesses', 'Expires', 'Never', 'Invalid'];
+    }
+
+    /**
+     * Adresse der FritzBox im Internet über MyFRITZ! (https://<Name>.myfritz.net[:Port]), sonst leer.
+     * Optionale Abfrage: Fehler nur im Debug.
+     */
+    private function MyFritzBaseUrl(): string
+    {
+        $Info = $this->SendExQuiet('GetInfo', self::MyFritzIndex);
+        if (!is_array($Info) || ((int) ($Info['NewEnabled'] ?? 0) != 1) || ((string) ($Info['NewDynDNSName'] ?? '') == '')) {
+            $this->SendDebug('MyFRITZ', 'not available, no complete links', 0);
+            return '';
+        }
+        $Port = (int) ($Info['NewPort'] ?? 443);
+        return 'https://' . $Info['NewDynDNSName'] . (($Port > 0) && ($Port != 443) ? ':' . $Port : '');
     }
 
     private function GetShareList()
@@ -247,6 +266,8 @@ class FritzBoxFileShare extends FritzBoxModulBase
         }
         $TableData = [];
         $TileShares = [];
+        // Die Liste enthält nur den Pfad (/nas/filelink.lua?id=…); vollständig erst mit der MyFRITZ!-Adresse
+        $BaseUrl = $this->MyFritzBaseUrl();
         /** @var \SimpleXMLElement $FileItem */
         foreach ($FileList as $FileItem) {
             $Filename = explode('/', (string) $FileItem->Path);
@@ -261,7 +282,7 @@ class FritzBoxFileShare extends FritzBoxModulBase
                 'name'    => end($Filename),
                 'dir'     => (int) $FileItem->IsDirectory == 1,
                 'valid'   => (int) $FileItem->Valid == 1,
-                'url'     => (string) $FileItem->Url,
+                'url'     => (($BaseUrl != '') && ((string) $FileItem->Url != '')) ? $BaseUrl . (string) $FileItem->Url : '',
                 'count'   => (int) $FileItem->AccessCount,
                 'limit'   => (int) $FileItem->AccessCountLimit,
                 'expires' => (int) $Expires
