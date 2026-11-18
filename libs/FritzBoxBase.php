@@ -79,6 +79,8 @@ class FritzBoxModulBase extends IPSModuleStrict
         if (!isset($Data->attributes) || !is_object($Data->attributes)) {
             $Data->attributes = new \stdClass();
         }
+        // TEMP Diagnose: Welche Schlüssel liefert die Persistenz (TempProbe ist neu und war nie gespeichert)?
+        $this->LogMessage('TEMP Migrate: attribute keys ' . implode(',', array_keys((array) $Data->attributes)) . ' | configuration keys ' . count((array) ($Data->configuration ?? [])), KL_MESSAGE);
         // TEMP Diagnose Migration (Testsystem 2026-11-18): Aufruf, Attribut und Kinder protokollieren
         $this->LogMessage('TEMP Migrate: attribute ' . (property_exists($Data->attributes, \FritzBox\Base\Attribute::LegacySubVariablesMigrated) ? 'present' : 'missing') . ', children ' . count(IPS_GetChildrenIDs($this->InstanceID)) . ', runlevel ' . IPS_GetKernelRunlevel(), KL_MESSAGE);
         if (property_exists($Data->attributes, \FritzBox\Base\Attribute::LegacySubVariablesMigrated)) {

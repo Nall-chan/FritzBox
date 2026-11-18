@@ -61,7 +61,7 @@ namespace FritzBox\Base {
     class Attribute
     {
         /** Alte Untervariablen (bis 0.95) sind zu Zusatzvariablen der Instanz migriert (einmalig in Migrate). */
-        public const LegacySubVariablesMigrated = 'LegacySubVariablesMigrated';
+        public const LegacySubVariablesMigrated = 'SubVariablesMigrated';
     }
 
     class Timer

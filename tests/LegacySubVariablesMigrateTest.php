@@ -28,7 +28,7 @@ class LegacySubVariablesMigrateTest extends TestCase
         [$Iid, $Device, $Speed, $Signal] = $this->oldStructure('Geschwindigkeit');
         $Result = json_decode(IPS\InstanceManager::getInstanceInterface($Iid)->Migrate($this->persistence([])), true);
 
-        $this->assertTrue($Result['attributes']['LegacySubVariablesMigrated']);
+        $this->assertTrue($Result['attributes'][\FritzBox\Base\Attribute::LegacySubVariablesMigrated]);
         // Gleiche Objekte, jetzt an der Instanz mit neuem Ident
         $this->assertSame($Speed, IPS_GetObjectIDByIdent('Speed_MAC001122AABBCC', $Iid));
         $this->assertSame($Signal, IPS_GetObjectIDByIdent('Signal_MAC001122AABBCC', $Iid));
@@ -49,7 +49,7 @@ class LegacySubVariablesMigrateTest extends TestCase
     public function testRunsOnlyOnce(): void
     {
         [$Iid, $Device, $Speed] = $this->oldStructure('Geschwindigkeit');
-        $Result = IPS\InstanceManager::getInstanceInterface($Iid)->Migrate($this->persistence(['LegacySubVariablesMigrated' => true]));
+        $Result = IPS\InstanceManager::getInstanceInterface($Iid)->Migrate($this->persistence([\FritzBox\Base\Attribute::LegacySubVariablesMigrated => true]));
         $this->assertSame('', $Result);
         $this->assertSame($Device, IPS_GetParent($Speed));
         $this->assertSame('Speed', IPS_GetObject($Speed)['ObjectIdent']);
@@ -64,7 +64,7 @@ class LegacySubVariablesMigrateTest extends TestCase
         IPS_SetIdent($Existing, 'Signal_MAC001122AABBCC');
         $Result = json_decode(IPS\InstanceManager::getInstanceInterface($Iid)->Migrate($this->persistence([], ['SpeedVariables' => false])), true);
 
-        $this->assertTrue($Result['attributes']['LegacySubVariablesMigrated']);
+        $this->assertTrue($Result['attributes'][\FritzBox\Base\Attribute::LegacySubVariablesMigrated]);
         $this->assertSame($Device, IPS_GetParent($Speed));
         $this->assertSame($Device, IPS_GetParent($Signal));
         $this->assertSame('Signal', IPS_GetObject($Signal)['ObjectIdent']);
@@ -75,7 +75,7 @@ class LegacySubVariablesMigrateTest extends TestCase
     {
         $Iid = IPS_CreateInstance(self::WLAN);
         $Attributes = IPS\InstanceManager::getInstanceInterface($Iid)->GetPersistence()['attributes'] ?? [];
-        $this->assertTrue($Attributes['LegacySubVariablesMigrated'] ?? false);
+        $this->assertTrue($Attributes[\FritzBox\Base\Attribute::LegacySubVariablesMigrated] ?? false);
     }
 
     /**
