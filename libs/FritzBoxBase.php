@@ -50,8 +50,8 @@ class FritzBoxModulBase extends IPSModuleStrict
         $this->ParentID = 0;
         $this->RegisterPropertyInteger(\FritzBox\Base\Property::Index, static::$DefaultIndex);
         if (count(static::$LegacySubVariables) > 0) {
-            // Standard false: Laut Doku enthält die Persistenz in Migrate nur Gespeichertes (Attribut fehlt bei Instanzen bis 0.95).
-            // Beim Store-Update kam es einmal mit dem Standardwert aus Create an (vermutlich Fehler in Symcon). Migrate prüft daher
+            // Standard false: Laut Doku enthält die Persistenz in Migrate nur Gespeichertes (Attribut fehlt bei Instanzen bis 0.95),
+            // beim Store-Update kam es aber mit dem Standardwert aus Create an (vermutlich Fehler in Symcon). Migrate prüft daher
             // nur auf den Wert true; fehlt das Attribut oder ist es false, wird migriert. Neue Instanzen laufen einmal leer durch.
             $this->RegisterAttributeBoolean(\FritzBox\Base\Attribute::LegacySubVariablesMigrated, false);
         }
@@ -81,10 +81,6 @@ class FritzBoxModulBase extends IPSModuleStrict
         if (!isset($Data->attributes) || !is_object($Data->attributes)) {
             $Data->attributes = new \stdClass();
         }
-        // TEMP Diagnose: Welche Schlüssel liefert die Persistenz (TempProbe ist neu und war nie gespeichert)?
-        $this->LogMessage('TEMP Migrate: attribute keys ' . implode(',', array_keys((array) $Data->attributes)) . ' | configuration keys ' . count((array) ($Data->configuration ?? [])), KL_MESSAGE);
-        // TEMP Diagnose Migration (Testsystem 2026-11-18): Aufruf, Attribut und Kinder protokollieren
-        $this->LogMessage('TEMP Migrate: attribute ' . var_export($Data->attributes->{\FritzBox\Base\Attribute::LegacySubVariablesMigrated} ?? null, true) . ', children ' . count(IPS_GetChildrenIDs($this->InstanceID)) . ', runlevel ' . IPS_GetKernelRunlevel(), KL_MESSAGE);
         if (($Data->attributes->{\FritzBox\Base\Attribute::LegacySubVariablesMigrated} ?? false) === true) {
             return '';
         }
@@ -93,8 +89,6 @@ class FritzBoxModulBase extends IPSModuleStrict
         foreach (static::$LegacySubVariables as $Info => [, $Property]) {
             $Enabled[$Info] = (bool) ($Data->configuration->{$Property} ?? true);
         }
-        // TEMP Diagnose
-        $this->LogMessage('TEMP Migrate: enabled ' . json_encode($Enabled), KL_MESSAGE);
         try {
             $this->MigrateLegacySubVariables($Enabled);
         } catch (\Throwable $th) {
@@ -116,10 +110,6 @@ class FritzBoxModulBase extends IPSModuleStrict
 
     public function ApplyChanges(): void
     {
-        // TEMP Diagnose Migration: Reihenfolge Migrate/ApplyChanges
-        if (count(static::$LegacySubVariables) > 0) {
-            $this->LogMessage('TEMP ApplyChanges, runlevel ' . IPS_GetKernelRunlevel(), KL_MESSAGE);
-        }
         $this->SetReceiveDataFilter('.*NOTHINGTORECEIVE.*');
         //Never delete this line!
         parent::ApplyChanges();
@@ -259,27 +249,17 @@ class FritzBoxModulBase extends IPSModuleStrict
             foreach (IPS_GetChildrenIDs($ParentID) as $ChildID) {
                 $Info = IPS_GetObject($ChildID)['ObjectIdent'];
                 if (!IPS_VariableExists($ChildID) || !array_key_exists($Info, static::$LegacySubVariables) || !($Enabled[$Info] ?? false)) {
-                    // TEMP Diagnose
-                    if (array_key_exists($Info, static::$LegacySubVariables)) {
-                        $this->LogMessage('TEMP Migrate: ' . $ChildID . ' (' . $Info . ') not enabled', KL_WARNING);
-                    }
                     continue;
                 }
                 $Ident = $Info . '_' . $DeviceIdent;
                 if (@IPS_GetObjectIDByIdent($Ident, $this->InstanceID) !== false) {
-                    // TEMP Diagnose
-                    $this->LogMessage('TEMP Migrate: ' . $Ident . ' already exists, ' . $ChildID . ' skipped', KL_WARNING);
                     continue;
                 }
                 // Erst den Ident (eindeutig unter der Gerätevariable), dann verschieben; misslingt das, Ident zurück
                 if (!@IPS_SetIdent($ChildID, $Ident)) {
-                    // TEMP Diagnose
-                    $this->LogMessage('TEMP Migrate: IPS_SetIdent ' . $ChildID . ' failed: ' . (error_get_last()['message'] ?? ''), KL_WARNING);
                     continue;
                 }
                 if (!@IPS_SetParent($ChildID, $this->InstanceID)) {
-                    // TEMP Diagnose
-                    $this->LogMessage('TEMP Migrate: IPS_SetParent ' . $ChildID . ' failed: ' . (error_get_last()['message'] ?? ''), KL_WARNING);
                     @IPS_SetIdent($ChildID, $Info);
                     continue;
                 }
@@ -290,8 +270,6 @@ class FritzBoxModulBase extends IPSModuleStrict
                 $Count++;
             }
         }
-        // TEMP Diagnose: Zusammenfassung auch bei 0
-        $this->LogMessage('TEMP Migrate: done, moved ' . $Count, KL_MESSAGE);
         if ($Count > 0) {
             $this->LogMessage(sprintf($this->Translate('%d old sub variables migrated.'), $Count), KL_MESSAGE);
         }
