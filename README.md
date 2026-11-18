@@ -361,6 +361,7 @@ Folgende Instanzen bringen eine eigene Kachel mit (Darstellung je Kachel in der 
 
 **Version 0.89:**  
 
+- Dokumentation überarbeitet: Haupt-README und alle Modul-READMEs einheitlich gegliedert (Eigenschaften mit Standardwert und Beispiel, Kachel- und WebFront-Visualisierung, Aktionen, Befehlsreferenz mit Parametern und Rückgabewerten), Kachel-Screenshots zeigen die Instanz statt einzelner Variablen.  
 - Neue Funktionen:
   - FritzBox WLAN: `FB_GetWPSInfo`, `FB_SetWPSEnable`, `FB_SetWLANGlobalEnable`, `FB_GetWLANConnectionInfo`, `FB_GetIPTVOptimized`.  
   - FritzBox Telefonie: `FB_GetNumbers`, `FB_GetVoIPStatus`, `FB_GetDialConfig`, `FB_DialNumber`, `FB_DialHangup` (Wählhilfe), `FB_GetNumberOfAlarmClocks`, `FB_GetAlarmClock`, `FB_SetAlarmClockEnable` (Weckrufe).  

@@ -93,7 +93,7 @@ Die Statusvariablen werden automatisch angelegt. Das Löschen einzelner kann zu 
 > [!NOTE]
 > Störabstand und Dämpfung liefert die FritzBox laut TR-064 in 0,1 dB, das Modul rechnet sie in dB um (an einer 7690 mit VDSL2 bestätigt: `70` = 7,0 dB Störabstand, `200` = 20,0 dB Dämpfung).
 >
-> Die FEC-Fehler sind ein Zähler der Schnittstelle (`NewFECErrors` von `FB_GetStatisticsTotal`), der laufend wächst. Die Anzeige der FritzBox weicht davon ab (Zeitraum oder Zählweise ungeklärt).
+> Die FEC-Fehler sind ein Zähler der Schnittstelle (`NewFECErrors` von `FB_GetStatisticsTotal`), der laufend wächst. Die Anzeige der FritzBox weicht davon ab. Ist auf der Leitung G.INP (Retransmission) aktiv, zeigt die FritzBox keinen FEC-Gesamtzähler, sondern korrigierte und nicht korrigierbare Fehler (DTU) je Minute bzw. 15 Minuten; dafür gibt es in der Schnittstelle keinen entsprechenden Wert (Rückmeldung eines Testers, nicht von AVM dokumentiert).
 
 ## 6. Visualisierung
 
