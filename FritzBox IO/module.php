@@ -57,6 +57,8 @@ class FritzBoxIO extends IPSModuleStrict
         $this->RegisterAttributeBoolean(\FritzBox\IO\Attribute::HasIGD2, false);
         $this->RegisterAttributeBoolean(\FritzBox\IO\Attribute::HasTel, false);
         $this->RegisterAttributeInteger(\FritzBox\IO\Attribute::NoOfWlan, 0);
+        // Bis 1.00 hatte die IO einen eigenen WebHook für Ereignisse (dauerhaft in der WebHook Control); die IO braucht keinen mehr
+        $this->UnregisterHook(\FritzBox\IO\Hook::LegacyName . $this->InstanceID);
         $this->Url = '';
         $this->Username = '';
         //$this->RequireParent("{6179ED6A-FC31-413C-BB8E-1204150CF376}");

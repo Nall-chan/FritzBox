@@ -110,6 +110,8 @@ namespace FritzBox\IO {
 
     class Hook
     {
+        /** WebHook der IO bis 1.00 (Ereignisse), dauerhaft in der WebHook Control eingetragen; wird nur noch abgemeldet. */
+        public const LegacyName = 'FritzBoxIO';
         /** Port des Symcon-Webservers für die CALLBACK-Adresse eines Ereignis-Abos. */
         public const Port = 3777;
     }
