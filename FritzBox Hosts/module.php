@@ -160,8 +160,9 @@ class FritzBoxHosts extends FritzBoxModulBase
         if (strpos($Ident, 'MAC') === 0) {
             if ($Value === true) {
                 $MACAddress = implode(':', str_split(substr($Ident, 3), 2));
-                $this->WakeOnLANByMACAddress($MACAddress);
+                return $this->WakeOnLANByMACAddress($MACAddress);
             }
+            return true;
         }
         trigger_error($this->Translate('Invalid Ident.'), E_USER_NOTICE);
         return false;

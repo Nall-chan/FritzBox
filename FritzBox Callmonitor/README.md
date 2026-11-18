@@ -134,7 +134,7 @@ Wird als Aktion ein Skript ausgeführt, stehen im Skript folgende Werte in `$_IP
 | PARENT       | integer | ObjektID der Anrufmonitor-Instanz                                                               |
 | EVENT        | integer | Ereignis als Zahl (siehe unten)                                                                 |
 | TYPE         | string  | Richtung des Gesprächs: `CALLIN` (ankommend) oder `CALLOUT` (abgehend)                          |
-| STATUS       | string  | Meldung der FritzBox: `CONNECT` oder `DISCONNECT`; nur bei Ereignis 3 bis 6 vorhanden            |
+| STATUS       | string  | Meldung der FritzBox: `RING`, `CALL`, `CONNECT` oder `DISCONNECT`                               |
 | DEVICE       | string  | Name des Endgeräts im Klartext; bei klingelnden Anrufen `*** RING ***`                          |
 | DEVICEID     | integer | Interne ID des Endgeräts in der FritzBox; `0`, solange noch kein Endgerät beteiligt ist          |
 | LOCAL        | string  | Eigene Rufnummer                                                                                |

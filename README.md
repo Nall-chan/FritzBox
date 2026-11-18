@@ -259,6 +259,11 @@ Für das Discovery werden Pakete über die Multicast-Adresse `239.255.255.250` a
 
 ### 2. Changelog
 
+**Version 0.95:**  
+
+- FritzBox Netzwerkgeräte: Das Schalten einer Netzwerkgeräte-Variable (Standardaktion Wake-On-LAN) meldete nach dem Senden zusätzlich „Ungültiger Ident.“.  
+- FritzBox Anrufmonitor: Bei klingelnden (`Ankommend`) und abgehenden (`Abgehend`) Anrufen fehlte `STATUS` in den Daten für Aktionen und Benachrichtigungen.
+
 **Version 0.94:**  
 
 - FritzBox WAN Fiber und FritzBox Mobile Connection: Beide Module registrierten das Variablenprofil `FB.dBm`, WAN Fiber als Float, Mobile Connection als Integer. Wurden beide Module genutzt, scheiterte die zweite Instanz mit `Variable profile type does not match for profile FB.dBm`. WAN Fiber nutzt jetzt das eigene Profil `FB.dBm.Float`. Vorhandene Instanzen stellen ihre Pegel-Variablen beim Übernehmen bzw. nach dem Update um und löschen das alte Float-Profil `FB.dBm`, sofern keine andere Variable es nutzt.  

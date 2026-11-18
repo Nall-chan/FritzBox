@@ -256,6 +256,8 @@ class FritzBoxCallmonitor extends FritzBoxModulBase
         switch ($CallEvent[1]) {
             case 'RING': // Ankommend klingelt
                 $Calls[$CallEvent[2]] = [];
+                // Neu anlegen verwirft den oben gesetzten Status, daher hier erneut setzen
+                $Calls[$CallEvent[2]]['Status'] = $CallEvent[1];
                 $Calls[$CallEvent[2]]['Type'] = 'CALLIN';
                 $Calls[$CallEvent[2]]['Event'] = self::Call_Incoming;
                 $Calls[$CallEvent[2]]['Remote'] = $CallEvent[3];
@@ -270,6 +272,8 @@ class FritzBoxCallmonitor extends FritzBoxModulBase
                 break;
             case 'CALL': //Abgehend
                 $Calls[$CallEvent[2]] = [];
+                // Neu anlegen verwirft den oben gesetzten Status, daher hier erneut setzen
+                $Calls[$CallEvent[2]]['Status'] = $CallEvent[1];
                 $Calls[$CallEvent[2]]['Event'] = self::Call_Outgoing;
                 $Calls[$CallEvent[2]]['Type'] = 'CALLOUT';
                 $Calls[$CallEvent[2]]['Device'] = $this->GetPhoneDeviceNameByID((int) $CallEvent[3]);
