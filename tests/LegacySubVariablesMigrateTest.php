@@ -71,11 +71,21 @@ class LegacySubVariablesMigrateTest extends TestCase
         $this->assertSame($Existing, IPS_GetObjectIDByIdent('Signal_MAC001122AABBCC', $Iid));
     }
 
-    public function testNewInstanceIsMarkedAsMigrated(): void
+    public function testNewInstanceStartsNotMigrated(): void
     {
+        // Standard false: Migrate läuft bei neuen Instanzen einmal leer durch
         $Iid = IPS_CreateInstance(self::WLAN);
         $Attributes = IPS\InstanceManager::getInstanceInterface($Iid)->GetPersistence()['attributes'] ?? [];
-        $this->assertTrue($Attributes[\FritzBox\Base\Attribute::LegacySubVariablesMigrated] ?? false);
+        $this->assertFalse($Attributes[\FritzBox\Base\Attribute::LegacySubVariablesMigrated] ?? true);
+    }
+
+    public function testMigratesWhenAttributeHasDefaultValue(): void
+    {
+        // Beim Store-Update enthält die Persistenz den Standardwert aus Create (false); trotzdem migrieren
+        [$Iid, , $Speed] = $this->oldStructure('Geschwindigkeit');
+        $Result = json_decode(IPS\InstanceManager::getInstanceInterface($Iid)->Migrate($this->persistence([\FritzBox\Base\Attribute::LegacySubVariablesMigrated => false])), true);
+        $this->assertTrue($Result['attributes'][\FritzBox\Base\Attribute::LegacySubVariablesMigrated]);
+        $this->assertSame($Iid, IPS_GetParent($Speed));
     }
 
     /**

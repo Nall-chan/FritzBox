@@ -50,14 +50,16 @@ class FritzBoxModulBase extends IPSModuleStrict
         $this->ParentID = 0;
         $this->RegisterPropertyInteger(\FritzBox\Base\Property::Index, static::$DefaultIndex);
         if (count(static::$LegacySubVariables) > 0) {
-            // Neue Instanzen haben keine alten Untervariablen
-            $this->RegisterAttributeBoolean(\FritzBox\Base\Attribute::LegacySubVariablesMigrated, true);
+            // Standard false: Laut Doku enthält die Persistenz in Migrate nur Gespeichertes (Attribut fehlt bei Instanzen bis 0.95).
+            // Beim Store-Update kam es einmal mit dem Standardwert aus Create an (vermutlich Fehler in Symcon). Migrate prüft daher
+            // nur auf den Wert true; fehlt das Attribut oder ist es false, wird migriert. Neue Instanzen laufen einmal leer durch.
+            $this->RegisterAttributeBoolean(\FritzBox\Base\Attribute::LegacySubVariablesMigrated, false);
         }
     }
 
     /**
      * Wird beim Laden der gespeicherten Konfiguration aufgerufen (Start von Symcon, Modul-Update), nach Create und vor
-     * ApplyChanges; der Objektbaum ist dann vorhanden. Instanzen bis 0.95 (ohne Attribut LegacySubVariablesMigrated)
+     * ApplyChanges; der Objektbaum ist dann vorhanden. Instanzen bis 0.95 (Attribut LegacySubVariablesMigrated fehlt oder false)
      * migrieren ihre alten Untervariablen einmalig, danach ist das Attribut gesetzt und es passiert nichts mehr.
      *
      * @param string $JSONData Gespeicherte Konfiguration und Attribute der Instanz.
@@ -82,8 +84,8 @@ class FritzBoxModulBase extends IPSModuleStrict
         // TEMP Diagnose: Welche Schlüssel liefert die Persistenz (TempProbe ist neu und war nie gespeichert)?
         $this->LogMessage('TEMP Migrate: attribute keys ' . implode(',', array_keys((array) $Data->attributes)) . ' | configuration keys ' . count((array) ($Data->configuration ?? [])), KL_MESSAGE);
         // TEMP Diagnose Migration (Testsystem 2026-11-18): Aufruf, Attribut und Kinder protokollieren
-        $this->LogMessage('TEMP Migrate: attribute ' . (property_exists($Data->attributes, \FritzBox\Base\Attribute::LegacySubVariablesMigrated) ? 'present' : 'missing') . ', children ' . count(IPS_GetChildrenIDs($this->InstanceID)) . ', runlevel ' . IPS_GetKernelRunlevel(), KL_MESSAGE);
-        if (property_exists($Data->attributes, \FritzBox\Base\Attribute::LegacySubVariablesMigrated)) {
+        $this->LogMessage('TEMP Migrate: attribute ' . var_export($Data->attributes->{\FritzBox\Base\Attribute::LegacySubVariablesMigrated} ?? null, true) . ', children ' . count(IPS_GetChildrenIDs($this->InstanceID)) . ', runlevel ' . IPS_GetKernelRunlevel(), KL_MESSAGE);
+        if (($Data->attributes->{\FritzBox\Base\Attribute::LegacySubVariablesMigrated} ?? false) === true) {
             return '';
         }
         // Auswahl der Zusatzvariablen aus der Konfiguration; fehlt die Eigenschaft (Instanz bis 0.95), gilt der Standard „an“
