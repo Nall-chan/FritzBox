@@ -29,50 +29,9 @@
                     "caption": "Password"
                 }
             ]
-        },
-        {
-            "type": "ExpansionPanel",
-            "caption": "Expert settings event hook",
-            "items": [
-                {
-                    "type": "RowLayout",
-                    "items": [
-                        {
-                            "name": "ReturnIP",
-                            "type": "ValidationTextBox",
-                            "caption": "IP of event hook",
-                            "width": "250px"
-                        },
-                        {
-                            "type": "NumberSpinner",
-                            "name": "ReturnPort",
-                            "caption": "Port of event hook",
-                            "minimum": 0,
-                            "maximum": 65535
-                        }
-                    ]
-                }
-            ]
         }
     ],
     "actions": [
-        {
-            "name": "EventRow",
-            "type": "RowLayout",
-            "items": [
-                {
-                    "type": "Label",
-                    "width": "200px",
-                    "caption": "Event hook:"
-                },
-                {
-                    "name": "EventHook",
-                    "type": "Label",
-                    "link": false,
-                    "caption": ""
-                }
-            ]
-        },
         {
             "name": "ErrorPopup",
             "type": "PopupAlert",

@@ -10,10 +10,6 @@ class FritzBoxWANDSLLink extends FritzBoxModulBase
         '/igdupnp/control/WANDSLLinkC1',
         '/igd2upnp/control/WANDSLLinkC1'
     ];
-    protected static $EventSubURLArray = [
-        '/igdupnp/control/WANDSLLinkC1',
-        '/igd2upnp/control/WANDSLLinkC1'
-    ];
     protected static $ServiceTypeArray = [
         'urn:schemas-upnp-org:service:WANDSLLinkConfig:1',
         'urn:schemas-upnp-org:service:WANDSLLinkConfig:1'
@@ -120,16 +116,6 @@ class FritzBoxWANDSLLink extends FritzBoxModulBase
                 return $this->UpdateInfo();
         }
         trigger_error($this->Translate('Invalid Ident.'), E_USER_NOTICE);
-    }
-
-    protected function DecodeEvent(array $Event): void
-    {
-        if (array_key_exists('LinkStatus', $Event)) {
-            $this->setIPSVariable(\FritzBox\WANDSLLink\Variables::LinkStatus, 'DSL Link Status', (string) $Event['LinkStatus'], VARIABLETYPE_STRING);
-            unset($Event['LinkStatus']);
-            $this->UpdateInfo();
-        }
-        parent::DecodeEvent($Event);
     }
 
     private function UpdateInfo()

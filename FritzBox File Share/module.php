@@ -27,7 +27,6 @@ class FritzBoxFileShare extends FritzBoxModulBase
         '/upnp/control/x_filelinks',
         '/upnp/control/x_myfritz'
     ];
-    protected static $EventSubURLArray = [];
     protected static $ServiceTypeArray = [
         'urn:dslforum-org:service:X_AVM-DE_Filelinks:1',
         'urn:dslforum-org:service:X_AVM-DE_MyFritz:1'

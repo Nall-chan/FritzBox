@@ -17,6 +17,7 @@ Auslesen der WAN IP Verbindung.
 - [2. Voraussetzungen](#2-voraussetzungen)
 - [3. Software-Installation](#3-software-installation)
 - [4. Einrichten der Instanzen in IP-Symcon](#4-einrichten-der-instanzen-in-ip-symcon)
+  - [Ereignisse](#ereignisse)
 - [5. Statusvariablen](#5-statusvariablen)
   - [Darstellungen](#darstellungen)
 - [6. Visualisierung](#6-visualisierung)
@@ -34,6 +35,7 @@ Auslesen der WAN IP Verbindung.
 - Alte Variablen vom FB-Project **sind** kompatibel.  
 - Auslesen der WAN IP Verbindung.  
 - Verbindungsaufbau und -abbau steuern.  
+- Echtzeitereignisse der FritzBox: Abbruch, Neuaufbau und neue externe IP-Adresse kommen sofort an (eigener WebHook).  
 
 ## 2. Voraussetzungen
 
@@ -75,6 +77,15 @@ Beispiel:
 IPS_SetProperty(12345, 'RefreshInterval', 300);
 IPS_ApplyChanges(12345);
 ```
+
+### Ereignisse
+
+Als einziges Modul der Library meldet sich die Instanz bei der FritzBox für Ereignisse an. Die FritzBox sendet sie an den WebHook `http://<IP von Symcon>:3777/hook/FritzBoxWANIP<InstanzID>`; die IP-Adresse wird automatisch ermittelt. Bei einem Abbruch oder Neuaufbau der Verbindung und bei einer neuen externen IPv4- oder IPv6-Adresse sendet die FritzBox sofort ein Ereignis (geprüft an einer 6690 Cable: alle Ereignisse innerhalb von 2 Sekunden). Der Verbindungsstatus wird direkt übernommen, bei bestehender Verbindung oder neuer Adresse fragt die Instanz alle Werte neu ab.  
+
+Kommt nach der Anmeldung kein erstes Ereignis an, erreicht die FritzBox den WebHook nicht (z.B. Symcon in einem Docker-Container mit NAT oder in einem anderen Netz). Die Instanz meldet dann einmal `Echtzeitereignisse nicht verfügbar` im Log, zeigt im Formular eine rote Hinweiszeile und fragt die Werte nur im Aktualisierungsintervall ab. Ein neuer Versuch erfolgt beim nächsten Übernehmen der Einstellungen oder Neuverbinden der FritzBox IO.  
+
+> [!NOTE]
+> Die Ereignisse der IGD-Dienste sendet die FritzBox nur, wenn dort **Statusinformationen über UPnP übertragen** aktiviert ist.
 
 ## 5. Statusvariablen
 

@@ -31,7 +31,6 @@ class FritzBoxAnsweringMachine extends FritzBoxModulBase
     protected static $ControlUrlArray = [
         '/upnp/control/x_tam'
     ];
-    protected static $EventSubURLArray = [];
     protected static $ServiceTypeArray = [
         'urn:dslforum-org:service:X_AVM-DE_TAM:1'
     ];
@@ -53,15 +52,8 @@ class FritzBoxAnsweringMachine extends FritzBoxModulBase
         $this->RegisterPropertyString(\FritzBox\Table\Property::Rows, json_encode($Style['Rows']));
         $this->RegisterAttributeString(\FritzBox\AnsweringMachine\Attribute::HookSecret, '');
         $this->RegisterTimer(\FritzBox\Base\Timer::RefreshInfo, 0, 'IPS_RequestAction(' . $this->InstanceID . ',"' . \FritzBox\Base\Action::RefreshInfo . '",true);');
-    }
-
-    public function Destroy(): void
-    {
-        if (!IPS_InstanceExists($this->InstanceID)) {
-            $this->UnregisterHook(\FritzBox\AnsweringMachine\Hook::Name . $this->InstanceID);
-        }
-        //Never delete this line!
-        parent::Destroy();
+        // Webhook für Tabelle und Kachel (Wiedergabe); IPSModuleStrict: flüchtig, Symcon setzt /hook/ davor und entfernt ihn selbst
+        $this->RegisterHook(\FritzBox\AnsweringMachine\Hook::Name . $this->InstanceID);
     }
 
     public function ApplyChanges(): void
@@ -93,8 +85,6 @@ class FritzBoxAnsweringMachine extends FritzBoxModulBase
         if (IPS_GetKernelRunlevel() != KR_READY) {
             return;
         }
-        // Webhook für Tabelle und Kachel (Wiedergabe); IPSModuleStrict: RegisterHook setzt /hook/ selbst davor
-        $this->RegisterHook(\FritzBox\AnsweringMachine\Hook::Name . $this->InstanceID);
         $this->UpdateInfo();
     }
 

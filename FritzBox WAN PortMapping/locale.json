@@ -11,7 +11,6 @@
             "Refresh Interval": "Aktualisierungsintervall",
             "seconds": "Sekunden",
             "Update Values": "Werte aktualisieren",
-            "Event subscribe error": "Ereignisabonnementfehler",
             "Invalid Ident.": "Ungültiger Ident.",
             "Number of port mapping": "Anzahl der Port Mappings",
             "Only rules that target the Symcon host can be changed.": "Nur Regeln welche den Symcon Host als Ziel haben können verändert werden.",

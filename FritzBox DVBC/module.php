@@ -15,7 +15,6 @@ class FritzBoxDVBC extends FritzBoxModulBase
     protected static $ControlUrlArray = [
         '/upnp/control/x_media'
     ];
-    protected static $EventSubURLArray = [];
     protected static $ServiceTypeArray = [
         'urn:dslforum-org:service:X_AVM-DE_Media:1'
     ];

@@ -68,14 +68,7 @@ class FritzBoxConfigurator extends IPSModuleStrict
 
             return json_encode($Form);
         }
-        $Ret = $this->SendDataToParent(json_encode(
-            [
-                'DataID'     => \FritzBox\GUID::SendToFritzBoxIO,
-                'Function'   => \FritzBox\IOFunction::Scpd
-            ]
-        ));
-        $SCPDhasEvent = \FritzBox\IOResult::Decode($Ret);
-        $this->SendDebug('SCPDhasEvent', $SCPDhasEvent, 0);
+
         $ServiceValues = [];
         $DeviceValues = [];
         $DevicesTypes = [];
@@ -119,7 +112,6 @@ class FritzBoxConfigurator extends IPSModuleStrict
                         'instanceID'      => 0,
                         'url'             => $Xml,
                         'name'            => $friendlyName,
-                        'event'           => '',
                         'type'            => $deviceType,
                         'id'              => $deviceType
                     ];
@@ -129,17 +121,11 @@ class FritzBoxConfigurator extends IPSModuleStrict
                     }
                     $DeviceValues[] = $AddDevice;
                 }
-                $Event = 'no';
-                $SCPDUrl = substr($xmlDevice->getElementsByTagName('SCPDURL')[0]->nodeValue, 1);
-                if (array_key_exists($SCPDUrl, $SCPDhasEvent)) {
-                    $Event = $SCPDhasEvent[$SCPDUrl] ? 'yes' : 'no';
-                }
 
                 $AddService = [
                     'instanceID'      => 0,
                     'url'             => $xmlDevice->getElementsByTagName('controlURL')[0]->nodeValue,
                     'name'            => $this->Translate('currently not available'),
-                    'event'           => $this->Translate($Event),
                     'type'            => $serviceType,
                     'parent'          => $deviceType
                 ];
@@ -186,8 +172,7 @@ class FritzBoxConfigurator extends IPSModuleStrict
                         if (IPS_GetModule($guid)['ModuleType'] == 3) {
                             $AddService['create'] = [
                                 'moduleID'      => $guid,
-                                'configuration' => [\FritzBox\Base\Property::Index => $index],
-                                'location'      => [IPS_GetName($this->InstanceID)]
+                                'configuration' => [\FritzBox\Base\Property::Index => $index]
                             ];
                         } else {
                             $AddService['create'] = [
@@ -249,16 +234,13 @@ class FritzBoxConfigurator extends IPSModuleStrict
                 $Form['actions'][1]['popup']['items'][1]['caption'] = "The call monitor is not activated on the FritzBox, or is blocked by something.\r\nDial #96*5* from a phone to activate the feature.";
                 $Form['actions'][1]['popup']['items'][1]['width'] = '400px';
             }
-            //$serviceType = 'callmonitor';
-            $guid = \FritzBox\GUID::CallMonitor; //key(\FritzBox\Services::$Data[$serviceType]);
+            $guid = \FritzBox\GUID::CallMonitor;
             $AddService = [
                 'url'             => '',
-                'event'           => '',
                 'type'            => $this->Translate(IPS_GetModule($guid)['ModuleName']),
                 'create'          => [
                     'moduleID'      => $guid,
-                    'configuration' => [\FritzBox\Base\Property::Index => 0],
-                    'location'      => [IPS_GetName($this->InstanceID)]
+                    'configuration' => [\FritzBox\Base\Property::Index => 0]
                 ]
             ];
             $Key = array_search([\FritzBox\GUID::CallMonitor =>0], $KnownInstances);
@@ -277,7 +259,6 @@ class FritzBoxConfigurator extends IPSModuleStrict
                 'instanceID'      => $InstanceId,
                 'url'             => $this->Translate('invalid'),
                 'name'            => IPS_GetName($InstanceId),
-                'event'           => '',
                 'type'            => $this->Translate('unknown')];
         }
         $Form['actions'][0]['values'] = array_merge($DeviceValues, $ServiceValues);

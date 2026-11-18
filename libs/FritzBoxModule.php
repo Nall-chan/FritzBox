@@ -76,6 +76,7 @@ class GUID
     public const Store = '{F45B5D1F-56AE-4C61-9AB2-C87C63149EC3}';
     //DataFlow
     public const SendToFritzBoxIO = '{D62D4515-7689-D1DB-EE97-F555AD9433F0}';
+    /** Bis 1.00 Ereignisse der IO an die Instanzen; nur noch als Datenfluss in module.json. */
     public const SendEventToChildren = '{CBD869A0-869B-3D4C-7EA8-D917D935E647}';
     public const NewHostListEvent = '{FE6C73CB-028B-F569-46AC-3C02FF1F8F2F}';
     public const RefreshHostListRequest = '{3C010D20-02A3-413A-9C5E-D0747D61BEF0}';

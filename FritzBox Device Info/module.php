@@ -9,7 +9,6 @@ class FritzBoxDeviceInfo extends FritzBoxModulBase
     protected static $ControlUrlArray = [
         '/upnp/control/deviceinfo'
     ];
-    protected static $EventSubURLArray = [];
     protected static $ServiceTypeArray = [
         'urn:dslforum-org:service:DeviceInfo:1'
     ];

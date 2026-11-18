@@ -8,7 +8,6 @@ class FritzBoxUPnPMediaServer extends FritzBoxModulBase
     protected static $ControlUrlArray = [
         '/upnp/control/x_upnp'
     ];
-    protected static $EventSubURLArray = [];
     protected static $ServiceTypeArray = [
         'urn:dslforum-org:service:X_AVM-DE_UPnP:1'
     ];

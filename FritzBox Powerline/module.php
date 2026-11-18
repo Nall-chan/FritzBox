@@ -17,7 +17,6 @@ class FritzBoxPowerline extends FritzBoxModulBase
         '/upnp/control/x_homeplug'
     ];
 
-    protected static $EventSubURLArray = [];
     protected static $LegacySubVariables = [
         \FritzBox\Powerline\Variables::Model           => ['Model', \FritzBox\Powerline\Property::ModelVariables],
         \FritzBox\Powerline\Variables::UpdateAvailable => ['Update available', \FritzBox\Powerline\Property::UpdateAvailableVariables]

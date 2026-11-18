@@ -23,9 +23,6 @@ class FritzBoxWANPhysicalInterface extends FritzBoxModulBase
     protected static $ControlUrlArray = [
         '/upnp/control/wancommonifconfig1'
     ];
-    protected static $EventSubURLArray = [
-        //'/upnp/control/wancommonifconfig1'
-    ];
     protected static $ServiceTypeArray = [
         'urn:dslforum-org:service:WANCommonInterfaceConfig:1'
     ];

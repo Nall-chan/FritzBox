@@ -17,7 +17,6 @@ class FritzBoxWANFiber extends FritzBoxModulBase
     protected static $ControlUrlArray = [
         '/upnp/control/x_wanfiber'
     ];
-    protected static $EventSubURLArray = [];
     protected static $ServiceTypeArray = [
         'urn:dslforum-org:service:X_AVM-DE_WANFiber:1'
     ];

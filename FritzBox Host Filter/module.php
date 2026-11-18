@@ -20,8 +20,6 @@ class FritzBoxHostFilter extends FritzBoxModulBase
     protected static $ControlUrlArray = [
         '/upnp/control/x_hostfilter'
     ];
-    protected static $EventSubURLArray = [
-    ];
     protected static $ServiceTypeArray = [
         'urn:dslforum-org:service:X_AVM-DE_HostFilter:1'
     ];
@@ -181,9 +179,6 @@ class FritzBoxHostFilter extends FritzBoxModulBase
     public function ReceiveData(string $JSONString): string
     {
         $data = json_decode($JSONString, true);
-        if ($data['DataID'] == \FritzBox\GUID::SendEventToChildren) {
-            return parent::ReceiveData($JSONString);
-        }
         unset($data['DataID']);
         if ($data['Function'] == \FritzBox\IOFunction::NewHostListEvent) {
             $this->SendDebug('NewHostListEvent', '', 0);

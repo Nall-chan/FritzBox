@@ -10,10 +10,6 @@ class FritzBoxWANCommonInterface extends FritzBoxModulBase
         '/igdupnp/control/WANCommonIFC1',
         '/igd2upnp/control/WANCommonIFC1'
     ];
-    protected static $EventSubURLArray = [
-        '/igdupnp/control/WANCommonIFC1',
-        '/igd2upnp/control/WANCommonIFC1'
-    ];
     protected static $ServiceTypeArray = [
         'urn:schemas-upnp-org:service:WANCommonInterfaceConfig:1',
         'urn:schemas-upnp-org:service:WANCommonInterfaceConfig:1'
@@ -165,17 +161,6 @@ class FritzBoxWANCommonInterface extends FritzBoxModulBase
         }
         trigger_error($this->Translate('Invalid Ident.'), E_USER_NOTICE);
         return false;
-    }
-
-    protected function DecodeEvent(array $Event): void
-    {
-        if (array_key_exists('PhysicalLinkStatus', $Event)) {
-            $this->setIPSVariable(\FritzBox\WANCommonInterface\Variables::PhysicalLinkStatus, 'Physical Link Status', (string) $Event['PhysicalLinkStatus'], VARIABLETYPE_STRING, 'FB.PhysicalLinkStatus');
-            unset($Event['PhysicalLinkStatus']);
-            $this->UpdateCommonLinkProperties();
-        }
-
-        parent::DecodeEvent($Event);
     }
 
     private function UpdateCommonLinkProperties()

@@ -9,7 +9,6 @@ class FritzBoxFirmwareInfo extends FritzBoxModulBase
     protected static $ControlUrlArray = [
         '/upnp/control/userif'
     ];
-    protected static $EventSubURLArray = [];
     protected static $ServiceTypeArray = [
         'urn:dslforum-org:service:UserInterface:1'
     ];

@@ -36,7 +36,6 @@ class FritzBoxCallmonitor extends FritzBoxModulBase
     protected static $ControlUrlArray = [
         '/upnp/control/x_contact'
     ];
-    protected static $EventSubURLArray = [];
     protected static $ServiceTypeArray = [
         'urn:dslforum-org:service:X_AVM-DE_OnTel:1'
     ];

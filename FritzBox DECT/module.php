@@ -18,7 +18,6 @@ class FritzBoxDECT extends FritzBoxModulBase
         '/upnp/control/x_dect'
     ];
 
-    protected static $EventSubURLArray = [];
     protected static $LegacySubVariables = [
         \FritzBox\DECT\Variables::Model           => ['Model', \FritzBox\DECT\Property::ModelVariables],
         \FritzBox\DECT\Variables::UpdateAvailable => ['Update available', \FritzBox\DECT\Property::UpdateAvailableVariables]

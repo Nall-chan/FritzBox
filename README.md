@@ -31,7 +31,7 @@
 
 - Anbindung von FritzBox Geräten an IP-Symcon über die TR-064/UPnP-Schnittstelle der FritzBox.
 - Auffinden von FritzBox Geräten im Netzwerk (Discovery) und Anlegen der Instanzen über einen Konfigurator.
-- Empfang von Ereignissen der FritzBox über einen WebHook in Symcon.
+- Echtzeitereignisse der Internetverbindung (Abbruch, Neuaufbau, neue externe IP-Adresse) über einen WebHook in Symcon.
 - Anrufmonitor für ankommende und abgehende Anrufe, inklusive Rückwärtssuche und Aktionen bei Ereignissen.
 - Auslesen und Steuern einzelner Bereiche der FritzBox, z.B. Telefonie, WLAN, Hosts, WAN-Verbindung, DynDNS, MyFritz, NAS, DHCP-Server und SmartHome-Geräte (Übersicht siehe [4. Enthaltende Module](#4-enthaltende-module)).
 
@@ -82,17 +82,8 @@ Soll Symcon die Internetverbindung trennen bzw. neu verbinden können ([WAN IP C
 
 #### Hinweise zum Symcon-System / Host  
 
-Um Ereignisse von der FritzBox in Symcon zu verarbeiten wird ein Webhook pro [IO-Modul](FritzBox%20IO/README.md) erzeugt.  
-Hier wird beim anlegen der Instanz automatisch nur der interne WebServer von Symcon auf Port 3777 eingetragen.
-Die IP-Adresse auf welchem Symcon die Daten empfängt wird automatisch ermittelt.
-
-Bei System mit aktiven NAT-Support funktioniert die automatische Erkennung der eigenen IP-Adresse nicht. **Hier wird automatisch die NATPublicIP aus den [Symcon-Spezialschaltern](https://www.symcon.de/service/dokumentation/entwicklerbereich/spezialschalter/) benutzt.**  
-
-<span style="color:red">**Auch bei Systemen mit aktiven NAT-Support wird extern automatisch nur der Port 3777 beim anlegen von IO-Instanzen unterstützt.**</span>  
-  
-Sollte es nötig sein, so können bei Bedarf die eigene IP und der Port, sowie die Verwendung von https,  in den IO-Instanzen unter `Experteneinstellungen` geändert und fixiert werden.
-
-<span style="color:red">**Der Symcon Host muss sich im gleichen Subnetz befinden wie die FritzBox.**(Bei NAT, muss der NAT-Host im gleichen Subnetz sein.)</span>  
+Echtzeitereignisse der FritzBox empfängt nur die [WAN IP-Verbindung](FritzBox%20WAN%20IP%20Connection/README.md): Abbruch und Neuaufbau der Internetverbindung sowie eine neue externe IP-Adresse kommen damit sofort an. Dazu meldet sie sich mit einem eigenen WebHook (`/hook/FritzBoxWANIP<InstanzID>`) auf dem internen WebServer von Symcon (Port 3777) bei der FritzBox an. Die IP-Adresse, unter der die FritzBox Symcon erreicht, wird automatisch ermittelt.  
+Erreicht die FritzBox diesen WebHook nicht (z.B. Symcon in einem Docker-Container mit NAT oder in einem anderen Netz), meldet die Instanz das einmal als Hinweis im Log und zeigt es in ihrem Formular an. Die Werte werden dann nur im Aktualisierungsintervall abgefragt. Alle anderen Module fragen die FritzBox ohnehin nur zyklisch ab und brauchen keinen Rückkanal.  
 
 Damit Geräte über das [Discovery-Modul](FritzBox%20Discovery/README.md) gefunden werden können, müssen bei NAT Systemen Multicast-Pakete korrekt weitergeleitet werden.  
 <span style="color:red">**Discovery funktioniert nicht in einem Docker Container welcher per NAT angebunden ist. Diese Konstellation wird aufgrund der fehlenden Multicast Fähigkeiten von Docker nicht unterstützt. In diesem Fall muss der [Konfigurator](FritzBox%20Configurator/README.md) manuell angelegt und der [IO](FritzBox%20IO/README.md) konfiguriert werden.**</span>  
@@ -265,6 +256,8 @@ Für das Discovery werden Pakete über die Multicast-Adresse `239.255.255.250` a
 > Folgende Funktionen liefern jetzt eine Zahl statt eines Textes: `FB_GetHostNumberOfEntries`, `FB_GetChangeCounter` (Netzwerkgeräte), `FB_GetIPInterfaceNumberOfEntries` (DHCP-Server), `FB_GetNumberOfFilelinkEntries` (Dateifreigabe), `FB_GetNumberOfDeviceEntries` (Powerline) und `FB_GetNumberOfDeflections` (Telefonie). Skripte, die das Ergebnis mit einem Text vergleichen (z.B. `=== '5'`), müssen angepasst werden.
 >
 > FritzBox DECT, FritzBox Powerline und FritzBox WLAN: Modell, Update verfügbar, Geschwindigkeit und Signalstärke je Gerät sind jetzt eigene Statusvariablen der Instanz (z.B. `Model_DECT3`, `Speed_MAC001122AABBCC`) statt Untervariablen unterhalb der Gerätevariable. Beim Update verschiebt jede Instanz die alten Untervariablen einmalig an die Instanz und macht sie zu den neuen Variablen: ID, Archivdaten, Ereignisse, Links und Skripte, die die ID nutzen, bleiben erhalten (Skripte mit Zugriff über den Ident müssen auf den neuen Ident umgestellt werden). Der Name wird nur angepasst, wenn er noch der Standardname war. Übrig bleiben nur abgewählte Variablen; sie löscht die Schaltfläche `Alte Untervariablen löschen` im Formular der Instanz.
+>
+> UPnP-Ereignisse der FritzBox empfängt nur noch die FritzBox WAN IP-Verbindung (eigener WebHook). FritzBox Netzwerkgeräte und FritzBox WLAN aktualisieren nur noch im eingestellten Intervall; die FritzBox hat für Geräte- und WLAN-Änderungen keine Ereignisse gesendet. Die FritzBox IO hat keinen WebHook und keine Eigenschaften `ReturnIP`/`ReturnPort` (Experteneinstellungen) mehr, die Sonderbehandlung bei NAT entfällt. Alte Einträge `FritzBoxIO<ID>` und `FritzBoxTAM<ID>` unter `Hooks (Benutzerdefiniert)` im WebHook Control stammen aus früheren Versionen und können gelöscht werden.
 
 **Neue Instanz-Kacheln (Kachel-Visualisierung)**
 
@@ -304,6 +297,10 @@ Folgende Instanzen bringen eine eigene Kachel mit (Darstellung je Kachel in der 
 - FritzBox Firmware Info: Der Modus der automatischen Aktualisierung kennt jetzt den Wert `Nur benachrichtigen`.  
 - FritzBox Telefonie, FritzBox Dateifreigabe, FritzBox WLAN und FritzBox Host Filter: Anrufliste, Freigaben bzw. Geräteliste werden für die Instanz-Kachel auch geladen, wenn die HTML-Box bzw. die Variablen je Gerät abgewählt sind. Intervall und Laden der Anrufliste bzw. Freigaben sind deshalb immer einstellbar.  
 - FritzBox Anrufbeantworter: Der Webhook für das Abspielen ist immer angemeldet (auch ohne HTML-Tabelle), weil die Instanz-Kachel ihn nutzt.  
+- FritzBox IO: Der Status `Verbindung hergestellt` hängt nicht mehr vom Empfang der Ereignisse ab. Die IO funktioniert damit auch, wenn die FritzBox Symcon nicht erreichen kann (z.B. Docker mit NAT).  
+- FritzBox WAN IP-Verbindung: Erreicht die FritzBox den WebHook nicht, steht einmal der Hinweis `Echtzeitereignisse nicht verfügbar` im Log und eine rote Zeile im Formular; die Werte kommen dann nur über das Intervall. Ein Ereignis aktualisiert jetzt alle Werte (Status, Dauer, Adressen, DNS-Server).  
+- FritzBox Konfigurator: Die Spalte `Ereignisse` entfällt.  
+- Alle Module: Der Status `Ereignisabonnementfehler` (201) entfällt.  
 
 **Fehlerbehebungen**
 

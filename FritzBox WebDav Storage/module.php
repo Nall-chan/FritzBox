@@ -8,7 +8,6 @@ class FritzBoxWebDavStorage extends FritzBoxModulBase
     protected static $ControlUrlArray = [
         '/upnp/control/x_webdav'
     ];
-    protected static $EventSubURLArray = [];
     protected static $ServiceTypeArray = [
         'urn:dslforum-org:service:X_AVM-DE_WebDAVClient:1'
     ];

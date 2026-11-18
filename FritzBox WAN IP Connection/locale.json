@@ -1,15 +1,12 @@
 {
     "translations": {
         "de": {
-            "Error on subscribe (parse)": "Fehler beim Anmelden der Ereignisse (Verarbeitung)",
-            "Error on subscribe (Result)": "Fehler beim Anmelden der Ereignisse (Ergebnis)",
             "FritzBox WAN IP Connection": "FritzBox WAN IP-Verbindung",
             "Service": "Dienst",
             "<none>": "<keiner>",
             "Refresh Interval": "Aktualisierungsintervall",
             "seconds": "Sekunden",
             "Update Values": "Werte aktualisieren",
-            "Event subscribe error": "Ereignisabonnementfehler",
             "Invalid Ident.": "Ungültiger Ident.",
             "Reconnect": "Neu verbinden",
             "Control connection": "Steuerung der Verbindung",
@@ -29,7 +26,9 @@
             " min ": " Min ",
             " h ": " Std ",
             " d ": " Tg ",
-            "This module is free for non-commercial use,\r\nDonations in support of the author are accepted here:": "Dieses Modul ist für die nicht kommerzielle Nutzung kostenlos,\r\nSchenkungen als Unterstützung für den Autor werden hier akzeptiert:"
+            "This module is free for non-commercial use,\r\nDonations in support of the author are accepted here:": "Dieses Modul ist für die nicht kommerzielle Nutzung kostenlos,\r\nSchenkungen als Unterstützung für den Autor werden hier akzeptiert:",
+            "Real-time events not available": "Echtzeitereignisse nicht verfügbar",
+            "Real-time events are not available: the FritzBox cannot reach the event hook of this instance (e.g. Docker or another network). The values are only updated with the refresh interval.": "Echtzeitereignisse nicht verfügbar: Die FritzBox erreicht den WebHook dieser Instanz nicht (z.B. Docker oder anderes Netz). Die Werte werden nur im Aktualisierungsintervall abgefragt."
         }
     }
 }

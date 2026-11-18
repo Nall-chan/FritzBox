@@ -10,8 +10,6 @@ require_once __DIR__ . '/../libs/FritzBoxModule.php';
  * @property string $Url
  * @property string $Username
  * @property bool $ForceLoadXML
- * @property string $SID
- * @property bool $isSubscribed
  * @method void RegisterAttributeArray(string $name, mixed $Value, int $Size = 0)
  * @method mixed ReadAttributeArray(string $name)
  * @method void WriteAttributeArray(string $name, mixed $value)
@@ -39,8 +37,7 @@ class FritzBoxIO extends IPSModuleStrict
             412 => ['Precondition Failed!', self::isConnected],
             404 => ['Service not Found', self::isServicenotValid],
             401 => ['Unauthorized', self::isUnauthorized],
-            500 => ['UPnPError', self::isDisconnected],
-            501 => ['Webhook invalid', self::isDisconnected]
+            500 => ['UPnPError', self::isDisconnected]
         ];
 
     public function Create(): void
@@ -52,11 +49,7 @@ class FritzBoxIO extends IPSModuleStrict
         $this->RegisterPropertyString(\FritzBox\IO\Property::Host, 'http://');
         $this->RegisterPropertyString(\FritzBox\IO\Property::Username, '');
         $this->RegisterPropertyString(\FritzBox\IO\Property::Password, '');
-        $this->RegisterPropertyString(\FritzBox\IO\Property::ReturnIP, '');
-        $this->RegisterPropertyInteger(\FritzBox\IO\Property::ReturnPort, 3777);
 
-        $this->RegisterAttributeString(\FritzBox\IO\Attribute::ConsumerAddress, 'Invalid');
-        $this->RegisterAttributeArray(\FritzBox\IO\Attribute::Events, []);
         $this->RegisterAttributeArray(\FritzBox\IO\Attribute::PhoneBooks, []);
         $this->RegisterAttributeArray(\FritzBox\IO\Attribute::PhoneDevices, []);
         $this->RegisterAttributeArray(\FritzBox\IO\Attribute::AreaCodes, []);
@@ -64,11 +57,8 @@ class FritzBoxIO extends IPSModuleStrict
         $this->RegisterAttributeBoolean(\FritzBox\IO\Attribute::HasIGD2, false);
         $this->RegisterAttributeBoolean(\FritzBox\IO\Attribute::HasTel, false);
         $this->RegisterAttributeInteger(\FritzBox\IO\Attribute::NoOfWlan, 0);
-        $this->RegisterTimer(\FritzBox\IO\Timer::RenewSubscription, 0, 'IPS_RequestAction(' . $this->InstanceID . ',"' . \FritzBox\IO\Action::Subscribe . '", true);');
         $this->Url = '';
         $this->Username = '';
-        $this->SID = '';
-        $this->isSubscribed = false;
         //$this->RequireParent("{6179ED6A-FC31-413C-BB8E-1204150CF376}");
         if (IPS_GetKernelRunlevel() == KR_READY) {
             $this->ForceLoadXML = true;
@@ -85,7 +75,6 @@ class FritzBoxIO extends IPSModuleStrict
     public function Destroy(): void
     {
         if (!IPS_InstanceExists($this->InstanceID)) {
-            $this->UnregisterHook(\FritzBox\IO\Hook::Name . $this->InstanceID);
             @array_map('unlink', glob(IPS_GetKErnelDir() . 'FritzBoxTemp/' . $this->InstanceID . '/*.*'));
             @rmdir(IPS_GetKErnelDir() . 'FritzBoxTemp/' . $this->InstanceID);
         }
@@ -132,21 +121,15 @@ class FritzBoxIO extends IPSModuleStrict
             $this->KernelReady();
             return;
         }
-        if ($Ident == \FritzBox\IO\Action::Subscribe) {
-            $this->DoSubscribe();
-        }
     }
 
     public function ApplyChanges(): void
     {
         //Never delete this line!
-        $this->DoUnsubscribe();
         parent::ApplyChanges();
         if (IPS_GetKernelRunlevel() != KR_READY) {
             return;
         }
-        // IPSModuleStrict: RegisterHook setzt /hook/ selbst davor
-        $this->RegisterHook(\FritzBox\IO\Hook::Name . $this->InstanceID);
         $this->InitConnection();
     }
 
@@ -154,11 +137,8 @@ class FritzBoxIO extends IPSModuleStrict
     {
         $data = json_decode($JSONString, true);
         switch ($data['Function']) {
-            case \FritzBox\IOFunction::Scpd:
-                $ret = $this->ReadAttributeArray(\FritzBox\IO\Attribute::Events);
-                break;
             case \FritzBox\IOFunction::Subscribe:
-                $ret = $this->Subscribe($data['EventSubURL'], $data['SID']);
+                $ret = $this->Subscribe($data['EventSubURL'], $data['SID'], $data['Callback'] ?? '');
                 break;
             case \FritzBox\IOFunction::Unsubscribe:
                 $ret = $this->Unsubscribe($data['EventSubURL'], $data['SID']);
@@ -255,25 +235,6 @@ class FritzBoxIO extends IPSModuleStrict
         if ($this->ReadPropertyString(\FritzBox\IO\Property::Username) == '') {
             $Form['elements'][2]['visible'] = true;
         }
-
-        if (IPS_GetOption('NATSupport')) {
-            if (IPS_GetOption('NATPublicIP') == '') {
-                if ($this->ReadPropertyString(\FritzBox\IO\Property::ReturnIP) == '') {
-                    $Form['actions'][1]['visible'] = true;
-                    $Form['actions'][1]['popup']['items'][0]['caption'] = $this->Translate('Error');
-                    $Form['actions'][1]['popup']['items'][1]['caption'] = $this->Translate('NAT support is active, but no public address is set.');
-                }
-            }
-        }
-        $ConsumerAddress = $this->ReadAttributeString(\FritzBox\IO\Attribute::ConsumerAddress);
-        if (!$Form['actions'][1]['visible']) {
-            if (($ConsumerAddress == 'Invalid') && (!in_array($this->GetStatus(), [self::isNotReachable, self::isURLnotValid])) && ($this->ReadPropertyBoolean(\FritzBox\IO\Property::Open)) && ($this->ReadPropertyString(\FritzBox\IO\Property::Password) != '')) {
-                $Form['actions'][1]['visible'] = true;
-                $Form['actions'][1]['popup']['items'][0]['caption'] = $this->Translate('Error');
-                $Form['actions'][1]['popup']['items'][1]['caption'] = $this->Translate('Couldn\'t determine webhook');
-            }
-        }
-        $Form['actions'][0]['items'][1]['caption'] = $this->Translate($ConsumerAddress);
         $this->SendDebug('FORM', json_encode($Form), 0);
         $this->SendDebug('FORM', json_last_error_msg(), 0);
         return json_encode($Form);
@@ -295,9 +256,6 @@ class FritzBoxIO extends IPSModuleStrict
 
     protected function SetStatus(int $Status): bool
     {
-        if ($Status != self::isConnected) {
-            $this->DoUnsubscribe();
-        }
         if ($this->GetStatus() != $Status) {
             return parent::SetStatus($Status);
         }
@@ -323,10 +281,6 @@ class FritzBoxIO extends IPSModuleStrict
                     return;
                 }
             }
-            if (!$this->GetConsumerAddress()) {
-                $this->SetStatus(self::$http_error[501][1]);
-                return;
-            }
             if ($this->ReadPropertyString(\FritzBox\IO\Property::Username) == '') {
                 $this->Username = $this->GetLastUser();
             } else {
@@ -341,81 +295,11 @@ class FritzBoxIO extends IPSModuleStrict
                 $this->getAreaCodes();
                 $this->checkCallMonitorPort();
             }
-            $this->DoSubscribe();
+            $this->SetStatus(self::isConnected);
         } else {
             $this->Url = '';
             $this->SetSummary('');
         }
-    }
-
-    protected function ProcessHookData(): void
-    {
-        if ($this->ReadPropertyBoolean(\FritzBox\IO\Property::Open) == false) {
-            http_response_code(404);
-            $this->SendHeaders();
-            echo 'File not found!';
-            return;
-        }
-        if ($_SERVER['REQUEST_METHOD'] != 'NOTIFY') {
-            http_response_code(405);
-            $this->SendHeaders();
-            echo 'Method Not Allowed!';
-            return;
-        }
-        /*if (!isset($_GET['eventSubURL'])) {
-            http_response_code(400);
-            $this->SendHeaders();
-            echo 'Bad Request!';
-            return;
-        }*/
-        if (!isset($_SERVER['HTTP_SID'])) {
-            http_response_code(400);
-            $this->SendHeaders();
-            echo 'Bad Request!';
-            return;
-        }
-
-        $eventSubUrl = substr($_SERVER['REQUEST_URI'], strlen(\FritzBox\IO\Hook::Path . $this->InstanceID));
-        $SID = $_SERVER['HTTP_SID'];
-
-        http_response_code(200);
-        $this->SendHeaders();
-        $Data = file_get_contents('php://input');
-        $this->SendDebug('HOOK', $eventSubUrl, 0);
-        $this->SendDebug('EVENT', \FritzBox\DebugMask::Xml($Data), 0);
-        $Propertys = [];
-        if ($eventSubUrl == '/upnp/control/layer3forwarding') {
-            $this->isSubscribed = true;
-        }
-        try {
-            $Propertys = \FritzBox\EventParser::Parse($Data);
-        } catch (\Throwable $th) {
-            $this->SendDebug('EVENT DECODE ERROR', $th->getTrace(), 0);
-            $this->LogMessage($th->getMessage(), KL_ERROR);
-
-        }
-        $this->SendDebug('EVENT XML', \FritzBox\DebugMask::Values($Propertys), 0);
-        $this->SendDataToChildren(
-            json_encode(
-                [
-                    'DataID'      => \FritzBox\GUID::SendEventToChildren,
-                    'EventSubURL' => $eventSubUrl,
-                    'EventData'   => $Propertys
-                ]
-            )
-        );
-    }
-
-    protected function WaitForEvent()
-    {
-        for ($i = 0; $i < 1000; $i++) {
-            if ($this->isSubscribed) {
-                return true;
-            } else {
-                usleep((5) * 1000);
-            }
-        }
-        return false;
     }
 
     private function CreateTempDir()
@@ -449,16 +333,6 @@ class FritzBoxIO extends IPSModuleStrict
             IPS_SetProperty($ParentId, \FritzBox\ClientSocket\Property::Open, ($Host ? true : false));
             @IPS_ApplyChanges($ParentId);
         }
-    }
-
-    private function SendHeaders()
-    {
-        header('Connection: close');
-        header('Server: Symcon ' . IPS_GetKernelVersion());
-        header('X-Powered-By: FritzBox Module');
-        header('Expires: 0');
-        header('Cache-Control: no-cache');
-        header('Content-Type: text/plain');
     }
 
     private function LoadAndGetData(string $Uri)
@@ -577,7 +451,6 @@ class FritzBoxIO extends IPSModuleStrict
         $Url = $this->Url;
         $Xmls = ['tr64desc.xml', 'igd2desc.xml', 'igddesc.xml'];
         $Result = false;
-        $Events = [];
         $this->WriteAttributeBoolean(\FritzBox\IO\Attribute::HasTel, false);
         $this->WriteAttributeBoolean(\FritzBox\IO\Attribute::HasIGD2, false);
         foreach ($Xmls as $Xml) {
@@ -623,7 +496,6 @@ class FritzBoxIO extends IPSModuleStrict
                 }
                 $this->SendDebug('Load SCPD: ' . $SCPD, $XMLSCPDData, 0);
                 file_put_contents(IPS_GetKErnelDir() . 'FritzBoxTemp/' . $this->InstanceID . '/' . $SCPD, $XMLSCPDData);
-                $Events[$SCPD] = (stripos($XMLSCPDData, '<stateVariable sendEvents="yes">') > 0);
             }
             if ($Xml == 'igd2desc.xml') {
                 $this->SendDebug('Use IGD2', 'true', 0);
@@ -632,61 +504,36 @@ class FritzBoxIO extends IPSModuleStrict
             }
             $Result = true;
         }
-        $this->WriteAttributeArray(\FritzBox\IO\Attribute::Events, $Events);
         return $Result;
     }
 
-    private function GetConsumerAddress()
+    /**
+     * Eigene Adresse, unter der die FritzBox Symcon erreicht (lokale Adresse der Verbindung zur FritzBox, IPv6 bevorzugt).
+     *
+     * @return string|false IP (IPv6 in eckigen Klammern) oder false, wenn sie nicht ermittelt werden kann.
+     */
+    private function GetLocalAddress(): string|false
     {
-        $Port = $this->ReadPropertyInteger(\FritzBox\IO\Property::ReturnPort);
-        if (IPS_GetOption('NATSupport')) {
-            $ip = $this->ReadPropertyString(\FritzBox\IO\Property::ReturnIP);
-            if ($ip == '') {
-                $ip = IPS_GetOption('NATPublicIP');
-                if ($ip == '') {
-                    $this->SendDebug('NAT enabled ConsumerAddress', 'Invalid', 0);
-                    $this->UpdateFormField('EventHook', 'caption', $this->Translate('NATPublicIP is missing in special switches!'));
-                    $this->WriteAttributeString(\FritzBox\IO\Attribute::ConsumerAddress, 'Invalid');
-                    $this->ShowLastError('Error', $this->Translate('NAT support is active, but no public address is set.'));
-                    return false;
-                }
-            }
-            $Debug = 'NAT enabled ConsumerAddress';
-        } else {
-            $ip = $this->ReadPropertyString(\FritzBox\IO\Property::ReturnIP);
-            if ($ip == '') {
-                $sock = socket_create(AF_INET6, SOCK_STREAM, SOL_TCP);
-                $Host = parse_url($this->Url);
-                @socket_connect($sock, $Host['host'], $Host['port']);
-                $ip = '';
-                $result = @socket_getsockname($sock, $ip);
-                @socket_close($sock);
-                if (($result == false) || (strpos($ip, '::') === 0)) {
-                    $sock = socket_create(AF_INET, SOCK_STREAM, SOL_TCP);
-                    $Host = parse_url($this->Url);
-                    @socket_connect($sock, $Host['host'], $Host['port']);
-                    $ip = '';
-                    $result = @socket_getsockname($sock, $ip);
-                    @socket_close($sock);
-                    if (($result == false) || ($ip == '0.0.0.0')) {
-                        $this->SendDebug('ConsumerAddress', 'Invalid', 0);
-                        $this->UpdateFormField('EventHook', 'caption', $this->Translate('Invalid'));
-                        $this->WriteAttributeString(\FritzBox\IO\Attribute::ConsumerAddress, 'Invalid');
-                        return false;
-                    }
-                } else {
-                    $ip = '[' . $ip . ']';
-                }
-            }
-            $Debug = 'ConsumerAddress';
+        $Host = parse_url($this->Url);
+        if (!isset($Host['host'], $Host['port'])) {
+            return false;
         }
-        $Url = 'http://' . $ip . ':' . $Port . \FritzBox\IO\Hook::Path . $this->InstanceID;
-        $this->SendDebug($Debug, $Url, 0);
-        $this->UpdateFormField('EventHook', 'caption', $Url);
-        $this->WriteAttributeString(\FritzBox\IO\Attribute::ConsumerAddress, $Url);
-        return true;
+        foreach ([AF_INET6, AF_INET] as $Family) {
+            $sock = @socket_create($Family, SOCK_STREAM, SOL_TCP);
+            if ($sock === false) {
+                continue;
+            }
+            @socket_connect($sock, $Host['host'], $Host['port']);
+            $ip = '';
+            $result = @socket_getsockname($sock, $ip);
+            @socket_close($sock);
+            if (($result == false) || ($ip == '') || ($ip == '0.0.0.0') || (strpos($ip, '::') === 0)) {
+                continue;
+            }
+            return ($Family == AF_INET6) ? '[' . $ip . ']' : $ip;
+        }
+        return false;
     }
-
     private function KernelReady(): void
     {
         $this->UnregisterMessage(0, IPS_KERNELMESSAGE);
@@ -964,185 +811,103 @@ class FritzBoxIO extends IPSModuleStrict
         return $Result;
     }
 
-    private function DoSubscribe(): bool
+    /**
+     * Sendet ein SUBSCRIBE (neu mit CALLBACK oder Verlängerung mit SID) an die FritzBox.
+     * Fehler nur per SendDebug, ob Echtzeitereignisse fehlen, meldet der Abonnent.
+     *
+     * @param string $Uri Event-URL des Dienstes.
+     * @param string $SID SID zum Verlängern, leer für ein neues Abo.
+     * @param string $Callback Pfad des WebHooks des Abonnenten (z.B. /hook/FritzBoxWANIP12345).
+     *
+     * @return array|false ['SID' => string, 'TIMEOUT' => int] oder false.
+     */
+    private function Subscribe(string $Uri, string $SID, string $Callback): array|false
     {
-        $this->isSubscribed = false;
-        $this->SendDebug('Subscribe', $this->SID, 0);
-        $Result = @$this->Subscribe(
-            '/upnp/control/layer3forwarding',
-            $this->SID
-        );
-        if ($Result === false) {
-            $this->SID = '';
-            $this->SendDebug('Error on subscribe (Result)', 'IO', 0);
-            trigger_error($this->Translate('Error on subscribe (Result)'), E_USER_NOTICE);
-            $this->SetStatus(self::isDisconnected);
-            return false;
-        }
-        $this->SendDebug('Result', $Result, 0);
-        $isNewSubscription = ($this->SID === '');
-        // SID sofort merken, damit sie auch bei fehlendem Event wieder abgemeldet werden kann
-        $this->SID = $Result['SID'];
-        if ($isNewSubscription) {
-            if (!$this->WaitForEvent()) {
-                $this->SendDebug('No event after subscribe', 'IO', 0);
-                $this->LogMessage('No event after subscribe from IO', KL_ERROR);
-                // SetStatus meldet das Abo über DoUnsubscribe wieder ab
-                $this->SetStatus(self::isDisconnected);
+        if ($SID == '') {
+            $ip = $this->GetLocalAddress();
+            if (($ip === false) || ($Callback == '')) {
+                $this->SendDebug('Subscribe', 'Local address unknown', 0);
                 return false;
             }
-        }
-        $this->SetTimerInterval(\FritzBox\IO\Timer::RenewSubscription, ((int) $Result['TIMEOUT'] - 300) * 1000);
-        $this->SetStatus(self::isConnected);
-        return true;
-    }
-
-    private function DoUnsubscribe()
-    {
-        if ($this->SID === '') {
-            return;
-        }
-        $this->SetTimerInterval(\FritzBox\IO\Timer::RenewSubscription, 0);
-        $this->SendDebug('Unsubscribe', $this->SID, 0);
-        $this->isSubscribed = false;
-        $SID = $this->SID;
-        $this->SID = '';
-        $Result = @$this->Unsubscribe(
-            '/upnp/control/layer3forwarding',
-            $SID
-        );
-        if ($Result === false) {
-            $this->SendDebug('Error on Unsubscribe (Result)', 'IO', 0);
-        }
-        $this->SendDebug('Unsubscribe', $Result, 0);
-
-    }
-
-    # Event Subscribe zusammenbauen, senden und Rückmeldung auswerten
-    private function Subscribe(string $Uri, string $SID)
-    {
-        if ($this->ReadAttributeString(\FritzBox\IO\Attribute::ConsumerAddress) == 'Invalid') {
-            $this->LogMessage('ConsumerAddress Invalid' . "\r\n" . $this->ReadAttributeString(\FritzBox\IO\Attribute::ConsumerAddress), KL_ERROR);
-            return false;
-        }
-        $stream = stream_context_create(
-            [
-                'ssl'  => [
-                    'verify_peer'       => false,
-                    'verify_peer_name'  => false,
-                    'allow_self_signed' => true
-                ]
-            ]
-        );
-
-        if ($SID == '') {
-            $SID = 'CALLBACK: <' . $this->ReadAttributeString(\FritzBox\IO\Attribute::ConsumerAddress) . $Uri . ">\r\n" .
+            $Header = 'CALLBACK: <http://' . $ip . ':' . \FritzBox\IO\Hook::Port . $Callback . ">\r\n" .
                         "NT: upnp:event\r\n";
         } else {
-            $SID = 'SID: ' . $SID . "\r\n";
+            $Header = 'SID: ' . $SID . "\r\n";
         }
         $content = 'SUBSCRIBE ' . $Uri . " HTTP/1.1\r\n" .
                       'HOST: ' . parse_url($this->Url, PHP_URL_HOST) . ':' . parse_url($this->Url, PHP_URL_PORT) . "\r\n" .
-                      $SID .
+                      $Header .
                       'USER-AGENT: PHP/' . PHP_VERSION . ' UPnP/2.0 Symcon/' . IPS_GetKernelVersion() . "\r\n" .
                       "TIMEOUT: Second-3600\r\n" .
                       "Connection: Close\r\n" .
                       "Content-Length: 0\r\n\r\n";
-        $this->SendDebug('Send SUBSCRIBE', $content, 0);
-        $Prefix = (parse_url($this->Url, PHP_URL_SCHEME) == 'https') ? 'ssl://' : 'tcp://';
-        $fp = @stream_socket_client($Prefix . parse_url($this->Url, PHP_URL_HOST) . ':' . parse_url($this->Url, PHP_URL_PORT), $errno, $errstr, 5, STREAM_CLIENT_CONNECT, $stream);
-        if (!$fp) {
-            $this->LogMessage('Could not connect to eventSubURL' . "\r\n" . $Uri, KL_ERROR);
-            $this->SendDebug('Could not connect to eventSubURL', $Uri, 0);
+        $headers = $this->SendEventRequest('SUBSCRIBE', $Uri, $content);
+        if ($headers === false) {
             return false;
-        } else {
-            for ($fwrite = 0, $written = 0, $max = strlen($content); $written < $max; $written += $fwrite) {
-                $fwrite = @fwrite($fp, substr($content, $written));
-                if ($fwrite === false) {
-                    $this->LogMessage('Error on write to eventSubURL' . "\r\n" . $Uri, KL_ERROR);
-                    $this->SendDebug('Error on write to eventSubURL', $Uri, 0);
-                    @fclose($fp);
-                    return false;
-                }
-            }
-            $ret = stream_get_contents($fp);
-            fclose($fp);
-            $headers = $this->http_parse_headers($ret);
-            if (!isset($headers[0])) {
-                $this->LogMessage('Error on subscribe (parse headers)' . "\r\n" . $ret, KL_ERROR);
-                $this->SendDebug('Error on subscribe (parse headers)', $headers[0], 0);
-                return false;
-            }
-            if ($headers[0] != 'HTTP/1.1 200 OK') {
-                $this->LogMessage('Error on subscribe (' . $headers[0] . ')' . "\r\n" . $ret, KL_ERROR);
-                $this->SendDebug('Error on subscribe', $headers[0], 0);
-                return false;
-            }
-            if (!array_key_exists('SID', $headers)) {
-                $this->LogMessage('Error on subscribe (' . $headers[0] . ') No SID' . "\r\n" . $ret, KL_ERROR);
-                $this->SendDebug('Error on subscribe', $ret, 0);
-                return false;
-            }
-            $this->SendDebug('Subscribe successfully', $Uri, 0);
-            $data['SID'] = $headers['SID'];
-            $data['TIMEOUT'] = (int) substr($headers['TIMEOUT'], strpos($headers['TIMEOUT'], '-') + 1);
-            return $data;
         }
+        if (!array_key_exists('SID', $headers)) {
+            $this->SendDebug('Error on subscribe (no SID)', $headers[0], 0);
+            return false;
+        }
+        $Timeout = isset($headers['TIMEOUT']) ? (int) substr($headers['TIMEOUT'], strpos($headers['TIMEOUT'], '-') + 1) : 1800;
+        return ['SID' => $headers['SID'], 'TIMEOUT' => $Timeout];
     }
 
-    private function Unsubscribe(string $Uri, string $SID)
+    private function Unsubscribe(string $Uri, string $SID): bool
     {
-        $stream = stream_context_create(
-            [
-                'ssl'  => [
-                    'verify_peer'       => false,
-                    'verify_peer_name'  => false,
-                    'allow_self_signed' => true
-                ]
-            ]
-        );
-
         $content = 'UNSUBSCRIBE ' . $Uri . " HTTP/1.1\r\n" .
                       'HOST: ' . parse_url($this->Url, PHP_URL_HOST) . ':' . parse_url($this->Url, PHP_URL_PORT) . "\r\n" .
                       'SID: ' . $SID . "\r\n" .
                       'USER-AGENT: PHP/' . PHP_VERSION . ' UPnP/2.0 Symcon/' . IPS_GetKernelVersion() . "\r\n" .
                       "Connection: Close\r\n" .
                       "Content-Length: 0\r\n\r\n";
-        $this->SendDebug('Send UNSUBSCRIBE', $content, 0);
+        return $this->SendEventRequest('UNSUBSCRIBE', $Uri, $content) !== false;
+    }
+
+    /**
+     * Sendet eine GENA-Anfrage (SUBSCRIBE/UNSUBSCRIBE) und liefert die Header der Antwort bei „200 OK“.
+     *
+     * @return array|false Header (Schlüssel in Großbuchstaben, [0] = Statuszeile) oder false.
+     */
+    private function SendEventRequest(string $Method, string $Uri, string $Content): array|false
+    {
+        $this->SendDebug('Send ' . $Method, $Content, 0);
+        if ($this->Url == '') {
+            return false;
+        }
+        $stream = stream_context_create(
+            [
+                'ssl'  => [
+                    'verify_peer'       => false,
+                    'verify_peer_name'  => false,
+                    'allow_self_signed' => true
+                ]
+            ]
+        );
         $Prefix = (parse_url($this->Url, PHP_URL_SCHEME) == 'https') ? 'ssl://' : 'tcp://';
         $fp = @stream_socket_client($Prefix . parse_url($this->Url, PHP_URL_HOST) . ':' . parse_url($this->Url, PHP_URL_PORT), $errno, $errstr, 5, STREAM_CLIENT_CONNECT, $stream);
         if (!$fp) {
-            $this->LogMessage('Could not connect to eventSubURL' . "\r\n" . $Uri, KL_ERROR);
             $this->SendDebug('Could not connect to eventSubURL', $Uri, 0);
             return false;
-        } else {
-            for ($fwrite = 0, $written = 0, $max = strlen($content); $written < $max; $written += $fwrite) {
-                $fwrite = @fwrite($fp, substr($content, $written));
-                if ($fwrite === false) {
-                    $this->LogMessage('Error on write to eventSubURL' . "\r\n" . $Uri, KL_ERROR);
-                    $this->SendDebug('Error on write to eventSubURL', $Uri, 0);
-                    @fclose($fp);
-                    return false;
-                }
-            }
-            $ret = stream_get_contents($fp);
-            fclose($fp);
-            $headers = $this->http_parse_headers($ret);
-            if (!isset($headers[0])) {
-                $this->LogMessage('Error on unsubscribe (parse headers)' . "\r\n" . $ret, KL_ERROR);
-                $this->SendDebug('Error on unsubscribe (parse headers)', $headers[0], 0);
-                return false;
-            }
-            if ($headers[0] != 'HTTP/1.1 200 OK') {
-                $this->LogMessage('Error on unsubscribe (' . $headers[0] . ')' . "\r\n" . $ret, KL_ERROR);
-                $this->SendDebug('Error on unsubscribe', $headers[0], 0);
-                return false;
-            }
-            $this->SendDebug('Unsubscribe successfully', $Uri, 0);
-            return true;
         }
+        for ($fwrite = 0, $written = 0, $max = strlen($Content); $written < $max; $written += $fwrite) {
+            $fwrite = @fwrite($fp, substr($Content, $written));
+            if ($fwrite === false) {
+                $this->SendDebug('Error on write to eventSubURL', $Uri, 0);
+                @fclose($fp);
+                return false;
+            }
+        }
+        $ret = stream_get_contents($fp);
+        fclose($fp);
+        $headers = $this->http_parse_headers((string) $ret);
+        if (!isset($headers[0]) || ($headers[0] != 'HTTP/1.1 200 OK')) {
+            $this->SendDebug('Error on ' . $Method, $headers[0] ?? $ret, 0);
+            return false;
+        }
+        $this->SendDebug($Method . ' successfully', $Uri, 0);
+        return $headers;
     }
-
     private function http_parse_headers($raw_headers)
     {
         $headers = [];

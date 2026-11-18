@@ -55,12 +55,5 @@
                 }
             ]
         }
-    ],
-    "status": [
-        {
-            "code": 201,
-            "icon": "error",
-            "caption": "Event subscribe error"
-        }
     ]
 }

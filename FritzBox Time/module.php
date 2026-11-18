@@ -8,7 +8,6 @@ class FritzBoxTime extends FritzBoxModulBase
     protected static $ControlUrlArray = [
         '/upnp/control/time'
     ];
-    protected static $EventSubURLArray = [];
     protected static $ServiceTypeArray = [
         'urn:dslforum-org:service:Time:1'
     ];

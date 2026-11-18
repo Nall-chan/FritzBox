@@ -14,7 +14,6 @@ class FritzBoxMobileConnection extends FritzBoxModulBase
     protected static $ControlUrlArray = [
         '/upnp/control/x_wanmobileconn'
     ];
-    protected static $EventSubURLArray = [];
     protected static $ServiceTypeArray = [
         'urn:dslforum-org:service:X_AVM-DE_WANMobileConnection:1'
     ];

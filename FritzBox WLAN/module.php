@@ -29,12 +29,6 @@ class FritzBoxWLAN extends FritzBoxModulBase
         '/upnp/control/wlanconfig3',
         '/upnp/control/wlanconfig4'
     ];
-    protected static $EventSubURLArray = [
-        '/upnp/control/wlanconfig1',
-        '/upnp/control/wlanconfig2',
-        '/upnp/control/wlanconfig3',
-        '/upnp/control/wlanconfig4'
-    ];
     protected static $LegacySubVariables = [
         \FritzBox\WLAN\Variables::Speed  => ['Speed', \FritzBox\WLAN\Property::SpeedVariables],
         \FritzBox\WLAN\Variables::Signal => ['Signalstrength', \FritzBox\WLAN\Property::SignalVariables]
@@ -273,9 +267,6 @@ class FritzBoxWLAN extends FritzBoxModulBase
     public function ReceiveData(string $JSONString): string
     {
         $data = json_decode($JSONString, true);
-        if ($data['DataID'] == \FritzBox\GUID::SendEventToChildren) {
-            return parent::ReceiveData($JSONString);
-        }
         unset($data['DataID']);
         if ($data['Function'] == \FritzBox\IOFunction::NewHostListEvent) {
             $this->SendDebug('NewHostListEvent', '', 0);

@@ -254,11 +254,6 @@
     ],
     "status": [
         {
-            "code": 201,
-            "icon": "error",
-            "caption": "Event subscribe error"
-        },
-        {
             "code": 202,
             "icon": "error",
             "caption": "Invalid answering machine index."

@@ -20,7 +20,6 @@ class FritzBoxDSLInterface extends FritzBoxModulBase
     protected static $ControlUrlArray = [
         '/upnp/control/wandslifconfig1'
     ];
-    protected static $EventSubURLArray = [];
     protected static $ServiceTypeArray = [
         'urn:dslforum-org:service:WANDSLInterfaceConfig:1'
     ];

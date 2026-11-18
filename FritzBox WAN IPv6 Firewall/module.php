@@ -15,7 +15,6 @@ class FritzBoxWANIPv6Firewall extends FritzBoxModulBase
     protected static $ControlUrlArray = [
         '/igd2upnp/control/WANIPv6Firewall1'
     ];
-    protected static $EventSubURLArray = [];
     protected static $ServiceTypeArray = [
         'urn:schemas-upnp-org:service:WANIPv6FirewallControl:1'
     ];

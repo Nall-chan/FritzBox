@@ -68,10 +68,8 @@ Die Discovery legt diesen Client Socket geschlossen an. Sobald ein Anrufmonitor 
 | URL                  | Host       | string  | `http://`    | URL der FritzBox, z.B. `http://192.168.178.1`. Ohne Port wird `49000` (http) bzw. `49443` (https) verwendet          |
 | Benutzername         | Username   | string  |              | Benutzername zur Anmeldung. Leer = Fallback-Anmeldung mit dem zuletzt in der FritzBox angemeldeten Benutzer          |
 | Passwort             | Password   | string  |              | Passwort zum Benutzernamen (Pflicht)                                                                                 |
-| IP für Ereignis-Hook | ReturnIP   | string  |              | IP-Adresse, unter welcher die FritzBox Symcon erreicht. Leer = automatisch ermitteln (Experteneinstellung)           |
-| Port für Ereignis-Hook | ReturnPort | integer | 3777       | Port zur o.a. IP-Adresse, 0 bis 65535 (Experteneinstellung)                                                          |
 
-Die URL des Ereignis-WebHooks wird unter den Aktionen der Konfigurationsseite angezeigt.  
+Die IO hat keinen eigenen WebHook. Echtzeitereignisse empfängt nur die [WAN IP-Verbindung](../FritzBox%20WAN%20IP%20Connection/README.md#ereignisse); die IO leitet nur deren An- und Abmeldung an die FritzBox weiter.  
 
 Beispiel:  
 
@@ -86,9 +84,9 @@ IPS_ApplyChanges(12345);
 
 | Code | Status in der Konsole  | Ursache                                                                                                                                                                                                    |
 | ---- | ---------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| 102  | Verbindung hergestellt | Die FritzBox ist erreichbar, die Anmeldung war erfolgreich und die Ereignisse der FritzBox sind abonniert.                                                                                                 |
+| 102  | Verbindung hergestellt | Die FritzBox ist erreichbar und die Anmeldung war erfolgreich.                                                                                                                                             |
 | 104  | Verbindung geschlossen | `Aktiv` (`Open`) ist ausgeschaltet.                                                                                                                                                                        |
-| 201  | Verbindung verloren    | Die FritzBox antwortet nicht mehr auf Anfragen oder meldet einen UPnP-Fehler, die Adresse für die Ereignisse (`ReturnIP`/`ReturnPort`) konnte nicht ermittelt werden oder das Abonnieren der Ereignisse ist fehlgeschlagen. |
+| 201  | Verbindung verloren    | Die FritzBox antwortet nicht mehr auf Anfragen oder meldet einen UPnP-Fehler.                                                                                                                              |
 | 202  | Zugriff verweigert     | Die FritzBox hat die Anmeldung abgelehnt (HTTP 401), z.B. wegen falschem Benutzernamen oder Passwort.                                                                                                      |
 | 203  | Gerät nicht erreichbar | Unter der eingetragenen URL konnte keine Gerätebeschreibung der FritzBox geladen werden (falsche Adresse, falscher Port oder FritzBox ausgeschaltet).                                                       |
 | 204  | Dienst nicht gefunden  | Die FritzBox bietet den abgefragten Dienst nicht an (HTTP 404).                                                                                                                                            |

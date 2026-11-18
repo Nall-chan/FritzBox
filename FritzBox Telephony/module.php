@@ -43,9 +43,6 @@ class FritzBoxTelephony extends FritzBoxModulBase
         '/upnp/control/x_contact',
         '/upnp/control/x_voip'
     ];
-    protected static $EventSubURLArray = [
-
-    ];
     protected static $ServiceTypeArray = [
         'urn:dslforum-org:service:X_AVM-DE_OnTel:1',
         'urn:dslforum-org:service:X_VoIP:1'

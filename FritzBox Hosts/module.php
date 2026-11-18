@@ -21,9 +21,6 @@ class FritzBoxHosts extends FritzBoxModulBase
     protected static $ControlUrlArray = [
         '/upnp/control/hosts'
     ];
-    protected static $EventSubURLArray = [
-        '/upnp/control/hosts'
-    ];
     protected static $ServiceTypeArray = [
         'urn:dslforum-org:service:Hosts:1'
     ];
@@ -162,9 +159,6 @@ class FritzBoxHosts extends FritzBoxModulBase
     public function ReceiveData(string $JSONString): string
     {
         $data = json_decode($JSONString, true);
-        if ($data['DataID'] == \FritzBox\GUID::SendEventToChildren) {
-            return parent::ReceiveData($JSONString);
-        }
         unset($data['DataID']);
         if ($data['Function'] == \FritzBox\IOFunction::RefreshHostList) {
             $File = $this->GetHostListPath();

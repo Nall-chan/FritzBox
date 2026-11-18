@@ -10,8 +10,6 @@ class FritzBoxWANPortMapping extends FritzBoxModulBase
         '/upnp/control/wanpppconn1',
         '/upnp/control/wanipconnection1'
     ];
-    protected static $EventSubURLArray = [
-    ];
     protected static $ServiceTypeArray = [
         'urn:dslforum-org:service:WANPPPConnection:1',
         'urn:dslforum-org:service:WANIPConnection:1'

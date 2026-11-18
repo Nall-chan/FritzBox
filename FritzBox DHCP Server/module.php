@@ -8,7 +8,6 @@ class FritzBoxDHCPServer extends FritzBoxModulBase
     protected static $ControlUrlArray = [
         '/upnp/control/lanhostconfigmgm'
     ];
-    protected static $EventSubURLArray = [];
     protected static $ServiceTypeArray = [
         'urn:dslforum-org:service:LANHostConfigManagement:1'
     ];

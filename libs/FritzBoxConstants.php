@@ -16,7 +16,6 @@ namespace FritzBox {
      */
     class IOFunction
     {
-        public const Scpd = 'SCPD';
         public const Subscribe = 'SUBSCRIBE';
         public const Unsubscribe = 'UNSUBSCRIBE';
         public const IsPPP = 'ISPPP';
@@ -67,14 +66,12 @@ namespace FritzBox\Base {
 
     class Timer
     {
-        public const RenewSubscription = 'RenewSubscription';
         public const RefreshInfo = 'RefreshInfo';
         public const RefreshState = 'RefreshState';
     }
 
     class Action
     {
-        public const Subscribe = 'Subscribe';
         public const RefreshInfo = 'RefreshInfo';
         public const RefreshState = 'RefreshState';
         public const DeleteLegacySubVariables = 'DeleteLegacySubVariables';
@@ -88,14 +85,10 @@ namespace FritzBox\IO {
         public const Host = 'Host';
         public const Username = 'Username';
         public const Password = 'Password';
-        public const ReturnIP = 'ReturnIP';
-        public const ReturnPort = 'ReturnPort';
     }
 
     class Attribute
     {
-        public const ConsumerAddress = 'ConsumerAddress';
-        public const Events = 'Events';
         public const PhoneBooks = 'PhoneBooks';
         public const PhoneDevices = 'PhoneDevices';
         public const AreaCodes = 'AreaCodes';
@@ -105,15 +98,9 @@ namespace FritzBox\IO {
         public const NoOfWlan = 'NoOfWlan';
     }
 
-    class Timer
-    {
-        public const RenewSubscription = 'RenewSubscription';
-    }
-
     class Action
     {
         public const KernelReady = 'KernelReady';
-        public const Subscribe = 'Subscribe';
     }
 
     class Variables
@@ -123,10 +110,8 @@ namespace FritzBox\IO {
 
     class Hook
     {
-        /** Name für RegisterHook/UnregisterHook (Symcon setzt /hook/ davor). */
-        public const Name = 'FritzBoxIO';
-        /** Vollständiger Pfad (URL für die FritzBox, Auswertung in ProcessHookData). */
-        public const Path = '/hook/' . self::Name;
+        /** Port des Symcon-Webservers für die CALLBACK-Adresse eines Ereignis-Abos. */
+        public const Port = 3777;
     }
 }
 
@@ -541,6 +526,24 @@ namespace FritzBox\WANIPConnection {
         public const MigrationVersion = 'MigrationVersion';
     }
 
+    class Timer
+    {
+        public const RenewSubscription = 'RenewSubscription';
+    }
+
+    class Action
+    {
+        public const Subscribe = 'Subscribe';
+    }
+
+    class Hook
+    {
+        /** Name für RegisterHook (Symcon setzt /hook/ davor), ergänzt um die InstanzID. */
+        public const Name = 'FritzBoxWANIP';
+        /** Vollständiger Pfad für die CALLBACK-Adresse des Abos. */
+        public const Path = '/hook/' . self::Name;
+    }
+
     class Variables
     {
         public const ConnectionAction = 'ConnectionAction';
@@ -695,7 +698,7 @@ namespace FritzBox\AnsweringMachine {
 
     class Hook
     {
-        /** Name für RegisterHook/UnregisterHook (Symcon setzt /hook/ davor). */
+        /** Name für RegisterHook (Symcon setzt /hook/ davor), ergänzt um die InstanzID. */
         public const Name = 'FritzBoxTAM';
         /** Vollständiger Pfad für die Links in der Tabelle. */
         public const Prefix = '/hook/' . self::Name;

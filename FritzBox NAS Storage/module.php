@@ -8,7 +8,6 @@ class FritzBoxNASStorage extends FritzBoxModulBase
     protected static $ControlUrlArray = [
         '/upnp/control/x_storage'
     ];
-    protected static $EventSubURLArray = [];
     protected static $ServiceTypeArray = [
         'urn:dslforum-org:service:X_AVM-DE_Storage:1'
     ];

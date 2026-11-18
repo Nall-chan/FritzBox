@@ -7,9 +7,6 @@ eval('declare(strict_types=1);namespace FritzBoxModulBase {?>' . file_get_conten
 eval('declare(strict_types=1);namespace FritzBoxModulBase {?>' . file_get_contents(__DIR__ . '/../libs/helper/ParentIOHelper.php') . '}');
 require_once __DIR__ . '/../libs/FritzBoxModule.php';
 /**
- * @property string $SID
- * @property string $SubscribedURL EventSubURL, mit der die aktuelle SID angemeldet wurde (die Eigenschaft Index kann sich zwischenzeitlich geändert haben)
- * @property bool $isSubscribed
  * @property int $ParentID
  * @method bool SendDebug(string $Message, mixed $Data, int $Format)
  * @method int RegisterParent()
@@ -25,7 +22,7 @@ class FritzBoxModulBase extends IPSModuleStrict
 
     protected static $ControlUrlArray = [];
     protected static $ServiceTypeArray = [];
-    protected static $EventSubURLArray = [];
+    /** DataID, die die Instanz zusätzlich von der IO empfängt (z.B. Anrufmonitor, Geräteliste). */
     protected static $SecondEventGUID = '';
     protected static $DefaultIndex = -1;
     /**
@@ -50,13 +47,7 @@ class FritzBoxModulBase extends IPSModuleStrict
     {
         //Never delete this line!
         parent::Create();
-        $this->SID = '';
-        $this->SubscribedURL = '';
         $this->ParentID = 0;
-        $this->isSubscribed = false;
-        if (count(static::$EventSubURLArray) > 0) {
-            $this->RegisterTimer(\FritzBox\Base\Timer::RenewSubscription, 0, 'IPS_RequestAction(' . $this->InstanceID . ',"' . \FritzBox\Base\Action::Subscribe . '", true);');
-        }
         $this->RegisterPropertyInteger(\FritzBox\Base\Property::Index, static::$DefaultIndex);
         if (count(static::$LegacySubVariables) > 0) {
             // Neue Instanzen haben keine alten Untervariablen
@@ -88,6 +79,8 @@ class FritzBoxModulBase extends IPSModuleStrict
         if (!isset($Data->attributes) || !is_object($Data->attributes)) {
             $Data->attributes = new \stdClass();
         }
+        // TEMP Diagnose Migration (Testsystem 2026-11-18): Aufruf, Attribut und Kinder protokollieren
+        $this->LogMessage('TEMP Migrate: attribute ' . (property_exists($Data->attributes, \FritzBox\Base\Attribute::LegacySubVariablesMigrated) ? 'present' : 'missing') . ', children ' . count(IPS_GetChildrenIDs($this->InstanceID)) . ', runlevel ' . IPS_GetKernelRunlevel(), KL_MESSAGE);
         if (property_exists($Data->attributes, \FritzBox\Base\Attribute::LegacySubVariablesMigrated)) {
             return '';
         }
@@ -96,6 +89,8 @@ class FritzBoxModulBase extends IPSModuleStrict
         foreach (static::$LegacySubVariables as $Info => [, $Property]) {
             $Enabled[$Info] = (bool) ($Data->configuration->{$Property} ?? true);
         }
+        // TEMP Diagnose
+        $this->LogMessage('TEMP Migrate: enabled ' . json_encode($Enabled), KL_MESSAGE);
         try {
             $this->MigrateLegacySubVariables($Enabled);
         } catch (\Throwable $th) {
@@ -117,43 +112,29 @@ class FritzBoxModulBase extends IPSModuleStrict
 
     public function ApplyChanges(): void
     {
-        if ($this->SID !== '') {
-            $this->Unsubscribe();
+        // TEMP Diagnose Migration: Reihenfolge Migrate/ApplyChanges
+        if (count(static::$LegacySubVariables) > 0) {
+            $this->LogMessage('TEMP ApplyChanges, runlevel ' . IPS_GetKernelRunlevel(), KL_MESSAGE);
         }
         $this->SetReceiveDataFilter('.*NOTHINGTORECEIVE.*');
         //Never delete this line!
         parent::ApplyChanges();
         $this->RegisterMessage($this->InstanceID, FM_CONNECT);
         $this->RegisterMessage($this->InstanceID, FM_DISCONNECT);
-        $this->RegisterMessage(0, IPS_KERNELSHUTDOWN);
         if (IPS_GetKernelRunlevel() != KR_READY) {
             $this->RegisterMessage(0, IPS_KERNELSTARTED);
             return;
         }
 
         $this->RegisterParent();
-        $Index = $this->ReadPropertyInteger(\FritzBox\Base\Property::Index);
-        if (count(static::$EventSubURLArray) == 0) {
-            $Index = -1;
-        }
-        if ($Index > -1) {
-            $Filter = preg_quote(substr(json_encode(static::$EventSubURLArray[$Index]), 1, -1));
-            if (static::$SecondEventGUID != '') {
-                $Filter .= '".*|.*"DataID":"' . preg_quote(static::$SecondEventGUID);
-            }
-            $this->SetReceiveDataFilter('.*"EventSubURL":"' . $Filter . '".*');
-            $this->SendDebug('Filter', '.*"EventSubURL":"' . $Filter . '".*', 0);
+        if (static::$SecondEventGUID != '') {
+            $Filter = '.*"DataID":"' . preg_quote(static::$SecondEventGUID) . '".*';
+            $this->SetReceiveDataFilter($Filter);
+            $this->SendDebug('FilterSecondEventGUID', $Filter, 0);
         } else {
-            if (static::$SecondEventGUID != '') {
-                $Filter = '.*"DataID":"' . preg_quote(static::$SecondEventGUID) . '".*';
-                $this->SetReceiveDataFilter($Filter);
-                $this->SendDebug('FilterSecondEventGUID', $Filter, 0);
-            } else {
-                $this->SendDebug('Filter', 'NOTHINGTORECEIVE', 0);
-                $this->SetReceiveDataFilter('.*NOTHINGTORECEIVE.*');
-            }
+            $this->SendDebug('Filter', 'NOTHINGTORECEIVE', 0);
         }
-        $this->Subscribe();
+        $this->SetStatus(IS_ACTIVE);
         $this->RemoveUnusedLegacyProfiles();
     }
 
@@ -180,28 +161,14 @@ class FritzBoxModulBase extends IPSModuleStrict
             case IPS_KERNELSTARTED:
                 $this->KernelReady();
                 break;
-            case IPS_KERNELSHUTDOWN:
-                if (IPS_InstanceExists($this->InstanceID)) {
-                    if ($this->SID !== '') {
-                        $this->Unsubscribe();
-                    }
-                }
-                break;
         }
     }
 
+    /**
+     * Module mit $SecondEventGUID überschreiben ReceiveData; alle anderen empfangen nichts (Filter).
+     */
     public function ReceiveData(string $JSONString): string
     {
-        $data = json_decode($JSONString, true);
-        if ($data['DataID'] == \FritzBox\GUID::SendEventToChildren) {
-            unset($data['DataID']);
-            if (!array_key_exists('EventData', $data)) {
-                return '';
-            }
-            $this->isSubscribed = true;
-            $this->SendDebug('Event', \FritzBox\DebugMask::Values($data['EventData']), 0);
-            $this->DecodeEvent($data['EventData']);
-        }
         return '';
     }
 
@@ -213,10 +180,6 @@ class FritzBoxModulBase extends IPSModuleStrict
     protected function ProcessRequestAction(string $Ident, mixed $Value): mixed
     {
         if ($this->IORequestAction($Ident, $Value)) {
-            return true;
-        }
-        if ($Ident == \FritzBox\Base\Action::Subscribe) {
-            $this->Subscribe();
             return true;
         }
         if ($Ident == \FritzBox\Base\Action::DeleteLegacySubVariables) {
@@ -292,17 +255,27 @@ class FritzBoxModulBase extends IPSModuleStrict
             foreach (IPS_GetChildrenIDs($ParentID) as $ChildID) {
                 $Info = IPS_GetObject($ChildID)['ObjectIdent'];
                 if (!IPS_VariableExists($ChildID) || !array_key_exists($Info, static::$LegacySubVariables) || !($Enabled[$Info] ?? false)) {
+                    // TEMP Diagnose
+                    if (array_key_exists($Info, static::$LegacySubVariables)) {
+                        $this->LogMessage('TEMP Migrate: ' . $ChildID . ' (' . $Info . ') not enabled', KL_WARNING);
+                    }
                     continue;
                 }
                 $Ident = $Info . '_' . $DeviceIdent;
                 if (@IPS_GetObjectIDByIdent($Ident, $this->InstanceID) !== false) {
+                    // TEMP Diagnose
+                    $this->LogMessage('TEMP Migrate: ' . $Ident . ' already exists, ' . $ChildID . ' skipped', KL_WARNING);
                     continue;
                 }
                 // Erst den Ident (eindeutig unter der Gerätevariable), dann verschieben; misslingt das, Ident zurück
                 if (!@IPS_SetIdent($ChildID, $Ident)) {
+                    // TEMP Diagnose
+                    $this->LogMessage('TEMP Migrate: IPS_SetIdent ' . $ChildID . ' failed: ' . (error_get_last()['message'] ?? ''), KL_WARNING);
                     continue;
                 }
                 if (!@IPS_SetParent($ChildID, $this->InstanceID)) {
+                    // TEMP Diagnose
+                    $this->LogMessage('TEMP Migrate: IPS_SetParent ' . $ChildID . ' failed: ' . (error_get_last()['message'] ?? ''), KL_WARNING);
                     @IPS_SetIdent($ChildID, $Info);
                     continue;
                 }
@@ -313,6 +286,8 @@ class FritzBoxModulBase extends IPSModuleStrict
                 $Count++;
             }
         }
+        // TEMP Diagnose: Zusammenfassung auch bei 0
+        $this->LogMessage('TEMP Migrate: done, moved ' . $Count, KL_MESSAGE);
         if ($Count > 0) {
             $this->LogMessage(sprintf($this->Translate('%d old sub variables migrated.'), $Count), KL_MESSAGE);
         }
@@ -389,31 +364,6 @@ class FritzBoxModulBase extends IPSModuleStrict
         }
     }
 
-    protected function DecodeEvent(array $Event): void
-    {
-        foreach ($Event as $Ident => $EventData) {
-            $vid = @$this->GetIDForIdent($Ident);
-            if ($vid > 0) {
-                // Ereigniswerte kommen als Text, passend zum Variablentyp umwandeln
-                switch (IPS_GetVariable($vid)['VariableType']) {
-                    case VARIABLETYPE_BOOLEAN:
-                        $EventData = (string) $EventData !== '0';
-                        break;
-                    case VARIABLETYPE_INTEGER:
-                        $EventData = (int) $EventData;
-                        break;
-                    case VARIABLETYPE_FLOAT:
-                        $EventData = (float) $EventData;
-                        break;
-                    default:
-                        $EventData = (string) $EventData;
-                        break;
-                }
-                $this->SetValue($Ident, $EventData);
-            }
-        }
-    }
-
     protected function KernelReady(): void
     {
         $this->UnregisterMessage(0, IPS_KERNELSTARTED);
@@ -425,108 +375,9 @@ class FritzBoxModulBase extends IPSModuleStrict
      */
     protected function IOChangeState(int $State): void
     {
-        switch ($State) {
-            case IS_ACTIVE:
-                if ($this->SID !== '') {
-                    $this->Unsubscribe();
-                }
-                $this->SetReceiveDataFilter('.*NOTHINGTORECEIVE.*');
-                $this->ApplyChanges();
-                break;
-            case IS_INACTIVE:
-            case IS_EBASE + 1:
-            case IS_EBASE + 2:
-            case IS_EBASE + 3:
-            case IS_EBASE + 4:
-            case IS_EBASE + 5:
-            case IS_EBASE + 6:
-                $this->SID = '';
-                $this->isSubscribed = false;
-                if (count(static::$EventSubURLArray) > 0) {
-                    $this->SetTimerInterval(\FritzBox\Base\Timer::RenewSubscription, 0);
-                }
-                break;
+        if ($State == IS_ACTIVE) {
+            $this->ApplyChanges();
         }
-    }
-
-    protected function Subscribe(): bool
-    {
-        $Result = $this->DoSubscribe();
-        if ($Result) {
-            $this->SetStatus(IS_ACTIVE);
-        } else {
-            $this->SetStatus(IS_EBASE + 1);
-        }
-        return $Result;
-    }
-
-    protected function DoSubscribe(): bool
-    {
-        $Index = $this->ReadPropertyInteger(\FritzBox\Base\Property::Index);
-        if ($Index < 0) {
-            return true;
-        }
-        if (count(static::$EventSubURLArray) == 0) {
-            return true;
-        }
-        if (!$this->HasActiveParent()) {
-            $this->SID = '';
-            return true;
-        }
-        $this->isSubscribed = false;
-
-        $this->SendDebug('Subscribe', $this->SID, 0);
-        $Ret = $this->SendDataToParent(json_encode(
-            [
-                'DataID'     => \FritzBox\GUID::SendToFritzBoxIO,
-                'Function'   => \FritzBox\IOFunction::Subscribe,
-                'EventSubURL'=> static::$EventSubURLArray[$Index],
-                'SID'        => $this->SID
-            ]
-        ));
-        if ($Ret === '') {
-            $this->SID = '';
-            $this->SendDebug('Error on subscribe (parse)', static::$EventSubURLArray[$Index], 0);
-            trigger_error($this->Translate('Error on subscribe (parse)') . "\r\n" . static::$EventSubURLArray[$Index], E_USER_NOTICE);
-            $this->SetTimerInterval(\FritzBox\Base\Timer::RenewSubscription, 60000);
-            return false;
-        }
-        $Result = \FritzBox\IOResult::Decode($Ret);
-        if ($Result === false) {
-            $this->SID = '';
-            $this->SendDebug('Error on subscribe (Result)', static::$EventSubURLArray[$Index], 0);
-            trigger_error($this->Translate('Error on subscribe (Result)') . "\r\n" . static::$EventSubURLArray[$Index], E_USER_NOTICE);
-            $this->SetTimerInterval(\FritzBox\Base\Timer::RenewSubscription, 60000);
-            return false;
-        }
-        $this->SendDebug('Result', $Result, 0);
-        $isNewSubscription = ($this->SID === '');
-        // SID sofort merken, damit sie auch bei fehlendem Event wieder abgemeldet werden kann
-        $this->SID = $Result['SID'];
-        $this->SubscribedURL = static::$EventSubURLArray[$Index];
-        if ($isNewSubscription) {
-            if (!$this->WaitForEvent()) {
-                $this->SendDebug('No event after subscribe', static::$EventSubURLArray[$Index], 0);
-                $this->LogMessage('No event after subscribe', KL_ERROR);
-                $this->Unsubscribe();
-                $this->SetTimerInterval(\FritzBox\Base\Timer::RenewSubscription, 60000);
-                return false;
-            }
-        }
-        $this->SetTimerInterval(\FritzBox\Base\Timer::RenewSubscription, ((int) $Result['TIMEOUT'] - 300) * 1000);
-        return true;
-    }
-
-    protected function WaitForEvent(): bool
-    {
-        for ($i = 0; $i < 1000; $i++) {
-            if ($this->isSubscribed) {
-                return true;
-            } else {
-                usleep(5000);
-            }
-        }
-        return false;
     }
 
     protected function RefreshHostXML(): bool
@@ -890,50 +741,6 @@ class FritzBoxModulBase extends IPSModuleStrict
             }
         }
         return 'text/plain';
-    }
-
-    private function Unsubscribe(): void
-    {
-        $this->SendDebug('Unsubscribe', $this->SID, 0);
-        $this->isSubscribed = false;
-        $SID = $this->SID;
-        $SubscribedURL = $this->SubscribedURL;
-        $this->SID = '';
-        $this->SubscribedURL = '';
-        if (count(static::$EventSubURLArray) > 0) {
-            $this->SetTimerInterval(\FritzBox\Base\Timer::RenewSubscription, 0);
-        } else {
-            return;
-        }
-        // Mit der URL abmelden, mit der angemeldet wurde: Bei geänderter Eigenschaft Index wäre es sonst die falsche
-        if ($SubscribedURL === '') {
-            $Index = $this->ReadPropertyInteger(\FritzBox\Base\Property::Index);
-            if ($Index < 0) {
-                return;
-            }
-            $SubscribedURL = static::$EventSubURLArray[$Index];
-        }
-        if (!$this->HasActiveParent()) {
-            return;
-        }
-
-        $Ret = @$this->SendDataToParent(json_encode(
-            [
-                'DataID'     => \FritzBox\GUID::SendToFritzBoxIO,
-                'Function'   => \FritzBox\IOFunction::Unsubscribe,
-                'EventSubURL'=> $SubscribedURL,
-                'SID'        => $SID
-            ]
-        ));
-        if ($Ret === '') {
-            $this->SendDebug('Error on Unsubscribe (parse)', $SubscribedURL, 0);
-        } else {
-            $Result = \FritzBox\IOResult::Decode($Ret);
-            if ($Result === false) {
-                $this->SendDebug('Error on Unsubscribe (Result)', $SubscribedURL, 0);
-            }
-            $this->SendDebug('Unsubscribe', $Result, 0);
-        }
     }
 
     private function FilterInstances(int $InstanceID): bool
