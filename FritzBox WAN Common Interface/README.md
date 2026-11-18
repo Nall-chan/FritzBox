@@ -32,7 +32,7 @@ Auslesen der aktuell genutzten WAN Verbindung.
 ## 1. Funktionsumfang
 
 > [!NOTE]
-> Ab Version 1.0 bietet der Konfigurator dieses Modul nicht mehr an. Raten, Auslastung und Summen liefert die [FritzBox physikalische WAN-Schnittstelle](../FritzBox%20WAN%20Physical%20Interface/README.md) über TR-064 (ohne die Einstellung „Statusinformationen über UPnP übertragen“), die DNS-Server die [FritzBox WAN IP-Verbindung](../FritzBox%20WAN%20IP%20Connection/README.md). Vorhandene Instanzen arbeiten unverändert weiter und erscheinen im Konfigurator als ungültig.
+> Ab Version 1.00 bietet der Konfigurator dieses Modul nicht mehr an. Raten, Auslastung und Summen liefert die [FritzBox physikalische WAN-Schnittstelle](../FritzBox%20WAN%20Physical%20Interface/README.md) über TR-064 (ohne die Einstellung „Statusinformationen über UPnP übertragen“), die DNS-Server die [FritzBox WAN IP-Verbindung](../FritzBox%20WAN%20IP%20Connection/README.md). Vorhandene Instanzen arbeiten unverändert weiter und erscheinen im Konfigurator als ungültig.
 
 - Alte Variablen vom FB-Project **sind** kompatibel.  
 - Auslesen der aktuell genutzten WAN Verbindung.  

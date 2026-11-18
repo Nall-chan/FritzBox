@@ -7,7 +7,7 @@ include_once __DIR__ . '/stubs/autoload.php';
 use PHPUnit\Framework\TestCase;
 
 /**
- * Prüft die einmalige Migration der alten Untervariablen (bis 0.94) in FritzBoxModulBase::Migrate
+ * Prüft die einmalige Migration der alten Untervariablen (bis 0.95) in FritzBoxModulBase::Migrate
  * an einer WLAN-Instanz der Symcon-Stubs: Untervariablen `Speed`/`Signal` unter der Gerätevariable werden zu
  * `Speed_<Gerät>`/`Signal_<Gerät>` der Instanz (gleiche ID), nur einmal und nur, wenn gewünscht und noch nicht vorhanden.
  */
@@ -79,7 +79,7 @@ class LegacySubVariablesMigrateTest extends TestCase
     }
 
     /**
-     * WLAN-Instanz mit Gerätevariable `MAC001122AABBCC` („Laptop“) und den Untervariablen `Speed` und `Signal` wie bis 0.94.
+     * WLAN-Instanz mit Gerätevariable `MAC001122AABBCC` („Laptop“) und den Untervariablen `Speed` und `Signal` wie bis 0.95.
      *
      * @return int[] Instanz, Gerätevariable, Speed, Signal
      */
@@ -102,7 +102,7 @@ class LegacySubVariablesMigrateTest extends TestCase
     }
 
     /**
-     * Gespeicherte Daten wie beim Laden einer Instanz bis 0.94 (ohne das neue Attribut).
+     * Gespeicherte Daten wie beim Laden einer Instanz bis 0.95 (ohne das neue Attribut).
      */
     private function persistence(array $Attributes, array $Configuration = []): string
     {

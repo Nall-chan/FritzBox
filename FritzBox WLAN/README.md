@@ -85,7 +85,7 @@ Die Listen (`HostVariables`, `Table`, `Columns`, `Rows`) werden als JSON-String 
 > [!WARNING]
 > Wird ein WLAN-Gerät in der Liste `Statusvariablen` abgewählt, werden die zugehörigen Statusvariablen gelöscht.
 
-Bis Version 0.94 lagen `Speed` und `Signalstrength` als Untervariablen unterhalb der Gerätevariable. Beim Update auf 1.0 verschiebt die Instanz sie einmalig an die Instanz und macht sie zu den neuen Variablen (ID, Archivdaten, Ereignisse und Links bleiben erhalten; der Name wird nur angepasst, wenn er noch der Standardname war). Nicht verschoben werden abgewählte Variablen und Geräte, für die die neue Variable schon existiert. Solange solche alten Untervariablen übrig sind, zeigt das Formular die Schaltfläche `Alte Untervariablen löschen`, die sie nach einer Sicherheitsabfrage löscht.
+Bis Version 0.95 lagen `Speed` und `Signalstrength` als Untervariablen unterhalb der Gerätevariable. Beim Update auf 1.00 verschiebt die Instanz sie einmalig an die Instanz und macht sie zu den neuen Variablen (ID, Archivdaten, Ereignisse und Links bleiben erhalten; der Name wird nur angepasst, wenn er noch der Standardname war). Nicht verschoben werden abgewählte Variablen und Geräte, für die die neue Variable schon existiert. Solange solche alten Untervariablen übrig sind, zeigt das Formular die Schaltfläche `Alte Untervariablen löschen`, die sie nach einer Sicherheitsabfrage löscht.
 
 Beispiel:  
 
@@ -150,7 +150,9 @@ Die Geräteliste wird für die Kachel auch geladen, wenn weder Variablen noch HT
 - Suchfeld (ab breiter Kachel): filtert nach Name, IP- und MAC-Adresse.
 - `Einträge`: Anzahl der angezeigten Geräte (merkt sich der Browser).
 
-<!-- Screenshot folgt: imgs/tile_instance.png (Instanz-Kachel, siehe readme-regeln.md) -->
+![Kachel 1 × 1](imgs/tile_instance_1x1.png)  
+![Kachel 3 × 2](imgs/tile_instance_3x2.png)  
+![Kachel 7 × 4](imgs/tile_instance_7x4.png)  
 
 Ob die Kachel oder die Liste der Variablen erscheint, wird in der Kachel-Visualisierung je Kachel eingestellt. Die Kachel passt sich ihrer Größe an und übernimmt die Farben des Designs der Visualisierung. Die maximierte Kachel benötigt Symcon ab 9.1.  
 

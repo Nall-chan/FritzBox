@@ -61,7 +61,7 @@ namespace FritzBox\Base {
 
     class Attribute
     {
-        /** Alte Untervariablen (bis 0.94) sind zu Zusatzvariablen der Instanz migriert (einmalig in Migrate). */
+        /** Alte Untervariablen (bis 0.95) sind zu Zusatzvariablen der Instanz migriert (einmalig in Migrate). */
         public const LegacySubVariablesMigrated = 'LegacySubVariablesMigrated';
     }
 
@@ -415,7 +415,7 @@ namespace FritzBox\Powerline {
 
     class Variables
     {
-        // Präfix der Zusatzvariablen je Gerät, bis 0.94 Ident der Untervariable
+        // Präfix der Zusatzvariablen je Gerät, bis 0.95 Ident der Untervariable
         public const Model = 'Model';
         public const UpdateAvailable = 'UpdateAvailable';
     }
@@ -644,7 +644,7 @@ namespace FritzBox\WLAN {
         public const HostTable = 'HostTable';
         public const KeyPassphrase = 'KeyPassphrase';
         public const OffTime = 'OffTime';
-        // Präfix der Zusatzvariablen je Host, bis 0.94 Ident der Untervariable
+        // Präfix der Zusatzvariablen je Host, bis 0.95 Ident der Untervariable
         public const Signal = 'Signal';
         public const Speed = 'Speed';
         public const SSID = 'SSID';
@@ -715,7 +715,7 @@ namespace FritzBox\DECT {
 
     class Variables
     {
-        // Präfix der Zusatzvariablen je Gerät, bis 0.94 Ident der Untervariable
+        // Präfix der Zusatzvariablen je Gerät, bis 0.95 Ident der Untervariable
         public const Model = 'Model';
         public const UpdateAvailable = 'UpdateAvailable';
     }

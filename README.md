@@ -259,7 +259,7 @@ Für das Discovery werden Pakete über die Multicast-Adresse `239.255.255.250` a
 
 ### 2. Changelog
 
-**Version 1.0 (in Arbeit):**  
+**Version 1.00:**  
 
 > [!IMPORTANT]
 > Folgende Funktionen liefern jetzt eine Zahl statt eines Textes: `FB_GetHostNumberOfEntries`, `FB_GetChangeCounter` (Netzwerkgeräte), `FB_GetIPInterfaceNumberOfEntries` (DHCP-Server), `FB_GetNumberOfFilelinkEntries` (Dateifreigabe), `FB_GetNumberOfDeviceEntries` (Powerline) und `FB_GetNumberOfDeflections` (Telefonie). Skripte, die das Ergebnis mit einem Text vergleichen (z.B. `=== '5'`), müssen angepasst werden.
@@ -309,11 +309,14 @@ Folgende Instanzen bringen eine eigene Kachel mit (Darstellung je Kachel in der 
 
 - FritzBox WLAN: Das Abwählen von `Erzeuge Variable für WLAN Passwort` löschte das QR-Code-Bild, das Abwählen von `Erzeuge Medien-Objekt mit QR-Code` die Passwort-Variable. Jetzt wird jeweils das richtige Objekt entfernt.
 - FritzBox Discovery: Gab es für eine FritzBox schon eine FritzBox IO ohne Konfigurator (z.B. von Hand angelegt), legte die Discovery eine zweite IO samt Client Socket an. Jetzt wird nur der Konfigurator angelegt und mit der vorhandenen IO verbunden.  
-- FritzBox Netzwerkgeräte: Das Schalten einer Netzwerkgeräte-Variable (Standardaktion Wake-On-LAN) meldete nach dem Senden zusätzlich „Ungültiger Ident.“.  
-- FritzBox Anrufmonitor: Bei klingelnden (`Ankommend`) und abgehenden (`Abgehend`) Anrufen fehlte `STATUS` in den Daten für Aktionen und Benachrichtigungen; die Kachel konnte klingelnde Anrufe deshalb nicht hervorheben.  
 - FritzBox Konfigurator: Beim Anlegen bot die Konsole als Gateway nur neue FritzBox IOs oder IOs ohne andere Instanzen an. Jetzt ist auch eine vorhandene IO wählbar.  
 - FritzBox Anrufmonitor und FritzBox Telefonie: Ein gelöschtes Skript für die eigene Rückwärtssuche oder eine gelöschte WebFront-Instanz für Benachrichtigungen führte zu Fehlermeldungen. Sie werden jetzt übergangen.  
 - Konsole: Einige Module (u.a. FritzBox Host Filter) erschienen in der Modulliste nur mit englischem Namen. Der Konfigurator benennt neue Instanzen von FritzBox Firmware Info jetzt deutsch.  
+
+**Version 0.95:**  
+
+- FritzBox Netzwerkgeräte: Das Schalten einer Netzwerkgeräte-Variable (Standardaktion Wake-On-LAN) meldete nach dem Senden zusätzlich „Ungültiger Ident.“.  
+- FritzBox Anrufmonitor: Bei klingelnden (`Ankommend`) und abgehenden (`Abgehend`) Anrufen fehlte `STATUS` in den Daten für Aktionen und Benachrichtigungen.
 
 **Version 0.94:**  
 

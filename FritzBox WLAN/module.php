@@ -108,7 +108,7 @@ class FritzBoxWLAN extends FritzBoxModulBase
         $this->SetTimerInterval(\FritzBox\Base\Timer::RefreshState, 0);
         $this->TileHosts = [];
         $this->RegisterTile();
-        // QR-Code-Bild gehört zu ShowWLanKeyAsQRCode, die Passwort-Variable zu ShowWLanKeyAsVariable (bis 0.94 vertauscht)
+        // QR-Code-Bild gehört zu ShowWLanKeyAsQRCode, die Passwort-Variable zu ShowWLanKeyAsVariable (bis 0.95 vertauscht)
         if (!$this->ReadPropertyBoolean(\FritzBox\WLAN\Property::ShowWLanKeyAsQRCode)) {
             $QRCodeID = @IPS_GetObjectIDByIdent(\FritzBox\WLAN\Media::QRCodeIMG, $this->InstanceID);
             if ($QRCodeID !== false) {

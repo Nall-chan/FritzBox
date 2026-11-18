@@ -29,9 +29,9 @@ class FritzBoxModulBase extends IPSModuleStrict
     protected static $SecondEventGUID = '';
     protected static $DefaultIndex = -1;
     /**
-     * Untervariablen, die bis 0.94 unterhalb der Statusvariablen je Gerät angelegt wurden:
-     * Ident => [Namensschlüssel (Standardname bis 0.94 und in 1.0), Eigenschaft der Auswahl der Zusatzvariable].
-     * Seit 1.0 sind es eigene Statusvariablen der Instanz; Migrate verschiebt die alten einmalig dorthin.
+     * Untervariablen, die bis 0.95 unterhalb der Statusvariablen je Gerät angelegt wurden:
+     * Ident => [Namensschlüssel (Standardname bis 0.95 und in 1.00), Eigenschaft der Auswahl der Zusatzvariable].
+     * Seit 1.00 sind es eigene Statusvariablen der Instanz; Migrate verschiebt die alten einmalig dorthin.
      * Was dabei nicht verschoben wurde, löscht nur der Nutzer (Schaltfläche im Formular mit Sicherheitsabfrage).
      *
      * @var array<string, array{0: string, 1: string}>
@@ -66,7 +66,7 @@ class FritzBoxModulBase extends IPSModuleStrict
 
     /**
      * Wird beim Laden der gespeicherten Konfiguration aufgerufen (Start von Symcon, Modul-Update), nach Create und vor
-     * ApplyChanges; der Objektbaum ist dann vorhanden. Instanzen bis 0.94 (ohne Attribut LegacySubVariablesMigrated)
+     * ApplyChanges; der Objektbaum ist dann vorhanden. Instanzen bis 0.95 (ohne Attribut LegacySubVariablesMigrated)
      * migrieren ihre alten Untervariablen einmalig, danach ist das Attribut gesetzt und es passiert nichts mehr.
      *
      * @param string $JSONData Gespeicherte Konfiguration und Attribute der Instanz.
@@ -91,7 +91,7 @@ class FritzBoxModulBase extends IPSModuleStrict
         if (property_exists($Data->attributes, \FritzBox\Base\Attribute::LegacySubVariablesMigrated)) {
             return '';
         }
-        // Auswahl der Zusatzvariablen aus der Konfiguration; fehlt die Eigenschaft (Instanz bis 0.94), gilt der Standard „an“
+        // Auswahl der Zusatzvariablen aus der Konfiguration; fehlt die Eigenschaft (Instanz bis 0.95), gilt der Standard „an“
         $Enabled = [];
         foreach (static::$LegacySubVariables as $Info => [, $Property]) {
             $Enabled[$Info] = (bool) ($Data->configuration->{$Property} ?? true);
@@ -247,7 +247,7 @@ class FritzBoxModulBase extends IPSModuleStrict
     }
 
     /**
-     * Liefert die alten Untervariablen (bis 0.94) unterhalb der eigenen Statusvariablen.
+     * Liefert die alten Untervariablen (bis 0.95) unterhalb der eigenen Statusvariablen.
      *
      * @return int[] IDs der Untervariablen.
      */
@@ -271,7 +271,7 @@ class FritzBoxModulBase extends IPSModuleStrict
     }
 
     /**
-     * Verschiebt die alten Untervariablen (bis 0.94, Kind der Gerätevariable mit Ident z.B. `Speed`) an die Instanz und
+     * Verschiebt die alten Untervariablen (bis 0.95, Kind der Gerätevariable mit Ident z.B. `Speed`) an die Instanz und
      * gibt ihnen den Ident der Zusatzvariable (`<Info>_<Ident der Gerätevariable>`). ID, Archivdaten, Ereignisse und Links
      * bleiben erhalten. Übersprungen werden abgewählte Arten und Geräte, für die die Zusatzvariable schon existiert.
      * Den Namen setzt die Migration nur, wenn er noch der Standardname des Moduls ist (sonst gehört er dem Nutzer).
@@ -319,7 +319,7 @@ class FritzBoxModulBase extends IPSModuleStrict
     }
 
     /**
-     * Löscht die alten Untervariablen (bis 0.94). Nur über die Schaltfläche im Formular,
+     * Löscht die alten Untervariablen (bis 0.95). Nur über die Schaltfläche im Formular,
      * die vorher eine Sicherheitsabfrage zeigt.
      */
     protected function DeleteLegacySubVariables(): void
@@ -744,7 +744,7 @@ class FritzBoxModulBase extends IPSModuleStrict
     }
 
     /**
-     * Löscht die eigenen Profile bis 0.94, sobald keine Variable sie mehr nutzt
+     * Löscht die eigenen Profile bis 0.95, sobald keine Variable sie mehr nutzt
      * (weder als Profil noch als eigenes Profil des Nutzers).
      */
     protected function RemoveUnusedLegacyProfiles(): void

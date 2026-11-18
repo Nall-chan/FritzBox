@@ -53,9 +53,7 @@ Unter 'Instanz hinzufügen' ist das 'FritzBox Telefonie'-Modul unter dem Herstel
 
 **Konfigurationsseite**:  
 
-![Config](imgs/config1.png)  
-
-![Config](imgs/config2.png)  
+![Config](imgs/config.png)  
 
 **Konfigurationsparameter**:  
 
@@ -124,7 +122,9 @@ Die Anrufliste wird für die Kachel auch geladen, wenn `Zeige Anrufliste als HTM
 - Verpasste Anrufe (kleine Kachel und Kennzeichen oben): zählen die Einträge `verpasst` und `abgelehnt` mit heutigem Datum; die Anzeige beginnt um Mitternacht wieder bei 0.
 - `Einträge`: Anzahl der angezeigten Anrufe (merkt sich der Browser).
 
-<!-- Screenshot folgt: imgs/tile_instance.png (Instanz-Kachel, siehe readme-regeln.md) -->
+![Kachel 1 × 1](imgs/tile_instance_1x1.png)  
+![Kachel 3 × 2](imgs/tile_instance_3x2.png)  
+![Kachel 7 × 4](imgs/tile_instance_7x4.png)  
 
 Ob die Kachel oder die Liste der Variablen erscheint, wird in der Kachel-Visualisierung je Kachel eingestellt. Die Kachel passt sich ihrer Größe an und übernimmt die Farben des Designs der Visualisierung. Die maximierte Kachel benötigt Symcon ab 9.1.  
 

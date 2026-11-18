@@ -63,12 +63,7 @@ Danach überschreibt die Instanz die Vorwahlen nicht mehr. Über den Button `Vor
 
 Ausgegraute Einstellungen können erst genutzt werden, wenn ihre Voraussetzung erfüllt ist. Zum Beispiel lässt sich die HTML-Tabelle nur konfigurieren, wenn sie aktiviert ist.  
 
-![Config](imgs/config1.png)
-
----  
-
-Konfiguration Rückwärtssuche:  
-![Config](imgs/config2.png)
+![Config](imgs/config.png)
 
 ---  
 
@@ -188,7 +183,9 @@ Die Variable `Aktive Gespräche` wird nur angelegt, wenn `Zeige alle Gespräche 
 
 - Keine Bedienelemente. Bei einem eingehenden Anruf öffnet sich die Kachel als Vollbild (Eigenschaft siehe oben) und schließt sich wieder, sobald der Anruf angenommen oder beendet ist. Verkleinern der Kachel zeigt wieder die Liste.
 
-<!-- Screenshot folgt: imgs/tile_instance.png (Instanz-Kachel, siehe readme-regeln.md) -->
+![Kachel 1 × 1](imgs/tile_instance_1x1.png)  
+![Kachel 3 × 2](imgs/tile_instance_3x2.png)  
+![Kachel 7 × 4](imgs/tile_instance_7x4.png)  
 
 Ob die Kachel oder die Liste der Variablen erscheint, wird in der Kachel-Visualisierung je Kachel eingestellt. Die Kachel passt sich ihrer Größe an und übernimmt die Farben des Designs der Visualisierung. Die maximierte Kachel benötigt Symcon ab 9.1.  
 

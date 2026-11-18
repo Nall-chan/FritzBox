@@ -103,7 +103,9 @@ Ob die Kachel oder die Liste der Variablen erscheint, wird in der Kachel-Visuali
 
 Die Instanz hat nur eine Variable und wird deshalb als `Einzelnes Element` angezeigt: Die Kachel zeigt direkt die HTML-Box mit der Tabelle der Dateifreigaben.  
 
-![Kachel](imgs/tile_instance.png)  
+![Kachel 1 × 1](imgs/tile_instance_1x1.png)  
+![Kachel 3 × 2](imgs/tile_instance_3x2.png)  
+![Kachel 7 × 4](imgs/tile_instance_7x4.png)  
 
 ### WebFront Visualisierung
 

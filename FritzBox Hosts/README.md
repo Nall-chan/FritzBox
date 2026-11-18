@@ -94,7 +94,7 @@ Die Statusvariablen werden automatisch angelegt. Das Löschen einzelner kann zu 
 | `IP` + IP Adresse    | Hostname                          | boolean | Onlinezustand (Netzwerkgeräte ohne MAC-Adresse)                   |
 
 Der Ident der Netzwerkgeräte besteht aus `MAC` bzw. `IP` und der Adresse ohne Trennzeichen, z.B. `MAC001122AABBCC` oder `IP19216820110`.  
-Die Variablen der Netzwerkgeräte haben eine Aktion: Schalten auf An sendet bei Variablen mit MAC-Adresse ein Wake-On-LAN an das Netzwerkgerät; Variablen ohne MAC-Adresse (`IP…`) melden „Wake-On-LAN benötigt eine MAC-Adresse.“. Bis Version 0.94 wurde die Standardaktion beim Anlegen deaktiviert; bei diesen Variablen bleibt sie deaktiviert, bis sie in den Einstellungen der Variable aktiviert wird.  
+Die Variablen der Netzwerkgeräte haben eine Aktion: Schalten auf An sendet bei Variablen mit MAC-Adresse ein Wake-On-LAN an das Netzwerkgerät; Variablen ohne MAC-Adresse (`IP…`) melden „Wake-On-LAN benötigt eine MAC-Adresse.“. Bis Version 0.95 wurde die Standardaktion beim Anlegen deaktiviert; bei diesen Variablen bleibt sie deaktiviert, bis sie in den Einstellungen der Variable aktiviert wird.  
 
 ## 6. Visualisierung
 
@@ -113,7 +113,9 @@ Die Variablen der Netzwerkgeräte haben eine Aktion: Schalten auf An sendet bei 
 - Mesh-Übersicht: Klick auf einen Knoten klappt die Geräte dahinter auf bzw. zu (bleibt beim Aktualisieren erhalten); das Symbol rechts oben lädt die Übersicht neu von der FritzBox. Switches ohne eigene Mesh-Funktion meldet die FritzBox nicht; Geräte dahinter erscheinen direkt am LAN-Anschluss der FritzBox.
 - `Einträge`: Anzahl der angezeigten Geräte (merkt sich der Browser).
 
-<!-- Screenshot folgt: imgs/tile_instance.png (Instanz-Kachel, siehe readme-regeln.md) -->
+![Kachel 1 × 1](imgs/tile_instance_1x1.png)  
+![Kachel 3 × 2](imgs/tile_instance_3x2.png)  
+![Kachel 7 × 4](imgs/tile_instance_7x4.png)  
 
 Ob die Kachel oder die Liste der Variablen erscheint, wird in der Kachel-Visualisierung je Kachel eingestellt. Die Kachel passt sich ihrer Größe an und übernimmt die Farben des Designs der Visualisierung. Die maximierte Kachel benötigt Symcon ab 9.1.  
 

@@ -37,7 +37,7 @@ class FritzBoxWANPhysicalInterface extends FritzBoxModulBase
         parent::Create();
         $this->TileMonitor = [];
         $this->FallbackUnsupported = false;
-        // RefreshInterval wie bis 0.94 für Zugangsart, Status und Bitraten; neu (sofort aktiv nach dem Update) Raten und Auslastung
+        // RefreshInterval wie bis 0.95 für Zugangsart, Status und Bitraten; neu (sofort aktiv nach dem Update) Raten und Auslastung
         $this->RegisterPropertyInteger(\FritzBox\Base\Property::RefreshInterval, 60);
         $this->RegisterPropertyInteger(\FritzBox\WANPhysicalInterface\Property::RefreshMonitorInterval, 5);
         $this->RegisterPropertyBoolean(\FritzBox\WANPhysicalInterface\Property::RateVariables, true);

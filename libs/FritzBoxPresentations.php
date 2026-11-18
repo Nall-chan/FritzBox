@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 /**
  * Darstellungen (Presentations) der Statusvariablen.
- * Ersetzt die bis 0.94 genutzten Variablenprofile. Die Module übergeben weiterhin den früheren
+ * Ersetzt die bis 0.95 genutzten Variablenprofile. Die Module übergeben weiterhin den früheren
  * Profilnamen (z.B. 'FB.kBit', '~Switch'), Presentation::Get liefert die passende Darstellung.
  * Ohne Abhängigkeit von Symcon, geprüft in tests/PresentationTest.php gegen tests/presentations.json.
  */
@@ -21,7 +21,7 @@ class Presentation
     public const WebContent = '{9DE1D610-5106-97FB-714D-1AADEDF8377A}';
 
     /**
-     * Eigene Profile bis 0.94. Werden gelöscht, sobald keine Variable sie mehr nutzt.
+     * Eigene Profile bis 0.95. Werden gelöscht, sobald keine Variable sie mehr nutzt.
      */
     public const LegacyProfiles = [
         'FB.kBit', 'FB.dB', 'FB.dBm', 'FB.dBm.Float', 'FB.Intensity', 'FB.Speed', 'FB.MByte', 'FB.kbs', 'FB.MBits',
@@ -45,7 +45,7 @@ class Presentation
         'FB.MByte'        => [' MB', 2, null, null],
         'FB.kbs'          => [' kb/s', 2, null, null],
         'FB.MBits'        => [' MBit/s', 0, null, null],
-        // ab 1.0, ohne früheres Profil
+        // ab 1.00, ohne früheres Profil
         'FB.MBits.Float'  => [' Mbit/s', 2, null, null],
         'FB.GByte'        => [' GB', 2, null, null],
         '~Intensity.100'  => [' %', 0, 0, 100],
@@ -86,7 +86,7 @@ class Presentation
             ['DSL', 'DSL', -1], ['ATA', 'ATA', -1], ['USB-Tethering', 'USB-Tethering', -1], ['Cable', 'Cable', -1], ['LTE', 'LTE', -1],
             ['Serial', 'Serial', -1], ['WLAN', 'WLAN', -1], ['ISDN', 'ISDN', -1], ['IP-Client', 'IP-Client', -1], ['Fiber', 'Fiber', -1], ['Other', 'Other', -1]
         ],
-        // ab 1.0, ohne früheres Profil: GetCommonLinkProperties `NewPhysicalLinkStatus` (Werte laut AVM)
+        // ab 1.00, ohne früheres Profil: GetCommonLinkProperties `NewPhysicalLinkStatus` (Werte laut AVM)
         'FB.PhysicalLinkStatus' => [
             ['Up', 'Up', 0x00ff00], ['Down', 'Down', 0xff0000], ['Initializing', 'Initializing', -1], ['Unavailable', 'Unavailable', -1]
         ],

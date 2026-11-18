@@ -20,8 +20,8 @@
     const n = points.length;
     const xy = points.map((p, i) => [(n === 1 ? 100 : i * 100 / (n - 1)), 40 - (p / max) * 38]);
     const line = xy.map(p => p[0].toFixed(2) + ',' + p[1].toFixed(2)).join(' ');
-    return '<div class="group" style="flex:1;min-height:70px"><div class="ghead"><span>' + esc(title) + '</span><span>' + esc(T('max.')) + ' ' + fmt(mbit(max)) + ' Mbit/s</span></div>' +
-      '<svg viewBox="0 0 100 40" preserveAspectRatio="none" style="width:100%;flex:1;min-height:30px">' +
+    return '<div class="group" style="flex:1 1 0;min-height:0"><div class="ghead"><span>' + esc(title) + '</span><span>' + esc(T('max.')) + ' ' + fmt(mbit(max)) + ' Mbit/s</span></div>' +
+      '<svg viewBox="0 0 100 40" preserveAspectRatio="none" style="width:100%;flex:1 1 0;min-height:12px">' +
       '<polygon points="0,40 ' + line + ' 100,40" fill="' + color + '" fill-opacity=".25"/>' +
       '<polyline points="' + line + '" fill="none" stroke="' + color + '" stroke-width="1.2" vector-effect="non-scaling-stroke"/></svg></div>';
   }

@@ -105,7 +105,9 @@ Der Ident setzt sich aus `IP` und der IP-Adresse mit `_` statt `.` zusammen, z.B
 - Suchfeld (ab breiter Kachel): filtert nach Name und IP-Adresse.
 - `Einträge`: Anzahl der angezeigten Geräte (merkt sich der Browser).
 
-<!-- Screenshot folgt: imgs/tile_instance.png (Instanz-Kachel, siehe readme-regeln.md) -->
+![Kachel 1 × 1](imgs/tile_instance_1x1.png)  
+![Kachel 3 × 2](imgs/tile_instance_3x2.png)  
+![Kachel 7 × 4](imgs/tile_instance_7x4.png)  
 
 Ob die Kachel oder die Liste der Variablen erscheint, wird in der Kachel-Visualisierung je Kachel eingestellt. Die Kachel passt sich ihrer Größe an und übernimmt die Farben des Designs der Visualisierung. Die maximierte Kachel benötigt Symcon ab 9.1.  
 

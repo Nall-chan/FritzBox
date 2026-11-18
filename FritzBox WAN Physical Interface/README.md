@@ -129,7 +129,9 @@ Die Kachel folgt der Auswahl der Variablen: ohne `Variablen für aktuelle Raten`
 - Umschalter der Zugänge (nur wenn mehrere Zugänge Daten melden): zeigt Balken und Verlauf des gewählten Zugangs.
 - Sonst nur Anzeige. Die Zugangsart lässt sich in der Kachel nicht umschalten (das würde die Verbindung unterbrechen), dafür die Variable `WAN Zugangsart` bzw. `FB_SetWANAccessType` nutzen.
 
-<!-- Screenshot folgt: imgs/tile_instance.png (Instanz-Kachel, siehe readme-regeln.md) -->
+![Kachel 1 × 1](imgs/tile_instance_1x1.png)  
+![Kachel 3 × 2](imgs/tile_instance_3x2.png)  
+![Kachel 7 × 4](imgs/tile_instance_7x4.png)  
 
 Ob die Kachel oder die Liste der Variablen erscheint, wird in der Kachel-Visualisierung je Kachel eingestellt. Die Kachel passt sich ihrer Größe an und übernimmt die Farben des Designs der Visualisierung. Die maximierte Kachel benötigt Symcon ab 9.1.  
 

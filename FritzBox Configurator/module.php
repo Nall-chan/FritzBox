@@ -147,7 +147,7 @@ class FritzBoxConfigurator extends IPSModuleStrict
                     $guid = key(\FritzBox\Services::$Data[$serviceType]);
                     if ($guid !== null) {
                         if ($guid == \FritzBox\GUID::WANCommonInterface) {
-                            // Ab 1.0 liefert die WAN Physical Interface (TR-064) Raten, Auslastung und Zähler, DNS die WAN IP-Verbindung;
+                            // Ab 1.00 liefert die WAN Physical Interface (TR-064) Raten, Auslastung und Zähler, DNS die WAN IP-Verbindung;
                             // vorhandene Instanzen laufen weiter und erscheinen hier als ungültig
                             continue;
                         }

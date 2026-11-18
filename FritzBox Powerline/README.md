@@ -67,7 +67,7 @@ IPS_SetProperty(12345, 'ModelVariables', false);
 IPS_ApplyChanges(12345);
 ```
 
-Bis Version 0.94 lagen `Model` und `Update verfügbar` als Untervariablen unterhalb der Gerätevariable. Beim Update auf 1.0 verschiebt die Instanz sie einmalig an die Instanz und macht sie zu den neuen Variablen (ID, Archivdaten, Ereignisse und Links bleiben erhalten; der Name wird nur angepasst, wenn er noch der Standardname war). Nicht verschoben werden abgewählte Variablen und Geräte, für die die neue Variable schon existiert. Solange solche alten Untervariablen übrig sind, zeigt das Formular die Schaltfläche `Alte Untervariablen löschen`, die sie nach einer Sicherheitsabfrage löscht.
+Bis Version 0.95 lagen `Model` und `Update verfügbar` als Untervariablen unterhalb der Gerätevariable. Beim Update auf 1.00 verschiebt die Instanz sie einmalig an die Instanz und macht sie zu den neuen Variablen (ID, Archivdaten, Ereignisse und Links bleiben erhalten; der Name wird nur angepasst, wenn er noch der Standardname war). Nicht verschoben werden abgewählte Variablen und Geräte, für die die neue Variable schon existiert. Solange solche alten Untervariablen übrig sind, zeigt das Formular die Schaltfläche `Alte Untervariablen löschen`, die sie nach einer Sicherheitsabfrage löscht.
 
 ## 5. Statusvariablen
 
@@ -94,7 +94,9 @@ Der Ident der Gerätevariable ist die MAC-Adresse ohne Trennzeichen, z.B. `0896D
 - Update-Symbol (nur bei `Update verfügbar` und Gerät online): startet das Update des Gerätes (mit Sicherheitsabfrage).
 - `Einträge`: Anzahl der angezeigten Geräte (merkt sich der Browser).
 
-<!-- Screenshot folgt: imgs/tile_instance.png (Instanz-Kachel, siehe readme-regeln.md) -->
+![Kachel 1 × 1](imgs/tile_instance_1x1.png)  
+![Kachel 3 × 2](imgs/tile_instance_3x2.png)  
+![Kachel 7 × 4](imgs/tile_instance_7x4.png)  
 
 Ob die Kachel oder die Liste der Variablen erscheint, wird in der Kachel-Visualisierung je Kachel eingestellt. Die Kachel passt sich ihrer Größe an und übernimmt die Farben des Designs der Visualisierung. Die maximierte Kachel benötigt Symcon ab 9.1.  
 
